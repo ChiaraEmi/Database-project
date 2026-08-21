@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS Utenti (
     CreditoBonus INT DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS Artisti (
+);
+
 CREATE TABLE IF NOT EXISTS Contenuti (
     CodiceContenuto INT AUTO_INCREMENT PRIMARY KEY,
     Titolo VARCHAR(150) NOT NULL,
@@ -26,7 +29,8 @@ CREATE TABLE IF NOT EXISTS Podcast (
     CodiceArtista INT NOT NULL,
     NomePodcast VARCHAR(100) NOT NULL,
     DescrizionePodcast TEXT,
-    Categoria VARCHAR(50) NOT NULL
+    Categoria VARCHAR(50) NOT NULL,
+    FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Episodi (
@@ -48,7 +52,7 @@ CREATE TABLE IF NOT EXISTS Playlist (
     FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Collaborazione (
+CREATE TABLE IF NOT EXISTS Collaborazioni (
     CodicePlaylist INT NOT NULL,
     Username VARCHAR(50) NOT NULL,
     PRIMARY KEY (CodicePlaylist, Username),
@@ -65,9 +69,6 @@ CREATE TABLE IF NOT EXISTS EventiAscolto (
     PRIMARY KEY (Username, CodiceContenuto, DataOra),
     FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE,
     FOREIGN KEY (CodiceContenuto) REFERENCES Contenuti(CodiceContenuto) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS Artisti (
 );
 
 CREATE TABLE IF NOT EXISTS Abbonamenti (

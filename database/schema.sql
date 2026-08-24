@@ -101,6 +101,8 @@ CREATE TABLE IF NOT EXISTS Album (
     TitoloAlbum VARCHAR(100) NOT NULL,
     AnnoPubblicazione YEAR NOT NULL,
     CasaDiscografica VARCHAR(50) NOT NULL,
+    MediaVoti DECIMAL(4,2) DEFAULT 0.00,
+    DurataTotale INT DEFAULT 0, --secondi
     UNIQUE(CodiceArtista, TitoloAlbum),
     FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE
 );

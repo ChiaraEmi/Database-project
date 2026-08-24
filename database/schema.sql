@@ -13,6 +13,15 @@ CREATE TABLE IF NOT EXISTS Utenti (
 );
 
 CREATE TABLE IF NOT EXISTS Artisti (
+    CodiceArtista INT AUTO_INCREMENT PRIMARY KEY,
+    NomeDArte VARCHAR(100) NOT NULL,
+    Nome VARCHAR(50) NOT NULL,
+    Cognome VARCHAR(50),
+    DataNascita DATE NOT NULL,
+    Paese Provenienza VARCHAR(50),
+    Biografia TEXT,
+    AnnoInizioAttivita YEAR NOT NULL,
+    TipoArtista ENUM('Cantante', 'Autore Podcast') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Contenuti (
@@ -87,12 +96,26 @@ CREATE TABLE IF NOT EXISTS Transazioni (
 );
 
 CREATE TABLE IF NOT EXISTS Album (
+    CodiceAlbum INT AUTO_INCREMENT PRIMARY KEY,
+    CodiceArtista INT NOT NULL,
+    TitoloAlbum VARCHAR(100) NOT NULL,
+    AnnoPubblicazione YEAR NOT NULL,
+    Casa Discografica VARCHAR(50) NOT NULL,
+    UNIQUE(CodiceArtista, TitoloAlbum),
+    FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Brani (
+    CodiceBrano INT PRIMARY KEY,
+    CodiceAlbum INT NOT NULL,
+    NumeroTraccia INT NOT NULL,
+    UNIQUE(CodiceAlbum,NumeroTraccia),
+    FOREIGN KEY (CodiceBrano) REFERENCES Contenuti(CodiceContenuto) ON DELETE CASCADE,
+    FOREIGN KEY (CodiceAlbum) REFERENCES Album(CodiceAlbum) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Generi (
+    NomeGenere VARCHAR(100) PRIMARY KEY
 );
 
 CREATE TABLE IF NOT EXISTS Recensioni (

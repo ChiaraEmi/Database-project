@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS Artisti (
     Nome VARCHAR(50) NOT NULL,
     Cognome VARCHAR(50),
     DataNascita DATE NOT NULL,
-    PaeseProvenienza VARCHAR(50),
+    PaeseProvenienza VARCHAR(50) NOT NULL,
     Biografia TEXT,
     AnnoInizioAttivita YEAR NOT NULL,
     TipoArtista ENUM('Cantante', 'Autore Podcast') NOT NULL

@@ -8,14 +8,14 @@ CREATE TABLE IF NOT EXISTS Utenti (
     Email VARCHAR(100) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
     DataNascita DATE NOT NULL,
-    Paese VARCHAR(50),
+    Paese VARCHAR(50) NOT NULL,
     CreditoBonus INT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS Artisti (
     CodiceArtista INT AUTO_INCREMENT PRIMARY KEY,
     NomeDArte VARCHAR(100) NOT NULL,
-    Nome VARCHAR(50) NOT NULL,
+    Nome VARCHAR(50),
     Cognome VARCHAR(50),
     DataNascita DATE NOT NULL,
     PaeseProvenienza VARCHAR(50) NOT NULL,

@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS Artisti (
     Nome VARCHAR(50) NOT NULL,
     Cognome VARCHAR(50),
     DataNascita DATE NOT NULL,
-    Paese Provenienza VARCHAR(50),
+    PaeseProvenienza VARCHAR(50),
     Biografia TEXT,
     AnnoInizioAttivita YEAR NOT NULL,
     TipoArtista ENUM('Cantante', 'Autore Podcast') NOT NULL
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS Album (
     CodiceArtista INT NOT NULL,
     TitoloAlbum VARCHAR(100) NOT NULL,
     AnnoPubblicazione YEAR NOT NULL,
-    Casa Discografica VARCHAR(50) NOT NULL,
+    CasaDiscografica VARCHAR(50) NOT NULL,
     UNIQUE(CodiceArtista, TitoloAlbum),
     FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE
 );

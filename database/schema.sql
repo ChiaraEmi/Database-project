@@ -119,6 +119,14 @@ CREATE TABLE IF NOT EXISTS Generi (
 );
 
 CREATE TABLE IF NOT EXISTS Recensioni (
+    Username VARCHAR(50) NOT NULL,
+    CodiceAlbum INT NOT NULL,
+    Voto INT NOT NULL CHECK (Voto BETWEEN 1 AND 10),
+    Commento VARCHAR(150),
+    DataRecensione DATE DEFAULT (CURRENT_DATE),
+    PRIMARY KEY(Username, CodiceAlbum),
+    FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE,
+    FOREIGN KEY (CodiceAlbum) REFERENCES Album(CodiceAlbum) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Cantare (
@@ -130,11 +138,11 @@ CREATE TABLE IF NOT EXISTS Cantare (
 );
 
 CREATE TABLE IF NOT EXISTS Appartenenze (
-    CodiceArtista INT NOT NULL,
     CodiceBrano INT NOT NULL,
-    PRIMARY KEY (CodiceArtista, CodiceBrano),
-    FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE,
-    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE
+    NomeGenere VARCHAR(100) NOT NULL,
+    PRIMARY KEY (CodiceBrano, NomeGenere),
+    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE,
+    FOREIGN KEY (NomeGenere) REFERENCES Generi(NomeGenere) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Inclusione (
@@ -150,12 +158,12 @@ CREATE TABLE IF NOT EXISTS LikeBrani (
 
 CREATE TABLE IF NOT EXISTS Follow (
     Username VARCHAR(50) NOT NULL,
-    CodiceBrano INT NOT NULL,
+    CodiceArtista INT NOT NULL,
     DataInizio DATE NOT NULL,
     DataFine DATE,
-    PRIMARY KEY (Username, CodiceBrano),
+    PRIMARY KEY (Username, CodiceArtista),
     FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE,
-    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE
+    FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS ValiditaPromozioni (

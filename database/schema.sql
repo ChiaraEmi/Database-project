@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS Utenti (
     Email VARCHAR(100) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
     DataNascita DATE NOT NULL,
-    Paese VARCHAR(50),
-    CreditoBonus INT DEFAULT 0
+    Paese VARCHAR(50) NOT NULL,
+    CreditoBonus INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS Artisti (
@@ -81,18 +81,56 @@ CREATE TABLE IF NOT EXISTS EventiAscolto (
 );
 
 CREATE TABLE IF NOT EXISTS Abbonamenti (
+    CodiceAbbonamento INT AUTO_INCREMENT PRIMARY KEY,
+    TipoAbbonamento VARCHAR(50) NOT NULL,
+    Durata INT NOT NULL, -- in mesi
+    Costo DECIMAL(10,2) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Promozioni (
+    CodicePromozione INT AUTO_INCREMENT PRIMARY KEY,
+    Nome VARCHAR(100) NOT NULL,
+    Descrizione TEXT,
+    DataInizioPromo DATE NOT NULL,
+    DataFinePromo DATE NOT NULL,
+    TipoSconto ENUM('Percentuale', 'Fisso') NOT NULL,
+    ValoreSconto DECIMAL(10,2) NOT NULL
+    MesiRichiesti INT
 );
 
 CREATE TABLE IF NOT EXISTS CodiciInvito (
+    Codice VARCHAR(50) PRIMARY KEY,
+    DataGenerazione DATE NOT NULL DEFAULT CURRENT_DATE,
+    Username VARCHAR(50) NOT NULL UNIQUE,
+    FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Sottoscrizioni (
+    CodiceSottoscrizione INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(50) NOT NULL,
+    CodiceAbbonamento INT NOT NULL,
+    CodicePromozione INT,
+    CodiceInvito VARCHAR(50),
+    DataInizio DATE NOT NULL,
+    DataFine DATE NOT NULL,
+    Stato ENUM('Attiva', 'Scaduta', 'Cancellata') NOT NULL,
+    RinnovoAutomatico BOOLEAN NOT NULL DEFAULT FALSE,
+
+    FOREIGN KEY (Username) REFERENCES Utenti(Username), 
+    FOREIGN KEY (CodiceAbbonamento) REFERENCES Abbonamenti(CodiceAbbonamento),
+    FOREIGN KEY (CodicePromozione) REFERENCES Promozioni(CodicePromozione),
+    FOREIGN KEY (CodiceInvito) REFERENCES CodiciInvito(Codice)
 );
 
 CREATE TABLE IF NOT EXISTS Transazioni (
+    CodiceTransazione INT AUTO_INCREMENT PRIMARY KEY,
+    CodiceSottoscrizione INT NOT NULL,
+    Data DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Importo DECIMAL(10,2) NOT NULL,
+    MetodoPagamento VARCHAR(50) NOT NULL,
+    Stato ENUM('Completata', 'Fallita') NOT NULL,
+
+    Foreign KEY (CodiceSottoscrizione) REFERENCES Sottoscrizioni(CodiceSottoscrizione)
 );
 
 CREATE TABLE IF NOT EXISTS Album (
@@ -169,4 +207,9 @@ CREATE TABLE IF NOT EXISTS Follow (
 );
 
 CREATE TABLE IF NOT EXISTS ValiditaPromozioni (
+    CodicePromozione INT NOT NULL,
+    CodiceAbbonamento INT NOT NULL,
+    PRIMARY KEY (CodicePromozione, CodiceAbbonamento),
+    FOREIGN KEY (CodicePromozione) REFERENCES Promozioni(CodicePromozione) ON DELETE CASCADE,
+    FOREIGN KEY (CodiceAbbonamento) REFERENCES Abbonamenti(CodiceAbbonamento) ON DELETE CASCADE
 );

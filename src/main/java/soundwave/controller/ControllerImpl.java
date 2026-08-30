@@ -10,7 +10,7 @@ public final class ControllerImpl implements Controller {
     private View view;
 
     public ControllerImpl() {
-        
+                
     }
 
     @Override

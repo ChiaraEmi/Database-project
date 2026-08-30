@@ -9,21 +9,36 @@ import soundwave.controller.Controller;
  */
 public final class ViewImpl extends JFrame implements View {
 
-    private final CardLayout cardLayout;
-    private final JPanel mainContainer;
+    public static final String FRAME_NAME = "Soundwave";
+    public static final String ROLE_SELECTION_PANEL = "ROLE SELECTION";
+    public static final String USER_PANEL = "USER VIEW";
+    public static final String ADMIN_PANEL = "ADMIN VIEW";
 
-    public static final String PANEL_ROLE_SELECTION = "ROLE_SELECTION";
-    public static final String PANEL_USER_VIEW = "USER_VIEW";
-    public static final String PANEL_ADMIN_VIEW = "ADMIN_VIEW";
+    private final CardLayout layout = new CardLayout();
+    private final JPanel mainPanel = new JPanel(layout);
 
     private final RoleSelectionPanel roleSelectionPanel;
-    private final UserPanel userPanel;
-    private final AdminPanel adminPanel;
+    //private final UserPanel userPanel;
+    //private final AdminPanel adminPanel;
 
     private Controller controller;
 
+    /**
+     * Builds a new ViewImpl.
+     */
     public ViewImpl() {
-        
+        setTitle(FRAME_NAME);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        this.roleSelectionPanel = new RoleSelectionPanel();
+        mainPanel.add(roleSelectionPanel, ROLE_SELECTION_PANEL);
+
+        //this.adminPanel = new AdminPanel();
+        //mainPanel.add(adminPanel, ADMIN_PANEL);
+
+        //this.userPanel = new UserPanel();
+        //mainPanel.add(userPanel, USER_PANEL);
+
     }
 
     @Override
@@ -37,18 +52,18 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     public void showPanel(final String panelName) {
-        cardLayout.show(mainContainer, panelName);
+        layout.show(mainPanel, panelName);
     }
 
     public RoleSelectionPanel getRoleSelectionPanel() {
         return roleSelectionPanel;
     }
 
-    public UserPanel getUserPanel() {
+    /*public UserPanel getUserPanel() {
         return userPanel;
     }
 
     public AdminPanel getAdminPanel() {
         return adminPanel;
-    }
+    }*/
 }

@@ -9,16 +9,16 @@ CREATE TABLE IF NOT EXISTS Utenti (
     Password VARCHAR(255) NOT NULL,
     DataNascita DATE NOT NULL,
     Paese VARCHAR(50) NOT NULL,
-    CreditoBonus INT NOT NULL DEFAULT 0
+    CreditoBonus INT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS Artisti (
     CodiceArtista INT AUTO_INCREMENT PRIMARY KEY,
     NomeDArte VARCHAR(100) NOT NULL,
-    Nome VARCHAR(50) NOT NULL,
+    Nome VARCHAR(50),
     Cognome VARCHAR(50),
     DataNascita DATE NOT NULL,
-    PaeseProvenienza VARCHAR(50),
+    PaeseProvenienza VARCHAR(50) NOT NULL,
     Biografia TEXT,
     AnnoInizioAttivita YEAR NOT NULL,
     TipoArtista ENUM('Cantante', 'Autore Podcast') NOT NULL

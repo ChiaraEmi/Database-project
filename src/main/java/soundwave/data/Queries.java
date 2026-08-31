@@ -1,8 +1,9 @@
 package soundwave.data;
 
+/**
+ * Contains SQL query constants used by DAO classes.
+ */
 public final class Queries {
-
-    private Queries() {}
 
     // --- OP 9: INSERIMENTO PODCAST ---
     public static final String CHECK_ARTISTA_EXISTS = 
@@ -88,4 +89,5 @@ public final class Queries {
         AND CodiceBrano = ?
         """;
 
+    private Queries() { }
 }

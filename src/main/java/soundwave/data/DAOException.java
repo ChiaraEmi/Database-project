@@ -2,25 +2,39 @@ package soundwave.data;
 
 import java.io.Serial;
 
-// This is a runtime exception we define to wrap all the exceptions coming from
-// the DAO objects we're going to define.
-//
-// This way we won't have `SQLException`s bubbling up in all other functions.
-//
+/**
+ * Custom runtime exception used to wrap exceptions coming from DAO objects.
+ */
 public final class DAOException extends RuntimeException {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public DAOException(String message) {
+    /**
+     * Constructs a new DAOException with the specified detail message.
+     *
+     * @param message the detail message.
+     */
+    public DAOException(final String message) {
         super(message);
     }
 
-    public DAOException(Throwable cause) {
+    /**
+     * Constructs a new DAOException with the specified cause.
+     *
+     * @param cause the cause of the exception.
+     */
+    public DAOException(final Throwable cause) {
         super(cause);
     }
 
-    public DAOException(String message, Throwable cause) {
+    /**
+     * Constructs a new DAOException with the specified detail message and cause.
+     *
+     * @param message the detail message.
+     * @param cause the cause of the exception.
+     */
+    public DAOException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

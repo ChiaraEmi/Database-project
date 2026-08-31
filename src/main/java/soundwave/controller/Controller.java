@@ -12,6 +12,7 @@ import soundwave.view.View;
  * boundaries about changes to be displayed.
  * </p>
  */
+@FunctionalInterface
 public interface Controller {
 
     /**

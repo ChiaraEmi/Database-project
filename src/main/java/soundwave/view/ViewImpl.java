@@ -21,8 +21,8 @@ public final class ViewImpl extends JFrame implements View {
     private final JPanel mainPanel = new JPanel(layout);
 
     private final RoleSelectionPanel roleSelectionPanel;
-    //private final UserPanel userPanel;
-    //private final AdminPanel adminPanel;
+    private final UserPanel userPanel;
+    private final AdminPanel adminPanel;
 
     private Controller controller;
 
@@ -36,11 +36,11 @@ public final class ViewImpl extends JFrame implements View {
         this.roleSelectionPanel = new RoleSelectionPanel();
         mainPanel.add(roleSelectionPanel, ROLE_SELECTION_CARD);
 
-        //this.adminPanel = new AdminPanel();
-        //mainPanel.add(adminPanel, ADMIN_CARD);
+        this.adminPanel = new AdminPanel();
+        mainPanel.add(adminPanel, ADMIN_CARD);
 
-        //this.userPanel = new UserPanel();
-        //mainPanel.add(userPanel, USER_CARD);
+        this.userPanel = new UserPanel();
+        mainPanel.add(userPanel, USER_CARD);
 
         setContentPane(mainPanel);
         pack();
@@ -56,8 +56,11 @@ public final class ViewImpl extends JFrame implements View {
     public void setController(final Controller controller) {
         this.controller = controller;
 
-        //this.roleSelectionPanel.addUtenteListener(e -> showUserPanel());
-        //this.roleSelectionPanel.addAdminListener(e -> showAdminPanel());
+        this.roleSelectionPanel.addUtenteListener(e -> showPanel(USER_CARD));
+        this.roleSelectionPanel.addAdminListener(e -> showPanel(ADMIN_CARD));
+
+        this.adminPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
+        this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
     }
 
     @Override
@@ -68,16 +71,6 @@ public final class ViewImpl extends JFrame implements View {
     public void showPanel(final String panelName) {
         layout.show(mainPanel, panelName);
     }
-
-    /*@Override
-    public void showUserPanel() {
-        SwingUtilities.invokeLater(() -> this.layout.show(this.mainPanel, USER_CARD));
-    }
-
-    @Override
-    public void showAdminPanel() {
-        SwingUtilities.invokeLater(() -> this.layout.show(this.mainPanel, ADMIN_CARD));
-    }*/
 
     public RoleSelectionPanel getRoleSelectionPanel() {
         return this.roleSelectionPanel;

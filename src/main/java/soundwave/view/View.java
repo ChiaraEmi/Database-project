@@ -18,4 +18,11 @@ public interface View {
      * Displays the main window frame.
      */
     void start();
+
+    /**
+     * Shows the specified panel by its card name.
+     *
+     * @param panelName the identifier of the panel to show
+     */
+    void showPanel(String panelName);
 }

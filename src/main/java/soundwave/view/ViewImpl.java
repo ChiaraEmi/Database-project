@@ -1,7 +1,9 @@
 package soundwave.view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.CardLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import soundwave.controller.Controller;
 
 /**
@@ -9,10 +11,11 @@ import soundwave.controller.Controller;
  */
 public final class ViewImpl extends JFrame implements View {
 
+    private static final long serialVersionUID = 1L;
     public static final String FRAME_NAME = "Soundwave";
-    public static final String ROLE_SELECTION_PANEL = "ROLE SELECTION";
-    public static final String USER_PANEL = "USER VIEW";
-    public static final String ADMIN_PANEL = "ADMIN VIEW";
+    private static final String ROLE_SELECTION_CARD = "ROLE_SELECTION";
+    private static final String USER_CARD = "USER";
+    private static final String ADMIN_CARD = "ADMIN";
 
     private final CardLayout layout = new CardLayout();
     private final JPanel mainPanel = new JPanel(layout);
@@ -31,32 +34,53 @@ public final class ViewImpl extends JFrame implements View {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         this.roleSelectionPanel = new RoleSelectionPanel();
-        mainPanel.add(roleSelectionPanel, ROLE_SELECTION_PANEL);
+        mainPanel.add(roleSelectionPanel, ROLE_SELECTION_CARD);
 
         //this.adminPanel = new AdminPanel();
-        //mainPanel.add(adminPanel, ADMIN_PANEL);
+        //mainPanel.add(adminPanel, ADMIN_CARD);
 
         //this.userPanel = new UserPanel();
-        //mainPanel.add(userPanel, USER_PANEL);
+        //mainPanel.add(userPanel, USER_CARD);
 
+        setContentPane(mainPanel);
+        pack();
+        setMinimumSize(getPreferredSize());
+        setLocationRelativeTo(null);
     }
 
+    /*@SuppressFBWarnings(
+        value = "EI2",
+        justification = "View needs reference to controller"
+    )*/
     @Override
     public void setController(final Controller controller) {
         this.controller = controller;
+
+        //this.roleSelectionPanel.addUtenteListener(e -> showUserPanel());
+        //this.roleSelectionPanel.addAdminListener(e -> showAdminPanel());
     }
 
     @Override
     public void start() {
-        setVisible(true);
+        SwingUtilities.invokeLater(() -> this.setVisible(true));
     }
 
     public void showPanel(final String panelName) {
         layout.show(mainPanel, panelName);
     }
 
+    /*@Override
+    public void showUserPanel() {
+        SwingUtilities.invokeLater(() -> this.layout.show(this.mainPanel, USER_CARD));
+    }
+
+    @Override
+    public void showAdminPanel() {
+        SwingUtilities.invokeLater(() -> this.layout.show(this.mainPanel, ADMIN_CARD));
+    }*/
+
     public RoleSelectionPanel getRoleSelectionPanel() {
-        return roleSelectionPanel;
+        return this.roleSelectionPanel;
     }
 
     /*public UserPanel getUserPanel() {

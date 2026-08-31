@@ -119,9 +119,7 @@ public final class Podcast {
      */
     public static final class DAO {
 
-        private DAO() {
-
-        }
+        private DAO() { }
 
         /**
          * Inserts a new podcast into the database.
@@ -136,13 +134,13 @@ public final class Podcast {
         public static int insert(final Connection connection, final int artistCode, final String name, 
                                 final String description, final String category) {
             try (
-                var statement = connection.prepareStatement(Queries.INSERT_PODCAST, java.sql.Statement.RETURN_GENERATED_KEYS)
+                var statement = DAOUtils.prepareWithKeys(
+                    connection, 
+                    Queries.INSERT_PODCAST, 
+                    java.sql.Statement.RETURN_GENERATED_KEYS, 
+                    artistCode, name, description, category
+                );
             ) {
-                statement.setObject(1, artistCode);
-                statement.setObject(2, name);
-                statement.setObject(3, description);
-                statement.setObject(4, category);
-
                 statement.executeUpdate();
 
                 try (var resultSet = statement.getGeneratedKeys()) {

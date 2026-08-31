@@ -26,10 +26,10 @@ public final class Queries {
         WHERE CodicePodcast = ?
         """;
 
-    public static final String INSERT_CONTENUTO_EPISODIO = 
+    public static final String INSERT_CONTENUTO = 
         """
         INSERT INTO Contenuti (Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto)
-        VALUES (?, ?, ?, CURRENT_DATE, 'Episodio')
+        VALUES (?, ?, ?, CURRENT_DATE, ?)
         """;
 
     public static final String INSERT_EPISODIO = 

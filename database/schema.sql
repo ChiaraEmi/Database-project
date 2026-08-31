@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS Sottoscrizioni (
     CodiceInvito VARCHAR(50),
     DataInizio DATE NOT NULL,
     DataFine DATE NOT NULL,
-    Stato ENUM('Attiva', 'Scaduta', 'Cancellata') NOT NULL,
+    Stato ENUM('Attiva', 'Scaduta') NOT NULL,
     RinnovoAutomatico BOOLEAN NOT NULL DEFAULT FALSE,
 
     FOREIGN KEY (Username) REFERENCES Utenti(Username), 

@@ -9,11 +9,7 @@ CREATE TABLE IF NOT EXISTS Utenti (
     Password VARCHAR(255) NOT NULL,
     DataNascita DATE NOT NULL,
     Paese VARCHAR(50) NOT NULL,
-<<<<<<< HEAD
-    CreditoBonus INT DEFAULT 0
-=======
     CreditoBonus INT NOT NULL DEFAULT 0
->>>>>>> origin/main
 );
 
 CREATE TABLE IF NOT EXISTS Artisti (
@@ -98,7 +94,7 @@ CREATE TABLE IF NOT EXISTS Promozioni (
     DataInizioPromo DATE NOT NULL,
     DataFinePromo DATE NOT NULL,
     TipoSconto ENUM('Percentuale', 'Fisso') NOT NULL,
-    ValoreSconto DECIMAL(10,2) NOT NULL
+    ValoreSconto DECIMAL(10,2) NOT NULL,
     MesiRichiesti INT
 );
 
@@ -189,7 +185,12 @@ CREATE TABLE IF NOT EXISTS Appartenenze (
     FOREIGN KEY (NomeGenere) REFERENCES Generi(NomeGenere) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Inclusione (
+CREATE TABLE IF NOT EXISTS Inclusioni (
+    CodicePlaylist INT NOT NULL,
+    CodiceBrano INT NOT NULL,
+    PRIMARY KEY (CodicePlaylist, CodiceBrano),
+    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE,
+    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS LikeBrani (

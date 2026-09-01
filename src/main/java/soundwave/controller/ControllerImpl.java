@@ -1,5 +1,6 @@
 package soundwave.controller;
 
+import soundwave.data.DAOException;
 import soundwave.model.Model;
 import soundwave.view.View;
 import java.util.Objects;
@@ -34,20 +35,26 @@ public final class ControllerImpl implements Controller {
     public void adminClickedSavePodcast(final int artistCode, final String name, 
                                         final String description, final String category) {
         try {
+            // Eventuale stato di caricamento nella view
+            // this.view.loadingPodcast();
             this.model.insertPodcast(artistCode, name, description, category);
-        } catch (Exception e) {
-            e.printStackTrace();
+            // Notifica la view del successo (es. torna alla home o mostra un messaggio)
+            // this.view.showSuccess("Podcast creato con successo!");
+        } catch (final DAOException e) {
+            // Notifica la view del fallimento passando i dati per un eventuale retry
+            // this.view.failedToSavePodcast(artistCode, name, description, category);
         }
     }
 
-   @Override
+    @Override
     public void adminClickedSaveEpisode(final int podcastCode, final String title, 
                                         final int duration, final String description, 
                                         final int episodeNumber) {
         try {
             this.model.insertEpisode(podcastCode, title, duration, description, episodeNumber);
-        } catch (Exception e) {
-            e.printStackTrace();
+            // this.view.showSuccess("Episodio aggiunto con successo!");
+        } catch (final DAOException e) {
+            // this.view.failedToSaveEpisode(podcastCode, title, duration, description, episodeNumber);
         }
     }
 
@@ -56,18 +63,20 @@ public final class ControllerImpl implements Controller {
                                             final String device, final int eventDuration) {
         try {
             this.model.insertListeningEvent(username, contentCode, device, eventDuration);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (final DAOException e) {
+            // Gestione dell'errore di tracciamento ascolto
+            // this.view.showError("Impossibile registrare l'evento di ascolto.");
         }
     }
 
     @Override
     public void userClickedCreatePlaylist(final String username, final String playlistName, 
-                                          final String visibility, final boolean isCollaborative) {
+                                         final String visibility, final boolean isCollaborative) {
         try {
             this.model.insertPlaylist(username, playlistName, visibility, isCollaborative);
-        } catch (Exception e) {
-            e.printStackTrace();
+            // this.view.showSuccess("Playlist creata con successo!");
+        } catch (final DAOException e) {
+            // this.view.failedToCreatePlaylist(username, playlistName, visibility, isCollaborative);
         }
     }
 
@@ -75,8 +84,9 @@ public final class ControllerImpl implements Controller {
     public void userClickedAddTrackToPlaylist(final int playlistCode, final int trackCode) {
         try {
             this.model.addTrackToPlaylist(playlistCode, trackCode);
-        } catch (Exception e) {
-            e.printStackTrace();
+            // this.view.showSuccess("Brano aggiunto alla playlist!");
+        } catch (final DAOException e) {
+            // this.view.failedToAddTrackToPlaylist(playlistCode, trackCode);
         }
     }
 }

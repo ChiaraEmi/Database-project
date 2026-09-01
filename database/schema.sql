@@ -9,11 +9,7 @@ CREATE TABLE IF NOT EXISTS Utenti (
     Password VARCHAR(255) NOT NULL,
     DataNascita DATE NOT NULL,
     Paese VARCHAR(50) NOT NULL,
-<<<<<<< HEAD
-    CreditoBonus INT DEFAULT 0
-=======
     CreditoBonus INT NOT NULL DEFAULT 0
->>>>>>> origin/main
 );
 
 CREATE TABLE IF NOT EXISTS Artisti (
@@ -21,11 +17,11 @@ CREATE TABLE IF NOT EXISTS Artisti (
     NomeDArte VARCHAR(100) NOT NULL,
     Nome VARCHAR(50),
     Cognome VARCHAR(50),
-    DataNascita DATE NOT NULL,
+    DataNascita DATE,
     PaeseProvenienza VARCHAR(50) NOT NULL,
     Biografia TEXT,
     AnnoInizioAttivita YEAR NOT NULL,
-    TipoArtista ENUM('Cantante', 'Autore Podcast') NOT NULL
+    TipoArtista ENUM('Cantante', 'Band' 'Autore Podcast') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Contenuti (
@@ -190,6 +186,9 @@ CREATE TABLE IF NOT EXISTS Appartenenze (
 );
 
 CREATE TABLE IF NOT EXISTS Inclusione (
+    PRIMARY KEY (CodiceBrano, CodicePlaylist),
+    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE,
+    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS LikeBrani (
@@ -217,3 +216,7 @@ CREATE TABLE IF NOT EXISTS ValiditaPromozioni (
     FOREIGN KEY (CodicePromozione) REFERENCES Promozioni(CodicePromozione) ON DELETE CASCADE,
     FOREIGN KEY (CodiceAbbonamento) REFERENCES Abbonamenti(CodiceAbbonamento) ON DELETE CASCADE
 );
+
+CREATE VIEW Musicisti AS 
+SELECT * FROM Artisti
+WHERE TipoArtista IN ('Cantante', 'Band');

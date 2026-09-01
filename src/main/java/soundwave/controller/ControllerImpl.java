@@ -89,4 +89,19 @@ public final class ControllerImpl implements Controller {
             // this.view.failedToAddTrackToPlaylist(playlistCode, trackCode);
         }
     }
+
+    /**
+     * Handles the request to load and view the list of system users.
+     */
+    @Override
+    public void adminClickedLoadUsers() {
+        try {
+            final java.util.List<soundwave.data.User> users = this.model.loadUsers();
+            // Passa la lista alla view per mostrarla nella dashboard
+            this.view.showUsers(users);
+        } catch (final Exception e) {
+            // Gestione dell'errore
+            // this.view.showError("Impossibile caricare la lista degli utenti.");
+        }
+    }
 }

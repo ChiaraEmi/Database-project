@@ -1,10 +1,13 @@
 package soundwave.model;
 
 import soundwave.data.Podcast;
+import soundwave.data.User;
 import soundwave.data.Playlist;
 import soundwave.data.Episode;
 import soundwave.data.ListeningEvent;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -56,5 +59,15 @@ public final class DBModel implements Model {
     @Override
     public void insertListeningEvent(final String username, final int contentCode, final String device, final int eventDuration) {
         ListeningEvent.DAO.insert(connection, username, contentCode, device, eventDuration);
+    }
+
+    @Override
+    public List<User> loadUsers() {
+        try {
+            return User.DAO.list(this.connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 }

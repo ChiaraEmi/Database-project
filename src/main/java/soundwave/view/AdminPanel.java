@@ -50,6 +50,10 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtDiscountPercentage = new JTextField(FIELD_COLUMNS);
     private final JButton btnSavePromotion = new JButton("Salva Promozione");
 
+    // --- Area per Gestione Utenti ---
+    private final JButton btnFetchUsers = new JButton("Carica Utenti");
+    private final JTextArea txtUsersOutput = new JTextArea(10, 30);
+
     // --- Area per Statistiche Globali (OP 22) ---
     private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche Globali");
     private final JTextArea txtStatsOutput = new JTextArea(10, 30);
@@ -83,6 +87,7 @@ public final class AdminPanel extends JPanel {
         mainTabbedPane.addTab("Inserimento Artista", artistPodcastScrollPane);
         mainTabbedPane.addTab("Inserimento Promozione", createPromotionFormPanel());
         mainTabbedPane.addTab("Statistiche Piattaforma", createStatsPanel());
+        mainTabbedPane.addTab("Gestione Utenti", createUsersPanel());
 
         this.add(mainTabbedPane, BorderLayout.CENTER);
 
@@ -239,6 +244,24 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
+     * Creates the panel for User Management.
+     * 
+     * @return the users panel
+     */
+    private JPanel createUsersPanel() {
+        final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
+        panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
+
+        this.btnFetchUsers.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        panel.add(this.btnFetchUsers, BorderLayout.NORTH);
+
+        this.txtUsersOutput.setEditable(false);
+        panel.add(new JScrollPane(this.txtUsersOutput), BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    /**
      * Creates the panel for Global Statistics (OP 22).
      */
     private JPanel createStatsPanel() {
@@ -292,6 +315,15 @@ public final class AdminPanel extends JPanel {
         this.txtStatsOutput.setText(text);
     }
 
+    /**
+     * Sets the text output for the users list.
+     * 
+     * @let text the formatted string containing users
+     */
+    public void setUsersOutputText(final String text) {
+        this.txtUsersOutput.setText(text);
+    }
+
     /* --- Metodi per registrare gli Listener --- */
 
     public void addSaveArtistListener(final ActionListener listener) {
@@ -313,4 +345,14 @@ public final class AdminPanel extends JPanel {
     public void addBackListener(final ActionListener listener) {
         this.btnBack.addActionListener(listener);
     }
+
+    /**
+     * Adds an action listener to the fetch users button.
+     * 
+     * @param listener the action listener
+     */
+    public void addFetchUsersListener(final ActionListener listener) {
+        this.btnFetchUsers.addActionListener(listener);
+    }
+
 }

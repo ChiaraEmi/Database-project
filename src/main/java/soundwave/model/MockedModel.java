@@ -1,7 +1,10 @@
 package soundwave.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import soundwave.data.User;
 
 public final class MockedModel implements Model {
 
@@ -17,22 +20,34 @@ public final class MockedModel implements Model {
     }
 
     @Override
-    public int insertEpisode(int podcastCode, String title, int duration, String description, int episodeNumber) {
+    public int insertEpisode(final int podcastCode, final String title, final int duration, final String description, 
+                                final int episodeNumber) {
         return 1;
     }
 
     @Override
-    public int insertPlaylist(String username, String playlistName, String visibility, boolean isCollaborative) {
+    public int insertPlaylist(final String username, final String playlistName, final String visibility, 
+                                final boolean isCollaborative) {
         return 1;
     }
 
     @Override
-    public void addTrackToPlaylist(int playlistCode, int trackCode) {
+    public void addTrackToPlaylist(final int playlistCode, final int trackCode) {
         // Simulazione vuota
     }
 
     @Override
-    public void insertListeningEvent(String username, int contentCode, String device, int eventDuration) {
+    public void insertListeningEvent(final String username, final int contentCode, final String device, 
+                                    final int eventDuration) {
         // Simulazione vuota
+    }
+    
+    @Override
+    public List<User> loadUsers() {
+        return List.of(
+            // Inserisci un utente di prova fittizio
+            new User("mario88", "Mario", "Rossi", "mario@email.com", "pass123", 
+                        LocalDate.of(1990, 5, 10), "Italia", 10)
+        );
     }
 }

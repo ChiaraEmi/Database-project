@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS soundwave;
+
 CREATE DATABASE IF NOT EXISTS soundwave;
 USE soundwave;
 
@@ -17,11 +19,11 @@ CREATE TABLE IF NOT EXISTS Artisti (
     NomeDArte VARCHAR(100) NOT NULL,
     Nome VARCHAR(50),
     Cognome VARCHAR(50),
-    DataNascita DATE NOT NULL,
+    DataNascita DATE,
     PaeseProvenienza VARCHAR(50) NOT NULL,
     Biografia TEXT,
     AnnoInizioAttivita YEAR NOT NULL,
-    TipoArtista ENUM('Cantante', 'Autore Podcast') NOT NULL
+    TipoArtista ENUM('Cantante', 'Autore Podcast', 'Band') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Contenuti (

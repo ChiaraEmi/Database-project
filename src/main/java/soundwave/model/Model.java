@@ -1,6 +1,9 @@
 package soundwave.model;
 
 import java.sql.Connection;
+import java.util.List;
+
+import soundwave.data.User;
 
 /**
  * Represents the application model, defining core business operations 
@@ -59,6 +62,13 @@ public interface Model {
      * @param eventDuration the duration played in seconds
      */
     void insertListeningEvent(String username, int contentCode, String device, int eventDuration);
+
+    /**
+     * Retrieves the list of all users registered in the system.
+     * 
+     * @return a list of users
+     */
+    List<User> loadUsers();
 
     /**
      * Creates a new Model instance backed by a live database connection.

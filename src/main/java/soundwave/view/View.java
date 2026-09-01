@@ -25,4 +25,11 @@ public interface View {
      * @param panelName the identifier of the panel to show
      */
     void showPanel(String panelName);
+
+    /**
+     * Displays the list of registered users in the admin dashboard.
+     * 
+     * @param users the list of users to display
+     */
+    void showUsers(java.util.List<soundwave.data.User> users);
 }

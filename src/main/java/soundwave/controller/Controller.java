@@ -53,4 +53,9 @@ public interface Controller {
      * @param trackCode the track code
      */
     void userClickedAddTrackToPlaylist(int playlistCode, int trackCode);
+
+    /**
+     * Handles the request to load and view the list of system users (Admin dashboard).
+     */
+    void adminClickedLoadUsers();
 }

@@ -77,6 +77,12 @@ public final class ViewImpl extends JFrame implements View {
 
         this.adminPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
         this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
+
+        this.adminPanel.addFetchUsersListener(e -> {
+            if (this.controller != null) {
+                this.controller.adminClickedLoadUsers();
+            }
+        });
     }
 
     @Override
@@ -84,12 +90,22 @@ public final class ViewImpl extends JFrame implements View {
         SwingUtilities.invokeLater(() -> this.setVisible(true));
     }
 
+    @Override
     public void showPanel(final String panelName) {
         layout.show(mainPanel, panelName);
     }
 
     public RoleSelectionPanel getRoleSelectionPanel() {
         return this.roleSelectionPanel;
+    }
+
+    @Override
+    public void showUsers(final java.util.List<soundwave.data.User> users) {
+        final StringBuilder sb = new StringBuilder();
+        for (final soundwave.data.User user : users) {
+            sb.append(user.toString()).append("\n");
+        }
+        this.adminPanel.setUsersOutputText(sb.toString());
     }
 
     /*public UserPanel getUserPanel() {

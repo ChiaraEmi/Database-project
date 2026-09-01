@@ -186,6 +186,9 @@ CREATE TABLE IF NOT EXISTS Appartenenze (
 );
 
 CREATE TABLE IF NOT EXISTS Inclusione (
+    PRIMARY KEY (CodiceBrano, CodicePlaylist),
+    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE,
+    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS LikeBrani (

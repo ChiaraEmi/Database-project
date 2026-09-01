@@ -7,11 +7,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -37,6 +38,13 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtNationality = new JTextField(FIELD_COLUMNS);
     private final JButton btnSaveArtist = new JButton("Salva Artista");
 
+    // --- Campi di testo per inserimento Podcast (OP 9) ---
+    private final JTextField txtPodcastArtistCode = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPodcastName = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPodcastDescription = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPodcastCategory = new JTextField(FIELD_COLUMNS);
+    private final JButton btnSavePodcast = new JButton("Salva Podcast");
+
     // --- Campi di testo per Inserimento Promozione (OP 6) ---
     private final JTextField txtPromoName = new JTextField(FIELD_COLUMNS);
     private final JTextField txtDiscountPercentage = new JTextField(FIELD_COLUMNS);
@@ -61,9 +69,18 @@ public final class AdminPanel extends JPanel {
         titleLabel.setFont(titleLabel.getFont().deriveFont(TITLE_FONT_SIZE));
         this.add(titleLabel, BorderLayout.NORTH);
 
-        // Creazione delle schede principali
+        // Creazione delle schede principali (Artista e Podcast uniti nella prima scheda)
+        final JPanel artistAndPodcastContainer = new JPanel();
+        artistAndPodcastContainer.setLayout(new BoxLayout(artistAndPodcastContainer, BoxLayout.PAGE_AXIS));
+        artistAndPodcastContainer.add(createArtistFormPanel());
+        artistAndPodcastContainer.add(new JSeparator(JSeparator.HORIZONTAL));
+        artistAndPodcastContainer.add(createPodcastFormPanel());
+
+        final JScrollPane artistPodcastScrollPane = new JScrollPane(artistAndPodcastContainer);
+        artistPodcastScrollPane.setBorder(null);
+
         final JTabbedPane mainTabbedPane = new JTabbedPane();
-        mainTabbedPane.addTab("Inserimento Artista", createArtistFormPanel());
+        mainTabbedPane.addTab("Inserimento Artista", artistPodcastScrollPane);
         mainTabbedPane.addTab("Inserimento Promozione", createPromotionFormPanel());
         mainTabbedPane.addTab("Statistiche Piattaforma", createStatsPanel());
 
@@ -115,6 +132,64 @@ public final class AdminPanel extends JPanel {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(this.btnSaveArtist, gbc);
+
+        return panel;
+    }
+
+    /**
+     * Creates the form panel for Podcast insertion.
+     */
+    private JPanel createPodcastFormPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Titolo Sezione
+        final JLabel sectionLabel = new JLabel("Nuovo Podcast");
+        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(sectionLabel, gbc);
+
+        gbc.gridwidth = 1;
+
+        // Codice Artista
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(new JLabel("Codice Artista:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtPodcastArtistCode, gbc);
+
+        // Nome Podcast
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(new JLabel("Nome Podcast:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtPodcastName, gbc);
+
+        // Descrizione
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        panel.add(new JLabel("Descrizione:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtPodcastDescription, gbc);
+
+        // Categoria
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        panel.add(new JLabel("Categoria:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtPodcastCategory, gbc);
+
+        // Pulsante Salva
+        this.btnSavePodcast.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(this.btnSavePodcast, gbc);
 
         return panel;
     }
@@ -189,6 +264,22 @@ public final class AdminPanel extends JPanel {
         return this.txtNationality.getText();
     }
 
+    public String getPodcastArtistCode() {
+        return this.txtPodcastArtistCode.getText();
+    }
+
+    public String getPodcastName() {
+        return this.txtPodcastName.getText();
+    }
+
+    public String getPodcastDescription() {
+        return this.txtPodcastDescription.getText();
+    }
+
+    public String getPodcastCategory() {
+        return this.txtPodcastCategory.getText();
+    }
+
     public String getPromoName() {
         return this.txtPromoName.getText();
     }
@@ -205,6 +296,10 @@ public final class AdminPanel extends JPanel {
 
     public void addSaveArtistListener(final ActionListener listener) {
         this.btnSaveArtist.addActionListener(listener);
+    }
+    
+    public void addSavePodcastListener(final ActionListener listener) {
+        this.btnSavePodcast.addActionListener(listener);
     }
 
     public void addSavePromotionListener(final ActionListener listener) {

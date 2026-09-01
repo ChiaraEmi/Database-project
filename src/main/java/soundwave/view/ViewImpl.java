@@ -27,6 +27,22 @@ public final class ViewImpl extends JFrame implements View {
     private Controller controller;
 
     /**
+     * Builds a new ViewImpl with a custom close action.
+     *
+     * @param onClose the action to execute when the window closes
+     */
+    public ViewImpl(final Runnable onClose) {
+        this(); // Chiama il costruttore base che inizializza i componenti
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(final java.awt.event.WindowEvent e) {
+                onClose.run();
+            }
+        });
+    }
+
+    /**
      * Builds a new ViewImpl.
      */
     public ViewImpl() {

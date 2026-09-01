@@ -2,6 +2,7 @@ package soundwave.model;
 
 import soundwave.data.Podcast;
 import soundwave.data.Playlist;
+import soundwave.data.Episode;
 import soundwave.data.ListeningEvent;
 import java.sql.Connection;
 import java.util.Objects;
@@ -33,6 +34,12 @@ public final class DBModel implements Model {
     @Override
     public int insertPodcast(final int artistCode, final String name, final String description, final String category) {
         return Podcast.DAO.insert(connection, artistCode, name, description, category);
+    }
+
+    @Override
+    public int insertEpisode(final int podcastCode, final String title, final int duration, 
+                             final String description, final int episodeNumber) {
+        return Episode.DAO.insert(connection, podcastCode, title, duration, description, episodeNumber);
     }
 
     @Override

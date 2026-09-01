@@ -20,6 +20,18 @@ public interface Model {
     int insertPodcast(int artistCode, String name, String description, String category);
 
     /**
+     * Inserts a new episode into a specific podcast (OP 10).
+     *
+     * @param podcastCode the podcast code
+     * @param title the episode title
+     * @param duration the duration in seconds
+     * @param description the description of the episode
+     * @param episodeNumber the episode number within the podcast
+     * @return the auto-generated code of the inserted episode
+     */
+    int insertEpisode(int podcastCode, String title, int duration, String description, int episodeNumber);
+
+    /**
      * Creates a new playlist for a user.
      *
      * @param username the owner's username

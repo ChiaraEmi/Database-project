@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS soundwave;
+
 CREATE DATABASE IF NOT EXISTS soundwave;
 USE soundwave;
 
@@ -21,7 +23,7 @@ CREATE TABLE IF NOT EXISTS Artisti (
     PaeseProvenienza VARCHAR(50) NOT NULL,
     Biografia TEXT,
     AnnoInizioAttivita YEAR NOT NULL,
-    TipoArtista ENUM('Cantante', 'Band', 'Autore Podcast') NOT NULL
+    TipoArtista ENUM('Cantante', 'Autore Podcast', 'Band') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Contenuti (
@@ -113,7 +115,7 @@ CREATE TABLE IF NOT EXISTS Sottoscrizioni (
     CodiceInvito VARCHAR(50),
     DataInizio DATE NOT NULL,
     DataFine DATE NOT NULL,
-    Stato ENUM('Attiva', 'Scaduta', 'Cancellata') NOT NULL,
+    Stato ENUM('Attiva', 'Scaduta') NOT NULL,
     RinnovoAutomatico BOOLEAN NOT NULL DEFAULT FALSE,
 
     FOREIGN KEY (Username) REFERENCES Utenti(Username), 
@@ -137,7 +139,7 @@ CREATE TABLE IF NOT EXISTS Album (
     CodiceAlbum INT AUTO_INCREMENT PRIMARY KEY,
     CodiceArtista INT NOT NULL,
     TitoloAlbum VARCHAR(100) NOT NULL,
-    AnnoPubblicazione YEAR NOT NULL,
+    DataPubblicazione DATE NOT NULL,
     CasaDiscografica VARCHAR(50) NOT NULL,
     MediaVoti DECIMAL(4,2) DEFAULT 0.00,
     DurataTotale INT DEFAULT 0,
@@ -186,11 +188,11 @@ CREATE TABLE IF NOT EXISTS Appartenenze (
 );
 
 CREATE TABLE IF NOT EXISTS Inclusioni (
-    CodiceBrano INT NOT NULL,
     CodicePlaylist INT NOT NULL,
-    PRIMARY KEY (CodiceBrano, CodicePlaylist),
-    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE,
-    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE
+    CodiceBrano INT NOT NULL,
+    PRIMARY KEY (CodicePlaylist, CodiceBrano),
+    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE,
+    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS LikeBrani (
@@ -218,7 +220,3 @@ CREATE TABLE IF NOT EXISTS ValiditaPromozioni (
     FOREIGN KEY (CodicePromozione) REFERENCES Promozioni(CodicePromozione) ON DELETE CASCADE,
     FOREIGN KEY (CodiceAbbonamento) REFERENCES Abbonamenti(CodiceAbbonamento) ON DELETE CASCADE
 );
-
-CREATE VIEW Musicisti AS 
-SELECT * FROM Artisti
-WHERE TipoArtista IN ('Cantante', 'Band');

@@ -6,6 +6,54 @@ package soundwave.controller;
 public interface Controller {
 
     /**
+     * Handles the request to insert a new artist (OP 7).
+     *
+     * @param stageName the artist stage name
+     * @param name the real name
+     * @param surname the surname
+     * @param birthDate the birth date
+     * @param provenanceCountry the provenance country
+     * @param biography the biography
+     * @param startYear the start year
+     * @param artistType the artist type
+     */
+    void adminClickedSaveArtist(String stageName, String name, String surname, String birthDate, 
+                                String provenanceCountry, String biography, int startYear, String artistType);
+
+    /**
+     * Handles the event when the administrator clicks the save album button.
+     * 
+     * @param artistCode  the unique code of the artist who owns the album
+     * @param title       the title of the album
+     * @param releaseYear the release year of the album
+     * @param label       the record label (casa discografica) producing the album
+     */
+    void adminClickedSaveAlbum(int artistCode, String title, int releaseYear, String label);
+
+    /**
+     * Handles the event when the administrator clicks the save track button.
+     * 
+     * @param albumCode   the unique code of the album containing the track
+     * @param title       the title of the track
+     * @param duration    the duration of the track in seconds
+     * @param trackNumber the track number on the album
+     * @param description the description of the track content
+     */
+    void adminClickedSaveTrack(int albumCode, String title, int duration, int trackNumber, String description);
+    
+    /**
+     * Handles the request to insert a new album with its songs (OP 8).
+     *
+     * @param artistCode the artist code
+     * @param title the album title
+     * @param releaseYear the release year
+     * @param recordCompany the record company
+     * @param songs the list of songs
+     */
+    void adminClickedSaveAlbumWithSongs(int artistCode, String title, int releaseYear, 
+                                        String recordCompany, java.util.List<soundwave.data.SongInput> songs);
+
+    /**
      * Handles the request to insert a new podcast (OP 9).
      *
      * @param artistCode the artist's code

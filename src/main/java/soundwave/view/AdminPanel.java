@@ -35,8 +35,29 @@ public final class AdminPanel extends JPanel {
 
     // --- Campi di testo per Inserimento Artista (OP 7) ---
     private final JTextField txtStageName = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtNationality = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtRealName = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtRealSurname = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtBirthDate = new JTextField(FIELD_COLUMNS); // Formato YYYY-MM-DD
+    private final JTextField txtProvenanceCountry = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtBiography = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtStartYear = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtArtistType = new JTextField(FIELD_COLUMNS);
     private final JButton btnSaveArtist = new JButton("Salva Artista");
+
+    // --- Campi di testo per Inserimento Album ---
+    private final JTextField txtAlbumArtistCode = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtAlbumTitle = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtAlbumReleaseYear = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS); // CasaDiscografica
+    private final JButton btnSaveAlbum = new JButton("Salva Album");
+
+    // --- Campi di testo per Inserimento Brano ---
+    private final JTextField txtTrackAlbumCode = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtTrackTitle = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtTrackDuration = new JTextField(FIELD_COLUMNS); // Durata in secondi
+    private final JTextField txtTrackNumber = new JTextField(FIELD_COLUMNS);    // NumeroTraccia
+    private final JTextField txtTrackDescription = new JTextField(FIELD_COLUMNS); // Per la tabella Contenuti
+    private final JButton btnSaveTrack = new JButton("Salva Brano");
 
     // --- Campi di testo per inserimento Podcast (OP 9) ---
     private final JTextField txtPodcastArtistCode = new JTextField(FIELD_COLUMNS);
@@ -83,8 +104,19 @@ public final class AdminPanel extends JPanel {
         final JScrollPane artistPodcastScrollPane = new JScrollPane(artistAndPodcastContainer);
         artistPodcastScrollPane.setBorder(null);
 
+        // Contenitore per Album e Brani
+        final JPanel albumAndTrackContainer = new JPanel();
+        albumAndTrackContainer.setLayout(new BoxLayout(albumAndTrackContainer, BoxLayout.PAGE_AXIS));
+        albumAndTrackContainer.add(createAlbumFormPanel());
+        albumAndTrackContainer.add(new JSeparator(JSeparator.HORIZONTAL));
+        albumAndTrackContainer.add(createTrackFormPanel());
+
+        final JScrollPane albumTrackScrollPane = new JScrollPane(albumAndTrackContainer);
+        albumTrackScrollPane.setBorder(null);
+
         final JTabbedPane mainTabbedPane = new JTabbedPane();
         mainTabbedPane.addTab("Inserimento Artista", artistPodcastScrollPane);
+        mainTabbedPane.addTab("Inserimento Album/Brani", albumTrackScrollPane);
         mainTabbedPane.addTab("Inserimento Promozione", createPromotionFormPanel());
         mainTabbedPane.addTab("Statistiche Piattaforma", createStatsPanel());
         mainTabbedPane.addTab("Gestione Utenti", createUsersPanel());
@@ -115,28 +147,105 @@ public final class AdminPanel extends JPanel {
         panel.add(sectionLabel, gbc);
 
         gbc.gridwidth = 1;
+        int row = 1;
 
-        // Nome d'arte
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(new JLabel("Nome d'arte:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtStageName, gbc);
-
-        // Nazionalità
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        panel.add(new JLabel("Nazionalità:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtNationality, gbc);
+        addFormField(panel, gbc, row++, "Nome d'arte:", this.txtStageName);
+        addFormField(panel, gbc, row++, "Nome reale:", this.txtRealName);
+        addFormField(panel, gbc, row++, "Cognome reale:", this.txtRealSurname);
+        addFormField(panel, gbc, row++, "Data di nascita (YYYY-MM-DD):", this.txtBirthDate);
+        addFormField(panel, gbc, row++, "Paese di provenienza:", this.txtProvenanceCountry);
+        addFormField(panel, gbc, row++, "Biografia:", this.txtBiography);
+        addFormField(panel, gbc, row++, "Anno inizio attività:", this.txtStartYear);
+        addFormField(panel, gbc, row++, "Tipo artista:", this.txtArtistType);
 
         // Pulsante Salva
         this.btnSaveArtist.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = row;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(this.btnSaveArtist, gbc);
+
+        return panel;
+    }
+
+    /**
+     * Helper method to add form fields uniformly.
+     */
+    private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row, final String labelText, final JTextField field) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        panel.add(new JLabel(labelText), gbc);
+        gbc.gridx = 1;
+        panel.add(field, gbc);
+    }
+
+    /**
+     * Creates the form panel for Album insertion.
+     */
+    private JPanel createAlbumFormPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        final JLabel sectionLabel = new JLabel("Nuovo Album");
+        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(sectionLabel, gbc);
+
+        gbc.gridwidth = 1;
+        int row = 1;
+
+        addFormField(panel, gbc, row++, "Codice Artista:", this.txtAlbumArtistCode);
+        addFormField(panel, gbc, row++, "Titolo Album:", this.txtAlbumTitle);
+        addFormField(panel, gbc, row++, "Anno Pubblicazione:", this.txtAlbumReleaseYear);
+        addFormField(panel, gbc, row++, "Casa Discografica:", this.txtAlbumLabel);
+
+        this.btnSaveAlbum.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(this.btnSaveAlbum, gbc);
+
+        return panel;
+    }
+
+    /**
+     * Creates the form panel for Track insertion.
+     */
+    private JPanel createTrackFormPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        final JLabel sectionLabel = new JLabel("Nuovo Brano");
+        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(sectionLabel, gbc);
+
+        gbc.gridwidth = 1;
+        int row = 1;
+
+        addFormField(panel, gbc, row++, "Codice Album:", this.txtTrackAlbumCode);
+        addFormField(panel, gbc, row++, "Titolo Brano:", this.txtTrackTitle);
+        addFormField(panel, gbc, row++, "Durata (secondi):", this.txtTrackDuration);
+        addFormField(panel, gbc, row++, "Numero Traccia:", this.txtTrackNumber);
+        addFormField(panel, gbc, row++, "Descrizione:", this.txtTrackDescription);
+
+        this.btnSaveTrack.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(this.btnSaveTrack, gbc);
 
         return panel;
     }
@@ -283,8 +392,68 @@ public final class AdminPanel extends JPanel {
         return this.txtStageName.getText();
     }
 
-    public String getArtistNationality() {
-        return this.txtNationality.getText();
+    public String getArtistRealName() {
+        return this.txtRealName.getText();
+    }
+
+    public String getArtistRealSurname() {
+        return this.txtRealSurname.getText();
+    }
+
+    public String getArtistBirthDate() {
+        return this.txtBirthDate.getText();
+    }
+
+    public String getArtistProvenanceCountry() {
+        return this.txtProvenanceCountry.getText();
+    }
+
+    public String getArtistBiography() {
+        return this.txtBiography.getText();
+    }
+
+    public String getArtistStartYear() {
+        return this.txtStartYear.getText();
+    }
+
+    public String getArtistType() {
+        return this.txtArtistType.getText();
+    }
+
+    public String getAlbumArtistCode() {
+        return this.txtAlbumArtistCode.getText();
+    }
+
+    public String getAlbumTitle() {
+        return this.txtAlbumTitle.getText();
+    }
+
+    public String getAlbumReleaseYear() {
+        return this.txtAlbumReleaseYear.getText();
+    }
+
+    public String getAlbumLabel() {
+        return this.txtAlbumLabel.getText();
+    }
+
+    public String getTrackAlbumCode() {
+        return this.txtTrackAlbumCode.getText();
+    }
+
+    public String getTrackTitle() {
+        return this.txtTrackTitle.getText();
+    }
+
+    public String getTrackDuration() {
+        return this.txtTrackDuration.getText();
+    }
+
+    public String getTrackNumber() {
+        return this.txtTrackNumber.getText();
+    }
+
+    public String getTrackDescription() {
+        return this.txtTrackDescription.getText();
     }
 
     public String getPodcastArtistCode() {
@@ -328,6 +497,14 @@ public final class AdminPanel extends JPanel {
 
     public void addSaveArtistListener(final ActionListener listener) {
         this.btnSaveArtist.addActionListener(listener);
+    }
+
+    public void addSaveAlbumListener(final ActionListener listener) {
+        this.btnSaveAlbum.addActionListener(listener);
+    }
+
+    public void addSaveTrackListener(final ActionListener listener) {
+        this.btnSaveTrack.addActionListener(listener);
     }
     
     public void addSavePodcastListener(final ActionListener listener) {

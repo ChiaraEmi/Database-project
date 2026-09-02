@@ -5,8 +5,47 @@ package soundwave.data;
  */
 public final class Queries {
 
+    // --- OP 7: INSERIMENTO ARTISTA ---
+    public static final String INSERT_ARTIST = 
+        """
+        INSERT INTO Artisti (NomeDArte, Nome, Cognome, DataNascita, PaeseProvenienza, Biografia, AnnoInizioAttivita, TipoArtista)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+    // --- OP 8: INSERIMENTO ALBUM E RELATIVI BRANI ---
+    public static final String INSERT_ALBUM = 
+        """
+        INSERT INTO Album (CodiceArtista, TitoloAlbum, AnnoPubblicazione, CasaDiscografica)
+        VALUES (?, ?, ?, ?)
+        """;
+
+    // Riutilizziamo o creiamo la query per i contenuti di tipo 'Brano'
+    public static final String INSERT_CONTENUTO_BRANO = 
+        """
+        INSERT INTO Contenuti (Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto)
+        VALUES (?, ?, ?, CURRENT_DATE, 'Brano')
+        """;
+
+    public static final String INSERT_BRANO = 
+        """
+        INSERT INTO Brani (CodiceBrano, CodiceAlbum, NumeroTraccia)
+        VALUES (?, ?, ?)
+        """;
+
+    public static final String INSERT_CANTARE = 
+        """
+        INSERT INTO Cantare (CodiceArtista, CodiceBrano)
+        VALUES (?, ?)
+        """;
+
+    public static final String INSERT_APPARTENENZA = 
+        """
+        INSERT INTO Appartenenze (CodiceBrano, NomeGenere)
+        VALUES (?, ?)
+        """;
+
     // --- OP 9: INSERIMENTO PODCAST ---
-    public static final String CHECK_ARTISTA_EXISTS = 
+    public static final String CHECK_ARTIST_EXISTS = 
         """
         SELECT CodiceArtista, NomeDArte 
         FROM Artisti 

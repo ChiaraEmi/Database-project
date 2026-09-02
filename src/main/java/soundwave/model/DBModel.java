@@ -1,12 +1,16 @@
 package soundwave.model;
 
 import soundwave.data.Podcast;
+import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.data.Playlist;
+import soundwave.data.Album;
+import soundwave.data.Artist;
 import soundwave.data.Episode;
 import soundwave.data.ListeningEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,6 +36,20 @@ public final class DBModel implements Model {
     public DBModel(final Connection connection) {
         Objects.requireNonNull(connection, "Model created with null connection");
         this.connection = connection;
+    }
+
+    @Override
+    public int insertArtist(final String stageName, final String name, final String surname, 
+                            final LocalDate birthDate, final String provenanceCountry, 
+                            final String biography, final int startYear, final String artistType) {
+        return Artist.DAO.insert(this.connection, stageName, name, surname, birthDate, 
+                                 provenanceCountry, biography, startYear, artistType);
+    }
+
+    @Override
+    public int insertAlbumWithSongs(final int artistCode, final String title, final int releaseYear,
+                                    final String recordCompany, final List<SongInput> songs) {
+        return Album.DAO.insertAlbumWithSongs(this.connection, artistCode, title, releaseYear, recordCompany, songs);
     }
 
     @Override

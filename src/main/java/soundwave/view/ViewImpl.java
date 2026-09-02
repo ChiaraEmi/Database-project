@@ -72,15 +72,112 @@ public final class ViewImpl extends JFrame implements View {
     public void setController(final Controller controller) {
         this.controller = controller;
 
+        // Navigazione tra i pannelli
         this.roleSelectionPanel.addUtenteListener(e -> showPanel(USER_CARD));
         this.roleSelectionPanel.addAdminListener(e -> showPanel(ADMIN_CARD));
-
         this.adminPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
         this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
 
+        // Caricamento Utenti (Admin)
         this.adminPanel.addFetchUsersListener(e -> {
             if (this.controller != null) {
                 this.controller.adminClickedLoadUsers();
+            }
+        });
+
+        // --- Inserimento Artista (OP 7) ---
+        this.adminPanel.addSaveArtistListener(e -> {
+            if (this.controller != null) {
+                final String stageName = this.adminPanel.getArtistStageName();
+                final String name = this.adminPanel.getArtistRealName();
+                final String surname = this.adminPanel.getArtistRealSurname();
+                final String birthDate = this.adminPanel.getArtistBirthDate();
+                final String country = this.adminPanel.getArtistProvenanceCountry();
+                final String biography = this.adminPanel.getArtistBiography();
+                final String artistType = this.adminPanel.getArtistType();
+                
+                int startYear = 0;
+                try {
+                    if (!this.adminPanel.getArtistStartYear().isBlank()) {
+                        startYear = Integer.parseInt(this.adminPanel.getArtistStartYear());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione errore formato anno
+                }
+
+                this.controller.adminClickedSaveArtist(
+                    stageName, name, surname, birthDate, country, biography, startYear, artistType
+                );
+            }
+        });
+
+        // --- Inserimento Album ---
+        this.adminPanel.addSaveAlbumListener(e -> {
+            if (this.controller != null) {
+                int artistCode = 0;
+                int releaseYear = 0;
+                try {
+                    if (!this.adminPanel.getAlbumArtistCode().isBlank()) {
+                        artistCode = Integer.parseInt(this.adminPanel.getAlbumArtistCode());
+                    }
+                    if (!this.adminPanel.getAlbumReleaseYear().isBlank()) {
+                        releaseYear = Integer.parseInt(this.adminPanel.getAlbumReleaseYear());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione errore formato numerico
+                }
+
+                final String title = this.adminPanel.getAlbumTitle();
+                final String label = this.adminPanel.getAlbumLabel();
+
+                this.controller.adminClickedSaveAlbum(artistCode, title, releaseYear, label);
+            }
+        });
+
+        // --- Inserimento Brano ---
+        this.adminPanel.addSaveTrackListener(e -> {
+            if (this.controller != null) {
+                int albumCode = 0;
+                int duration = 0;
+                int trackNumber = 0;
+                try {
+                    if (!this.adminPanel.getTrackAlbumCode().isBlank()) {
+                        albumCode = Integer.parseInt(this.adminPanel.getTrackAlbumCode());
+                    }
+                    if (!this.adminPanel.getTrackDuration().isBlank()) {
+                        duration = Integer.parseInt(this.adminPanel.getTrackDuration());
+                    }
+                    if (!this.adminPanel.getTrackNumber().isBlank()) {
+                        trackNumber = Integer.parseInt(this.adminPanel.getTrackNumber());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione errore formato numerico
+                }
+
+                final String title = this.adminPanel.getTrackTitle();
+                final String description = this.adminPanel.getTrackDescription();
+
+                this.controller.adminClickedSaveTrack(albumCode, title, duration, trackNumber, description);
+            }
+        });
+
+        // --- Inserimento Podcast (OP 9) ---
+        this.adminPanel.addSavePodcastListener(e -> {
+            if (this.controller != null) {
+                int artistCode = 0;
+                try {
+                    if (!this.adminPanel.getPodcastArtistCode().isBlank()) {
+                        artistCode = Integer.parseInt(this.adminPanel.getPodcastArtistCode());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione errore formato codice artista
+                }
+
+                final String name = this.adminPanel.getPodcastName();
+                final String description = this.adminPanel.getPodcastDescription();
+                final String category = this.adminPanel.getPodcastCategory();
+
+                this.controller.adminClickedSavePodcast(artistCode, name, description, category);
             }
         });
     }

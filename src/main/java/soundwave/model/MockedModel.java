@@ -4,12 +4,28 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import soundwave.data.SongInput;
 import soundwave.data.User;
 
 public final class MockedModel implements Model {
 
     // Una lista in memoria per simulare il database dei podcast
     private final List<String> savedPodcasts = new ArrayList<>();
+
+    @Override
+    public int insertArtist(final String stageName, final String name, final String surname, 
+                            final LocalDate birthDate, final String provenanceCountry, 
+                            final String biography, final int startYear, final String artistType) {
+        System.out.println("[MOCK] Artist inserted: " + stageName);
+        return 1;
+    }
+
+    @Override
+    public int insertAlbumWithSongs(final int artistCode, final String title, final int releaseYear,
+                                    final String recordCompany, final List<SongInput> songs) {
+        System.out.println("[MOCK] Album inserted: " + title + " with " + songs.size() + " songs.");
+        return 1;
+    }
 
     @Override
     public int insertPodcast(final int artistCode, final String name, final String description, final String category) {

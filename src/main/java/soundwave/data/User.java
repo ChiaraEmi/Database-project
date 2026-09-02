@@ -50,8 +50,11 @@ public final class User {
         this.surname = Objects.requireNonNull(surname, "Surname cannot be null");
         this.email = Objects.requireNonNull(email, "Email cannot be null");
         this.password = Objects.requireNonNull(password, "Password cannot be null");
-        this.birthDate = birthDate;
+        this.birthDate = Objects.requireNonNull(birthDate, "Birth date cannot be null");
         this.country = Objects.requireNonNull(country, "Country cannot be null");
+        if (bonusCredit < 0) {
+            throw new IllegalArgumentException("Bonus credit cannot be negative");
+        }
         this.bonusCredit = bonusCredit;
     }
 

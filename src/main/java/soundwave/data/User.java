@@ -238,5 +238,28 @@ public final class User {
             }
             return Optional.empty();
         }
+
+        /**
+         * Retrieves users with a number of listens above the average for the given year.
+         *
+         * @param connection the database connection.
+         * @param year the year to check.
+         * @return a list of strings representing users and their play counts.
+         */
+        public static List<String> getUsersAboveAverageListens(final Connection connection, final int year) {
+            final List<String> users = new ArrayList<>();
+            // La query richiede l'anno due volte a causa della struttura della subquery
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_USERS_ABOVE_AVG_LISTENS, year, year);
+                 var resultSet = statement.executeQuery()) {
+                
+                while (resultSet.next()) {
+                    users.add("Utente: " + resultSet.getString("Username") + 
+                              " - Ascolti: " + resultSet.getInt("NumeroAscolti"));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return users;
+        }
     }
 }

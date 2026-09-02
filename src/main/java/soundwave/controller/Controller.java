@@ -19,27 +19,6 @@ public interface Controller {
      */
     void adminClickedSaveArtist(String stageName, String name, String surname, String birthDate, 
                                 String provenanceCountry, String biography, int startYear, String artistType);
-
-    /**
-     * Handles the event when the administrator clicks the save album button.
-     * 
-     * @param artistCode  the unique code of the artist who owns the album
-     * @param title       the title of the album
-     * @param releaseYear the release year of the album
-     * @param label       the record label (casa discografica) producing the album
-     */
-    void adminClickedSaveAlbum(int artistCode, String title, int releaseYear, String label);
-
-    /**
-     * Handles the event when the administrator clicks the save track button.
-     * 
-     * @param albumCode   the unique code of the album containing the track
-     * @param title       the title of the track
-     * @param duration    the duration of the track in seconds
-     * @param trackNumber the track number on the album
-     * @param description the description of the track content
-     */
-    void adminClickedSaveTrack(int albumCode, String title, int duration, int trackNumber, String description);
     
     /**
      * Handles the request to insert a new album with its songs (OP 8).
@@ -48,10 +27,10 @@ public interface Controller {
      * @param title the album title
      * @param releaseYear the release year
      * @param recordCompany the record company
-     * @param songs the list of songs
+     * @param rawSongsText the raw text containing songs data from the text area
      */
-    void adminClickedSaveAlbumWithSongs(int artistCode, String title, int releaseYear, 
-                                        String recordCompany, java.util.List<soundwave.data.SongInput> songs);
+    void adminClickedSaveAlbumWithSongs(int artistCode, String title, String releaseDate, 
+                                        String recordCompany, String rawSongsText);
 
     /**
      * Handles the request to insert a new podcast (OP 9).
@@ -106,4 +85,11 @@ public interface Controller {
      * Handles the request to load and view the list of system users (Admin dashboard).
      */
     void adminClickedLoadUsers();
+
+    /**
+     * Handles the request to load and view global statistics (OP 22).
+     * 
+     * @param year the reference year for annual statistics
+     */
+    void adminRequestedGlobalStats(int year);
 }

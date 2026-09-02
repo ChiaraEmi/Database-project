@@ -32,4 +32,11 @@ public interface View {
      * @param users the list of users to display
      */
     void showUsers(java.util.List<soundwave.data.User> users);
+
+    /**
+     * Displays the formatted global statistics report.
+     * 
+     * @param statsText the formatted statistics string
+     */
+    void showGlobalStats(String statsText);
 }

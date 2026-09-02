@@ -14,6 +14,16 @@ import soundwave.data.User;
 public interface Model {
 
     /**
+     * Creates a new Model instance backed by a live database connection.
+     *
+     * @param connection the active database connection
+     * @return a Model implementation connected to the database
+     */
+    static Model fromConnection(final Connection connection) {
+        return new DBModel(connection);
+    }
+
+    /**
      * Inserts a new artist into the database.
      *
      * @param stageName the stage name of the artist.
@@ -39,7 +49,7 @@ public interface Model {
      * @param songs the list of song inputs containing details for each track.
      * @return the generated album code.
      */
-    int insertAlbumWithSongs(int artistCode, String title, int releaseYear, String recordCompany, List<SongInput> songs);
+    int insertAlbumWithSongs(int artistCode, String title, String releaseDate, String recordCompany, List<SongInput> songs);
 
     /**
      * Inserts a new podcast into the database.
@@ -101,12 +111,33 @@ public interface Model {
     List<User> loadUsers();
 
     /**
-     * Creates a new Model instance backed by a live database connection.
+     * Retrieves the most played artist in a specific year.
      *
-     * @param connection the active database connection
-     * @return a Model implementation connected to the database
+     * @param year the year to check
+     * @return a string with the artist details
      */
-    static Model fromConnection(final Connection connection) {
-        return new DBModel(connection);
-    }
+    String getMostPlayedArtist(int year);
+
+    /**
+     * Retrieves the most played music genre in a specific year.
+     *
+     * @param year the year to check
+     * @return a string with the genre details
+     */
+    String getMostPlayedGenre(int year);
+
+    /**
+     * Retrieves users with a number of listens above the average for the given year.
+     *
+     * @param year the year to check
+     * @return a list of strings representing the users
+     */
+    List<String> getUsersAboveAverageListens(int year);
+
+    /**
+     * Retrieves albums with a review average higher than the global average.
+     *
+     * @return a list of strings representing the top albums
+     */
+    List<String> getAlbumsAboveGlobalAverage();
 }

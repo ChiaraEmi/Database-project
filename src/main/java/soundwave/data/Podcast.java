@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public final class Podcast {
 
-    private final int code;
+    private final int podcastCode;
     private final int artistCode;
     private final String name;
     private final String description;
@@ -26,7 +26,7 @@ public final class Podcast {
      * @param category the category of the podcast.
      */
     public Podcast(final int code, final int artistCode, final String name, final String description, final String category) {
-        this.code = code;
+        this.podcastCode = code;
         this.artistCode = artistCode;
         this.name = name == null ? "" : name;
         this.description = description == null ? "" : description;
@@ -38,8 +38,8 @@ public final class Podcast {
      *
      * @return the code.
      */
-    public int getCode() {
-        return code;
+    public int getPodcastCode() {
+        return podcastCode;
     }
 
     /**
@@ -86,7 +86,7 @@ public final class Podcast {
             return false;
         } else if (other instanceof Podcast) {
             final var p = (Podcast) other;
-            return p.code == this.code
+            return p.podcastCode == this.podcastCode
                    && p.artistCode == this.artistCode
                    && p.name.equals(this.name)
                    && p.description.equals(this.description)
@@ -98,14 +98,14 @@ public final class Podcast {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.code, this.artistCode, this.name, this.description, this.category);
+        return Objects.hash(this.podcastCode, this.artistCode, this.name, this.description, this.category);
     }
 
     @Override
     public String toString() {
         return Printer.stringify(
             "Podcast",
-            List.of(Printer.field("code", this.code),
+            List.of(Printer.field("code", this.podcastCode),
                 Printer.field("artistCode", this.artistCode),
                 Printer.field("name", this.name),
                 Printer.field("description", this.description),

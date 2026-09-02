@@ -32,6 +32,49 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
+    public void adminClickedSaveArtist(final String stageName, final String name, final String surname, 
+                                       final String birthDateStr, final String provenanceCountry, 
+                                       final String biography, final int startYear, final String artistType) {
+        try {
+            // Converte la stringa in LocalDate (assumendo il formato standard YYYY-MM-DD)
+            final java.time.LocalDate birthDate = birthDateStr == null || birthDateStr.isBlank() 
+                ? null 
+                : java.time.LocalDate.parse(birthDateStr);
+
+            this.model.insertArtist(stageName, name, surname, birthDate, provenanceCountry, biography, startYear, artistType);
+            // this.view.showSuccess("Artista inserito con successo!");
+        } catch (final java.time.format.DateTimeParseException e) {
+            // Gestione errore formato data non valido
+            // this.view.showError("Formato data non valido. Usa YYYY-MM-DD.");
+        } catch (final DAOException e) {
+            // Gestione dell'errore di inserimento database
+            // this.view.showError("Impossibile salvare l'artista.");
+        }
+    }
+
+    @Override
+    public void adminClickedSaveAlbumWithSongs(final int artistCode, final String title, final int releaseYear, 
+                                               final String recordCompany, final java.util.List<soundwave.data.SongInput> songs) {
+        try {
+            this.model.insertAlbumWithSongs(artistCode, title, releaseYear, recordCompany, songs);
+            // this.view.showSuccess("Album e brani inseriti con successo!");
+        } catch (final DAOException e) {
+            // Gestione dell'errore transazionale
+            // this.view.showError("Impossibile registrare l'album.");
+        }
+    }
+
+    @Override
+    public void adminClickedSaveAlbum(int artistCode, String title, int releaseYear, String label) {
+
+    }
+
+    @Override
+    public void adminClickedSaveTrack(int albumCode, String title, int duration, int trackNumber, String description) {
+
+    }
+
+    @Override
     public void adminClickedSavePodcast(final int artistCode, final String name, 
                                         final String description, final String category) {
         try {

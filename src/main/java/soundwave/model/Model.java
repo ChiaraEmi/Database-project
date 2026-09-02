@@ -1,8 +1,10 @@
 package soundwave.model;
 
 import java.sql.Connection;
+import java.time.LocalDate;
 import java.util.List;
 
+import soundwave.data.SongInput;
 import soundwave.data.User;
 
 /**
@@ -10,6 +12,34 @@ import soundwave.data.User;
  * and data interactions for the Soundwave application.
  */
 public interface Model {
+
+    /**
+     * Inserts a new artist into the database.
+     *
+     * @param stageName the stage name of the artist.
+     * @param name the real first name of the artist (optional).
+     * @param surname the real surname of the artist (optional).
+     * @param birthDate the birth date of the artist (optional).
+     * @param provenanceCountry the country of origin.
+     * @param biography the biography of the artist (optional).
+     * @param startYear the year the artist started their activity.
+     * @param artistType the type of artist (e.g., 'Cantante', 'Autore Podcast', 'Band').
+     * @return the generated artist code.
+     */
+    int insertArtist(String stageName, String name, String surname, LocalDate birthDate, 
+                     String provenanceCountry, String biography, int startYear, String artistType);
+    
+    /**
+     * Inserts a new album along with its songs, artists, and genres into the system (OP 8).
+     *
+     * @param artistCode the code of the main artist/band of the album.
+     * @param title the title of the album.
+     * @param releaseYear the release year.
+     * @param recordCompany the record company name.
+     * @param songs the list of song inputs containing details for each track.
+     * @return the generated album code.
+     */
+    int insertAlbumWithSongs(int artistCode, String title, int releaseYear, String recordCompany, List<SongInput> songs);
 
     /**
      * Inserts a new podcast into the database.

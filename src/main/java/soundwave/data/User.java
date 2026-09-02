@@ -26,14 +26,14 @@ public final class User {
     /**
      * Creates a new User instance.
      * 
-     * @param username    the unique username of the user
-     * @param name        the name of the user
-     * @param surname     the surname of the user
-     * @param email       the email address of the user
-     * @param password    the password of the user
-     * @param birthDate   the birth date of the user
-     * @param country     the country of origin of the user
-     * @param bonusCredit the bonus credit associated with the user
+     * @param username    the unique username of the user.
+     * @param name        the name of the user.
+     * @param surname     the surname of the user.
+     * @param email       the email address of the user.
+     * @param password    the password of the user.
+     * @param birthDate   the birth date of the user.
+     * @param country     the country of origin of the user.
+     * @param bonusCredit the bonus credit associated with the user.
      */
     public User(
             final String username,

@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public final class Episode {
 
-    private final int code;
+    private final int episodeCode;
     private final int podcastCode;
     private final int episodeNumber;
 
@@ -22,7 +22,7 @@ public final class Episode {
      * @param episodeNumber the episode number within the podcast.
      */
     public Episode(final int code, final int podcastCode, final int episodeNumber) {
-        this.code = code;
+        this.episodeCode = code;
         this.podcastCode = podcastCode;
         this.episodeNumber = episodeNumber;
     }
@@ -32,8 +32,8 @@ public final class Episode {
      *
      * @return the code.
      */
-    public int getCode() {
-        return code;
+    public int getEpisodeCode() {
+        return episodeCode;
     }
 
     /**
@@ -62,7 +62,7 @@ public final class Episode {
             return false;
         } else if (other instanceof Episode) {
             final var e = (Episode) other;
-            return e.code == this.code
+            return e.episodeCode == this.episodeCode
                    && e.podcastCode == this.podcastCode
                    && e.episodeNumber == this.episodeNumber;
         } else {
@@ -72,7 +72,7 @@ public final class Episode {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.code, this.podcastCode, this.episodeNumber);
+        return Objects.hash(this.episodeCode, this.podcastCode, this.episodeNumber);
     }
 
     @Override
@@ -80,7 +80,7 @@ public final class Episode {
         return Printer.stringify(
             "Episode",
             List.of(
-                Printer.field("code", this.code),
+                Printer.field("code", this.episodeCode),
                 Printer.field("podcastCode", this.podcastCode),
                 Printer.field("episodeNumber", this.episodeNumber)
             )

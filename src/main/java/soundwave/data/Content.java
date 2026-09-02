@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public final class Content {
 
-    private final int code;
+    private final int contentCode;
     private final String title;
     private final int duration;
     private final String description;
@@ -29,7 +29,7 @@ public final class Content {
      */
     public Content(final int code, final String title, final int duration, 
                    final String description, final String publicationDate, final String contentType) {
-        this.code = code;
+        this.contentCode = code;
         this.title = title == null ? "" : title;
         this.duration = duration;
         this.description = description == null ? "" : description;
@@ -42,8 +42,8 @@ public final class Content {
      *
      * @return the code.
      */
-    public int getCode() {
-        return code;
+    public int getContentCode() {
+        return contentCode;
     }
 
     /**
@@ -99,7 +99,7 @@ public final class Content {
             return false;
         } else if (other instanceof Content) {
             final var c = (Content) other;
-            return c.code == this.code
+            return c.contentCode == this.contentCode
                    && c.duration == this.duration
                    && c.title.equals(this.title)
                    && c.description.equals(this.description)
@@ -112,7 +112,7 @@ public final class Content {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.code, this.title, this.duration, this.description, this.publicationDate, this.contentType);
+        return Objects.hash(this.contentCode, this.title, this.duration, this.description, this.publicationDate, this.contentType);
     }
 
     @Override
@@ -120,7 +120,7 @@ public final class Content {
         return Printer.stringify(
             "Content",
             List.of(
-                Printer.field("code", this.code),
+                Printer.field("code", this.contentCode),
                 Printer.field("title", this.title),
                 Printer.field("duration", this.duration),
                 Printer.field("description", this.description),

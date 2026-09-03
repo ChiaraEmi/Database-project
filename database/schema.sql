@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS Artisti (
     PaeseProvenienza VARCHAR(50) NOT NULL,
     Biografia TEXT,
     AnnoInizioAttivita YEAR NOT NULL,
-    TipoArtista ENUM('Cantante', 'Band' 'Autore Podcast') NOT NULL
+    TipoArtista ENUM('Cantante', 'Band', 'Autore Podcast') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Contenuti (
@@ -94,13 +94,13 @@ CREATE TABLE IF NOT EXISTS Promozioni (
     DataInizioPromo DATE NOT NULL,
     DataFinePromo DATE NOT NULL,
     TipoSconto ENUM('Percentuale', 'Fisso') NOT NULL,
-    ValoreSconto DECIMAL(10,2) NOT NULL
+    ValoreSconto DECIMAL(10,2) NOT NULL,
     MesiRichiesti INT
 );
 
 CREATE TABLE IF NOT EXISTS CodiciInvito (
     Codice VARCHAR(50) PRIMARY KEY,
-    DataGenerazione DATE NOT NULL DEFAULT CURRENT_DATE,
+    DataGenerazione DATE NOT NULL DEFAULT (CURRENT_DATE),
     Username VARCHAR(50) NOT NULL UNIQUE,
     FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE
 );
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS Album (
     AnnoPubblicazione YEAR NOT NULL,
     CasaDiscografica VARCHAR(50) NOT NULL,
     MediaVoti DECIMAL(4,2) DEFAULT 0.00,
-    DurataTotale INT DEFAULT 0, --secondi
+    DurataTotale INT DEFAULT 0,
     UNIQUE(CodiceArtista, TitoloAlbum),
     FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE
 );
@@ -185,7 +185,9 @@ CREATE TABLE IF NOT EXISTS Appartenenze (
     FOREIGN KEY (NomeGenere) REFERENCES Generi(NomeGenere) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Inclusione (
+CREATE TABLE IF NOT EXISTS Inclusioni (
+    CodiceBrano INT NOT NULL,
+    CodicePlaylist INT NOT NULL,
     PRIMARY KEY (CodiceBrano, CodicePlaylist),
     FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE,
     FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE

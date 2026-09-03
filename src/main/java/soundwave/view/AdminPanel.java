@@ -98,29 +98,28 @@ public final class AdminPanel extends JPanel {
         titleLabel.setFont(titleLabel.getFont().deriveFont(TITLE_FONT_SIZE));
         this.add(titleLabel, BorderLayout.NORTH);
 
-        // Creazione delle schede principali (Artista e Podcast uniti nella prima scheda)
-        final JPanel artistAndPodcastContainer = new JPanel();
-        artistAndPodcastContainer.setLayout(new BoxLayout(artistAndPodcastContainer, BoxLayout.PAGE_AXIS));
-        artistAndPodcastContainer.add(createArtistFormPanel());
-        artistAndPodcastContainer.add(new JSeparator(JSeparator.HORIZONTAL));
-        artistAndPodcastContainer.add(createPodcastFormPanel());
-        artistAndPodcastContainer.add(createEpisodeFormPanel());
+        // --- SCHEDA UNICA: Tutti gli inserimenti (Artista, Album, Podcast, Episodio, Promozione) ---
+        final JPanel allInsertsContainer = new JPanel();
+        allInsertsContainer.setLayout(new BoxLayout(allInsertsContainer, BoxLayout.PAGE_AXIS));
+        
+        allInsertsContainer.add(createArtistFormPanel());
+        allInsertsContainer.add(new JSeparator(JSeparator.HORIZONTAL));
+        allInsertsContainer.add(createAlbumFormPanel());
+        allInsertsContainer.add(new JSeparator(JSeparator.HORIZONTAL));
+        allInsertsContainer.add(createPodcastFormPanel());
+        allInsertsContainer.add(new JSeparator(JSeparator.HORIZONTAL));
+        allInsertsContainer.add(createEpisodeFormPanel());
+        allInsertsContainer.add(new JSeparator(JSeparator.HORIZONTAL));
+        allInsertsContainer.add(createPromotionFormPanel());
 
-        final JScrollPane artistPodcastScrollPane = new JScrollPane(artistAndPodcastContainer);
-        artistPodcastScrollPane.setBorder(null);
+        final JScrollPane insertsScrollPane = new JScrollPane(allInsertsContainer);
+        insertsScrollPane.setBorder(null);
+        // Aumenta la velocità di scorrimento della rotellina del mouse per comodità
+        insertsScrollPane.getVerticalScrollBar().setUnitIncrement(16); 
 
-        // Contenitore per Album e relativi Brani
-        final JPanel albumContainer = new JPanel();
-        albumContainer.setLayout(new BoxLayout(albumContainer, BoxLayout.PAGE_AXIS));
-        albumContainer.add(createAlbumFormPanel());
-
-        final JScrollPane albumScrollPane = new JScrollPane(albumContainer);
-        albumScrollPane.setBorder(null);
-
+        // --- Configurazione delle Schede Principali (JTabbedPane) ---
         final JTabbedPane mainTabbedPane = new JTabbedPane();
-        mainTabbedPane.addTab("Inserimento Artista", artistPodcastScrollPane);
-        mainTabbedPane.addTab("Inserimento Album", albumScrollPane);
-        mainTabbedPane.addTab("Inserimento Promozione", createPromotionFormPanel());
+        mainTabbedPane.addTab("Inserimenti", insertsScrollPane);
         mainTabbedPane.addTab("Statistiche Piattaforma", createStatsPanel());
         mainTabbedPane.addTab("Gestione Utenti", createUsersPanel());
 

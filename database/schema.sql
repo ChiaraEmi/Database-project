@@ -186,12 +186,10 @@ CREATE TABLE IF NOT EXISTS Appartenenze (
     FOREIGN KEY (NomeGenere) REFERENCES Generi(NomeGenere) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Inclusioni (
-    CodicePlaylist INT NOT NULL,
-    CodiceBrano INT NOT NULL,
-    PRIMARY KEY (CodicePlaylist, CodiceBrano),
-    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE,
-    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS Inclusione (
+    PRIMARY KEY (CodiceBrano, CodicePlaylist),
+    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE,
+    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS LikeBrani (
@@ -219,3 +217,7 @@ CREATE TABLE IF NOT EXISTS ValiditaPromozioni (
     FOREIGN KEY (CodicePromozione) REFERENCES Promozioni(CodicePromozione) ON DELETE CASCADE,
     FOREIGN KEY (CodiceAbbonamento) REFERENCES Abbonamenti(CodiceAbbonamento) ON DELETE CASCADE
 );
+
+CREATE VIEW Musicisti AS 
+SELECT * FROM Artisti
+WHERE TipoArtista IN ('Cantante', 'Band');

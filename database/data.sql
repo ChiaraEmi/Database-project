@@ -1,36 +1,5 @@
 USE soundwave;
 
--- Disattiva i controlli delle chiavi esterne per evitare errori di vincolo
-SET FOREIGN_KEY_CHECKS = 0;
-
--- Svuota le tabelle partendo da quelle dipendenti (figlie)
-TRUNCATE TABLE EventiAscolto;
-TRUNCATE TABLE Transazioni;
-TRUNCATE TABLE Sottoscrizioni;
-TRUNCATE TABLE ValiditaPromozioni;
-TRUNCATE TABLE CodiciInvito;
-TRUNCATE TABLE Follow;
-TRUNCATE TABLE LikeBrani;
-TRUNCATE TABLE Recensioni;
-TRUNCATE TABLE Inclusioni;
-TRUNCATE TABLE Appartenenze;
-TRUNCATE TABLE Cantare;
-TRUNCATE TABLE Collaborazioni;
-TRUNCATE TABLE Playlist;
-TRUNCATE TABLE Brani;
-TRUNCATE TABLE Album;
-TRUNCATE TABLE Episodi;
-TRUNCATE TABLE Podcast;
-TRUNCATE TABLE Contenuti;
-TRUNCATE TABLE Promozioni;
-TRUNCATE TABLE Abbonamenti;
-TRUNCATE TABLE Generi;
-TRUNCATE TABLE Artisti;
-TRUNCATE TABLE Utenti;
-
--- Riattiva i controlli delle chiavi esterne
-SET FOREIGN_KEY_CHECKS = 1;
-
 -- 1. UTENTI
 INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
 ('mario88', 'Mario', 'Rossi', 'mario.rossi@email.com', 'hash_pass1', '1998-05-12', 'Italia', 10),
@@ -88,10 +57,10 @@ INSERT INTO Episodi (CodiceEpisodio, CodicePodcast, NumeroEpisodio) VALUES
 (7, 2, 101);
 
 -- 9. ALBUM
-INSERT INTO Album (CodiceAlbum, CodiceArtista, TitoloAlbum, DataPubblicazione, CasaDiscografica, MediaVoti, DurataTotale) VALUES
-(101, 1, 'OK. Respira', '2023-07-11', 'Island Records', 8.50, 345),
-(102, 2, 'RUSH!', '2023-12-01', 'Epic Records', 9.10, 441),
-(103, 3, 'Materia (Pelle)', '2022-08-03', 'Epic Records', 8.80, 225);
+INSERT INTO Album (CodiceAlbum, CodiceArtista, TitoloAlbum, AnnoPubblicazione, CasaDiscografica, MediaVoti, DurataTotale) VALUES
+(101, 1, 'OK. Respira', 2023, 'Island Records', 8.50, 345),
+(102, 2, 'RUSH!', 2023, 'Epic Records', 9.10, 441),
+(103, 3, 'Materia (Pelle)', 2022, 'Epic Records', 8.80, 225);
 
 -- 10. BRANI
 INSERT INTO Brani (CodiceBrano, CodiceAlbum, NumeroTraccia) VALUES
@@ -127,7 +96,7 @@ INSERT INTO Appartenenze (CodiceBrano, NomeGenere) VALUES
 (5, 'Pop');
 
 -- 15. INCLUSIONE (Relazione N:M Brano - Playlist)
-INSERT INTO Inclusioni (CodiceBrano, CodicePlaylist) VALUES
+INSERT INTO Inclusione (CodiceBrano, CodicePlaylist) VALUES
 (1, 1),
 (2, 1),
 (5, 1),

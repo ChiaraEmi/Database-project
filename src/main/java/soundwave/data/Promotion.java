@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.sql.Statement;
-import java.sql.PreparedStatement;
 
 /**
  * Represents a promotion entity within the Soundwave system.
@@ -203,6 +202,20 @@ public final class Promotion {
 
         private DAO() {}
 
+        /**
+         * Inserts a new promotion into the database and associates it with the specified subscription plans.
+         *
+         * @param connection            the database connection
+         * @param name                  the name of the promotion
+         * @param description           the description of the promotion
+         * @param beginDate             the start date of the promotion
+         * @param endDate               the end date of the promotion
+         * @param discountType          the type of discount (e.g., "percentage" or "value")
+         * @param discountValue         the value of the discount
+         * @param requiredMonths        optional field for the month when the promotion was requested
+         * @param subscriptionPlanCodes list of subscription plan codes to associate with the promotion
+         * @return the generated promotion code
+         */
         public static int insertPromotion(final Connection connection, final String name, final String description, final LocalDate beginDate, final LocalDate endDate, final String discountType, final double discountValue, final Integer requiredMonths, final List<Integer> subscriptionPlanCodes) {
             boolean autoCommit = true;
             try {
@@ -250,65 +263,6 @@ public final class Promotion {
                     throw new DAOException(e);
                 }
             }
-        }
-
-        /**
-         * Finds a specific user by their unique username.
-         * 
-         * @param connection the active database connection
-         * @param username   the username to search for
-         * @return an Optional containing the user if found, or empty otherwise
-         * @throws DAOException if a database error occurs
-         */
-        public static Optional<User> find(final Connection connection, final String username) throws SQLException {
-            Objects.requireNonNull(connection, "Connection cannot be null");
-            Objects.requireNonNull(username, "Username cannot be null");
-            String query = "SELECT Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus FROM Utenti WHERE Username = ?";
-            
-            try (var statement = connection.prepareStatement(query)) {
-                statement.setString(1, username);
-                try (var resultSet = statement.executeQuery()) {
-                    if (resultSet.next()) {
-                        Date sqlDate = resultSet.getDate("DataNascita");
-                        LocalDate localDate = (sqlDate != null) ? sqlDate.toLocalDate() : null;
-
-                        return Optional.of(new User(
-                            resultSet.getString("Username"),
-                            resultSet.getString("Nome"),
-                            resultSet.getString("Cognome"),
-                            resultSet.getString("Email"),
-                            resultSet.getString("Password"),
-                            localDate,
-                            resultSet.getString("Paese"),
-                            resultSet.getInt("CreditoBonus")
-                        ));
-                    }
-                }
-            }
-            return Optional.empty();
-        }
-
-        /**
-         * Retrieves users with a number of listens above the average for the given year.
-         *
-         * @param connection the database connection.
-         * @param year the year to check.
-         * @return a list of strings representing users and their play counts.
-         */
-        public static List<String> getUsersAboveAverageListens(final Connection connection, final int year) {
-            final List<String> users = new ArrayList<>();
-            // La query richiede l'anno due volte a causa della struttura della subquery
-            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_USERS_ABOVE_AVG_LISTENS, year, year);
-                 var resultSet = statement.executeQuery()) {
-                
-                while (resultSet.next()) {
-                    users.add("Utente: " + resultSet.getString("Username") + 
-                              " - Ascolti: " + resultSet.getInt("NumeroAscolti"));
-                }
-            } catch (final SQLException e) {
-                throw new DAOException(e);
-            }
-            return users;
         }
     }
 }

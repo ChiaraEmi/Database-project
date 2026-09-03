@@ -93,6 +93,7 @@ public final class ControllerImpl implements Controller {
             // this.view.showSuccess("Episodio aggiunto con successo!");
         } catch (final DAOException e) {
             // this.view.failedToSaveEpisode(podcastCode, title, duration, description, episodeNumber);
+            e.printStackTrace();
         }
     }
 

@@ -61,6 +61,14 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtPodcastCategory = new JTextField(FIELD_COLUMNS);
     private final JButton btnSavePodcast = new JButton("Salva Podcast");
 
+    // --- Campi di testo per Inserimento Episodio (OP 10) ---
+    private final JTextField txtEpisodePodcastCode = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtEpisodeTitle = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtEpisodeDuration = new JTextField(FIELD_COLUMNS); // in secondi
+    private final JTextField txtEpisodeDescription = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtEpisodeNumber = new JTextField(FIELD_COLUMNS);
+    private final JButton btnSaveEpisode = new JButton("Salva Episodio");
+
     // --- Campi di testo per Inserimento Promozione (OP 6) ---
     private final JTextField txtPromoName = new JTextField(FIELD_COLUMNS);
     private final JTextField txtDiscountPercentage = new JTextField(FIELD_COLUMNS);
@@ -96,6 +104,7 @@ public final class AdminPanel extends JPanel {
         artistAndPodcastContainer.add(createArtistFormPanel());
         artistAndPodcastContainer.add(new JSeparator(JSeparator.HORIZONTAL));
         artistAndPodcastContainer.add(createPodcastFormPanel());
+        artistAndPodcastContainer.add(createEpisodeFormPanel());
 
         final JScrollPane artistPodcastScrollPane = new JScrollPane(artistAndPodcastContainer);
         artistPodcastScrollPane.setBorder(null);
@@ -271,6 +280,41 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
+     * Creates the form panel for Episode insertion (OP 10).
+     */
+    private JPanel createEpisodeFormPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        final JLabel sectionLabel = new JLabel("Nuovo Episodio");
+        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(sectionLabel, gbc);
+
+        gbc.gridwidth = 1;
+        int row = 1;
+
+        addFormField(panel, gbc, row++, "Codice Podcast:", this.txtEpisodePodcastCode);
+        addFormField(panel, gbc, row++, "Titolo Episodio:", this.txtEpisodeTitle);
+        addFormField(panel, gbc, row++, "Durata (secondi):", this.txtEpisodeDuration);
+        addFormField(panel, gbc, row++, "Descrizione:", this.txtEpisodeDescription);
+        addFormField(panel, gbc, row++, "Numero Episodio:", this.txtEpisodeNumber);
+
+        this.btnSaveEpisode.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(this.btnSaveEpisode, gbc);
+
+        return panel;
+    }
+
+    /**
      * Creates the form panel for Promotion insertion (OP 6).
      */
     private JPanel createPromotionFormPanel() {
@@ -429,6 +473,26 @@ public final class AdminPanel extends JPanel {
         return this.txtPodcastCategory.getText();
     }
 
+    public String getEpisodePodcastCode() {
+        return this.txtEpisodePodcastCode.getText();
+    }
+
+    public String getEpisodeTitle() {
+        return this.txtEpisodeTitle.getText();
+    }
+
+    public String getEpisodeDuration() {
+        return this.txtEpisodeDuration.getText();
+    }
+
+    public String getEpisodeDescription() {
+        return this.txtEpisodeDescription.getText();
+    }
+
+    public String getEpisodeNumber() {
+        return this.txtEpisodeNumber.getText();
+    }
+
     public String getPromoName() {
         return this.txtPromoName.getText();
     }
@@ -461,6 +525,10 @@ public final class AdminPanel extends JPanel {
 
     public void addSavePodcastListener(final ActionListener listener) {
         this.btnSavePodcast.addActionListener(listener);
+    }
+
+    public void addSaveEpisodeListener(final ActionListener listener) {
+        this.btnSaveEpisode.addActionListener(listener);
     }
 
     public void addSavePromotionListener(final ActionListener listener) {

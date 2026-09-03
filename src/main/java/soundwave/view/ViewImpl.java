@@ -152,6 +152,46 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
+        // --- Inserimento Episodio (OP 10) ---
+        this.adminPanel.addSaveEpisodeListener(e -> {
+            if (this.controller != null) {
+                int podcastCode = 0;
+                try {
+                    if (!this.adminPanel.getEpisodePodcastCode().isBlank()) {
+                        podcastCode = Integer.parseInt(this.adminPanel.getEpisodePodcastCode());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione errore formato codice podcast
+                }
+
+                final String title = this.adminPanel.getEpisodeTitle();
+                
+                int duration = 0;
+                try {
+                    if (!this.adminPanel.getEpisodeDuration().isBlank()) {
+                        duration = Integer.parseInt(this.adminPanel.getEpisodeDuration());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione errore formato durata
+                }
+
+                final String description = this.adminPanel.getEpisodeDescription();
+
+                int episodeNumber = 0;
+                try {
+                    if (!this.adminPanel.getEpisodeNumber().isBlank()) {
+                        episodeNumber = Integer.parseInt(this.adminPanel.getEpisodeNumber());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione errore formato numero episodio
+                }
+
+                this.controller.adminClickedSaveEpisode(
+                    podcastCode, title, duration, description, episodeNumber
+                );
+            }
+        });
+
         // --- Statistiche Globali (OP 22) ---
         this.adminPanel.addFetchStatsListener(e -> {
             if (this.controller != null) {

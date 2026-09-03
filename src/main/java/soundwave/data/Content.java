@@ -150,7 +150,7 @@ public final class Content {
         public static int insert(final Connection connection, final String title, 
                                  final int duration, final String description, 
                                  final String contentType) {
-            return insert(connection, title, duration, description, contentType, null);
+            return insert(connection, title, duration, description, contentType, java.time.LocalDate.now().toString());
         }
 
         /**

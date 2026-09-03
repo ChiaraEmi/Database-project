@@ -1,9 +1,14 @@
 package soundwave.view;
 
 import java.awt.CardLayout;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
 
 /**
@@ -12,10 +17,13 @@ import soundwave.controller.Controller;
 public final class ViewImpl extends JFrame implements View {
 
     private static final long serialVersionUID = 1L;
-    public static final String FRAME_NAME = "Soundwave";
+    private static final int CURRENT_YEAR = 2026;
+    private static final String FRAME_NAME = "Soundwave";
     private static final String ROLE_SELECTION_CARD = "ROLE_SELECTION";
     private static final String USER_CARD = "USER";
     private static final String ADMIN_CARD = "ADMIN";
+    private static final String FORMAT_ERROR = "Format Error";
+    private static final Logger LOGGER = Logger.getLogger(ViewImpl.class.getName());
 
     private final CardLayout layout = new CardLayout();
     private final JPanel mainPanel = new JPanel(layout);
@@ -24,7 +32,7 @@ public final class ViewImpl extends JFrame implements View {
     private final UserPanel userPanel;
     private final AdminPanel adminPanel;
 
-    private Controller controller;
+    private transient Controller controller;
 
     /**
      * Builds a new ViewImpl with a custom close action.
@@ -32,7 +40,7 @@ public final class ViewImpl extends JFrame implements View {
      * @param onClose the action to execute when the window closes
      */
     public ViewImpl(final Runnable onClose) {
-        this(); // Chiama il costruttore base che inizializza i componenti
+        this();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -64,21 +72,15 @@ public final class ViewImpl extends JFrame implements View {
         setLocationRelativeTo(null);
     }
 
-    /*@SuppressFBWarnings(
-        value = "EI2",
-        justification = "View needs reference to controller"
-    )*/
     @Override
     public void setController(final Controller controller) {
         this.controller = controller;
 
-        // Navigazione tra i pannelli
         this.roleSelectionPanel.addUtenteListener(e -> showPanel(USER_CARD));
         this.roleSelectionPanel.addAdminListener(e -> showPanel(ADMIN_CARD));
         this.adminPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
         this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
 
-        // Caricamento Utenti (Admin)
         this.adminPanel.addFetchUsersListener(e -> {
             if (this.controller != null) {
                 this.controller.adminClickedLoadUsers();
@@ -95,14 +97,16 @@ public final class ViewImpl extends JFrame implements View {
                 final String country = this.adminPanel.getArtistProvenanceCountry();
                 final String biography = this.adminPanel.getArtistBiography();
                 final String artistType = this.adminPanel.getArtistType();
-                
+
                 int startYear = 0;
                 try {
                     if (!this.adminPanel.getArtistStartYear().isBlank()) {
                         startYear = Integer.parseInt(this.adminPanel.getArtistStartYear());
                     }
                 } catch (final NumberFormatException ex) {
-                    // Gestione errore formato anno
+                    LOGGER.log(Level.SEVERE, "Invalid artist start year format", ex);
+                    JOptionPane.showMessageDialog(this, "Please enter a valid start year (e.g., 2020).", 
+                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                 }
 
                 this.controller.adminClickedSaveArtist(
@@ -120,18 +124,20 @@ public final class ViewImpl extends JFrame implements View {
                         artistCode = Integer.parseInt(this.adminPanel.getAlbumArtistCode());
                     }
                 } catch (final NumberFormatException ex) {
-                    // Gestione errore formato codice artista
+                    LOGGER.log(Level.SEVERE, "Invalid album artist code format", ex);
+                    JOptionPane.showMessageDialog(this, "Artist code must be a valid number.", 
+                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                 }
 
                 final String title = this.adminPanel.getAlbumTitle();
-                final String releaseDate = this.adminPanel.getAlbumReleaseDate(); // <-- Aggiornato a String / getAlbumReleaseDate()
+                final String releaseDate = this.adminPanel.getAlbumReleaseDate();
                 final String label = this.adminPanel.getAlbumLabel();
                 final String rawSongsText = this.adminPanel.getAlbumSongsInput();
 
                 this.controller.adminClickedSaveAlbumWithSongs(artistCode, title, releaseDate, label, rawSongsText);
             }
         });
-        
+
         // --- Inserimento Podcast (OP 9) ---
         this.adminPanel.addSavePodcastListener(e -> {
             if (this.controller != null) {
@@ -141,7 +147,9 @@ public final class ViewImpl extends JFrame implements View {
                         artistCode = Integer.parseInt(this.adminPanel.getPodcastArtistCode());
                     }
                 } catch (final NumberFormatException ex) {
-                    // Gestione errore formato codice artista
+                    LOGGER.log(Level.SEVERE, "Invalid podcast artist code format", ex);
+                    JOptionPane.showMessageDialog(this, "Podcast artist code must be a valid number.", 
+                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                 }
 
                 final String name = this.adminPanel.getPodcastName();
@@ -161,18 +169,22 @@ public final class ViewImpl extends JFrame implements View {
                         podcastCode = Integer.parseInt(this.adminPanel.getEpisodePodcastCode());
                     }
                 } catch (final NumberFormatException ex) {
-                    // Gestione errore formato codice podcast
+                    LOGGER.log(Level.SEVERE, "Invalid episode podcast code format", ex);
+                    JOptionPane.showMessageDialog(this, "Podcast code must be a valid number.", 
+                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                 }
 
                 final String title = this.adminPanel.getEpisodeTitle();
-                
+
                 int duration = 0;
                 try {
                     if (!this.adminPanel.getEpisodeDuration().isBlank()) {
                         duration = Integer.parseInt(this.adminPanel.getEpisodeDuration());
                     }
                 } catch (final NumberFormatException ex) {
-                    // Gestione errore formato durata
+                    LOGGER.log(Level.SEVERE, "Invalid episode duration format", ex);
+                    JOptionPane.showMessageDialog(this, "Duration in seconds must be a valid number.", 
+                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                 }
 
                 final String description = this.adminPanel.getEpisodeDescription();
@@ -183,7 +195,9 @@ public final class ViewImpl extends JFrame implements View {
                         episodeNumber = Integer.parseInt(this.adminPanel.getEpisodeNumber());
                     }
                 } catch (final NumberFormatException ex) {
-                    // Gestione errore formato numero episodio
+                    LOGGER.log(Level.SEVERE, "Invalid episode number format", ex);
+                    JOptionPane.showMessageDialog(this, "Episode number must be a valid integer.", 
+                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                 }
 
                 this.controller.adminClickedSaveEpisode(
@@ -195,16 +209,17 @@ public final class ViewImpl extends JFrame implements View {
         // --- Statistiche Globali (OP 22) ---
         this.adminPanel.addFetchStatsListener(e -> {
             if (this.controller != null) {
-                int year = 2026; // Anno di default
+                int year = CURRENT_YEAR;
                 try {
                     if (!this.adminPanel.getStatsYear().isBlank()) {
                         year = Integer.parseInt(this.adminPanel.getStatsYear());
                     }
                 } catch (final NumberFormatException ex) {
-                    // Gestione formato anno non valido
+                    LOGGER.log(Level.SEVERE, "Invalid stats year format", ex);
+                    JOptionPane.showMessageDialog(this, "Reference year must be a valid number.", 
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                 }
-                
-                // Chiamata unica al controller
+
                 this.controller.adminRequestedGlobalStats(year);
             }
         });
@@ -220,15 +235,11 @@ public final class ViewImpl extends JFrame implements View {
         layout.show(mainPanel, panelName);
     }
 
-    public RoleSelectionPanel getRoleSelectionPanel() {
-        return this.roleSelectionPanel;
-    }
-
     @Override
     public void showUsers(final java.util.List<soundwave.data.User> users) {
         final StringBuilder sb = new StringBuilder();
         for (final soundwave.data.User user : users) {
-            sb.append(user.toString()).append("\n");
+            sb.append(user.toString()).append('\n');
         }
         this.adminPanel.setUsersOutputText(sb.toString());
     }
@@ -238,11 +249,42 @@ public final class ViewImpl extends JFrame implements View {
         this.adminPanel.setStatsOutputText(statsText);
     }
 
-    /*public UserPanel getUserPanel() {
+    /**
+     * Gets the role selection panel.
+     *
+     * @return the role selection panel
+     */
+    @SuppressFBWarnings(
+        value = "EI_EXPOSE_REP",
+        justification = "UI panels are stateful components managed as internal view references."
+    )
+    public RoleSelectionPanel getRoleSelectionPanel() {
+        return this.roleSelectionPanel;
+    }
+
+    /**
+     * Gets the user panel.
+     *
+     * @return the user panel
+     */
+    @SuppressFBWarnings(
+        value = "EI_EXPOSE_REP",
+        justification = "UI panels are stateful components managed as internal view references."
+    )
+    public UserPanel getUserPanel() {
         return userPanel;
     }
 
+    /**
+     * Gets the admin panel.
+     *
+     * @return the admin panel
+     */
+    @SuppressFBWarnings(
+        value = "EI_EXPOSE_REP",
+        justification = "UI panels are stateful components managed as internal view references."
+    )
     public AdminPanel getAdminPanel() {
         return adminPanel;
-    }*/
+    }
 }

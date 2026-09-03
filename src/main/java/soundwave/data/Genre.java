@@ -74,11 +74,12 @@ public final class Genre {
         public static String getMostPlayedGenre(final Connection connection, final int year) {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_MOST_PLAYED_GENRE, year);
                  var resultSet = statement.executeQuery()) {
-                
+
                 if (resultSet.next()) {
-                    return "Genere: " + resultSet.getString("NomeGenere") + 
-                           " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
+                    return "Genere: " + resultSet.getString("NomeGenere") 
+                            + " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
                 }
+
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }

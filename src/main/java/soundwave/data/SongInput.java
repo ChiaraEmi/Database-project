@@ -8,12 +8,12 @@ import java.util.Objects;
  */
 public final class SongInput {
 
-    public final String title;
-    public final int duration;
-    public final String description;
-    public final int trackNumber;
-    public final int artistCodeForSong;
-    public final List<String> genres;
+    private final String title;
+    private final int duration;
+    private final String description;
+    private final int trackNumber;
+    private final int artistCodeForSong;
+    private final List<String> genres;
 
     /**
      * Constructs a new SongInput instance.
@@ -39,6 +39,60 @@ public final class SongInput {
         this.trackNumber = trackNumber;
         this.artistCodeForSong = artistCodeForSong;
         this.genres = genres == null ? List.of() : List.copyOf(genres);
+    }
+
+    /**
+     * Returns the song title.
+     * 
+     * @return the title.
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Returns the song duration.
+     * 
+     * @return the duration.
+     */
+    public int getDuration() {
+        return duration;
+    }
+
+    /**
+     * Returns the description.
+     * 
+     * @return the description.
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Returns the track number.
+     * 
+     * @return the track number.
+     */
+    public int getTrackNumber() {
+        return trackNumber;
+    }
+
+    /**
+     * Returns the artist code for the song.
+     * 
+     * @return the artist code.
+     */
+    public int getArtistCodeForSong() {
+        return artistCodeForSong;
+    }
+
+    /**
+     * Returns the list of genres.
+     * 
+     * @return the genres list.
+     */
+    public List<String> getGenres() {
+        return List.copyOf(genres);
     }
 
     @Override

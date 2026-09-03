@@ -2,69 +2,97 @@ package soundwave.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
+/**
+ * A mocked implementation of the Model interface.
+ */
 public final class MockedModel implements Model {
 
-    // Una lista in memoria per simulare il database dei podcast
-    private final List<String> savedPodcasts = new ArrayList<>();
+    private static final int DEFAULT_BIRTH_YEAR = 1990;
+    private static final int DEFAULT_BIRTH_MONTH = 5;
+    private static final int DEFAULT_BIRTH_DAY = 10;
+    private static final int DEFAULT_USER_POINTS = 10;
+    private static final int DEFAULT_ARTIST_ID = 1;
+    private static final int DEFAULT_EPISODE_ID = 1;
+    private static final int DEFAULT_PLAYLIST_ID = 1;
+
+    private final List<User> users;
+    private final List<String> savedPodcasts;
+    private final Map<Integer, String> artists;
+    private final Map<Integer, String> albums;
+
+    /**
+     * Constructs a new MockedModel with initial test data.
+     */
+    public MockedModel() {
+        this.users = new ArrayList<>();
+        this.savedPodcasts = new ArrayList<>();
+        this.artists = new HashMap<>();
+        this.albums = new HashMap<>();
+
+        // Inserimento di dati iniziali di prova
+        this.users.add(
+            new User("mario88", "Mario", "Rossi", "mario@email.com", "pass123", 
+                     LocalDate.of(DEFAULT_BIRTH_YEAR, DEFAULT_BIRTH_MONTH, DEFAULT_BIRTH_DAY), 
+                     "Italia", DEFAULT_USER_POINTS)
+        );
+        this.artists.put(DEFAULT_ARTIST_ID, "Test Artist");
+    }
 
     @Override
     public int insertArtist(final String stageName, final String name, final String surname, 
                             final LocalDate birthDate, final String provenanceCountry, 
                             final String biography, final int startYear, final String artistType) {
-        System.out.println("[MOCK] Artist inserted: " + stageName);
-        return 1;
+        final int newId = this.artists.size() + 1;
+        this.artists.put(newId, stageName);
+        return newId;
     }
 
     @Override
     public int insertAlbumWithSongs(final int artistCode, final String title, final String releaseDate,
                                     final String recordCompany, final List<SongInput> songs) {
-        System.out.println("[MOCK] Album inserted: " + title + " with " + songs.size() + " songs.");
-        return 1;
+        final int newId = this.albums.size() + 1;
+        this.albums.put(newId, title);
+        return newId;
     }
 
     @Override
     public int insertPodcast(final int artistCode, final String name, final String description, final String category) {
-        // Simuliamo l'inserimento stampando un messaggio e restituendo un ID fittizio (es. 1)
-        System.out.println("[MOCK] Podcast inserito: " + name + " (Artista: " + artistCode + ")");
-        savedPodcasts.add(name);
-        return 1; 
+        this.savedPodcasts.add(name);
+        return this.savedPodcasts.size(); 
     }
 
     @Override
     public int insertEpisode(final int podcastCode, final String title, final int duration, final String description, 
                                 final int episodeNumber) {
-        return 1;
+        return DEFAULT_EPISODE_ID;
     }
 
     @Override
     public int insertPlaylist(final String username, final String playlistName, final String visibility, 
                                 final boolean isCollaborative) {
-        return 1;
+        return DEFAULT_PLAYLIST_ID;
     }
 
     @Override
     public void addTrackToPlaylist(final int playlistCode, final int trackCode) {
-        // Simulazione vuota
+        // Simulazione in memoria
     }
 
     @Override
     public void insertListeningEvent(final String username, final int contentCode, final String device, 
                                     final int eventDuration) {
-        // Simulazione vuota
+        // Simulazione in memoria
     }
-    
+
     @Override
     public List<User> loadUsers() {
-        return List.of(
-            // Inserisci un utente di prova fittizio
-            new User("mario88", "Mario", "Rossi", "mario@email.com", "pass123", 
-                        LocalDate.of(1990, 5, 10), "Italia", 10)
-        );
+        return List.copyOf(this.users);
     }
 
     @Override

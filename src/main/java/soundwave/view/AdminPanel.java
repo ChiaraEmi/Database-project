@@ -30,6 +30,8 @@ public final class AdminPanel extends JPanel {
     private static final int BUTTON_WIDTH = 160;
     private static final int BUTTON_HEIGHT = 32;
     private static final int INSET_GAP = 8;
+    private static final int DEFAULT_SONGS_ROWS = 5;
+    private static final int DEFAULT_PADDING = 5;
 
     // --- Campi di testo per Inserimento Artista (OP 7) ---
     private final JTextField txtStageName = new JTextField(FIELD_COLUMNS);
@@ -47,7 +49,7 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtAlbumTitle = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumReleaseDate = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS);
-    private final JTextArea txtAlbumSongsInput = new JTextArea(5, 20); 
+    private final JTextArea txtAlbumSongsInput = new JTextArea(DEFAULT_SONGS_ROWS, 20); 
     private final JButton btnSaveAlbum = new JButton("Salva Album");
 
     // --- Campi di testo per inserimento Podcast (OP 9) ---
@@ -108,13 +110,17 @@ public final class AdminPanel extends JPanel {
         this.add(mainTabbedPane, BorderLayout.CENTER);
 
         final JPanel bottomPanel = new JPanel();
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(DEFAULT_PADDING, 0, 0, 0));
         bottomPanel.add(this.btnBack);
         this.add(bottomPanel, BorderLayout.SOUTH);
     }
 
     /**
      * Helper to wrap a form panel inside a scrollpane for safety on smaller screens.
+     * 
+     * @param panel the panel to wrap.
+     * 
+     * @return the scroll pane containing the panel.
      */
     private JScrollPane wrapInScrollPane(final JPanel panel) {
         final JScrollPane scrollPane = new JScrollPane(panel);
@@ -123,6 +129,11 @@ public final class AdminPanel extends JPanel {
         return scrollPane;
     }
 
+    /**
+     * Creates the form panel for registering a new artist.
+     * 
+     * @return the artist form panel.
+     */
     private JPanel createArtistFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -130,21 +141,35 @@ public final class AdminPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
 
         int row = 0;
-        addSectionHeader(panel, gbc, row++, "Registrazione Nuovo Artista");
+        addSectionHeader(panel, gbc, row, "Registrazione Nuovo Artista");
+        row++;
 
-        addFormField(panel, gbc, row++, "Nome d'arte:", this.txtStageName);
-        addFormField(panel, gbc, row++, "Nome reale:", this.txtRealName);
-        addFormField(panel, gbc, row++, "Cognome reale:", this.txtRealSurname);
-        addFormField(panel, gbc, row++, "Data di nascita (YYYY-MM-DD):", this.txtBirthDate);
-        addFormField(panel, gbc, row++, "Paese di provenienza:", this.txtProvenanceCountry);
-        addFormField(panel, gbc, row++, "Biografia:", this.txtBiography);
-        addFormField(panel, gbc, row++, "Anno inizio attività:", this.txtStartYear);
-        addFormField(panel, gbc, row++, "Tipo artista:", this.txtArtistType);
+        addFormField(panel, gbc, row, "Nome d'arte:", this.txtStageName);
+        row++;
+        addFormField(panel, gbc, row, "Nome reale:", this.txtRealName);
+        row++;
+        addFormField(panel, gbc, row, "Cognome reale:", this.txtRealSurname);
+        row++;
+        addFormField(panel, gbc, row, "Data di nascita (YYYY-MM-DD):", this.txtBirthDate);
+        row++;
+        addFormField(panel, gbc, row, "Paese di provenienza:", this.txtProvenanceCountry);
+        row++;
+        addFormField(panel, gbc, row, "Biografia:", this.txtBiography);
+        row++;
+        addFormField(panel, gbc, row, "Anno inizio attività:", this.txtStartYear);
+        row++;
+        addFormField(panel, gbc, row, "Tipo artista:", this.txtArtistType);
+        row++;
 
         addCenteredButton(panel, gbc, row, this.btnSaveArtist);
         return panel;
     }
 
+    /**
+     * Creates the form panel for inserting albums and songs.
+     * 
+     * @return the album form panel.
+     */
     private JPanel createAlbumFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -152,25 +177,36 @@ public final class AdminPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
 
         int row = 0;
-        addSectionHeader(panel, gbc, row++, "Inserimento Album e Brani Correlati");
+        addSectionHeader(panel, gbc, row, "Inserimento Album e Brani Correlati");
+        row++;
 
-        addFormField(panel, gbc, row++, "Codice Artista:", this.txtAlbumArtistCode);
-        addFormField(panel, gbc, row++, "Titolo Album:", this.txtAlbumTitle);
-        addFormField(panel, gbc, row++, "Data Pubblicazione (YYYY-MM-DD):", this.txtAlbumReleaseDate);
-        addFormField(panel, gbc, row++, "Casa Discografica:", this.txtAlbumLabel);
+        addFormField(panel, gbc, row, "Codice Artista:", this.txtAlbumArtistCode);
+        row++;
+        addFormField(panel, gbc, row, "Titolo Album:", this.txtAlbumTitle);
+        row++;
+        addFormField(panel, gbc, row, "Data Pubblicazione (YYYY-MM-DD):", this.txtAlbumReleaseDate);
+        row++;
+        addFormField(panel, gbc, row, "Casa Discografica:", this.txtAlbumLabel);
+        row++;
 
         gbc.gridx = 0;
-        gbc.gridy = row++;
+        gbc.gridy = row;
         panel.add(new JLabel("Elenco Brani:"), gbc);
-        
+
         gbc.gridx = 1;
         this.txtAlbumSongsInput.setLineWrap(true);
         panel.add(new JScrollPane(this.txtAlbumSongsInput), gbc);
+        row++;
 
         addCenteredButton(panel, gbc, row, this.btnSaveAlbum);
         return panel;
     }
-    
+
+    /**
+     * Creates the form panel for creating a new podcast.
+     * 
+     * @return the podcast form panel.
+     */
     private JPanel createPodcastFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -178,17 +214,27 @@ public final class AdminPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
 
         int row = 0;
-        addSectionHeader(panel, gbc, row++, "Creazione Nuovo Podcast");
+        addSectionHeader(panel, gbc, row, "Creazione Nuovo Podcast");
+        row++;
 
-        addFormField(panel, gbc, row++, "Codice Artista:", this.txtPodcastArtistCode);
-        addFormField(panel, gbc, row++, "Nome Podcast:", this.txtPodcastName);
-        addFormField(panel, gbc, row++, "Descrizione:", this.txtPodcastDescription);
-        addFormField(panel, gbc, row++, "Categoria:", this.txtPodcastCategory);
+        addFormField(panel, gbc, row, "Codice Artista:", this.txtPodcastArtistCode);
+        row++;
+        addFormField(panel, gbc, row, "Nome Podcast:", this.txtPodcastName);
+        row++;
+        addFormField(panel, gbc, row, "Descrizione:", this.txtPodcastDescription);
+        row++;
+        addFormField(panel, gbc, row, "Categoria:", this.txtPodcastCategory);
+        row++;
 
         addCenteredButton(panel, gbc, row, this.btnSavePodcast);
         return panel;
     }
 
+    /**
+     * Creates the form panel for adding an episode to a podcast.
+     * 
+     * @return the episode form panel.
+     */
     private JPanel createEpisodeFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -196,18 +242,29 @@ public final class AdminPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
 
         int row = 0;
-        addSectionHeader(panel, gbc, row++, "Aggiungi Episodio al Podcast");
+        addSectionHeader(panel, gbc, row, "Aggiungi Episodio al Podcast");
+        row++;
 
-        addFormField(panel, gbc, row++, "Codice Podcast:", this.txtEpisodePodcastCode);
-        addFormField(panel, gbc, row++, "Titolo Episodio:", this.txtEpisodeTitle);
-        addFormField(panel, gbc, row++, "Durata (secondi):", this.txtEpisodeDuration);
-        addFormField(panel, gbc, row++, "Descrizione:", this.txtEpisodeDescription);
-        addFormField(panel, gbc, row++, "Numero Episodio:", this.txtEpisodeNumber);
+        addFormField(panel, gbc, row, "Codice Podcast:", this.txtEpisodePodcastCode);
+        row++;
+        addFormField(panel, gbc, row, "Titolo Episodio:", this.txtEpisodeTitle);
+        row++;
+        addFormField(panel, gbc, row, "Durata (secondi):", this.txtEpisodeDuration);
+        row++;
+        addFormField(panel, gbc, row, "Descrizione:", this.txtEpisodeDescription);
+        row++;
+        addFormField(panel, gbc, row, "Numero Episodio:", this.txtEpisodeNumber);
+        row++;
 
         addCenteredButton(panel, gbc, row, this.btnSaveEpisode);
         return panel;
     }
 
+    /**
+     * Creates the form panel for managing promotions and discounts.
+     * 
+     * @return the promotion form panel.
+     */
     private JPanel createPromotionFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -215,15 +272,23 @@ public final class AdminPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
 
         int row = 0;
-        addSectionHeader(panel, gbc, row++, "Gestione Promozioni e Sconti");
+        addSectionHeader(panel, gbc, row, "Gestione Promozioni e Sconti");
+        row++;
 
-        addFormField(panel, gbc, row++, "Nome Promozione:", this.txtPromoName);
-        addFormField(panel, gbc, row++, "Sconto (%):", this.txtDiscountPercentage);
+        addFormField(panel, gbc, row, "Nome Promozione:", this.txtPromoName);
+        row++;
+        addFormField(panel, gbc, row, "Sconto (%):", this.txtDiscountPercentage);
+        row++;
 
         addCenteredButton(panel, gbc, row, this.btnSavePromotion);
         return panel;
     }
 
+    /**
+     * Creates the panel for user management.
+     * 
+     * @return the users panel.
+     */
     private JPanel createUsersPanel() {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
@@ -237,6 +302,11 @@ public final class AdminPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates the panel for platform statistics.
+     * 
+     * @return the statistics panel.
+     */
     private JPanel createStatsPanel() {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
@@ -267,6 +337,14 @@ public final class AdminPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Adds a section header label to a form panel.
+     * 
+     * @param panel the target panel.
+     * @param gbc the grid bag constraints.
+     * @param row the grid row index.
+     * @param title the header title.
+     */
     private void addSectionHeader(final JPanel panel, final GridBagConstraints gbc, final int row, final String title) {
         final JLabel sectionLabel = new JLabel(title);
         sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
@@ -277,6 +355,15 @@ public final class AdminPanel extends JPanel {
         gbc.gridwidth = 1; // Reset
     }
 
+    /**
+     * Adds a form field with a label and text field to a panel.
+     * 
+     * @param panel the target panel.
+     * @param gbc the grid bag constraints.
+     * @param row the grid row index.
+     * @param labelText the text for the label.
+     * @param field the text field component.
+     */
     private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row, 
                             final String labelText, final JTextField field) {
         gbc.gridx = 0;
@@ -286,6 +373,14 @@ public final class AdminPanel extends JPanel {
         panel.add(field, gbc);
     }
 
+    /**
+     * Adds a centered action button to a form panel.
+     * 
+     * @param panel the target panel.
+     * @param gbc the grid bag constraints.
+     * @param row the grid row index.
+     * @param button the button component.
+     */
     private void addCenteredButton(final JPanel panel, final GridBagConstraints gbc, final int row, final JButton button) {
         button.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
@@ -295,45 +390,318 @@ public final class AdminPanel extends JPanel {
         panel.add(button, gbc);
     }
 
-    public String getArtistStageName() { return this.txtStageName.getText(); }
-    public String getArtistRealName() { return this.txtRealName.getText(); }
-    public String getArtistRealSurname() { return this.txtRealSurname.getText(); }
-    public String getArtistBirthDate() { return this.txtBirthDate.getText(); }
-    public String getArtistProvenanceCountry() { return this.txtProvenanceCountry.getText(); }
-    public String getArtistBiography() { return this.txtBiography.getText(); }
-    public String getArtistStartYear() { return this.txtStartYear.getText(); }
-    public String getArtistType() { return this.txtArtistType.getText(); }
+    /**
+     * Gets the artist's stage name.
+     * 
+     * @return the stage name.
+     */
+    public String getArtistStageName() {
+        return this.txtStageName.getText();
+    }
 
-    public String getAlbumArtistCode() { return this.txtAlbumArtistCode.getText(); }
-    public String getAlbumTitle() { return this.txtAlbumTitle.getText(); }
-    public String getAlbumReleaseDate() { return this.txtAlbumReleaseDate.getText(); }
-    public String getAlbumLabel() { return this.txtAlbumLabel.getText(); }
-    public String getAlbumSongsInput() { return this.txtAlbumSongsInput.getText(); }
+    /**
+     * Gets the artist's real name.
+     * 
+     * @return the real name.
+     */
+    public String getArtistRealName() {
+        return this.txtRealName.getText();
+    }
 
-    public String getPodcastArtistCode() { return this.txtPodcastArtistCode.getText(); }
-    public String getPodcastName() { return this.txtPodcastName.getText(); }
-    public String getPodcastDescription() { return this.txtPodcastDescription.getText(); }
-    public String getPodcastCategory() { return this.txtPodcastCategory.getText(); }
+    /**
+     * Gets the artist's real surname.
+     * 
+     * @return the real surname.
+     */
+    public String getArtistRealSurname() {
+        return this.txtRealSurname.getText();
+    }
 
-    public String getEpisodePodcastCode() { return this.txtEpisodePodcastCode.getText(); }
-    public String getEpisodeTitle() { return this.txtEpisodeTitle.getText(); }
-    public String getEpisodeDuration() { return this.txtEpisodeDuration.getText(); }
-    public String getEpisodeDescription() { return this.txtEpisodeDescription.getText(); }
-    public String getEpisodeNumber() { return this.txtEpisodeNumber.getText(); }
+    /**
+     * Gets the artist's birth date.
+     * 
+     * @return the birth date.
+     */
+    public String getArtistBirthDate() {
+        return this.txtBirthDate.getText();
+    }
 
-    public String getPromoName() { return this.txtPromoName.getText(); }
-    public String getDiscountPercentage() { return this.txtDiscountPercentage.getText(); }
+    /**
+     * Gets the artist's provenance country.
+     * 
+     * @return the provenance country.
+     */
+    public String getArtistProvenanceCountry() {
+        return this.txtProvenanceCountry.getText();
+    }
 
-    public void setStatsOutputText(final String text) { this.txtStatsOutput.setText(text); }
-    public String getStatsYear() { return this.txtStatsYear.getText(); }
-    public void setUsersOutputText(final String text) { this.txtUsersOutput.setText(text); }
+    /**
+     * Gets the artist's biography.
+     * 
+     * @return the biography.
+     */
+    public String getArtistBiography() {
+        return this.txtBiography.getText();
+    }
 
-    public void addSaveArtistListener(final ActionListener listener) { this.btnSaveArtist.addActionListener(listener); }
-    public void addSaveAlbumListener(final ActionListener listener) { this.btnSaveAlbum.addActionListener(listener); }
-    public void addSavePodcastListener(final ActionListener listener) { this.btnSavePodcast.addActionListener(listener); }
-    public void addSaveEpisodeListener(final ActionListener listener) { this.btnSaveEpisode.addActionListener(listener); }
-    public void addSavePromotionListener(final ActionListener listener) { this.btnSavePromotion.addActionListener(listener); }
-    public void addFetchStatsListener(final ActionListener listener) { this.btnFetchGlobalStats.addActionListener(listener); }
-    public void addBackListener(final ActionListener listener) { this.btnBack.addActionListener(listener); }
-    public void addFetchUsersListener(final ActionListener listener) { this.btnFetchUsers.addActionListener(listener); }
+    /**
+     * Gets the artist's start year.
+     * 
+     * @return the start year.
+     */
+    public String getArtistStartYear() {
+        return this.txtStartYear.getText();
+    }
+
+    /**
+     * Gets the artist's type.
+     * 
+     * @return the artist type.
+     */
+    public String getArtistType() {
+        return this.txtArtistType.getText();
+    }
+
+    /**
+     * Gets the album's artist code.
+     * 
+     * @return the artist code.
+     */
+    public String getAlbumArtistCode() {
+        return this.txtAlbumArtistCode.getText();
+    }
+
+    /**
+     * Gets the album title.
+     * 
+     * @return the album title.
+     */
+    public String getAlbumTitle() {
+        return this.txtAlbumTitle.getText();
+    }
+
+    /**
+     * Gets the album release date.
+     * 
+     * @return the release date.
+     */
+    public String getAlbumReleaseDate() {
+        return this.txtAlbumReleaseDate.getText();
+    }
+
+    /**
+     * Gets the album record label.
+     * 
+     * @return the record label.
+     */
+    public String getAlbumLabel() {
+        return this.txtAlbumLabel.getText();
+    }
+
+    /**
+     * Gets the input text for album songs.
+     * 
+     * @return the songs input text.
+     */
+    public String getAlbumSongsInput() {
+        return this.txtAlbumSongsInput.getText();
+    }
+
+    /**
+     * Gets the podcast's artist code.
+     * 
+     * @return the artist code.
+     */
+    public String getPodcastArtistCode() {
+        return this.txtPodcastArtistCode.getText();
+    }
+
+    /**
+     * Gets the podcast name.
+     * 
+     * @return the podcast name.
+     */
+    public String getPodcastName() {
+        return this.txtPodcastName.getText();
+    }
+
+    /**
+     * Gets the podcast description.
+     * 
+     * @return the podcast description.
+     */
+    public String getPodcastDescription() {
+        return this.txtPodcastDescription.getText();
+    }
+
+    /**
+     * Gets the podcast category.
+     * 
+     * @return the podcast category.
+     */
+    public String getPodcastCategory() {
+        return this.txtPodcastCategory.getText();
+    }
+
+    /**
+     * Gets the episode's podcast code.
+     * 
+     * @return the podcast code.
+     */
+    public String getEpisodePodcastCode() {
+        return this.txtEpisodePodcastCode.getText();
+    }
+
+    /**
+     * Gets the episode title.
+     * 
+     * @return the episode title.
+     */
+    public String getEpisodeTitle() {
+        return this.txtEpisodeTitle.getText();
+    }
+
+    /**
+     * Gets the episode duration.
+     * 
+     * @return the episode duration.
+     */
+    public String getEpisodeDuration() {
+        return this.txtEpisodeDuration.getText();
+    }
+
+    /**
+     * Gets the episode description.
+     * 
+     * @return the episode description.
+     */
+    public String getEpisodeDescription() {
+        return this.txtEpisodeDescription.getText();
+    }
+
+    /**
+     * Gets the episode number.
+     * 
+     * @return the episode number.
+     */
+    public String getEpisodeNumber() {
+        return this.txtEpisodeNumber.getText();
+    }
+
+    /**
+     * Gets the promotion name.
+     * 
+     * @return the promotion name.
+     */
+    public String getPromoName() {
+        return this.txtPromoName.getText();
+    }
+
+    /**
+     * Gets the discount percentage.
+     * 
+     * @return the discount percentage.
+     */
+    public String getDiscountPercentage() {
+        return this.txtDiscountPercentage.getText();
+    }
+
+    /**
+     * Sets the statistics output text.
+     * 
+     * @param text the statistics text to set.
+     */
+    public void setStatsOutputText(final String text) {
+        this.txtStatsOutput.setText(text);
+    }
+
+    /**
+     * Gets the statistics year.
+     * 
+     * @return the statistics year.
+     */
+    public String getStatsYear() {
+        return this.txtStatsYear.getText();
+    }
+
+    /**
+     * Sets the users output text.
+     * 
+     * @param text the users text to set.
+     */
+    public void setUsersOutputText(final String text) {
+        this.txtUsersOutput.setText(text);
+    }
+
+    /**
+     * Adds an action listener to the save artist button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addSaveArtistListener(final ActionListener listener) {
+        this.btnSaveArtist.addActionListener(listener);
+    }
+
+    /**
+     * Adds an action listener to the save album button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addSaveAlbumListener(final ActionListener listener) {
+        this.btnSaveAlbum.addActionListener(listener);
+    }
+
+    /**
+     * Adds an action listener to the save podcast button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addSavePodcastListener(final ActionListener listener) {
+        this.btnSavePodcast.addActionListener(listener);
+    }
+
+    /**
+     * Adds an action listener to the save episode button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addSaveEpisodeListener(final ActionListener listener) {
+        this.btnSaveEpisode.addActionListener(listener);
+    }
+
+    /**
+     * Adds an action listener to the save promotion button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addSavePromotionListener(final ActionListener listener) {
+        this.btnSavePromotion.addActionListener(listener);
+    }
+
+    /**
+     * Adds an action listener to the fetch stats button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addFetchStatsListener(final ActionListener listener) {
+        this.btnFetchGlobalStats.addActionListener(listener);
+    }
+
+    /**
+     * Adds an action listener to the back button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addBackListener(final ActionListener listener) {
+        this.btnBack.addActionListener(listener);
+    }
+
+    /**
+     * Adds an action listener to the fetch users button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addFetchUsersListener(final ActionListener listener) {
+        this.btnFetchUsers.addActionListener(listener);
+    }
 }

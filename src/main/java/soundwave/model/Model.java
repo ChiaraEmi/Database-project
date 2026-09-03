@@ -37,14 +37,14 @@ public interface Model {
      * @return the generated artist code.
      */
     int insertArtist(String stageName, String name, String surname, LocalDate birthDate, 
-                     String provenanceCountry, String biography, int startYear, String artistType);
-    
+                        String provenanceCountry, String biography, int startYear, String artistType);
+
     /**
      * Inserts a new album along with its songs, artists, and genres into the system (OP 8).
      *
      * @param artistCode the code of the main artist/band of the album.
      * @param title the title of the album.
-     * @param releaseYear the release year.
+     * @param releaseDate the release date.
      * @param recordCompany the record company name.
      * @param songs the list of song inputs containing details for each track.
      * @return the generated album code.

@@ -4,6 +4,8 @@ import soundwave.data.DAOException;
 import soundwave.model.Model;
 import soundwave.view.View;
 import java.util.Objects;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -11,14 +13,23 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public final class ControllerImpl implements Controller {
 
+    private static final Logger LOGGER = Logger.getLogger(ControllerImpl.class.getName());
+
+    private static final int ARTIST_CODE_INDEX = 4;
+    private static final int GENRES_INDEX = 5;
+
+    private static final String SECTION_FOOTER_SUFFIX = ") ===\n";
+    private static final String NEW_LINE = "\n";
+    private static final int INITIAL_BUILDER_CAPACITY = 512;
+
     private final Model model;
     private final View view;
 
     /**
      * Constructs a new ControllerImpl.
      *
-     * @param model the application model
-     * @param view the application view
+     * @param model the application model.
+     * @param view the application view.
      */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP2", 
@@ -36,19 +47,13 @@ public final class ControllerImpl implements Controller {
                                        final String birthDateStr, final String provenanceCountry, 
                                        final String biography, final int startYear, final String artistType) {
         try {
-            // Converte la stringa in LocalDate (assumendo il formato standard YYYY-MM-DD)
             final java.time.LocalDate birthDate = birthDateStr == null || birthDateStr.isBlank() 
                 ? null 
                 : java.time.LocalDate.parse(birthDateStr);
 
             this.model.insertArtist(stageName, name, surname, birthDate, provenanceCountry, biography, startYear, artistType);
-            // this.view.showSuccess("Artista inserito con successo!");
-        } catch (final java.time.format.DateTimeParseException e) {
-            // Gestione errore formato data non valido
-            // this.view.showError("Formato data non valido. Usa YYYY-MM-DD.");
-        } catch (final DAOException e) {
-            // Gestione dell'errore di inserimento database
-            // this.view.showError("Impossibile salvare l'artista.");
+        } catch (final java.time.format.DateTimeParseException | DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to save artist", e);
         }
     }
 
@@ -56,16 +61,10 @@ public final class ControllerImpl implements Controller {
     public void adminClickedSaveAlbumWithSongs(final int artistCode, final String title, final String releaseDate, 
                                                final String recordCompany, final String rawSongsText) {
         try {
-            // Qui viene chiamato il metodo di parsing per convertire il testo grezzo
             final java.util.List<soundwave.data.SongInput> songs = parseSongsInput(rawSongsText);
-
-            // Invia tutto al Model per la transazione sul database
             this.model.insertAlbumWithSongs(artistCode, title, releaseDate, recordCompany, songs);
-            
-            // this.view.showSuccess("Album e brani salvati con successo!");
         } catch (final DAOException e) {
-            // this.view.showError("Impossibile registrare l'album.");
-            e.printStackTrace(); // <-- Aggiungi questo per vedere l'errore esatto
+            LOGGER.log(Level.SEVERE, "Failed to save album with songs", e);
         }
     }
 
@@ -73,14 +72,9 @@ public final class ControllerImpl implements Controller {
     public void adminClickedSavePodcast(final int artistCode, final String name, 
                                         final String description, final String category) {
         try {
-            // Eventuale stato di caricamento nella view
-            // this.view.loadingPodcast();
             this.model.insertPodcast(artistCode, name, description, category);
-            // Notifica la view del successo (es. torna alla home o mostra un messaggio)
-            // this.view.showSuccess("Podcast creato con successo!");
         } catch (final DAOException e) {
-            // Notifica la view del fallimento passando i dati per un eventuale retry
-            // this.view.failedToSavePodcast(artistCode, name, description, category);
+            LOGGER.log(Level.SEVERE, "Failed to save podcast", e);
         }
     }
 
@@ -90,10 +84,8 @@ public final class ControllerImpl implements Controller {
                                         final int episodeNumber) {
         try {
             this.model.insertEpisode(podcastCode, title, duration, description, episodeNumber);
-            // this.view.showSuccess("Episodio aggiunto con successo!");
         } catch (final DAOException e) {
-            // this.view.failedToSaveEpisode(podcastCode, title, duration, description, episodeNumber);
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to save episode", e);
         }
     }
 
@@ -103,8 +95,7 @@ public final class ControllerImpl implements Controller {
         try {
             this.model.insertListeningEvent(username, contentCode, device, eventDuration);
         } catch (final DAOException e) {
-            // Gestione dell'errore di tracciamento ascolto
-            // this.view.showError("Impossibile registrare l'evento di ascolto.");
+            LOGGER.log(Level.SEVERE, "Failed to generate listening event", e);
         }
     }
 
@@ -113,9 +104,8 @@ public final class ControllerImpl implements Controller {
                                          final String visibility, final boolean isCollaborative) {
         try {
             this.model.insertPlaylist(username, playlistName, visibility, isCollaborative);
-            // this.view.showSuccess("Playlist creata con successo!");
         } catch (final DAOException e) {
-            // this.view.failedToCreatePlaylist(username, playlistName, visibility, isCollaborative);
+            LOGGER.log(Level.SEVERE, "Failed to create playlist", e);
         }
     }
 
@@ -123,9 +113,8 @@ public final class ControllerImpl implements Controller {
     public void userClickedAddTrackToPlaylist(final int playlistCode, final int trackCode) {
         try {
             this.model.addTrackToPlaylist(playlistCode, trackCode);
-            // this.view.showSuccess("Brano aggiunto alla playlist!");
         } catch (final DAOException e) {
-            // this.view.failedToAddTrackToPlaylist(playlistCode, trackCode);
+            LOGGER.log(Level.SEVERE, "Failed to add track to playlist", e);
         }
     }
 
@@ -136,56 +125,67 @@ public final class ControllerImpl implements Controller {
     public void adminClickedLoadUsers() {
         try {
             final java.util.List<soundwave.data.User> users = this.model.loadUsers();
-            // Passa la lista alla view per mostrarla nella dashboard
             this.view.showUsers(users);
-        } catch (final Exception e) {
-            // Gestione dell'errore
-            // this.view.showError("Impossibile caricare la lista degli utenti.");
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load users", e);
         }
     }
 
     @Override
     public void adminRequestedGlobalStats(final int year) {
         try {
-            // Interroga il Model per ottenere le metriche della OP 22
             final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
             final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
             final java.util.List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
             final java.util.List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
 
-            // Compone il report testuale ordinato per la dashboard
-            final StringBuilder sb = new StringBuilder();
-            sb.append("=== Artista più ascoltato (Anno ").append(year).append(") ===\n")
-              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato").append("\n\n");
-            
-            sb.append("=== Genere più ascoltato (Anno ").append(year).append(") ===\n")
-              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato").append("\n\n");
-            
-            sb.append("=== Utenti sopra la media ascolti (Anno ").append(year).append(") ===\n");
+            final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
+            sb.append("=== Artista più ascoltato (Anno ")
+              .append(year)
+              .append(SECTION_FOOTER_SUFFIX)
+              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato")
+              .append(NEW_LINE)
+              .append(NEW_LINE)
+              .append("=== Genere più ascoltato (Anno ")
+              .append(year)
+              .append(SECTION_FOOTER_SUFFIX)
+              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato")
+              .append(NEW_LINE)
+              .append(NEW_LINE)
+              .append("=== Utenti sopra la media ascolti (Anno ")
+              .append(year)
+              .append(SECTION_FOOTER_SUFFIX);
+
             if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
                 for (final String u : usersAboveAvg) {
-                    sb.append("• ").append(u).append("\n");
+                    sb.append("• ")
+                      .append(u)
+                      .append(NEW_LINE);
                 }
             } else {
-                sb.append("Nessun utente trovato.\n");
+                sb.append("Nessun utente trovato.")
+                  .append(NEW_LINE);
             }
-            sb.append("\n");
 
-            sb.append("=== Album sopra la media globale delle recensioni ===\n");
+            sb.append(NEW_LINE)
+              .append("=== Album sopra la media globale delle recensioni ===")
+              .append(NEW_LINE);
+
             if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
                 for (final String a : albumsAboveAvg) {
-                    sb.append("• ").append(a).append("\n");
+                    sb.append("• ")
+                      .append(a)
+                      .append(NEW_LINE);
                 }
             } else {
-                sb.append("Nessun album trovato.\n");
+                sb.append("Nessun album trovato.")
+                  .append(NEW_LINE);
             }
 
-            // Passa il risultato pronto alla View
             this.view.showGlobalStats(sb.toString());
 
         } catch (final DAOException e) {
-            // Gestione centralizzata dell'errore (es. messaggio di errore nella view)
-            // this.view.showError("Impossibile caricare le statistiche globali.");
+            LOGGER.log(Level.SEVERE, "Failed to load global stats", e);
         }
     }
 
@@ -193,8 +193,9 @@ public final class ControllerImpl implements Controller {
      * Helper method to parse raw text from the text area into a list of SongInput objects.
      * Expected format per line: Title, DurationInSeconds, TrackNumber, Description, ArtistCodeForSong, Genre1;Genre2
      *
-     * @param rawText the raw string retrieved from the songs text area
-     * @return a list of parsed SongInput items
+     * @param rawText the raw string retrieved from the songs text area.
+     * 
+     * @return a list of parsed SongInput items.
      */
     private java.util.List<soundwave.data.SongInput> parseSongsInput(final String rawText) {
         final java.util.List<soundwave.data.SongInput> songList = new java.util.ArrayList<>();
@@ -202,7 +203,7 @@ public final class ControllerImpl implements Controller {
             return songList; 
         }
 
-        final String[] lines = rawText.split("\n");
+        final String[] lines = rawText.split(NEW_LINE);
         for (final String line : lines) {
             if (!line.isBlank()) {
                 final String[] parts = line.split(",");
@@ -211,15 +212,14 @@ public final class ControllerImpl implements Controller {
                     final int duration = Integer.parseInt(parts[1].trim());
                     final int trackNumber = Integer.parseInt(parts[2].trim());
                     final String description = parts[3].trim();
-                    
-                    // Se l'artista del brano coincide con quello dell'album, puoi usare l'artistCode dell'album
-                    // oppure estrarlo dal testo se specificato. Qui usiamo un valore di default o un parametro.
-                    final int artistCodeForSong = parts.length > 4 ? Integer.parseInt(parts[4].trim()) : 0;
 
-                    // Gestione dei generi separati da punto e virgola (es. "Pop;Rock")
+                    final int artistCodeForSong = parts.length > ARTIST_CODE_INDEX
+                        ? Integer.parseInt(parts[ARTIST_CODE_INDEX].trim())
+                        : 0;
+
                     final java.util.List<String> genres;
-                    if (parts.length > 5 && !parts[5].isBlank()) {
-                        genres = java.util.Arrays.asList(parts[5].trim().split(";"));
+                    if (parts.length > GENRES_INDEX && !parts[GENRES_INDEX].isBlank()) {
+                        genres = java.util.Arrays.asList(parts[GENRES_INDEX].trim().split(";"));
                     } else {
                         genres = java.util.List.of();
                     }

@@ -35,8 +35,9 @@ public final class Artist {
      * @param startYear the start year of activity.
      * @param artistType the type of artist.
      */
-    public Artist(final int artistCode, final String stageName, final String name, final String surname, final LocalDate birthDate, 
-                  final String country, final String biography, final int startYear, final String artistType) {
+    public Artist(final int artistCode, final String stageName, final String name, final String surname, 
+                    final LocalDate birthDate, final String country, final String biography, 
+                    final int startYear, final String artistType) {
         this.artistCode = artistCode;
         this.stageName = stageName == null ? "" : stageName;
         this.name = name;
@@ -227,19 +228,22 @@ public final class Artist {
          *
          * @param connection the database connection.
          * @param year the year to check.
+         * 
          * @return a string representation of the most played artist.
          */
         public static String getMostPlayedArtist(final Connection connection, final int year) {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_MOST_PLAYED_ARTIST, year);
                 var resultSet = statement.executeQuery()) {
-                
+
                 if (resultSet.next()) {
-                    return "Artista: " + resultSet.getString("NomeDArte") + 
-                        " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
+                    return "Artista: " + resultSet.getString("NomeDArte")
+                            + " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
                 }
+
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
+
             return "Nessun artista trovato per quest'anno.";
         }
     }

@@ -23,18 +23,23 @@ public final class Main {
      * @throws SQLException if a database access error occurs.
      */
     public static void main(final String[] args) throws SQLException {
-        final var connection = DAOUtils.localMySQLConnection("soundwave", "root", "Dolphin26*");
+        String dbPassword = System.getenv("DB_PASSWORD");
+        if (dbPassword == null || dbPassword.isEmpty()) {
+            dbPassword = "Dolphin26*"; // Fallback for local testing
+        }
+
+        final var connection = DAOUtils.localMySQLConnection("soundwave", "root", dbPassword);
         final var model = Model.fromConnection(connection);
         //final Model model = new MockedModel();
-        
+
         final var view = new ViewImpl(() -> {
             try {
                 connection.close();
-            } catch (final Exception ignored) {
+            } catch (final SQLException ignored) {
                 // Ignored on close
             }
         });
-        
+
         final var controller = new ControllerImpl(model, view);
         view.setController(controller);
         view.start();

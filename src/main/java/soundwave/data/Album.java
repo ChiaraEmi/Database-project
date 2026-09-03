@@ -204,12 +204,12 @@ public final class Album {
                     Song.DAO.insert(
                         connection,
                         albumCode,
-                        songInput.title,
-                        songInput.duration,
-                        songInput.description,
-                        songInput.trackNumber,
-                        songInput.artistCodeForSong,
-                        songInput.genres,
+                        songInput.getTitle(),
+                        songInput.getDuration(),
+                        songInput.getDescription(),
+                        songInput.getTrackNumber(),
+                        songInput.getArtistCodeForSong(),
+                        songInput.getGenres(),
                         releaseDate
                     );
                 }
@@ -247,10 +247,10 @@ public final class Album {
             final List<String> albums = new ArrayList<>();
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING);
                  var resultSet = statement.executeQuery()) {
-                
+
                 while (resultSet.next()) {
-                    albums.add("Album: " + resultSet.getString("TitoloAlbum") + 
-                               " - Media Voti: " + resultSet.getDouble("MediaVoti"));
+                    albums.add("Album: " + resultSet.getString("TitoloAlbum") 
+                                + " - Media Voti: " + resultSet.getDouble("MediaVoti"));
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);

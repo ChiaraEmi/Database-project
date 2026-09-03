@@ -108,6 +108,8 @@ public final class Song {
          * @param trackNumber the track number.
          * @param artistCode the artist code who sings the song.
          * @param genres the list of genres.
+         * @param releaseDate the release date.
+         * 
          * @return the generated song code.
          */
         public static int insert(final Connection connection, final int albumCode, 
@@ -169,15 +171,16 @@ public final class Song {
          *
          * @param connection the database connection.
          * @param year the year to check.
-         * @string a string representation of the most played song.
+         * 
+         * @return a string representation of the most played song.
          */
         public static String getMostPlayedSong(final Connection connection, final int year) {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_MOST_PLAYED_SONG, year);
                 var resultSet = statement.executeQuery()) {
-                
+
                 if (resultSet.next()) {
-                    return "Brano: " + resultSet.getString("Titolo") + 
-                        " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
+                    return "Brano: " + resultSet.getString("Titolo") 
+                            + " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);

@@ -112,7 +112,8 @@ public final class Content {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.contentCode, this.title, this.duration, this.description, this.publicationDate, this.contentType);
+        return Objects.hash(this.contentCode, this.title, this.duration, this.description, 
+                            this.publicationDate, this.contentType);
     }
 
     @Override

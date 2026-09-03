@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS soundwave;
 CREATE DATABASE IF NOT EXISTS soundwave;
 USE soundwave;
 
@@ -17,11 +18,11 @@ CREATE TABLE IF NOT EXISTS Artisti (
     NomeDArte VARCHAR(100) NOT NULL,
     Nome VARCHAR(50),
     Cognome VARCHAR(50),
-    DataNascita DATE NOT NULL,
+    DataNascita DATE,
     PaeseProvenienza VARCHAR(50) NOT NULL,
     Biografia TEXT,
     AnnoInizioAttivita YEAR NOT NULL,
-    TipoArtista ENUM('Cantante', 'Autore Podcast') NOT NULL
+    TipoArtista ENUM('Cantante', 'Autore Podcast', 'Band') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Contenuti (
@@ -100,7 +101,7 @@ CREATE TABLE IF NOT EXISTS Promozioni (
 
 CREATE TABLE IF NOT EXISTS CodiciInvito (
     Codice VARCHAR(50) PRIMARY KEY,
-    DataGenerazione DATE NOT NULL DEFAULT CURRENT_DATE,
+    DataGenerazione DATE NOT NULL DEFAULT (CURRENT_DATE),
     Username VARCHAR(50) NOT NULL UNIQUE,
     FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE
 );
@@ -137,10 +138,10 @@ CREATE TABLE IF NOT EXISTS Album (
     CodiceAlbum INT AUTO_INCREMENT PRIMARY KEY,
     CodiceArtista INT NOT NULL,
     TitoloAlbum VARCHAR(100) NOT NULL,
-    DataPubblicazione YEAR NOT NULL,
+    DataPubblicazione VARCHAR(10) NOT NULL,
     CasaDiscografica VARCHAR(50) NOT NULL,
     MediaVoti DECIMAL(4,2) DEFAULT 0.00,
-    DurataTotale INT DEFAULT 0, --secondi
+    DurataTotale INT DEFAULT 0, 
     UNIQUE(CodiceArtista, TitoloAlbum),
     FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE
 );

@@ -50,7 +50,7 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtAlbumReleaseDate = new JTextField(FIELD_COLUMNS); // Formato YYYY-MM-DD
     private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS);
     
-    // Area di testo per inserire i brani (es. formato: Titolo, Durata, NumeroTraccia)
+    // Area di testo per inserire i brani
     private final JTextArea txtAlbumSongsInput = new JTextArea(6, 20); 
     private final JButton btnSaveAlbum = new JButton("Salva Album con Brani");
 
@@ -201,7 +201,7 @@ public final class AdminPanel extends JPanel {
         // Aggiunta campo per i brani correlati
         gbc.gridx = 0;
         gbc.gridy = row++;
-        panel.add(new JLabel("Brani (Titolo, Durata, N°):"), gbc);
+        panel.add(new JLabel("Brani:"), gbc);
         
         gbc.gridx = 1;
         this.txtAlbumSongsInput.setLineWrap(true);

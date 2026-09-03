@@ -86,7 +86,7 @@ public final class Queries {
     public static final String INSERT_CONTENUTO = 
         """
         INSERT INTO Contenuti (Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto)
-        VALUES (?, ?, ?, CURRENT_DATE, ?)
+        VALUES (?, ?, ?, ?, ?)
         """;
 
     public static final String INSERT_EPISODIO = 

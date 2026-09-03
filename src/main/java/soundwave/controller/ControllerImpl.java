@@ -65,6 +65,7 @@ public final class ControllerImpl implements Controller {
             // this.view.showSuccess("Album e brani salvati con successo!");
         } catch (final DAOException e) {
             // this.view.showError("Impossibile registrare l'album.");
+            e.printStackTrace(); // <-- Aggiungi questo per vedere l'errore esatto
         }
     }
 

@@ -7,12 +7,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -24,20 +22,20 @@ import javax.swing.SwingConstants;
 public final class AdminPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final float TITLE_FONT_SIZE = 22f;
-    private static final float SECTION_FONT_SIZE = 16f;
-    private static final int BORDER_SIZE = 20;
+    private static final float TITLE_FONT_SIZE = 20f;
+    private static final float SECTION_FONT_SIZE = 15f;
+    private static final int BORDER_SIZE = 15;
     private static final int TITLE_MARGIN = 10;
-    private static final int FIELD_COLUMNS = 15;
-    private static final int BUTTON_WIDTH = 180;
-    private static final int BUTTON_HEIGHT = 35;
-    private static final int INSET_GAP = 6;
+    private static final int FIELD_COLUMNS = 20;
+    private static final int BUTTON_WIDTH = 160;
+    private static final int BUTTON_HEIGHT = 32;
+    private static final int INSET_GAP = 8;
 
     // --- Campi di testo per Inserimento Artista (OP 7) ---
     private final JTextField txtStageName = new JTextField(FIELD_COLUMNS);
     private final JTextField txtRealName = new JTextField(FIELD_COLUMNS);
     private final JTextField txtRealSurname = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtBirthDate = new JTextField(FIELD_COLUMNS); // Formato YYYY-MM-DD
+    private final JTextField txtBirthDate = new JTextField(FIELD_COLUMNS);
     private final JTextField txtProvenanceCountry = new JTextField(FIELD_COLUMNS);
     private final JTextField txtBiography = new JTextField(FIELD_COLUMNS);
     private final JTextField txtStartYear = new JTextField(FIELD_COLUMNS);
@@ -47,12 +45,10 @@ public final class AdminPanel extends JPanel {
     // --- Campi per Inserimento Album e Brani (OP 8) ---
     private final JTextField txtAlbumArtistCode = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumTitle = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtAlbumReleaseDate = new JTextField(FIELD_COLUMNS); // Formato YYYY-MM-DD
+    private final JTextField txtAlbumReleaseDate = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS);
-    
-    // Area di testo per inserire i brani
-    private final JTextArea txtAlbumSongsInput = new JTextArea(6, 20); 
-    private final JButton btnSaveAlbum = new JButton("Salva Album con Brani");
+    private final JTextArea txtAlbumSongsInput = new JTextArea(5, 20); 
+    private final JButton btnSaveAlbum = new JButton("Salva Album");
 
     // --- Campi di testo per inserimento Podcast (OP 9) ---
     private final JTextField txtPodcastArtistCode = new JTextField(FIELD_COLUMNS);
@@ -64,7 +60,7 @@ public final class AdminPanel extends JPanel {
     // --- Campi di testo per Inserimento Episodio (OP 10) ---
     private final JTextField txtEpisodePodcastCode = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeTitle = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtEpisodeDuration = new JTextField(FIELD_COLUMNS); // in secondi
+    private final JTextField txtEpisodeDuration = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeDescription = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeNumber = new JTextField(FIELD_COLUMNS);
     private final JButton btnSaveEpisode = new JButton("Salva Episodio");
@@ -80,10 +76,10 @@ public final class AdminPanel extends JPanel {
 
     // --- Campi di testo per Statistiche Globali (OP 22) ---
     private final JTextField txtStatsYear = new JTextField(FIELD_COLUMNS);
-    private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche Globali");
+    private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche");
     private final JTextArea txtStatsOutput = new JTextArea(10, 30);
 
-    private final JButton btnBack = new JButton("Torna alla Selezione Ruolo");
+    private final JButton btnBack = new JButton("Disconnetti / Cambia Ruolo");
 
     /**
      * Builds a new AdminPanel.
@@ -93,62 +89,48 @@ public final class AdminPanel extends JPanel {
         this.setLayout(new BorderLayout(0, TITLE_MARGIN));
         this.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
 
-        // Intestazione principale
-        final JLabel titleLabel = new JLabel("Pannello Amministratore", SwingConstants.CENTER);
+        final JLabel titleLabel = new JLabel("Pannello di Controllo - Amministratore", SwingConstants.CENTER);
         titleLabel.setFont(titleLabel.getFont().deriveFont(TITLE_FONT_SIZE));
         this.add(titleLabel, BorderLayout.NORTH);
 
-        // --- SCHEDA UNICA: Tutti gli inserimenti (Artista, Album, Podcast, Episodio, Promozione) ---
-        final JPanel allInsertsContainer = new JPanel();
-        allInsertsContainer.setLayout(new BoxLayout(allInsertsContainer, BoxLayout.PAGE_AXIS));
-        
-        allInsertsContainer.add(createArtistFormPanel());
-        allInsertsContainer.add(new JSeparator(JSeparator.HORIZONTAL));
-        allInsertsContainer.add(createAlbumFormPanel());
-        allInsertsContainer.add(new JSeparator(JSeparator.HORIZONTAL));
-        allInsertsContainer.add(createPodcastFormPanel());
-        allInsertsContainer.add(new JSeparator(JSeparator.HORIZONTAL));
-        allInsertsContainer.add(createEpisodeFormPanel());
-        allInsertsContainer.add(new JSeparator(JSeparator.HORIZONTAL));
-        allInsertsContainer.add(createPromotionFormPanel());
+        final JTabbedPane insertTabbedPane = new JTabbedPane();
+        insertTabbedPane.addTab("Artista", wrapInScrollPane(createArtistFormPanel()));
+        insertTabbedPane.addTab("Album & Brani", wrapInScrollPane(createAlbumFormPanel()));
+        insertTabbedPane.addTab("Podcast", wrapInScrollPane(createPodcastFormPanel()));
+        insertTabbedPane.addTab("Episodio", wrapInScrollPane(createEpisodeFormPanel()));
+        insertTabbedPane.addTab("Promozione", wrapInScrollPane(createPromotionFormPanel()));
 
-        final JScrollPane insertsScrollPane = new JScrollPane(allInsertsContainer);
-        insertsScrollPane.setBorder(null);
-        // Aumenta la velocità di scorrimento della rotellina del mouse per comodità
-        insertsScrollPane.getVerticalScrollBar().setUnitIncrement(16); 
-
-        // --- Configurazione delle Schede Principali (JTabbedPane) ---
         final JTabbedPane mainTabbedPane = new JTabbedPane();
-        mainTabbedPane.addTab("Inserimenti", insertsScrollPane);
+        mainTabbedPane.addTab("Nuovi Inserimenti", insertTabbedPane);
         mainTabbedPane.addTab("Statistiche Piattaforma", createStatsPanel());
         mainTabbedPane.addTab("Gestione Utenti", createUsersPanel());
 
         this.add(mainTabbedPane, BorderLayout.CENTER);
 
-        // Pulsante inferiore di navigazione
         final JPanel bottomPanel = new JPanel();
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
         bottomPanel.add(this.btnBack);
         this.add(bottomPanel, BorderLayout.SOUTH);
     }
 
     /**
-     * Creates the form panel for Artist insertion (OP 7).
+     * Helper to wrap a form panel inside a scrollpane for safety on smaller screens.
      */
+    private JScrollPane wrapInScrollPane(final JPanel panel) {
+        final JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        return scrollPane;
+    }
+
     private JPanel createArtistFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        final JLabel sectionLabel = new JLabel("Nuovo Artista");
-        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(sectionLabel, gbc);
-
-        gbc.gridwidth = 1;
-        int row = 1;
+        int row = 0;
+        addSectionHeader(panel, gbc, row++, "Registrazione Nuovo Artista");
 
         addFormField(panel, gbc, row++, "Nome d'arte:", this.txtStageName);
         addFormField(panel, gbc, row++, "Nome reale:", this.txtRealName);
@@ -159,143 +141,62 @@ public final class AdminPanel extends JPanel {
         addFormField(panel, gbc, row++, "Anno inizio attività:", this.txtStartYear);
         addFormField(panel, gbc, row++, "Tipo artista:", this.txtArtistType);
 
-        this.btnSaveArtist.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(this.btnSaveArtist, gbc);
-
+        addCenteredButton(panel, gbc, row, this.btnSaveArtist);
         return panel;
     }
 
-    /**
-     * Helper method to add form fields uniformly.
-     */
-    private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row, 
-                                final String labelText, final JTextField field) {
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 1;
-        panel.add(new JLabel(labelText), gbc);
-        gbc.gridx = 1;
-        panel.add(field, gbc);
-    }
-
-    /**
-     * Creates the form panel for Album and Songs insertion.
-     */
     private JPanel createAlbumFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        final JLabel sectionLabel = new JLabel("Nuovo Album e Brani");
-        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(sectionLabel, gbc);
-
-        gbc.gridwidth = 1;
-        int row = 1;
+        int row = 0;
+        addSectionHeader(panel, gbc, row++, "Inserimento Album e Brani Correlati");
 
         addFormField(panel, gbc, row++, "Codice Artista:", this.txtAlbumArtistCode);
         addFormField(panel, gbc, row++, "Titolo Album:", this.txtAlbumTitle);
         addFormField(panel, gbc, row++, "Data Pubblicazione (YYYY-MM-DD):", this.txtAlbumReleaseDate);
         addFormField(panel, gbc, row++, "Casa Discografica:", this.txtAlbumLabel);
 
-        // Aggiunta campo per i brani correlati
         gbc.gridx = 0;
         gbc.gridy = row++;
-        panel.add(new JLabel("Brani:"), gbc);
+        panel.add(new JLabel("Elenco Brani:"), gbc);
         
         gbc.gridx = 1;
         this.txtAlbumSongsInput.setLineWrap(true);
         panel.add(new JScrollPane(this.txtAlbumSongsInput), gbc);
 
-        // Pulsante Salva Album con Brani
-        this.btnSaveAlbum.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(this.btnSaveAlbum, gbc);
-
+        addCenteredButton(panel, gbc, row, this.btnSaveAlbum);
         return panel;
     }
     
-    /**
-     * Creates the form panel for Podcast insertion.
-     */
     private JPanel createPodcastFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        final JLabel sectionLabel = new JLabel("Nuovo Podcast");
-        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(sectionLabel, gbc);
+        int row = 0;
+        addSectionHeader(panel, gbc, row++, "Creazione Nuovo Podcast");
 
-        gbc.gridwidth = 1;
+        addFormField(panel, gbc, row++, "Codice Artista:", this.txtPodcastArtistCode);
+        addFormField(panel, gbc, row++, "Nome Podcast:", this.txtPodcastName);
+        addFormField(panel, gbc, row++, "Descrizione:", this.txtPodcastDescription);
+        addFormField(panel, gbc, row++, "Categoria:", this.txtPodcastCategory);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(new JLabel("Codice Artista:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtPodcastArtistCode, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        panel.add(new JLabel("Nome Podcast:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtPodcastName, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        panel.add(new JLabel("Descrizione:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtPodcastDescription, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        panel.add(new JLabel("Categoria:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtPodcastCategory, gbc);
-
-        this.btnSavePodcast.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(this.btnSavePodcast, gbc);
-
+        addCenteredButton(panel, gbc, row, this.btnSavePodcast);
         return panel;
     }
 
-    /**
-     * Creates the form panel for Episode insertion (OP 10).
-     */
     private JPanel createEpisodeFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        final JLabel sectionLabel = new JLabel("Nuovo Episodio");
-        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(sectionLabel, gbc);
-
-        gbc.gridwidth = 1;
-        int row = 1;
+        int row = 0;
+        addSectionHeader(panel, gbc, row++, "Aggiungi Episodio al Podcast");
 
         addFormField(panel, gbc, row++, "Codice Podcast:", this.txtEpisodePodcastCode);
         addFormField(panel, gbc, row++, "Titolo Episodio:", this.txtEpisodeTitle);
@@ -303,59 +204,26 @@ public final class AdminPanel extends JPanel {
         addFormField(panel, gbc, row++, "Descrizione:", this.txtEpisodeDescription);
         addFormField(panel, gbc, row++, "Numero Episodio:", this.txtEpisodeNumber);
 
-        this.btnSaveEpisode.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(this.btnSaveEpisode, gbc);
-
+        addCenteredButton(panel, gbc, row, this.btnSaveEpisode);
         return panel;
     }
 
-    /**
-     * Creates the form panel for Promotion insertion (OP 6).
-     */
     private JPanel createPromotionFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        final JLabel sectionLabel = new JLabel("Nuova Promozione");
-        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(sectionLabel, gbc);
+        int row = 0;
+        addSectionHeader(panel, gbc, row++, "Gestione Promozioni e Sconti");
 
-        gbc.gridwidth = 1;
+        addFormField(panel, gbc, row++, "Nome Promozione:", this.txtPromoName);
+        addFormField(panel, gbc, row++, "Sconto (%):", this.txtDiscountPercentage);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(new JLabel("Nome Promozione:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtPromoName, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        panel.add(new JLabel("Sconto (%):"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtDiscountPercentage, gbc);
-
-        this.btnSavePromotion.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(this.btnSavePromotion, gbc);
-
+        addCenteredButton(panel, gbc, row, this.btnSavePromotion);
         return panel;
     }
 
-    /**
-     * Creates the panel for User Management.
-     */
     private JPanel createUsersPanel() {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
@@ -369,9 +237,6 @@ public final class AdminPanel extends JPanel {
         return panel;
     }
 
-    /**
-     * Creates the panel for Global Statistics (OP 22).
-     */
     private JPanel createStatsPanel() {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
@@ -383,7 +248,7 @@ public final class AdminPanel extends JPanel {
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        topPanel.add(new JLabel("Anno di riferimento (per statistiche annuali):"), gbc);
+        topPanel.add(new JLabel("Anno di riferimento:"), gbc);
         gbc.gridx = 1;
         topPanel.add(this.txtStatsYear, gbc);
 
@@ -402,147 +267,73 @@ public final class AdminPanel extends JPanel {
         return panel;
     }
 
-    /* --- Getter per leggere il testo dai campi negli Handler/Controller --- */
-
-    public String getArtistStageName() {
-        return this.txtStageName.getText();
+    private void addSectionHeader(final JPanel panel, final GridBagConstraints gbc, final int row, final String title) {
+        final JLabel sectionLabel = new JLabel(title);
+        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        panel.add(sectionLabel, gbc);
+        gbc.gridwidth = 1; // Reset
     }
 
-    public String getArtistRealName() {
-        return this.txtRealName.getText();
+    private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row, 
+                            final String labelText, final JTextField field) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(new JLabel(labelText), gbc);
+        gbc.gridx = 1;
+        panel.add(field, gbc);
     }
 
-    public String getArtistRealSurname() {
-        return this.txtRealSurname.getText();
+    private void addCenteredButton(final JPanel panel, final GridBagConstraints gbc, final int row, final JButton button) {
+        button.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(button, gbc);
     }
 
-    public String getArtistBirthDate() {
-        return this.txtBirthDate.getText();
-    }
+    public String getArtistStageName() { return this.txtStageName.getText(); }
+    public String getArtistRealName() { return this.txtRealName.getText(); }
+    public String getArtistRealSurname() { return this.txtRealSurname.getText(); }
+    public String getArtistBirthDate() { return this.txtBirthDate.getText(); }
+    public String getArtistProvenanceCountry() { return this.txtProvenanceCountry.getText(); }
+    public String getArtistBiography() { return this.txtBiography.getText(); }
+    public String getArtistStartYear() { return this.txtStartYear.getText(); }
+    public String getArtistType() { return this.txtArtistType.getText(); }
 
-    public String getArtistProvenanceCountry() {
-        return this.txtProvenanceCountry.getText();
-    }
+    public String getAlbumArtistCode() { return this.txtAlbumArtistCode.getText(); }
+    public String getAlbumTitle() { return this.txtAlbumTitle.getText(); }
+    public String getAlbumReleaseDate() { return this.txtAlbumReleaseDate.getText(); }
+    public String getAlbumLabel() { return this.txtAlbumLabel.getText(); }
+    public String getAlbumSongsInput() { return this.txtAlbumSongsInput.getText(); }
 
-    public String getArtistBiography() {
-        return this.txtBiography.getText();
-    }
+    public String getPodcastArtistCode() { return this.txtPodcastArtistCode.getText(); }
+    public String getPodcastName() { return this.txtPodcastName.getText(); }
+    public String getPodcastDescription() { return this.txtPodcastDescription.getText(); }
+    public String getPodcastCategory() { return this.txtPodcastCategory.getText(); }
 
-    public String getArtistStartYear() {
-        return this.txtStartYear.getText();
-    }
+    public String getEpisodePodcastCode() { return this.txtEpisodePodcastCode.getText(); }
+    public String getEpisodeTitle() { return this.txtEpisodeTitle.getText(); }
+    public String getEpisodeDuration() { return this.txtEpisodeDuration.getText(); }
+    public String getEpisodeDescription() { return this.txtEpisodeDescription.getText(); }
+    public String getEpisodeNumber() { return this.txtEpisodeNumber.getText(); }
 
-    public String getArtistType() {
-        return this.txtArtistType.getText();
-    }
+    public String getPromoName() { return this.txtPromoName.getText(); }
+    public String getDiscountPercentage() { return this.txtDiscountPercentage.getText(); }
 
-    public String getAlbumArtistCode() {
-        return this.txtAlbumArtistCode.getText();
-    }
+    public void setStatsOutputText(final String text) { this.txtStatsOutput.setText(text); }
+    public String getStatsYear() { return this.txtStatsYear.getText(); }
+    public void setUsersOutputText(final String text) { this.txtUsersOutput.setText(text); }
 
-    public String getAlbumTitle() {
-        return this.txtAlbumTitle.getText();
-    }
-
-    public String getAlbumReleaseDate() {
-        return this.txtAlbumReleaseDate.getText();
-    }
-
-    public String getAlbumLabel() {
-        return this.txtAlbumLabel.getText();
-    }
-
-    public String getAlbumSongsInput() {
-        return this.txtAlbumSongsInput.getText();
-    }
-
-    public String getPodcastArtistCode() {
-        return this.txtPodcastArtistCode.getText();
-    }
-
-    public String getPodcastName() {
-        return this.txtPodcastName.getText();
-    }
-
-    public String getPodcastDescription() {
-        return this.txtPodcastDescription.getText();
-    }
-
-    public String getPodcastCategory() {
-        return this.txtPodcastCategory.getText();
-    }
-
-    public String getEpisodePodcastCode() {
-        return this.txtEpisodePodcastCode.getText();
-    }
-
-    public String getEpisodeTitle() {
-        return this.txtEpisodeTitle.getText();
-    }
-
-    public String getEpisodeDuration() {
-        return this.txtEpisodeDuration.getText();
-    }
-
-    public String getEpisodeDescription() {
-        return this.txtEpisodeDescription.getText();
-    }
-
-    public String getEpisodeNumber() {
-        return this.txtEpisodeNumber.getText();
-    }
-
-    public String getPromoName() {
-        return this.txtPromoName.getText();
-    }
-
-    public String getDiscountPercentage() {
-        return this.txtDiscountPercentage.getText();
-    }
-
-    public void setStatsOutputText(final String text) {
-        this.txtStatsOutput.setText(text);
-    }
-
-    public String getStatsYear() {
-        return this.txtStatsYear.getText();
-    }
-
-    public void setUsersOutputText(final String text) {
-        this.txtUsersOutput.setText(text);
-    }
-
-    /* --- Metodi per registrare gli Listener --- */
-
-    public void addSaveArtistListener(final ActionListener listener) {
-        this.btnSaveArtist.addActionListener(listener);
-    }
-
-    public void addSaveAlbumListener(final ActionListener listener) {
-        this.btnSaveAlbum.addActionListener(listener);
-    }
-
-    public void addSavePodcastListener(final ActionListener listener) {
-        this.btnSavePodcast.addActionListener(listener);
-    }
-
-    public void addSaveEpisodeListener(final ActionListener listener) {
-        this.btnSaveEpisode.addActionListener(listener);
-    }
-
-    public void addSavePromotionListener(final ActionListener listener) {
-        this.btnSavePromotion.addActionListener(listener);
-    }
-
-    public void addFetchStatsListener(final ActionListener listener) {
-        this.btnFetchGlobalStats.addActionListener(listener);
-    }
-
-    public void addBackListener(final ActionListener listener) {
-        this.btnBack.addActionListener(listener);
-    }
-
-    public void addFetchUsersListener(final ActionListener listener) {
-        this.btnFetchUsers.addActionListener(listener);
-    }
+    public void addSaveArtistListener(final ActionListener listener) { this.btnSaveArtist.addActionListener(listener); }
+    public void addSaveAlbumListener(final ActionListener listener) { this.btnSaveAlbum.addActionListener(listener); }
+    public void addSavePodcastListener(final ActionListener listener) { this.btnSavePodcast.addActionListener(listener); }
+    public void addSaveEpisodeListener(final ActionListener listener) { this.btnSaveEpisode.addActionListener(listener); }
+    public void addSavePromotionListener(final ActionListener listener) { this.btnSavePromotion.addActionListener(listener); }
+    public void addFetchStatsListener(final ActionListener listener) { this.btnFetchGlobalStats.addActionListener(listener); }
+    public void addBackListener(final ActionListener listener) { this.btnBack.addActionListener(listener); }
+    public void addFetchUsersListener(final ActionListener listener) { this.btnFetchUsers.addActionListener(listener); }
 }

@@ -253,7 +253,7 @@ public final class Queries {
     // --- OP 8: INSERIMENTO ALBUM E RELATIVI BRANI ---
     public static final String INSERT_ALBUM = 
         """
-        INSERT INTO Album (CodiceArtista, TitoloAlbum, AnnoPubblicazione, CasaDiscografica)
+        INSERT INTO Album (CodiceArtista, TitoloAlbum, DataPubblicazione, CasaDiscografica)
         VALUES (?, ?, ?, ?)
         """;
 
@@ -261,13 +261,25 @@ public final class Queries {
     public static final String INSERT_CONTENUTO_BRANO = 
         """
         INSERT INTO Contenuti (Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto)
-        VALUES (?, ?, ?, CURRENT_DATE, 'Brano')
+        VALUES (?, ?, ?, ?, 'Brano')
         """;
 
     public static final String INSERT_BRANO = 
         """
         INSERT INTO Brani (CodiceBrano, CodiceAlbum, NumeroTraccia)
         VALUES (?, ?, ?)
+        """;
+
+    public static final String UPDATE_ALBUM_DURATION = 
+        """
+        UPDATE Album 
+        SET DurataTotale = (
+            SELECT SUM(C.Durata) 
+            FROM Brani B 
+            JOIN Contenuti C ON B.CodiceBrano = C.CodiceContenuto 
+            WHERE B.CodiceAlbum = ?
+        )
+        WHERE CodiceAlbum = ?
         """;
 
     public static final String INSERT_CANTARE = 
@@ -280,6 +292,12 @@ public final class Queries {
         """
         INSERT INTO Appartenenze (CodiceBrano, NomeGenere)
         VALUES (?, ?)
+        """;
+
+    public static final String INSERT_GENRE_IF_NOT_EXISTS = 
+        """
+        INSERT IGNORE INTO Generi (NomeGenere)
+        VALUES (?)
         """;
 
     // --- OP 9: INSERIMENTO PODCAST ---
@@ -306,7 +324,7 @@ public final class Queries {
     public static final String INSERT_CONTENUTO = 
         """
         INSERT INTO Contenuti (Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto)
-        VALUES (?, ?, ?, CURRENT_DATE, ?)
+        VALUES (?, ?, ?, ?, ?)
         """;
 
     public static final String INSERT_EPISODIO = 
@@ -365,6 +383,85 @@ public final class Queries {
         WHERE CodicePlaylist = ? 
         AND CodiceBrano = ?
         """;
+
+    // --- OPS 22 ---
+    public static final String SELECT_MOST_PLAYED_SONG = 
+    """
+    SELECT B.CodiceBrano, C.Titolo, COUNT(*) AS NumeroAscolti
+    FROM EventiAscolto E
+    JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+    JOIN Contenuti C ON B.CodiceBrano = C.CodiceContenuto 
+    WHERE YEAR(E.DataOra) = ?
+    GROUP BY B.CodiceBrano, C.Titolo
+    ORDER BY NumeroAscolti DESC
+    LIMIT 1
+    """;
+
+    public static final String SELECT_MOST_PLAYED_ARTIST = 
+    """
+    SELECT A.CodiceArtista, A.NomeDArte, COUNT(*) AS NumeroAscolti
+    FROM (
+        SELECT E.DataOra, C.CodiceArtista
+        FROM EventiAscolto E
+        JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+        JOIN Cantare C ON B.CodiceBrano = C.CodiceBrano
+
+        UNION ALL
+
+        SELECT E.DataOra, P.CodiceArtista
+        FROM EventiAscolto E
+        JOIN Episodi EP ON E.CodiceContenuto = EP.CodiceEpisodio
+        JOIN Podcast P ON EP.CodicePodcast = P.CodicePodcast
+    ) AS AscoltiArtista
+    JOIN Artisti A ON AscoltiArtista.CodiceArtista = A.CodiceArtista
+    WHERE YEAR(AscoltiArtista.DataOra) = ?
+    GROUP BY A.CodiceArtista, A.NomeDArte
+    ORDER BY NumeroAscolti DESC
+    LIMIT 1
+    """;
+
+    public static final String SELECT_MOST_PLAYED_GENRE = 
+    """
+    SELECT A.NomeGenere, COUNT(*) AS NumeroAscolti
+    FROM EventiAscolto E
+    JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+    JOIN Appartenenze A ON B.CodiceBrano = A.CodiceBrano
+    WHERE YEAR(E.DataOra) = ? 
+    GROUP BY A.NomeGenere
+    ORDER BY NumeroAscolti DESC
+    LIMIT 1
+    """;
+
+    public static final String SELECT_USERS_ABOVE_AVG_LISTENS = 
+    """
+    SELECT E.Username, COUNT(*) AS NumeroAscolti
+    FROM EventiAscolto E
+    WHERE YEAR(E.DataOra) = ? 
+    GROUP BY E.Username
+    HAVING COUNT(*) > (
+        SELECT AVG(TotaleAscolti)
+        FROM (SELECT COUNT(*) AS TotaleAscolti
+    FROM EventiAscolto
+    WHERE YEAR(DataOra) = ? 
+    GROUP BY Username ) AS AscoltiPerUtente
+    )
+    """;
+
+    public static final String SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING = 
+    """
+    SELECT A.CodiceAlbum, A.TitoloAlbum, A.MediaVoti
+    FROM ALBUM A
+    WHERE A.MediaVoti > (
+        SELECT AVG(MediaVoti)
+        FROM ALBUM)
+    """;
+
+    public static final String SELECT_ALL_GENRES = 
+    """
+    SELECT NomeGenere 
+    FROM Generi
+    ORDER BY NomeGenere ASC
+    """;
 
     private Queries() { }
 }

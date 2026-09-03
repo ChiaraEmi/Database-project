@@ -21,7 +21,7 @@ public final class MockedModel implements Model {
     }
 
     @Override
-    public int insertAlbumWithSongs(final int artistCode, final String title, final int releaseYear,
+    public int insertAlbumWithSongs(final int artistCode, final String title, final String releaseDate,
                                     final String recordCompany, final List<SongInput> songs) {
         System.out.println("[MOCK] Album inserted: " + title + " with " + songs.size() + " songs.");
         return 1;
@@ -65,5 +65,25 @@ public final class MockedModel implements Model {
             new User("mario88", "Mario", "Rossi", "mario@email.com", "pass123", 
                         LocalDate.of(1990, 5, 10), "Italia", 10)
         );
+    }
+
+    @Override
+    public String getMostPlayedArtist(final int year) {
+        return "[MOCK] Artista: Test Artist (Ascolti: 150)";
+    }
+
+    @Override
+    public String getMostPlayedGenre(final int year) {
+        return "[MOCK] Genere: Rock (Ascolti: 500)";
+    }
+
+    @Override
+    public List<String> getUsersAboveAverageListens(final int year) {
+        return List.of("[MOCK] Utente: mario88 - Ascolti: 120");
+    }
+
+    @Override
+    public List<String> getAlbumsAboveGlobalAverage() {
+        return List.of("[MOCK] Album: Great Hits - Media Voti: 4.8");
     }
 }

@@ -221,5 +221,26 @@ public final class Artist {
             }
             throw new DAOException("Unable to retrieve generated key for Artist.");
         }
+
+        /**
+         * Retrieves the most played artist in a specific year.
+         *
+         * @param connection the database connection.
+         * @param year the year to check.
+         * @return a string representation of the most played artist.
+         */
+        public static String getMostPlayedArtist(final Connection connection, final int year) {
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_MOST_PLAYED_ARTIST, year);
+                var resultSet = statement.executeQuery()) {
+                
+                if (resultSet.next()) {
+                    return "Artista: " + resultSet.getString("NomeDArte") + 
+                        " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return "Nessun artista trovato per quest'anno.";
+        }
     }
 }

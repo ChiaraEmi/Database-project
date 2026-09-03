@@ -113,14 +113,15 @@ public final class Song {
         public static int insert(final Connection connection, final int albumCode, 
                                  final String title, final int duration, 
                                  final String description, final int trackNumber,
-                                 final int artistCode, final List<String> genres) {
+                                 final int artistCode, final List<String> genres,
+                                 final String releaseDate) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
                 // 1. Inserimento in Contenuti (sfruttando Content.DAO.insert come in Episode)
-                final int contentCode = Content.DAO.insert(connection, title, duration, description, "Brano");
+                final int contentCode = Content.DAO.insert(connection, title, duration, description, "Brano", releaseDate);
 
                 // 2. Inserimento in Brani
                 try (var statement = DAOUtils.prepare(connection, Queries.INSERT_BRANO, contentCode, 
@@ -135,6 +136,11 @@ public final class Song {
 
                 // 4. Inserimento in Appartenenze (generi musicali)
                 for (final var genre : genres) {
+                    // Assicura che il genere esista nella tabella Generi
+                    try (var genreStmt = DAOUtils.prepare(connection, Queries.INSERT_GENRE_IF_NOT_EXISTS, genre)) {
+                        genreStmt.executeUpdate();
+                    }
+                    // Collega il genere al brano
                     try (var statement = DAOUtils.prepare(connection, Queries.INSERT_APPARTENENZA, contentCode, genre)) {
                         statement.executeUpdate();
                     }
@@ -156,6 +162,27 @@ public final class Song {
                     // Intentionally ignored
                 }
             }
+        }
+
+        /**
+         * Retrieves the most played song in a specific year.
+         *
+         * @param connection the database connection.
+         * @param year the year to check.
+         * @string a string representation of the most played song.
+         */
+        public static String getMostPlayedSong(final Connection connection, final int year) {
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_MOST_PLAYED_SONG, year);
+                var resultSet = statement.executeQuery()) {
+                
+                if (resultSet.next()) {
+                    return "Brano: " + resultSet.getString("Titolo") + 
+                        " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return "Nessun ascolto registrato per quest'anno.";
         }
     }
 }

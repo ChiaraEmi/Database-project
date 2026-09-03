@@ -111,56 +111,27 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        // --- Inserimento Album ---
+        // --- Inserimento Album e Brani (OP 8) ---
         this.adminPanel.addSaveAlbumListener(e -> {
             if (this.controller != null) {
                 int artistCode = 0;
-                int releaseYear = 0;
                 try {
                     if (!this.adminPanel.getAlbumArtistCode().isBlank()) {
                         artistCode = Integer.parseInt(this.adminPanel.getAlbumArtistCode());
                     }
-                    if (!this.adminPanel.getAlbumReleaseYear().isBlank()) {
-                        releaseYear = Integer.parseInt(this.adminPanel.getAlbumReleaseYear());
-                    }
                 } catch (final NumberFormatException ex) {
-                    // Gestione errore formato numerico
+                    // Gestione errore formato codice artista
                 }
 
                 final String title = this.adminPanel.getAlbumTitle();
+                final String releaseDate = this.adminPanel.getAlbumReleaseDate(); // <-- Aggiornato a String / getAlbumReleaseDate()
                 final String label = this.adminPanel.getAlbumLabel();
+                final String rawSongsText = this.adminPanel.getAlbumSongsInput();
 
-                this.controller.adminClickedSaveAlbum(artistCode, title, releaseYear, label);
+                this.controller.adminClickedSaveAlbumWithSongs(artistCode, title, releaseDate, label, rawSongsText);
             }
         });
-
-        // --- Inserimento Brano ---
-        this.adminPanel.addSaveTrackListener(e -> {
-            if (this.controller != null) {
-                int albumCode = 0;
-                int duration = 0;
-                int trackNumber = 0;
-                try {
-                    if (!this.adminPanel.getTrackAlbumCode().isBlank()) {
-                        albumCode = Integer.parseInt(this.adminPanel.getTrackAlbumCode());
-                    }
-                    if (!this.adminPanel.getTrackDuration().isBlank()) {
-                        duration = Integer.parseInt(this.adminPanel.getTrackDuration());
-                    }
-                    if (!this.adminPanel.getTrackNumber().isBlank()) {
-                        trackNumber = Integer.parseInt(this.adminPanel.getTrackNumber());
-                    }
-                } catch (final NumberFormatException ex) {
-                    // Gestione errore formato numerico
-                }
-
-                final String title = this.adminPanel.getTrackTitle();
-                final String description = this.adminPanel.getTrackDescription();
-
-                this.controller.adminClickedSaveTrack(albumCode, title, duration, trackNumber, description);
-            }
-        });
-
+        
         // --- Inserimento Podcast (OP 9) ---
         this.adminPanel.addSavePodcastListener(e -> {
             if (this.controller != null) {
@@ -178,6 +149,23 @@ public final class ViewImpl extends JFrame implements View {
                 final String category = this.adminPanel.getPodcastCategory();
 
                 this.controller.adminClickedSavePodcast(artistCode, name, description, category);
+            }
+        });
+
+        // --- Statistiche Globali (OP 22) ---
+        this.adminPanel.addFetchStatsListener(e -> {
+            if (this.controller != null) {
+                int year = 2026; // Anno di default
+                try {
+                    if (!this.adminPanel.getStatsYear().isBlank()) {
+                        year = Integer.parseInt(this.adminPanel.getStatsYear());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione formato anno non valido
+                }
+                
+                // Chiamata unica al controller
+                this.controller.adminRequestedGlobalStats(year);
             }
         });
     }
@@ -203,6 +191,11 @@ public final class ViewImpl extends JFrame implements View {
             sb.append(user.toString()).append("\n");
         }
         this.adminPanel.setUsersOutputText(sb.toString());
+    }
+
+    @Override
+    public void showGlobalStats(final String statsText) {
+        this.adminPanel.setStatsOutputText(statsText);
     }
 
     /*public UserPanel getUserPanel() {

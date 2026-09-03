@@ -2,6 +2,7 @@ package soundwave.data;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,7 +14,7 @@ public final class Album {
     private final int albumCode;
     private final int artistCode;
     private final String title;
-    private final int releaseYear;
+    private final String releaseDate;
     private final String recordCompany;
     private final double averageRating;
     private final int totalDuration;
@@ -24,17 +25,17 @@ public final class Album {
      * @param albumCode the album code.
      * @param artistCode the artist code associated with the album.
      * @param title the title of the album.
-     * @param releaseYear the release year.
+     * @param releaseDate the release year.
      * @param recordCompany the record company.
      * @param averageRating the average rating.
      * @param totalDuration the total duration in seconds.
      */
-    public Album(final int albumCode, final int artistCode, final String title, final int releaseYear,
+    public Album(final int albumCode, final int artistCode, final String title, final String releaseDate,
                  final String recordCompany, final double averageRating, final int totalDuration) {
         this.albumCode = albumCode;
         this.artistCode = artistCode;
         this.title = title == null ? "" : title;
-        this.releaseYear = releaseYear;
+        this.releaseDate = releaseDate;
         this.recordCompany = recordCompany == null ? "" : recordCompany;
         this.averageRating = averageRating;
         this.totalDuration = totalDuration;
@@ -72,8 +73,8 @@ public final class Album {
      *
      * @return the release year.
      */
-    public int getReleaseYear() {
-        return releaseYear;
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
     /**
@@ -114,7 +115,7 @@ public final class Album {
             return a.albumCode == this.albumCode
                     && a.artistCode == this.artistCode
                     && a.title.equals(this.title)
-                    && a.releaseYear == this.releaseYear
+                    && a.releaseDate.equals(this.releaseDate)
                     && a.recordCompany.equals(this.recordCompany)
                     && Double.compare(a.averageRating, this.averageRating) == 0
                     && a.totalDuration == this.totalDuration;
@@ -125,7 +126,7 @@ public final class Album {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.albumCode, this.artistCode, this.title, this.releaseYear,
+        return Objects.hash(this.albumCode, this.artistCode, this.title, this.releaseDate,
                             this.recordCompany, this.averageRating, this.totalDuration);
     }
 
@@ -137,7 +138,7 @@ public final class Album {
                 Printer.field("albumCode", this.albumCode),
                 Printer.field("artistCode", this.artistCode),
                 Printer.field("title", this.title),
-                Printer.field("releaseYear", this.releaseYear),
+                Printer.field("releaseYear", this.releaseDate),
                 Printer.field("recordCompany", this.recordCompany),
                 Printer.field("averageRating", this.averageRating),
                 Printer.field("totalDuration", this.totalDuration)
@@ -158,13 +159,13 @@ public final class Album {
          * @param connection the database connection.
          * @param artistCode the artist code.
          * @param title the album title.
-         * @param releaseYear the release year.
+         * @param releaseDate the release year.
          * @param recordCompany the record company.
          * @param songs the list of songs to insert.
          * @return the generated album code.
          */
         public static int insertAlbumWithSongs(final Connection connection, final int artistCode, 
-                                               final String title, final int releaseYear, 
+                                               final String title, final String releaseDate, 
                                                final String recordCompany, final List<SongInput> songs) {
             boolean autoCommit = true;
             try {
@@ -185,7 +186,7 @@ public final class Album {
                     connection,
                     Queries.INSERT_ALBUM,
                     java.sql.Statement.RETURN_GENERATED_KEYS,
-                    artistCode, title, releaseYear, recordCompany
+                    artistCode, title, releaseDate, recordCompany
                 )) {
                     statement.executeUpdate();
 
@@ -208,8 +209,14 @@ public final class Album {
                         songInput.description,
                         songInput.trackNumber,
                         songInput.artistCodeForSong,
-                        songInput.genres
+                        songInput.genres,
+                        releaseDate
                     );
+                }
+
+                // 4. Aggiornamento della durata totale dell'album
+                try (var updateStmt = DAOUtils.prepare(connection, Queries.UPDATE_ALBUM_DURATION, albumCode, albumCode)) {
+                    updateStmt.executeUpdate();
                 }
 
                 connection.commit();
@@ -228,6 +235,27 @@ public final class Album {
                     // Intentionally ignored
                 }
             }
+        }
+
+        /**
+         * Retrieves albums with a review average higher than the global average.
+         *
+         * @param connection the database connection.
+         * @return a list of strings representing the top albums.
+         */
+        public static List<String> getAlbumsAboveGlobalAverage(final Connection connection) {
+            final List<String> albums = new ArrayList<>();
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING);
+                 var resultSet = statement.executeQuery()) {
+                
+                while (resultSet.next()) {
+                    albums.add("Album: " + resultSet.getString("TitoloAlbum") + 
+                               " - Media Voti: " + resultSet.getDouble("MediaVoti"));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return albums;
         }
     }
 }

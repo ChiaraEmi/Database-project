@@ -138,8 +138,8 @@ public final class Content {
         private DAO() { }
 
         /**
-         * Inserts a new generic record into the Contenuti table.
-         *
+         * Inserts a new generic record into the Contenuti table using current date (e.g., for Episodes).
+         * 
          * @param connection the database connection.
          * @param title the content title.
          * @param duration the duration in seconds.
@@ -150,12 +150,29 @@ public final class Content {
         public static int insert(final Connection connection, final String title, 
                                  final int duration, final String description, 
                                  final String contentType) {
+            return insert(connection, title, duration, description, contentType, null);
+        }
+
+        /**
+         * Inserts a new generic record into the Contenuti table with a specific release date (e.g., for Songs/Albums).
+         *
+         * @param connection the database connection.
+         * @param title the content title.
+         * @param duration the duration in seconds.
+         * @param description the content description.
+         * @param contentType the type of content ('Brano' or 'Episodio').
+         * @param releaseDate the release date of the content.
+         * @return the auto-generated key of the inserted content.
+         */
+        public static int insert(final Connection connection, final String title, 
+                                 final int duration, final String description, 
+                                 final String contentType, final String releaseDate) {
             try (
                 var statement = DAOUtils.prepareWithKeys(
                     connection, 
                     Queries.INSERT_CONTENUTO, 
                     java.sql.Statement.RETURN_GENERATED_KEYS, 
-                    title, duration, description, contentType
+                    title, duration, description, releaseDate, contentType
                 )
             ) {
                 statement.executeUpdate();

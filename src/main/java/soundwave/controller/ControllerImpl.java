@@ -53,25 +53,20 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public void adminClickedSaveAlbumWithSongs(final int artistCode, final String title, final int releaseYear, 
-                                               final String recordCompany, final java.util.List<soundwave.data.SongInput> songs) {
+    public void adminClickedSaveAlbumWithSongs(final int artistCode, final String title, final String releaseDate, 
+                                               final String recordCompany, final String rawSongsText) {
         try {
-            this.model.insertAlbumWithSongs(artistCode, title, releaseYear, recordCompany, songs);
-            // this.view.showSuccess("Album e brani inseriti con successo!");
+            // Qui viene chiamato il metodo di parsing per convertire il testo grezzo
+            final java.util.List<soundwave.data.SongInput> songs = parseSongsInput(rawSongsText);
+
+            // Invia tutto al Model per la transazione sul database
+            this.model.insertAlbumWithSongs(artistCode, title, releaseDate, recordCompany, songs);
+            
+            // this.view.showSuccess("Album e brani salvati con successo!");
         } catch (final DAOException e) {
-            // Gestione dell'errore transazionale
             // this.view.showError("Impossibile registrare l'album.");
+            e.printStackTrace(); // <-- Aggiungi questo per vedere l'errore esatto
         }
-    }
-
-    @Override
-    public void adminClickedSaveAlbum(int artistCode, String title, int releaseYear, String label) {
-
-    }
-
-    @Override
-    public void adminClickedSaveTrack(int albumCode, String title, int duration, int trackNumber, String description) {
-
     }
 
     @Override
@@ -146,5 +141,99 @@ public final class ControllerImpl implements Controller {
             // Gestione dell'errore
             // this.view.showError("Impossibile caricare la lista degli utenti.");
         }
+    }
+
+    @Override
+    public void adminRequestedGlobalStats(final int year) {
+        try {
+            // Interroga il Model per ottenere le metriche della OP 22
+            final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
+            final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
+            final java.util.List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
+            final java.util.List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
+
+            // Compone il report testuale ordinato per la dashboard
+            final StringBuilder sb = new StringBuilder();
+            sb.append("=== Artista più ascoltato (Anno ").append(year).append(") ===\n")
+              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato").append("\n\n");
+            
+            sb.append("=== Genere più ascoltato (Anno ").append(year).append(") ===\n")
+              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato").append("\n\n");
+            
+            sb.append("=== Utenti sopra la media ascolti (Anno ").append(year).append(") ===\n");
+            if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
+                for (final String u : usersAboveAvg) {
+                    sb.append("• ").append(u).append("\n");
+                }
+            } else {
+                sb.append("Nessun utente trovato.\n");
+            }
+            sb.append("\n");
+
+            sb.append("=== Album sopra la media globale delle recensioni ===\n");
+            if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
+                for (final String a : albumsAboveAvg) {
+                    sb.append("• ").append(a).append("\n");
+                }
+            } else {
+                sb.append("Nessun album trovato.\n");
+            }
+
+            // Passa il risultato pronto alla View
+            this.view.showGlobalStats(sb.toString());
+
+        } catch (final DAOException e) {
+            // Gestione centralizzata dell'errore (es. messaggio di errore nella view)
+            // this.view.showError("Impossibile caricare le statistiche globali.");
+        }
+    }
+
+    /**
+     * Helper method to parse raw text from the text area into a list of SongInput objects.
+     * Expected format per line: Title, DurationInSeconds, TrackNumber, Description, ArtistCodeForSong, Genre1;Genre2
+     *
+     * @param rawText the raw string retrieved from the songs text area
+     * @return a list of parsed SongInput items
+     */
+    private java.util.List<soundwave.data.SongInput> parseSongsInput(final String rawText) {
+        final java.util.List<soundwave.data.SongInput> songList = new java.util.ArrayList<>();
+        if (rawText == null || rawText.isBlank()) {
+            return songList; 
+        }
+
+        final String[] lines = rawText.split("\n");
+        for (final String line : lines) {
+            if (!line.isBlank()) {
+                final String[] parts = line.split(",");
+                if (parts.length >= 4) {
+                    final String songTitle = parts[0].trim();
+                    final int duration = Integer.parseInt(parts[1].trim());
+                    final int trackNumber = Integer.parseInt(parts[2].trim());
+                    final String description = parts[3].trim();
+                    
+                    // Se l'artista del brano coincide con quello dell'album, puoi usare l'artistCode dell'album
+                    // oppure estrarlo dal testo se specificato. Qui usiamo un valore di default o un parametro.
+                    final int artistCodeForSong = parts.length > 4 ? Integer.parseInt(parts[4].trim()) : 0;
+
+                    // Gestione dei generi separati da punto e virgola (es. "Pop;Rock")
+                    final java.util.List<String> genres;
+                    if (parts.length > 5 && !parts[5].isBlank()) {
+                        genres = java.util.Arrays.asList(parts[5].trim().split(";"));
+                    } else {
+                        genres = java.util.List.of();
+                    }
+
+                    songList.add(new soundwave.data.SongInput(
+                        songTitle, 
+                        duration, 
+                        description, 
+                        trackNumber, 
+                        artistCodeForSong, 
+                        genres
+                    ));
+                }
+            }
+        }
+        return songList;
     }
 }

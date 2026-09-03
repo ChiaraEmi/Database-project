@@ -47,9 +47,9 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public int insertAlbumWithSongs(final int artistCode, final String title, final int releaseYear,
+    public int insertAlbumWithSongs(final int artistCode, final String title, final String releaseDate,
                                     final String recordCompany, final List<SongInput> songs) {
-        return Album.DAO.insertAlbumWithSongs(this.connection, artistCode, title, releaseYear, recordCompany, songs);
+        return Album.DAO.insertAlbumWithSongs(this.connection, artistCode, title, releaseDate, recordCompany, songs);
     }
 
     @Override
@@ -87,5 +87,25 @@ public final class DBModel implements Model {
             e.printStackTrace();
             return List.of();
         }
+    }
+
+    @Override
+    public String getMostPlayedArtist(final int year) {
+        return soundwave.data.Artist.DAO.getMostPlayedArtist(this.connection, year);
+    }
+
+    @Override
+    public String getMostPlayedGenre(final int year) {
+        return soundwave.data.Genre.DAO.getMostPlayedGenre(this.connection, year);
+    }
+
+    @Override
+    public List<String> getUsersAboveAverageListens(final int year) {
+        return soundwave.data.User.DAO.getUsersAboveAverageListens(this.connection, year);
+    }
+
+    @Override
+    public List<String> getAlbumsAboveGlobalAverage() {
+        return soundwave.data.Album.DAO.getAlbumsAboveGlobalAverage(this.connection);
     }
 }

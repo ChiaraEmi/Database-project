@@ -44,20 +44,15 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtArtistType = new JTextField(FIELD_COLUMNS);
     private final JButton btnSaveArtist = new JButton("Salva Artista");
 
-    // --- Campi di testo per Inserimento Album ---
+    // --- Campi per Inserimento Album e Brani (OP 8) ---
     private final JTextField txtAlbumArtistCode = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumTitle = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtAlbumReleaseYear = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS); // CasaDiscografica
-    private final JButton btnSaveAlbum = new JButton("Salva Album");
-
-    // --- Campi di testo per Inserimento Brano ---
-    private final JTextField txtTrackAlbumCode = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtTrackTitle = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtTrackDuration = new JTextField(FIELD_COLUMNS); // Durata in secondi
-    private final JTextField txtTrackNumber = new JTextField(FIELD_COLUMNS);    // NumeroTraccia
-    private final JTextField txtTrackDescription = new JTextField(FIELD_COLUMNS); // Per la tabella Contenuti
-    private final JButton btnSaveTrack = new JButton("Salva Brano");
+    private final JTextField txtAlbumReleaseDate = new JTextField(FIELD_COLUMNS); // Formato YYYY-MM-DD
+    private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS);
+    
+    // Area di testo per inserire i brani
+    private final JTextArea txtAlbumSongsInput = new JTextArea(6, 20); 
+    private final JButton btnSaveAlbum = new JButton("Salva Album con Brani");
 
     // --- Campi di testo per inserimento Podcast (OP 9) ---
     private final JTextField txtPodcastArtistCode = new JTextField(FIELD_COLUMNS);
@@ -75,7 +70,8 @@ public final class AdminPanel extends JPanel {
     private final JButton btnFetchUsers = new JButton("Carica Utenti");
     private final JTextArea txtUsersOutput = new JTextArea(10, 30);
 
-    // --- Area per Statistiche Globali (OP 22) ---
+    // --- Campi di testo per Statistiche Globali (OP 22) ---
+    private final JTextField txtStatsYear = new JTextField(FIELD_COLUMNS);
     private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche Globali");
     private final JTextArea txtStatsOutput = new JTextArea(10, 30);
 
@@ -104,19 +100,17 @@ public final class AdminPanel extends JPanel {
         final JScrollPane artistPodcastScrollPane = new JScrollPane(artistAndPodcastContainer);
         artistPodcastScrollPane.setBorder(null);
 
-        // Contenitore per Album e Brani
-        final JPanel albumAndTrackContainer = new JPanel();
-        albumAndTrackContainer.setLayout(new BoxLayout(albumAndTrackContainer, BoxLayout.PAGE_AXIS));
-        albumAndTrackContainer.add(createAlbumFormPanel());
-        albumAndTrackContainer.add(new JSeparator(JSeparator.HORIZONTAL));
-        albumAndTrackContainer.add(createTrackFormPanel());
+        // Contenitore per Album e relativi Brani
+        final JPanel albumContainer = new JPanel();
+        albumContainer.setLayout(new BoxLayout(albumContainer, BoxLayout.PAGE_AXIS));
+        albumContainer.add(createAlbumFormPanel());
 
-        final JScrollPane albumTrackScrollPane = new JScrollPane(albumAndTrackContainer);
-        albumTrackScrollPane.setBorder(null);
+        final JScrollPane albumScrollPane = new JScrollPane(albumContainer);
+        albumScrollPane.setBorder(null);
 
         final JTabbedPane mainTabbedPane = new JTabbedPane();
         mainTabbedPane.addTab("Inserimento Artista", artistPodcastScrollPane);
-        mainTabbedPane.addTab("Inserimento Album/Brani", albumTrackScrollPane);
+        mainTabbedPane.addTab("Inserimento Album", albumScrollPane);
         mainTabbedPane.addTab("Inserimento Promozione", createPromotionFormPanel());
         mainTabbedPane.addTab("Statistiche Piattaforma", createStatsPanel());
         mainTabbedPane.addTab("Gestione Utenti", createUsersPanel());
@@ -138,7 +132,6 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Titolo Sezione
         final JLabel sectionLabel = new JLabel("Nuovo Artista");
         sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
         gbc.gridx = 0;
@@ -158,7 +151,6 @@ public final class AdminPanel extends JPanel {
         addFormField(panel, gbc, row++, "Anno inizio attività:", this.txtStartYear);
         addFormField(panel, gbc, row++, "Tipo artista:", this.txtArtistType);
 
-        // Pulsante Salva
         this.btnSaveArtist.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -172,7 +164,8 @@ public final class AdminPanel extends JPanel {
     /**
      * Helper method to add form fields uniformly.
      */
-    private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row, final String labelText, final JTextField field) {
+    private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row, 
+                                final String labelText, final JTextField field) {
         gbc.gridx = 0;
         gbc.gridy = row;
         gbc.gridwidth = 1;
@@ -182,7 +175,7 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Creates the form panel for Album insertion.
+     * Creates the form panel for Album and Songs insertion.
      */
     private JPanel createAlbumFormPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -190,7 +183,7 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        final JLabel sectionLabel = new JLabel("Nuovo Album");
+        final JLabel sectionLabel = new JLabel("Nuovo Album e Brani");
         sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -202,9 +195,19 @@ public final class AdminPanel extends JPanel {
 
         addFormField(panel, gbc, row++, "Codice Artista:", this.txtAlbumArtistCode);
         addFormField(panel, gbc, row++, "Titolo Album:", this.txtAlbumTitle);
-        addFormField(panel, gbc, row++, "Anno Pubblicazione:", this.txtAlbumReleaseYear);
+        addFormField(panel, gbc, row++, "Data Pubblicazione (YYYY-MM-DD):", this.txtAlbumReleaseDate);
         addFormField(panel, gbc, row++, "Casa Discografica:", this.txtAlbumLabel);
 
+        // Aggiunta campo per i brani correlati
+        gbc.gridx = 0;
+        gbc.gridy = row++;
+        panel.add(new JLabel("Brani:"), gbc);
+        
+        gbc.gridx = 1;
+        this.txtAlbumSongsInput.setLineWrap(true);
+        panel.add(new JScrollPane(this.txtAlbumSongsInput), gbc);
+
+        // Pulsante Salva Album con Brani
         this.btnSaveAlbum.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -214,42 +217,7 @@ public final class AdminPanel extends JPanel {
 
         return panel;
     }
-
-    /**
-     * Creates the form panel for Track insertion.
-     */
-    private JPanel createTrackFormPanel() {
-        final JPanel panel = new JPanel(new GridBagLayout());
-        final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        final JLabel sectionLabel = new JLabel("Nuovo Brano");
-        sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(sectionLabel, gbc);
-
-        gbc.gridwidth = 1;
-        int row = 1;
-
-        addFormField(panel, gbc, row++, "Codice Album:", this.txtTrackAlbumCode);
-        addFormField(panel, gbc, row++, "Titolo Brano:", this.txtTrackTitle);
-        addFormField(panel, gbc, row++, "Durata (secondi):", this.txtTrackDuration);
-        addFormField(panel, gbc, row++, "Numero Traccia:", this.txtTrackNumber);
-        addFormField(panel, gbc, row++, "Descrizione:", this.txtTrackDescription);
-
-        this.btnSaveTrack.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(this.btnSaveTrack, gbc);
-
-        return panel;
-    }
-
+    
     /**
      * Creates the form panel for Podcast insertion.
      */
@@ -259,7 +227,6 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Titolo Sezione
         final JLabel sectionLabel = new JLabel("Nuovo Podcast");
         sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
         gbc.gridx = 0;
@@ -269,35 +236,30 @@ public final class AdminPanel extends JPanel {
 
         gbc.gridwidth = 1;
 
-        // Codice Artista
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(new JLabel("Codice Artista:"), gbc);
         gbc.gridx = 1;
         panel.add(this.txtPodcastArtistCode, gbc);
 
-        // Nome Podcast
         gbc.gridx = 0;
         gbc.gridy = 2;
         panel.add(new JLabel("Nome Podcast:"), gbc);
         gbc.gridx = 1;
         panel.add(this.txtPodcastName, gbc);
 
-        // Descrizione
         gbc.gridx = 0;
         gbc.gridy = 3;
         panel.add(new JLabel("Descrizione:"), gbc);
         gbc.gridx = 1;
         panel.add(this.txtPodcastDescription, gbc);
 
-        // Categoria
         gbc.gridx = 0;
         gbc.gridy = 4;
         panel.add(new JLabel("Categoria:"), gbc);
         gbc.gridx = 1;
         panel.add(this.txtPodcastCategory, gbc);
 
-        // Pulsante Salva
         this.btnSavePodcast.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
         gbc.gridy = 5;
@@ -317,7 +279,6 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Titolo Sezione
         final JLabel sectionLabel = new JLabel("Nuova Promozione");
         sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
         gbc.gridx = 0;
@@ -327,21 +288,18 @@ public final class AdminPanel extends JPanel {
 
         gbc.gridwidth = 1;
 
-        // Nome Promozione
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(new JLabel("Nome Promozione:"), gbc);
         gbc.gridx = 1;
         panel.add(this.txtPromoName, gbc);
 
-        // Sconto (%)
         gbc.gridx = 0;
         gbc.gridy = 2;
         panel.add(new JLabel("Sconto (%):"), gbc);
         gbc.gridx = 1;
         panel.add(this.txtDiscountPercentage, gbc);
 
-        // Pulsante Salva
         this.btnSavePromotion.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -354,8 +312,6 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Creates the panel for User Management.
-     * 
-     * @return the users panel
      */
     private JPanel createUsersPanel() {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
@@ -377,8 +333,25 @@ public final class AdminPanel extends JPanel {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
+        final JPanel topPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        topPanel.add(new JLabel("Anno di riferimento (per statistiche annuali):"), gbc);
+        gbc.gridx = 1;
+        topPanel.add(this.txtStatsYear, gbc);
+
         this.btnFetchGlobalStats.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        panel.add(this.btnFetchGlobalStats, BorderLayout.NORTH);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        topPanel.add(this.btnFetchGlobalStats, gbc);
+
+        panel.add(topPanel, BorderLayout.NORTH);
 
         this.txtStatsOutput.setEditable(false);
         panel.add(new JScrollPane(this.txtStatsOutput), BorderLayout.CENTER);
@@ -428,32 +401,16 @@ public final class AdminPanel extends JPanel {
         return this.txtAlbumTitle.getText();
     }
 
-    public String getAlbumReleaseYear() {
-        return this.txtAlbumReleaseYear.getText();
+    public String getAlbumReleaseDate() {
+        return this.txtAlbumReleaseDate.getText();
     }
 
     public String getAlbumLabel() {
         return this.txtAlbumLabel.getText();
     }
 
-    public String getTrackAlbumCode() {
-        return this.txtTrackAlbumCode.getText();
-    }
-
-    public String getTrackTitle() {
-        return this.txtTrackTitle.getText();
-    }
-
-    public String getTrackDuration() {
-        return this.txtTrackDuration.getText();
-    }
-
-    public String getTrackNumber() {
-        return this.txtTrackNumber.getText();
-    }
-
-    public String getTrackDescription() {
-        return this.txtTrackDescription.getText();
+    public String getAlbumSongsInput() {
+        return this.txtAlbumSongsInput.getText();
     }
 
     public String getPodcastArtistCode() {
@@ -484,11 +441,10 @@ public final class AdminPanel extends JPanel {
         this.txtStatsOutput.setText(text);
     }
 
-    /**
-     * Sets the text output for the users list.
-     * 
-     * @let text the formatted string containing users
-     */
+    public String getStatsYear() {
+        return this.txtStatsYear.getText();
+    }
+
     public void setUsersOutputText(final String text) {
         this.txtUsersOutput.setText(text);
     }
@@ -503,10 +459,6 @@ public final class AdminPanel extends JPanel {
         this.btnSaveAlbum.addActionListener(listener);
     }
 
-    public void addSaveTrackListener(final ActionListener listener) {
-        this.btnSaveTrack.addActionListener(listener);
-    }
-    
     public void addSavePodcastListener(final ActionListener listener) {
         this.btnSavePodcast.addActionListener(listener);
     }
@@ -523,13 +475,7 @@ public final class AdminPanel extends JPanel {
         this.btnBack.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the fetch users button.
-     * 
-     * @param listener the action listener
-     */
     public void addFetchUsersListener(final ActionListener listener) {
         this.btnFetchUsers.addActionListener(listener);
     }
-
 }

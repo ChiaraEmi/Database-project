@@ -88,10 +88,10 @@ INSERT INTO Episodi (CodiceEpisodio, CodicePodcast, NumeroEpisodio) VALUES
 (7, 2, 101);
 
 -- 9. ALBUM
-INSERT INTO Album (CodiceAlbum, CodiceArtista, TitoloAlbum, AnnoPubblicazione, CasaDiscografica, MediaVoti, DurataTotale) VALUES
-(101, 1, 'OK. Respira', 2023, 'Island Records', 8.50, 345),
-(102, 2, 'RUSH!', 2023, 'Epic Records', 9.10, 441),
-(103, 3, 'Materia (Pelle)', 2022, 'Epic Records', 8.80, 225);
+INSERT INTO Album (CodiceAlbum, CodiceArtista, TitoloAlbum, DataPubblicazione, CasaDiscografica, MediaVoti, DurataTotale) VALUES
+(101, 1, 'OK. Respira', '2023-07-11', 'Island Records', 8.50, 345),
+(102, 2, 'RUSH!', '2023-12-01', 'Epic Records', 9.10, 441),
+(103, 3, 'Materia (Pelle)', '2022-08-03', 'Epic Records', 8.80, 225);
 
 -- 10. BRANI
 INSERT INTO Brani (CodiceBrano, CodiceAlbum, NumeroTraccia) VALUES

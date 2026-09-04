@@ -51,8 +51,8 @@ public final class ControllerImpl implements Controller {
             || artistType == null || artistType.isBlank() || startYear <= 0) {
             final String errorMessage = "Compila i campi obbligatori (Nome d'arte, Paese, Anno e Tipo Artista).";
             LOGGER.log(Level.WARNING, errorMessage);
-            // If you want to show it on the view, you can uncomment/use:
-            // this.view.showError(errorMessage);
+            this.view.showError(errorMessage);
+
             return;
         }
 
@@ -77,7 +77,8 @@ public final class ControllerImpl implements Controller {
             || recordCompany == null || recordCompany.isBlank() || rawSongsText == null || rawSongsText.isBlank()) {
             final String errorMessage = "Compila i campi obbligatori (Artista, Titolo, Data e Casa Discografica).";
             LOGGER.log(Level.WARNING, errorMessage);
-            // this.view.showError(errorMessage);
+            this.view.showError(errorMessage);
+
             return;
         }
 
@@ -96,7 +97,8 @@ public final class ControllerImpl implements Controller {
         if (artistCode <= 0 || name == null || name.isBlank() || category == null || category.isBlank()) {
             final String errorMessage = "Compila i campi obbligatori del podcast (Artista, Nome e Categoria).";
             LOGGER.log(Level.WARNING, errorMessage);
-            // this.view.showError(errorMessage);
+            this.view.showError(errorMessage);
+
             return;
         }
 
@@ -116,7 +118,8 @@ public final class ControllerImpl implements Controller {
         if (podcastCode <= 0 || title == null || title.isBlank() || duration <= 0 || episodeNumber <= 0) {
             final String errorMessage = "Compila i campi obbligatori dell'episodio (Podcast, Titolo, Durata e Numero Episodio).";
             LOGGER.log(Level.WARNING, errorMessage);
-            // this.view.showError(errorMessage);
+            this.view.showError(errorMessage);
+
             return;
         }
 
@@ -136,7 +139,8 @@ public final class ControllerImpl implements Controller {
             || eventDuration <= 0) {
             final String errorMessage = "Compila tutti i campi obbligatori (Username, Codice Contenuto, Dispositivo e Durata).";
             LOGGER.log(Level.WARNING, errorMessage);
-            // this.view.showError(errorMessage);
+            this.view.showError(errorMessage);
+
             return;
         }
 
@@ -154,7 +158,8 @@ public final class ControllerImpl implements Controller {
         if (username == null || username.isBlank() || playlistName == null || playlistName.isBlank()) {
             final String errorMessage = "Compila i campi obbligatori per creare la playlist (Username e Nome Playlist).";
             LOGGER.log(Level.WARNING, errorMessage);
-            // this.view.showError(errorMessage);
+            this.view.showError(errorMessage);
+
             return;
         }
 
@@ -171,7 +176,8 @@ public final class ControllerImpl implements Controller {
         if (playlistCode <= 0 || trackCode <= 0) {
             final String errorMessage = "Impossibile aggiungere il brano: playlist o brano non validi.";
             LOGGER.log(Level.WARNING, errorMessage);
-            // this.view.showError(errorMessage);
+            this.view.showError(errorMessage);
+
             return;
         }
 
@@ -201,7 +207,8 @@ public final class ControllerImpl implements Controller {
         if (year <= 0) {
             final String errorMessage = "Inserisci un anno valido per visualizzare le statistiche globali.";
             LOGGER.log(Level.WARNING, errorMessage);
-            // this.view.showError(errorMessage);
+            this.view.showError(errorMessage);
+
             return;
         }
 

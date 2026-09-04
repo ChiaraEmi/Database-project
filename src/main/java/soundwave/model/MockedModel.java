@@ -35,7 +35,6 @@ public final class MockedModel implements Model {
         this.artists = new HashMap<>();
         this.albums = new HashMap<>();
 
-        // Inserimento di dati iniziali di prova
         this.users.add(
             new User("mario88", "Mario", "Rossi", "mario@email.com", "pass123", 
                      LocalDate.of(DEFAULT_BIRTH_YEAR, DEFAULT_BIRTH_MONTH, DEFAULT_BIRTH_DAY), 

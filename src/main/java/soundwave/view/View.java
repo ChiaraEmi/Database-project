@@ -8,7 +8,7 @@ import soundwave.controller.Controller;
 public interface View {
 
     /**
-     * Sets the controller controlled by this view (if works as input).
+     * Sets the controller controlled by this view.
      *
      * @param controller the controller to attach
      */
@@ -39,4 +39,11 @@ public interface View {
      * @param statsText the formatted statistics string
      */
     void showGlobalStats(String statsText);
+
+    /**
+     * Displays an error message dialog to the user.
+     * 
+     * @param message the error message to display
+     */
+    void showError(String message);
 }

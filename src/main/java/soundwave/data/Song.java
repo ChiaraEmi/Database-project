@@ -95,7 +95,7 @@ public final class Song {
         private DAO() { }
 
         /**
-         * Inserts a new song into the database (OP 8).
+         * Inserts a new song into the database.
          * First creates the parent record in Contenuti via Content.DAO.insert,
          * then links it to the Album in Brani, associates the singer in Cantare, 
          * and links its genres in Appartenenze.
@@ -122,27 +122,23 @@ public final class Song {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
-                // 1. Inserimento in Contenuti (sfruttando Content.DAO.insert come in Episode)
                 final int contentCode = Content.DAO.insert(connection, title, duration, description, "Brano", releaseDate);
 
-                // 2. Inserimento in Brani
                 try (var statement = DAOUtils.prepare(connection, Queries.INSERT_BRANO, contentCode, 
                                                         albumCode, trackNumber)) {
                     statement.executeUpdate();
                 }
 
-                // 3. Inserimento in Cantare (chi lo canta)
                 try (var statement = DAOUtils.prepare(connection, Queries.INSERT_CANTARE, artistCode, contentCode)) {
                     statement.executeUpdate();
                 }
 
-                // 4. Inserimento in Appartenenze (generi musicali)
                 for (final var genre : genres) {
-                    // Assicura che il genere esista nella tabella Generi
+
                     try (var genreStmt = DAOUtils.prepare(connection, Queries.INSERT_GENRE_IF_NOT_EXISTS, genre)) {
                         genreStmt.executeUpdate();
                     }
-                    // Collega il genere al brano
+
                     try (var statement = DAOUtils.prepare(connection, Queries.INSERT_APPARTENENZA, contentCode, genre)) {
                         statement.executeUpdate();
                     }
@@ -156,6 +152,7 @@ public final class Song {
                 } catch (final SQLException rollbackEx) {
                     e.addSuppressed(rollbackEx);
                 }
+
                 throw new DAOException(e);
             } finally {
                 try {
@@ -182,6 +179,7 @@ public final class Song {
                     return "Brano: " + resultSet.getString("Titolo") 
                             + " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
                 }
+
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }

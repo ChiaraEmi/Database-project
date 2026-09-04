@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a Playlist entity corresponding to the Playlist table.
+ * Represents a Playlist entity.
  */
 public final class Playlist {
 
@@ -20,10 +20,10 @@ public final class Playlist {
     /**
      * Constructs a new Playlist instance.
      *
-     * @param playlistCode the primary key (CodicePlaylist).
-     * @param username the owner's username (Username).
-     * @param playlistName the name of the playlist (NomePlaylist).
-     * @param creationDate the creation timestamp (DataCreazione).
+     * @param playlistCode the primary key.
+     * @param username the owner's username.
+     * @param playlistName the name of the playlist.
+     * @param creationDate the creation timestamp.
      * @param visibility the visibility state ('Pubblica' or 'Privata').
      * @param isCollaborative flag indicating if the playlist is collaborative.
      */
@@ -38,7 +38,7 @@ public final class Playlist {
     }
 
     /**
-     * Gets the playlist code (CodicePlaylist).
+     * Gets the playlist code.
      *
      * @return the playlist code.
      */
@@ -47,7 +47,7 @@ public final class Playlist {
     }
 
     /**
-     * Gets the username of the owner (Username).
+     * Gets the username of the owner.
      *
      * @return the username.
      */
@@ -56,7 +56,7 @@ public final class Playlist {
     }
 
     /**
-     * Gets the playlist name (NomePlaylist).
+     * Gets the playlist name.
      *
      * @return the playlist name.
      */
@@ -65,7 +65,7 @@ public final class Playlist {
     }
 
     /**
-     * Gets the creation date (DataCreazione).
+     * Gets the creation date.
      *
      * @return the creation date.
      */
@@ -74,7 +74,7 @@ public final class Playlist {
     }
 
     /**
-     * Gets the visibility state (Visibilita).
+     * Gets the visibility state.
      *
      * @return the visibility.
      */
@@ -83,7 +83,7 @@ public final class Playlist {
     }
 
     /**
-     * Checks if the playlist is collaborative (Collaborativa).
+     * Checks if the playlist is collaborative.
      *
      * @return true if collaborative, false otherwise.
      */
@@ -139,14 +139,14 @@ public final class Playlist {
         private DAO() { }
 
         /**
-         * Inserts a new playlist into the Playlist table (OP 12).
+         * Inserts a new playlist into the Playlist table.
          *
          * @param connection the database connection.
-         * @param username the foreign key referring to Utenti (Username).
-         * @param playlistName the name of the playlist (NomePlaylist).
+         * @param username the foreign key referring to Utenti.
+         * @param playlistName the name of the playlist.
          * @param visibility the visibility state ('Pubblica' or 'Privata').
          * @param isCollaborative flag indicating if the playlist is collaborative.
-         * @return the auto-generated primary key (CodicePlaylist).
+         * @return the auto-generated primary key.
          */
         public static int insert(final Connection connection, final String username, 
                                  final String playlistName, final String visibility, 
@@ -173,11 +173,11 @@ public final class Playlist {
         }
 
         /**
-         * Inserts a track into a playlist via the Inclusioni table (OP 13).
+         * Inserts a track into a playlist via the Inclusioni table.
          *
          * @param connection the database connection.
-         * @param playlistCode the foreign key referring to Playlist (CodicePlaylist).
-         * @param trackCode the foreign key referring to Brani (CodiceBrano).
+         * @param playlistCode the foreign key referring to Playlist.
+         * @param trackCode the foreign key referring to Brani.
          */
         public static void addTrack(final Connection connection, final int playlistCode, final int trackCode) {
             try (

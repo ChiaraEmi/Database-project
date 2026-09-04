@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a ListeningEvent entity corresponding to the EventiAscolto table.
+ * Represents a ListeningEvent entity.
  */
 public final class ListeningEvent {
 
@@ -19,11 +19,11 @@ public final class ListeningEvent {
     /**
      * Constructs a new ListeningEvent instance.
      *
-     * @param username the username of the listening user (Username).
-     * @param contentCode the content code listened to (CodiceContenuto).
-     * @param timestamp the date and time of the event (DataOra).
-     * @param device the device used for listening (Dispositivo).
-     * @param eventDuration the duration played in seconds (DurataEvento).
+     * @param username the username of the listening user.
+     * @param contentCode the content code listened to.
+     * @param timestamp the date and time of the event.
+     * @param device the device used for listening.
+     * @param eventDuration the duration played in seconds.
      */
     public ListeningEvent(final String username, final int contentCode, final String timestamp, 
                           final String device, final int eventDuration) {
@@ -35,7 +35,7 @@ public final class ListeningEvent {
     }
 
     /**
-     * Gets the username (Username).
+     * Gets the username.
      *
      * @return the username.
      */
@@ -44,7 +44,7 @@ public final class ListeningEvent {
     }
 
     /**
-     * Gets the content code (CodiceContenuto).
+     * Gets the content code.
      *
      * @return the content code.
      */
@@ -53,7 +53,7 @@ public final class ListeningEvent {
     }
 
     /**
-     * Gets the timestamp (DataOra).
+     * Gets the timestamp.
      *
      * @return the timestamp string.
      */
@@ -62,7 +62,7 @@ public final class ListeningEvent {
     }
 
     /**
-     * Gets the device (Dispositivo).
+     * Gets the device.
      *
      * @return the device name.
      */
@@ -71,7 +71,7 @@ public final class ListeningEvent {
     }
 
     /**
-     * Gets the event duration in seconds (DurataEvento).
+     * Gets the event duration in seconds.
      *
      * @return the duration in seconds.
      */
@@ -124,13 +124,13 @@ public final class ListeningEvent {
         private DAO() { }
 
         /**
-         * Inserts a new listening event into the EventiAscolto table (OP 11).
+         * Inserts a new listening event into the EventiAscolto table.
          *
          * @param connection the database connection.
-         * @param username the foreign key referring to Utenti (Username).
-         * @param contentCode the foreign key referring to Contenuti (CodiceContenuto).
-         * @param device the device used for listening (Dispositivo).
-         * @param eventDuration the duration played in seconds (DurataEvento).
+         * @param username the foreign key referring to Utenti.
+         * @param contentCode the foreign key referring to Contenuti.
+         * @param device the device used for listening.
+         * @param eventDuration the duration played in seconds.
          */
         public static void insert(final Connection connection, final String username, 
                                   final int contentCode, final String device, 

@@ -8,8 +8,7 @@ import soundwave.data.SongInput;
 import soundwave.data.User;
 
 /**
- * Represents the application model, defining core business operations 
- * and data interactions for the Soundwave application.
+ * Represents the application model.
  */
 public interface Model {
 

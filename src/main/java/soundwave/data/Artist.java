@@ -184,7 +184,7 @@ public final class Artist {
         private DAO() { }
 
         /**
-         * Inserts a new artist into the database (OP 7).
+         * Inserts a new artist into the database.
          *
          * @param connection the database connection.
          * @param stageName the stage name of the artist.

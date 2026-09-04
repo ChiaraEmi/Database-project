@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Data structure used as input for inserting a song within an album transaction (OP 8).
+ * Data structure used as input for inserting a song within an album transaction.
  */
 public final class SongInput {
 

@@ -87,7 +87,6 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        // --- Inserimento Artista (OP 7) ---
         this.adminPanel.addSaveArtistListener(e -> {
             if (this.controller != null) {
                 final String stageName = this.adminPanel.getArtistStageName();
@@ -115,7 +114,6 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        // --- Inserimento Album e Brani (OP 8) ---
         this.adminPanel.addSaveAlbumListener(e -> {
             if (this.controller != null) {
                 int artistCode = 0;
@@ -138,7 +136,6 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        // --- Inserimento Podcast (OP 9) ---
         this.adminPanel.addSavePodcastListener(e -> {
             if (this.controller != null) {
                 int artistCode = 0;
@@ -160,7 +157,6 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        // --- Inserimento Episodio (OP 10) ---
         this.adminPanel.addSaveEpisodeListener(e -> {
             if (this.controller != null) {
                 int podcastCode = 0;
@@ -206,7 +202,6 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        // --- Statistiche Globali (OP 22) ---
         this.adminPanel.addFetchStatsListener(e -> {
             if (this.controller != null) {
                 int year = CURRENT_YEAR;
@@ -286,5 +281,10 @@ public final class ViewImpl extends JFrame implements View {
     )
     public AdminPanel getAdminPanel() {
         return adminPanel;
+    }
+
+    @Override
+    public void showError(final String message) {
+        JOptionPane.showMessageDialog(this, message, "Errore", JOptionPane.ERROR_MESSAGE);
     }
 }

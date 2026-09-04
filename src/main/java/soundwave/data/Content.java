@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a Content (Contenuto) entity.
+ * Represents a Content entity.
  */
 public final class Content {
 

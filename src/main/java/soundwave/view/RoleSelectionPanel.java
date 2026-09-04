@@ -15,15 +15,14 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 /**
- * Panel for selecting the application role (User or Admin) with a modern look.
+ * Panel for selecting the application role (User or Admin).
  */
 public final class RoleSelectionPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    // Palette di colori moderna (ispirata al mondo della musica)
     private static final Color BACKGROUND_COLOR = new Color(245, 247, 250);
-    private static final Color PRIMARY_COLOR = new Color(74, 119, 255); // Blu acceso
+    private static final Color PRIMARY_COLOR = new Color(74, 119, 255);
     private static final Color TEXT_DARK = new Color(33, 37, 41);
     private static final Color TEXT_MUTED = new Color(108, 117, 125);
 
@@ -50,7 +49,6 @@ public final class RoleSelectionPanel extends JPanel {
         this.setBackground(BACKGROUND_COLOR);
         this.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
 
-        // Intestazione con titolo e icona testuale/emblema
         final JPanel northPanel = new JPanel(new BorderLayout(0, 5));
         northPanel.setBackground(BACKGROUND_COLOR);
 
@@ -65,7 +63,6 @@ public final class RoleSelectionPanel extends JPanel {
 
         this.add(northPanel, BorderLayout.NORTH);
 
-        // Pannello centrale per sottotitolo e pulsanti
         final JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setBackground(BACKGROUND_COLOR);
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -73,7 +70,6 @@ public final class RoleSelectionPanel extends JPanel {
         gbc.gridx = 0;
         gbc.fill = GridBagConstraints.NONE;
 
-        // Sottotitolo
         final JLabel subtitleLabel = new JLabel("Seleziona il tuo profilo per iniziare", SwingConstants.CENTER);
         subtitleLabel.setFont(subtitleLabel.getFont().deriveFont(SUBTITLE_FONT_SIZE));
         subtitleLabel.setForeground(TEXT_MUTED);
@@ -81,12 +77,10 @@ public final class RoleSelectionPanel extends JPanel {
         gbc.insets = new Insets(0, 0, VERTICAL_SPACING, 0);
         centerPanel.add(subtitleLabel, gbc);
 
-        // Pulsante Utente
         this.btnUtente = createStyledButton("Accesso Utente", false);
         gbc.gridy = 1;
         centerPanel.add(this.btnUtente, gbc);
 
-        // Pulsante Admin
         this.btnAdmin = createStyledButton("Accesso Amministratore", true);
         gbc.gridy = 2;
         centerPanel.add(this.btnAdmin, gbc);
@@ -99,6 +93,7 @@ public final class RoleSelectionPanel extends JPanel {
      *
      * @param text the text to display on the button.
      * @param isPrimary whether the button represents the primary action style.
+     * 
      * @return the styled JButton instance.
      */
     private JButton createStyledButton(final String text, final boolean isPrimary) {

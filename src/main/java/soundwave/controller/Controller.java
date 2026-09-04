@@ -1,7 +1,7 @@
 package soundwave.controller;
 
 /**
- * Defines the controller interface for the Soundwave application.
+ * Defines the controller interface for the application.
  */
 public interface Controller {
 

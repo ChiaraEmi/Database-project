@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Represents a user entity within the Soundwave system.
+ * Represents a User entity.
  */
 public final class User {
 
@@ -209,7 +209,9 @@ public final class User {
          * 
          * @param connection the active database connection.
          * @param username   the username to search for.
+         * 
          * @return an Optional containing the user if found, or empty otherwise.
+         * 
          * @throws SQLException if a database error occurs.
          */
         public static Optional<User> find(final Connection connection, final String username) throws SQLException {

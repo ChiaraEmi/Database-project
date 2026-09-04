@@ -77,7 +77,8 @@ public final class AdminPanel extends JPanel {
     private final JTextArea txtUsersOutput = new JTextArea(10, 30);
 
     // --- Campi di testo per Statistiche Globali (OP 22) ---
-    private final JTextField txtStatsYear = new JTextField(FIELD_COLUMNS);
+    private final javax.swing.JComboBox<Integer> comboStatsYear = new javax.swing.JComboBox<>(
+        new Integer[]{2026, 2025, 2024});
     private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche");
     private final JTextArea txtStatsOutput = new JTextArea(10, 30);
 
@@ -319,8 +320,10 @@ public final class AdminPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         topPanel.add(new JLabel("Anno di riferimento:"), gbc);
+
         gbc.gridx = 1;
-        topPanel.add(this.txtStatsYear, gbc);
+        // Inseriamo la ComboBox al posto del JTextField
+        topPanel.add(this.comboStatsYear, gbc);
 
         this.btnFetchGlobalStats.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
@@ -616,12 +619,13 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Gets the statistics year.
+     * Gets the statistics year from the dropdown menu.
      * 
-     * @return the statistics year.
+     * @return the statistics year as a String.
      */
     public String getStatsYear() {
-        return this.txtStatsYear.getText();
+        final Integer selectedYear = (Integer) this.comboStatsYear.getSelectedItem();
+        return selectedYear != null ? selectedYear.toString() : "";
     }
 
     /**

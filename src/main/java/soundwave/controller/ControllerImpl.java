@@ -46,26 +46,24 @@ public final class ControllerImpl implements Controller {
     public void adminClickedSaveArtist(final String stageName, final String name, final String surname, 
                                        final String birthDateStr, final String provenanceCountry, 
                                        final String biography, final int startYear, final String artistType) {
+
+        if (stageName == null || stageName.isBlank() || provenanceCountry == null || provenanceCountry.isBlank()
+            || artistType == null || artistType.isBlank() || startYear <= 0) {
+            final String errorMessage = "Compila i campi obbligatori (Nome d'arte, Paese, Anno e Tipo Artista).";
+            LOGGER.log(Level.WARNING, errorMessage);
+            // If you want to show it on the view, you can uncomment/use:
+            // this.view.showError(errorMessage);
+            return;
+        }
+
         try {
-
-            if (stageName == null || stageName.isBlank() || provenanceCountry == null || provenanceCountry.isBlank()
-                || biography == null || biography.isBlank() || artistType == null || artistType.isBlank() || startYear <= 0) {
-
-                throw new IllegalArgumentException("Compila i campi obbligatori (Nome d'arte, Paese, Anno e Tipo Artista).");
-            }
-
             final String realName = (name == null || name.isBlank()) ? null : name;
             final String realSurname = (surname == null || surname.isBlank()) ? null : surname;
             final java.time.LocalDate birthDate = birthDateStr == null || birthDateStr.isBlank() 
-                ? null 
-                : java.time.LocalDate.parse(birthDateStr);
-
+                ? null : java.time.LocalDate.parse(birthDateStr);
+            final String bio = (biography == null || biography.isBlank()) ? null : biography;
             this.model.insertArtist(stageName, realName, realSurname, birthDate, 
-                                    provenanceCountry, biography, startYear, artistType);
-
-        } catch (final IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
-            //this.view.showError(e.getMessage());
+                                    provenanceCountry, bio, startYear, artistType);
         } catch (final java.time.format.DateTimeParseException | DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to save artist", e);
         }
@@ -74,6 +72,15 @@ public final class ControllerImpl implements Controller {
     @Override
     public void adminClickedSaveAlbumWithSongs(final int artistCode, final String title, final String releaseDate, 
                                                final String recordCompany, final String rawSongsText) {
+
+        if (artistCode <= 0 || title == null || title.isBlank() || releaseDate == null || releaseDate.isBlank()
+            || recordCompany == null || recordCompany.isBlank() || rawSongsText == null || rawSongsText.isBlank()) {
+            final String errorMessage = "Compila i campi obbligatori (Artista, Titolo, Data e Casa Discografica).";
+            LOGGER.log(Level.WARNING, errorMessage);
+            // this.view.showError(errorMessage);
+            return;
+        }
+
         try {
             final java.util.List<soundwave.data.SongInput> songs = parseSongsInput(rawSongsText);
             this.model.insertAlbumWithSongs(artistCode, title, releaseDate, recordCompany, songs);
@@ -85,8 +92,17 @@ public final class ControllerImpl implements Controller {
     @Override
     public void adminClickedSavePodcast(final int artistCode, final String name, 
                                         final String description, final String category) {
+
+        if (artistCode <= 0 || name == null || name.isBlank() || category == null || category.isBlank()) {
+            final String errorMessage = "Compila i campi obbligatori del podcast (Artista, Nome e Categoria).";
+            LOGGER.log(Level.WARNING, errorMessage);
+            // this.view.showError(errorMessage);
+            return;
+        }
+
         try {
-            this.model.insertPodcast(artistCode, name, description, category);
+            final String desc = (description == null || description.isBlank()) ? null : description;
+            this.model.insertPodcast(artistCode, name, desc, category);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to save podcast", e);
         }
@@ -96,8 +112,17 @@ public final class ControllerImpl implements Controller {
     public void adminClickedSaveEpisode(final int podcastCode, final String title, 
                                         final int duration, final String description, 
                                         final int episodeNumber) {
+
+        if (podcastCode <= 0 || title == null || title.isBlank() || duration <= 0 || episodeNumber <= 0) {
+            final String errorMessage = "Compila i campi obbligatori dell'episodio (Podcast, Titolo, Durata e Numero Episodio).";
+            LOGGER.log(Level.WARNING, errorMessage);
+            // this.view.showError(errorMessage);
+            return;
+        }
+
         try {
-            this.model.insertEpisode(podcastCode, title, duration, description, episodeNumber);
+            final String desc = (description == null || description.isBlank()) ? null : description;
+            this.model.insertEpisode(podcastCode, title, duration, desc, episodeNumber);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to save episode", e);
         }
@@ -106,6 +131,15 @@ public final class ControllerImpl implements Controller {
     @Override
     public void userGeneratedListeningEvent(final String username, final int contentCode, 
                                             final String device, final int eventDuration) {
+
+        if (username == null || username.isBlank() || contentCode <= 0 || device == null || device.isBlank() 
+            || eventDuration <= 0) {
+            final String errorMessage = "Compila tutti i campi obbligatori (Username, Codice Contenuto, Dispositivo e Durata).";
+            LOGGER.log(Level.WARNING, errorMessage);
+            // this.view.showError(errorMessage);
+            return;
+        }
+
         try {
             this.model.insertListeningEvent(username, contentCode, device, eventDuration);
         } catch (final DAOException e) {
@@ -116,6 +150,14 @@ public final class ControllerImpl implements Controller {
     @Override
     public void userClickedCreatePlaylist(final String username, final String playlistName, 
                                          final String visibility, final boolean isCollaborative) {
+
+        if (username == null || username.isBlank() || playlistName == null || playlistName.isBlank()) {
+            final String errorMessage = "Compila i campi obbligatori per creare la playlist (Username e Nome Playlist).";
+            LOGGER.log(Level.WARNING, errorMessage);
+            // this.view.showError(errorMessage);
+            return;
+        }
+
         try {
             this.model.insertPlaylist(username, playlistName, visibility, isCollaborative);
         } catch (final DAOException e) {
@@ -125,6 +167,14 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public void userClickedAddTrackToPlaylist(final int playlistCode, final int trackCode) {
+
+        if (playlistCode <= 0 || trackCode <= 0) {
+            final String errorMessage = "Impossibile aggiungere il brano: playlist o brano non validi.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            // this.view.showError(errorMessage);
+            return;
+        }
+
         try {
             this.model.addTrackToPlaylist(playlistCode, trackCode);
         } catch (final DAOException e) {
@@ -147,6 +197,14 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public void adminRequestedGlobalStats(final int year) {
+
+        if (year <= 0) {
+            final String errorMessage = "Inserisci un anno valido per visualizzare le statistiche globali.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            // this.view.showError(errorMessage);
+            return;
+        }
+
         try {
             final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
             final String mostPlayedGenre = this.model.getMostPlayedGenre(year);

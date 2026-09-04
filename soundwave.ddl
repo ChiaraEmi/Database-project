@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS EventiAscolto (
     Username VARCHAR(50) NOT NULL,
     CodiceContenuto INT NOT NULL,
     DataOra DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Dispositivo VARCHAR(50),
+    Dispositivo VARCHAR(50) NOT NULL,
     DurataEvento INT NOT NULL,
     PRIMARY KEY (Username, CodiceContenuto, DataOra),
     FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE,

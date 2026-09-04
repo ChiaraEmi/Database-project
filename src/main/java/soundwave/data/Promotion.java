@@ -4,10 +4,8 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.sql.Statement;
 
 /**
@@ -137,22 +135,6 @@ public final class Promotion {
         final var currentDate = LocalDate.now();
         return (currentDate.isEqual(beginDate) || currentDate.isAfter(beginDate)) &&
                (currentDate.isEqual(endDate) || currentDate.isBefore(endDate));
-    }
-
-    /**
-     * Calculates the discounted price based on the original price and the promotion's discount type and value.
-     *
-     * @param originalPrice the original price before discount
-     * @return the discounted price
-     */
-    public double calculateDiscountedPrice(final double originalPrice) {
-        if ("Percentuale".equals(discountType)) {
-            return originalPrice * (1- discountValue / 100.0);
-        } else if ("Fisso".equals(discountType)) {
-            return originalPrice - discountValue;
-        } else {
-            throw new IllegalArgumentException("Unknown discount type: " + discountType);
-        }
     }
 
     @Override

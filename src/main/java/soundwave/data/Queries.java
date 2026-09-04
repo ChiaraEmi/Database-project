@@ -10,9 +10,16 @@ public final class Queries {
         """
         SELECT Username
         FROM Utenti
-        WHERE Username= ?
+        WHERE Username = ?
         """;
-        
+
+    public static final String CHECK_EMAIL_EXISTS = 
+        """
+        SELECT Username
+        FROM Utenti
+        WHERE Email = ?
+        """;
+
     public static final String INSERT_USER = 
         """
         INSERT INTO Utenti (Username, Email, Password, Nome, Cognome, DataNascita, Paese, CreditiBonus)
@@ -126,7 +133,7 @@ public final class Queries {
     // ---  3.1: RINNOVO AUTOMATICO ---
     public static final String CHECK_SUBSCRIPTION_RENEWAL = 
         """
-        SELECT CodiceSottoscrizione, CodiceAbbonamento, DataFine, RinnovoAutomatico
+        SELECT *
         FROM Sottoscrizioni
         WHERE Username= ? AND Stato = 'Attiva' AND RinnovoAutomatico = TRUE
         """;

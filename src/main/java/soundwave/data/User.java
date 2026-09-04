@@ -174,7 +174,91 @@ public final class User {
         private DAO() {}
 
         /**
-5         * Retrieves a list of all users from the database.
+         * OP1
+         * Register new user and generate invite code
+         * @param connection
+         * @param username
+         * @param name
+         * @param surname
+         * @param email
+         * @param password
+         * @param birthDate
+         * @param country
+         * @return il codice invito generato per il nuovo utente
+         */
+        public static String register(final Connection connection, final String username, final String name, final String surname, final String email, final String password, final LocalDate birthDate, final String country) {
+            boolean autoCommit = true;
+            try {
+                autoCommit = connection.getAutoCommit();
+                connection.setAutoCommit(false);
+
+                //1. Verifica se username esiste già
+                
+                try (var statement = DAOUtils.prepare(connection, Queries.CHECK_USERNAME_EXISTS, username);
+                     var resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        throw new DAOException("Username '" + username + "' is already taken.");
+                    }
+                }
+                
+                //2.Verifica se esiste già email
+                try (var statement = DAOUtils.prepare(connection, Queries.CHECK_EMAIL_EXISTS, email);
+                     var resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        throw new DAOException("Email '" + email + "' is already registered.");
+                    }
+                }
+
+                //3. Inserire il nuovo utente
+                try (var statement = DAOUtils.prepare(connection, Queries.INSERT_USER, username, email, password, name, surname, Date.valueOf(birthDate), country)) {
+                    statement.executeUpdate();
+                }
+
+                //4. Genera il codice invito per il nuovo utente
+                String inviteCode = InviteCode.DAO.generate(connection, username);
+
+                connection.commit();
+                return inviteCode;
+            } catch (final SQLException e) {
+                try {
+                    connection.rollback();
+                } catch (final SQLException rollbackException) {
+                    e.addSuppressed(rollbackException);
+                }
+                throw new DAOException(e);
+            } catch (final DAOException e) {
+                try {
+                    connection.rollback();
+                } catch (final SQLException rollbackException) {
+                    e.addSuppressed(rollbackException);
+                }
+                throw new DAOException(e);
+            } finally {
+                try {
+                    connection.setAutoCommit(autoCommit);
+                } catch (final SQLException e) {
+                    throw new DAOException(e);
+                }
+            }
+        }
+
+        /**
+         * Verify if is enough credit bonus (>=2)
+         * @param connection
+         * @param username
+         * @return true se l'utente ha almeno 2 crediti bonus
+         */
+        public static boolean hasEnoughBonusCredit(final Connection connection, final String username) {
+            try (var statement = DAOUtils.prepare(connection, Queries.CHECK_BONUS_CREDIT, username);
+                 var rs = statement.executeQuery()) {
+                    return rs.next();
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
+
+        /**
+         * Retrieves a list of all users from the database.
          * 
          * @param connection the active database connection
          * @return a list of users
@@ -263,6 +347,40 @@ public final class User {
                 throw new DAOException(e);
             }
             return users;
+        }
+
+        /**
+         * Increments the bonus credit of a user by 2.
+         *
+         * @param connection the database connection.
+         * @param username   the username of the user whose bonus credit is to be incremented.
+         */
+        public static void incrementBonusCredit(final Connection connection, final String username) {
+            try (var statement = DAOUtils.prepare(connection, Queries.UPDATE_BONUS_CREDIT, username)) {
+                int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new DAOException("No user found with username: " + username);
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
+
+        /**
+         * Decrements the bonus credit of a user by 2.
+         *
+         * @param connection the database connection.
+         * @param username   the username of the user whose bonus credit is to be decremented.
+         */
+        public static void decrementBonusCredit(final Connection connection, final String username) {
+            try (var statement = DAOUtils.prepare(connection, Queries.DEBIT_BONUS_CREDIT, username)) {
+                int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new DAOException("No user found with username: " + username);
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
         }
     }
 }

@@ -2,6 +2,8 @@ package soundwave.data;
 
 import java.util.List;
 import java.util.Objects;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Represents a subscription plan in the system.
@@ -63,15 +65,6 @@ public final class Plan {
         return price;
     }
 
-    /**
-     * Checks if the plan is a monthly plan.
-     *
-     * @return true if the plan is monthly, false otherwise.
-     */
-    public boolean isMonthlyPlan() {
-        return durationMonths == 1;
-    }
-
     @Override
     public boolean equals(final Object other) {
         if (this == other) {
@@ -107,6 +100,22 @@ public final class Plan {
     public static final class DAO {
         private DAO() {}
 
-        
+        /**
+         * Checks if a given plan code corresponds to a monthly subscription.
+         *
+         * @param connection the database connection.
+         * @param code       the plan code to check.
+         * @return true if the plan is a monthly subscription, false otherwise.
+         */
+        public static boolean isMonthlyPlan(final Connection connection, final int code) {
+            try (
+                var statement = DAOUtils.prepare(connection, Queries.CHECK_MONTHLY_SUBSCRIPTION, code);
+                var resultSet = statement.executeQuery()
+                ) {
+                    return resultSet.next();
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
     }
 }

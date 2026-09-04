@@ -47,11 +47,25 @@ public final class ControllerImpl implements Controller {
                                        final String birthDateStr, final String provenanceCountry, 
                                        final String biography, final int startYear, final String artistType) {
         try {
+
+            if (stageName == null || stageName.isBlank() || provenanceCountry == null || provenanceCountry.isBlank()
+                || biography == null || biography.isBlank() || artistType == null || artistType.isBlank() || startYear <= 0) {
+
+                throw new IllegalArgumentException("Compila i campi obbligatori (Nome d'arte, Paese, Anno e Tipo Artista).");
+            }
+
+            final String realName = (name == null || name.isBlank()) ? null : name;
+            final String realSurname = (surname == null || surname.isBlank()) ? null : surname;
             final java.time.LocalDate birthDate = birthDateStr == null || birthDateStr.isBlank() 
                 ? null 
                 : java.time.LocalDate.parse(birthDateStr);
 
-            this.model.insertArtist(stageName, name, surname, birthDate, provenanceCountry, biography, startYear, artistType);
+            this.model.insertArtist(stageName, realName, realSurname, birthDate, 
+                                    provenanceCountry, biography, startYear, artistType);
+
+        } catch (final IllegalArgumentException e) {
+            LOGGER.log(Level.WARNING, e.getMessage());
+            //this.view.showError(e.getMessage());
         } catch (final java.time.format.DateTimeParseException | DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to save artist", e);
         }

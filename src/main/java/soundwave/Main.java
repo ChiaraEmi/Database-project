@@ -8,7 +8,7 @@ import soundwave.view.ViewImpl;
 import java.sql.SQLException;
 
 /**
- * Main class to start the application following the tutor's style.
+ * Main class to start the application.
  */
 public final class Main {
 
@@ -20,6 +20,7 @@ public final class Main {
      * The main entry point of the application.
      * 
      * @param args The command line arguments.
+     * 
      * @throws SQLException if a database access error occurs.
      */
     public static void main(final String[] args) throws SQLException {

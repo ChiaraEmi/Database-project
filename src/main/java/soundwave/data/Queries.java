@@ -13,6 +13,14 @@ public final class Queries {
         """;
 
     // --- OP 8: INSERIMENTO ALBUM E RELATIVI BRANI ---
+    public static final String SELECT_ALBUM_ARTISTS = 
+        """
+        SELECT CodiceArtista, NomeDArte 
+        FROM Artisti 
+        WHERE TipoArtista != 'Autore Podcast'
+        ORDER BY NomeDArte ASC
+        """;
+
     public static final String INSERT_ALBUM = 
         """
         INSERT INTO Album (CodiceArtista, TitoloAlbum, DataPubblicazione, CasaDiscografica)

@@ -84,7 +84,9 @@ public final class ViewImpl extends JFrame implements View {
         this.roleSelectionPanel.addAdminListener(e -> {
             showPanel(ADMIN_CARD);
             if (this.controller != null) {
+                final List<Artist> artists = this.controller.getAlbumArtists();
                 final List<Artist> authors = this.controller.getPodcastAuthors();
+                this.adminPanel.setAlbumArtists(artists);
                 this.adminPanel.setPodcastAuthors(authors);
             }
         });
@@ -126,6 +128,11 @@ public final class ViewImpl extends JFrame implements View {
                 if (success) {
                     showSuccess("Artista inserito con successo!");
                     this.adminPanel.clearAllForms();
+
+                    if (this.controller != null) {
+                        this.adminPanel.setPodcastAuthors(this.controller.getPodcastAuthors());
+                        this.adminPanel.setAlbumArtists(this.controller.getAlbumArtists()); // Aggiorna anche la tendina album
+                    }
                 }
             }
         });
@@ -287,6 +294,11 @@ public final class ViewImpl extends JFrame implements View {
     @Override
     public void showGlobalStats(final String statsText) {
         this.adminPanel.setStatsOutputText(statsText);
+    }
+
+    @Override
+    public void setAlbumArtists(final List<Artist> artists) {
+        this.adminPanel.setAlbumArtists(artists);
     }
 
     @Override

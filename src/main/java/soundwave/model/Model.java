@@ -52,6 +52,13 @@ public interface Model {
     int insertAlbumWithSongs(int artistCode, String title, String releaseDate, String recordCompany, List<SongInput> songs);
 
     /**
+     * Retrieves all artists authorized as album authors.
+     *
+     * @return a list of album authors.
+     */
+    List<Artist> getAlbumArtists();
+
+    /**
      * Retrieves all artists authorized as podcast authors.
      *
      * @return a list of podcast authors.

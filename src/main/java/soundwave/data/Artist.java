@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,6 +12,7 @@ import java.util.Objects;
  * Represents an Artist entity.
  */
 public final class Artist {
+    private static final String NOME_ARTE_LITERAL = "NomeDArte";
 
     private final int artistCode;
     private final String stageName;
@@ -235,6 +237,33 @@ public final class Artist {
         }
 
         /**
+         * Retrieves all artists eligible to publish albums.
+         *
+         * @param connection the database connection.
+         * 
+         * @return a list of eligible artists.
+         * 
+         * @throws DAOException if a database access error occurs.
+         */
+        public static List<Artist> getAlbumArtists(final Connection connection) {
+            final List<Artist> artists = new ArrayList<>();
+            try (
+                var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUM_ARTISTS);
+                var resultSet = statement.executeQuery()
+            ) {
+                while (resultSet.next()) {
+                    artists.add(new Artist(
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString(NOME_ARTE_LITERAL)
+                    ));
+                }
+                return artists;
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
+
+        /**
          * Retrieves all artists authorized as podcast authors.
          *
          * @param connection the database connection.
@@ -244,7 +273,7 @@ public final class Artist {
          * @throws DAOException if a database access error occurs.
          */
         public static List<Artist> getPodcastAuthors(final Connection connection) {
-            final List<Artist> authors = new java.util.ArrayList<>();
+            final List<Artist> authors = new ArrayList<>();
             try (
                 var statement = DAOUtils.prepare(connection, Queries.SELECT_PODCAST_AUTHORS);
                 var resultSet = statement.executeQuery()
@@ -252,7 +281,7 @@ public final class Artist {
                 while (resultSet.next()) {
                     authors.add(new Artist(
                         resultSet.getInt("CodiceArtista"),
-                        resultSet.getString("NomeDArte")
+                        resultSet.getString(NOME_ARTE_LITERAL)
                     ));
                 }
                 return authors;
@@ -293,7 +322,7 @@ public final class Artist {
                 var resultSet = statement.executeQuery()) {
 
                 if (resultSet.next()) {
-                    return "Artista: " + resultSet.getString("NomeDArte")
+                    return "Artista: " + resultSet.getString(NOME_ARTE_LITERAL)
                             + " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
                 }
 

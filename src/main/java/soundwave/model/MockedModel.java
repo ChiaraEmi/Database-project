@@ -21,13 +21,13 @@ public final class MockedModel implements Model {
     private static final int DEFAULT_BIRTH_MONTH = 5;
     private static final int DEFAULT_BIRTH_DAY = 10;
     private static final int DEFAULT_USER_POINTS = 10;
-    private static final int DEFAULT_ARTIST_ID = 1;
     private static final int DEFAULT_EPISODE_ID = 1;
     private static final int DEFAULT_PLAYLIST_ID = 1;
 
     private final List<User> users;
     private final List<String> savedPodcasts;
     private final Map<Integer, String> artists;
+    private final Set<Integer> musicArtistIds;
     private final Set<Integer> podcastAuthorIds;
     private final Map<Integer, String> albums;
 
@@ -38,6 +38,7 @@ public final class MockedModel implements Model {
         this.users = new ArrayList<>();
         this.savedPodcasts = new ArrayList<>();
         this.artists = new HashMap<>();
+        this.musicArtistIds = new HashSet<>();
         this.podcastAuthorIds = new HashSet<>();
         this.albums = new HashMap<>();
 
@@ -47,9 +48,11 @@ public final class MockedModel implements Model {
                      "Italia", DEFAULT_USER_POINTS)
         );
 
-        // Inseriamo un artista di default (es. un autore di podcast così i test di base funzionano)
-        this.artists.put(DEFAULT_ARTIST_ID, "Test Podcast Author");
-        this.podcastAuthorIds.add(DEFAULT_ARTIST_ID);
+        this.artists.put(1, "Test Podcast Author");
+        this.podcastAuthorIds.add(1);
+
+        this.artists.put(2, "Test Music Artist");
+        this.musicArtistIds.add(2);
     }
 
     @Override
@@ -61,6 +64,8 @@ public final class MockedModel implements Model {
 
         if ("Autore Podcast".equals(artistType)) {
             this.podcastAuthorIds.add(newId);
+        } else {
+            this.musicArtistIds.add(newId);
         }
 
         return newId;
@@ -72,6 +77,22 @@ public final class MockedModel implements Model {
         final int newId = this.albums.size() + 1;
         this.albums.put(newId, title);
         return newId;
+    }
+
+    /**
+     * Gets the list of artists eligible to publish albums.
+     * 
+     * @return a list of Artist objects.
+     */
+    @Override 
+    public List<Artist> getAlbumArtists() {
+        final List<Artist> albumArtists = new ArrayList<>();
+        for (final Map.Entry<Integer, String> entry : this.artists.entrySet()) {
+            if (this.musicArtistIds.contains(entry.getKey())) {
+                albumArtists.add(new Artist(entry.getKey(), entry.getValue()));
+            }
+        }
+        return albumArtists;
     }
 
     @Override

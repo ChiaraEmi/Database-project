@@ -55,7 +55,7 @@ public final class AdminPanel extends JPanel {
     private final JButton btnSaveArtist = new JButton("Salva Artista");
 
     // --- Campi per Inserimento Album e Brani (OP 8) ---
-    private final JTextField txtAlbumArtistCode = new JTextField(FIELD_COLUMNS);
+    private final JComboBox<Artist> comboAlbumArtist = new JComboBox<>();
     private final JTextField txtAlbumTitle = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumReleaseDate = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS);
@@ -194,11 +194,25 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
+        this.comboAlbumArtist.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Component getListCellRendererComponent(
+                    final JList<?> list, final Object value, final int index,
+                    final boolean isSelected, final boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Artist) {
+                    setText(((Artist) value).getStageName());
+                }
+                return this;
+            }
+        });
+
         int row = 0;
         addSectionHeader(panel, gbc, row, "Inserimento Album e Brani Correlati");
         row++;
-
-        addFormField(panel, gbc, row, "Codice Artista:", this.txtAlbumArtistCode);
+        addFormComboField(panel, gbc, row, "Artista Album:", this.comboAlbumArtist);
         row++;
         addFormField(panel, gbc, row, "Titolo Album:", this.txtAlbumTitle);
         row++;
@@ -507,12 +521,13 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Gets the album's artist code.
+     * Gets the selected artist code for the album.
      * 
-     * @return the artist code.
+     * @return the artist code as a String, or an empty string if none selected.
      */
     public String getAlbumArtistCode() {
-        return this.txtAlbumArtistCode.getText();
+        final Artist selectedArtist = (Artist) this.comboAlbumArtist.getSelectedItem();
+        return selectedArtist != null ? String.valueOf(selectedArtist.getArtistCode()) : "";
     }
 
     /**
@@ -662,6 +677,18 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
+     * Sets the available artists for albums in the dropdown menu.
+     * 
+     * @param artists the list of artist objects eligible for albums.
+     */
+    public void setAlbumArtists(final List<Artist> artists) {
+        this.comboAlbumArtist.removeAllItems();
+        for (final Artist artist : artists) {
+            this.comboAlbumArtist.addItem(artist);
+        }
+    }
+
+    /**
      * Sets the available podcast authors in the dropdown menu.
      * 
      * @param authors the list of artist objects authorized as podcast authors.
@@ -776,7 +803,7 @@ public final class AdminPanel extends JPanel {
             this.txtBirthDate, this.txtProvenanceCountry, this.txtBiography, 
             this.txtStartYear, this.txtArtistType,
             // Album & Songs Form
-            this.txtAlbumArtistCode, this.txtAlbumTitle, this.txtAlbumReleaseDate, 
+            this.txtAlbumTitle, this.txtAlbumReleaseDate, 
             this.txtAlbumLabel, this.txtAlbumSongsInput,
             // Podcast Form
             this.txtPodcastName, 

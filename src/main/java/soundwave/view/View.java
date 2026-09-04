@@ -24,6 +24,13 @@ public interface View {
     void start();
 
     /**
+     * Sets the available album artists in the dropdown menu.
+     * 
+     * @param artists the list of artist objects authorized as album authors.
+     */
+    void setAlbumArtists(List<Artist> artists);
+
+    /**
      * Sets the available podcast authors in the dropdown menu.
      * 
      * @param authors the list of artist objects authorized as podcast authors.

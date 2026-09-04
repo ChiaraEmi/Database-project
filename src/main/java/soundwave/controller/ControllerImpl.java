@@ -1,5 +1,6 @@
 package soundwave.controller;
 
+import soundwave.data.Artist;
 import soundwave.data.DAOException;
 import soundwave.data.SongInput;
 import soundwave.data.User;
@@ -104,7 +105,18 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public List<soundwave.data.Artist> getPodcastAuthors() {
+    public List<Artist> getAlbumArtists() {
+        try {
+            return this.model.getAlbumArtists();
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load album authors", e);
+            this.view.showError("Errore durante il caricamento degli autori di album.");
+            return List.of();
+        }
+    }
+
+    @Override
+    public List<Artist> getPodcastAuthors() {
         try {
             return this.model.getPodcastAuthors();
         } catch (final DAOException e) {

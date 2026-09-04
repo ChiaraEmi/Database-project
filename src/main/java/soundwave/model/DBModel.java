@@ -58,6 +58,11 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<Artist> getAlbumArtists() {
+        return Artist.DAO.getAlbumArtists(this.connection);
+    }
+
+    @Override
     public List<Artist> getPodcastAuthors() {
         return Artist.DAO.getPodcastAuthors(this.connection);
     }

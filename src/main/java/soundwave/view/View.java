@@ -1,6 +1,10 @@
 package soundwave.view;
 
+import java.util.List;
+
 import soundwave.controller.Controller;
+import soundwave.data.Artist;
+import soundwave.data.User;
 
 /**
  * Represents a view architectural component of the application.
@@ -20,6 +24,13 @@ public interface View {
     void start();
 
     /**
+     * Sets the available podcast authors in the dropdown menu.
+     * 
+     * @param authors the list of artist objects authorized as podcast authors.
+     */
+    void setPodcastAuthors(List<Artist> authors);
+
+    /**
      * Shows the specified panel by its card name.
      *
      * @param panelName the identifier of the panel to show.
@@ -31,7 +42,7 @@ public interface View {
      * 
      * @param users the list of users to display.
      */
-    void showUsers(java.util.List<soundwave.data.User> users);
+    void showUsers(List<User> users);
 
     /**
      * Displays the formatted global statistics report.

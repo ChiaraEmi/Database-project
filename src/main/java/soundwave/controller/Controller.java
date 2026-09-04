@@ -1,5 +1,7 @@
 package soundwave.controller;
 
+import java.util.List;
+
 /**
  * Defines the controller interface for the application.
  */
@@ -35,6 +37,13 @@ public interface Controller {
      */
     boolean adminClickedSaveAlbumWithSongs(int artistCode, String title, String releaseDate, 
                                            String recordCompany, String rawSongsText);
+
+    /**
+     * Retrieves the list of artists authorized as podcast authors.
+     * 
+     * @return a list of podcast authors.
+     */
+    List<soundwave.data.Artist> getPodcastAuthors();
 
     /**
      * Handles the request to insert a new podcast.

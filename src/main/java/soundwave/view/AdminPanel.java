@@ -1,14 +1,19 @@
 package soundwave.view;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -18,6 +23,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
+
+import soundwave.data.Artist;
 
 /**
  * Panel representing the main dashboard for the Administrator, organized in tabs with input forms.
@@ -56,7 +63,7 @@ public final class AdminPanel extends JPanel {
     private final JButton btnSaveAlbum = new JButton("Salva Album");
 
     // --- Campi di testo per inserimento Podcast (OP 9) ---
-    private final JTextField txtPodcastArtistCode = new JTextField(FIELD_COLUMNS);
+    private final JComboBox<Artist> comboPodcastArtist = new JComboBox<>();
     private final JTextField txtPodcastName = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPodcastDescription = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPodcastCategory = new JTextField(FIELD_COLUMNS);
@@ -87,7 +94,7 @@ public final class AdminPanel extends JPanel {
     private final JTable tableUsers = new JTable(usersTableModel);
 
     // --- Campi di testo per Statistiche Globali (OP 22) ---
-    private final javax.swing.JComboBox<Integer> comboStatsYear = new javax.swing.JComboBox<>(
+    private final JComboBox<Integer> comboStatsYear = new JComboBox<>(
         new Integer[]{2026, 2025, 2024});
     private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche");
     private final JTextArea txtStatsOutput = new JTextArea(10, 30);
@@ -224,11 +231,26 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
+        this.comboPodcastArtist.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Component getListCellRendererComponent(
+                    final JList<?> list, final Object value, final int index,
+                    final boolean isSelected, final boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Artist) {
+                    setText(((Artist) value).getStageName());
+                }
+                return this;
+            }
+        });
+
         int row = 0;
         addSectionHeader(panel, gbc, row, "Creazione Nuovo Podcast");
         row++;
 
-        addFormField(panel, gbc, row, "Codice Artista:", this.txtPodcastArtistCode);
+        addFormComboField(panel, gbc, row, "Autore Podcast (Artista):", this.comboPodcastArtist);
         row++;
         addFormField(panel, gbc, row, "Nome Podcast:", this.txtPodcastName);
         row++;
@@ -386,6 +408,15 @@ public final class AdminPanel extends JPanel {
         panel.add(field, gbc);
     }
 
+    private void addFormComboField(final JPanel panel, final GridBagConstraints gbc, final int row, 
+                            final String labelText, final JComboBox<?> comboBox) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(new JLabel(labelText), gbc);
+        gbc.gridx = 1;
+        panel.add(comboBox, gbc);
+    }
+
     /**
      * Adds a centered action button to a form panel.
      * 
@@ -521,12 +552,13 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Gets the podcast's artist code.
+     * Gets the selected artist code for the podcast.
      * 
-     * @return the artist code.
+     * @return the artist code as a String, or an empty string if none selected.
      */
     public String getPodcastArtistCode() {
-        return this.txtPodcastArtistCode.getText();
+        final Artist selectedArtist = (Artist) this.comboPodcastArtist.getSelectedItem();
+        return selectedArtist != null ? String.valueOf(selectedArtist.getArtistCode()) : "";
     }
 
     /**
@@ -620,15 +652,6 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Sets the statistics output text.
-     * 
-     * @param text the statistics text to set.
-     */
-    public void setStatsOutputText(final String text) {
-        this.txtStatsOutput.setText(text);
-    }
-
-    /**
      * Gets the statistics year from the dropdown menu.
      * 
      * @return the statistics year as a String.
@@ -639,11 +662,32 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
+     * Sets the available podcast authors in the dropdown menu.
+     * 
+     * @param authors the list of artist objects authorized as podcast authors.
+     */
+    public void setPodcastAuthors(final List<Artist> authors) {
+        this.comboPodcastArtist.removeAllItems();
+        for (final Artist artist : authors) {
+            this.comboPodcastArtist.addItem(artist);
+        }
+    }
+
+    /**
+     * Sets the statistics output text.
+     * 
+     * @param text the statistics text to set.
+     */
+    public void setStatsOutputText(final String text) {
+        this.txtStatsOutput.setText(text);
+    }
+
+    /**
      * Sets the users data in the table.
      * 
      * @param usersData a list of object arrays representing user rows.
      */
-    public void setUsersTableData(final java.util.List<Object[]> usersData) {
+    public void setUsersTableData(final List<Object[]> usersData) {
         this.usersTableModel.setRowCount(0);
         for (final Object[] row : usersData) {
             this.usersTableModel.addRow(row);
@@ -735,7 +779,7 @@ public final class AdminPanel extends JPanel {
             this.txtAlbumArtistCode, this.txtAlbumTitle, this.txtAlbumReleaseDate, 
             this.txtAlbumLabel, this.txtAlbumSongsInput,
             // Podcast Form
-            this.txtPodcastArtistCode, this.txtPodcastName, 
+            this.txtPodcastName, 
             this.txtPodcastDescription, this.txtPodcastCategory,
             // Episode Form
             this.txtEpisodePodcastCode, this.txtEpisodeTitle, 

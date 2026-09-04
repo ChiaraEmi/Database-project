@@ -63,17 +63,25 @@ public final class Queries {
         """;
 
     // --- OP 9: INSERIMENTO PODCAST ---
-    public static final String CHECK_ARTIST_EXISTS = 
+    public static final String SELECT_PODCAST_AUTHORS = 
         """
         SELECT CodiceArtista, NomeDArte 
         FROM Artisti 
-        WHERE CodiceArtista = ?
+        WHERE TipoArtista = 'Autore Podcast'
+        ORDER BY NomeDArte ASC
         """;
 
     public static final String INSERT_PODCAST = 
         """
         INSERT INTO Podcast (CodiceArtista, NomePodcast, DescrizionePodcast, Categoria)
         VALUES (?, ?, ?, ?)
+        """;
+
+    public static final String CHECK_IS_PODCAST_AUTHOR = 
+        """
+        SELECT CodiceArtista 
+        FROM Artisti 
+        WHERE CodiceArtista = ? AND TipoArtista = 'Autore Podcast'
         """;
 
     // --- OP 10: INSERIMENTO EPISODIO ---

@@ -172,13 +172,6 @@ public final class Album {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
-                try (var checkStmt = DAOUtils.prepare(connection, Queries.CHECK_ARTIST_EXISTS, artistCode);
-                     var resultSet = checkStmt.executeQuery()) {
-                    if (!resultSet.next()) {
-                        throw new DAOException("Artist with ID " + artistCode + " does not exist.");
-                    }
-                }
-
                 int albumCode = -1;
                 try (var statement = DAOUtils.prepareWithKeys(
                     connection,

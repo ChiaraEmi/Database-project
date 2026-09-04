@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
 
+import soundwave.data.Artist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
@@ -51,6 +52,13 @@ public interface Model {
     int insertAlbumWithSongs(int artistCode, String title, String releaseDate, String recordCompany, List<SongInput> songs);
 
     /**
+     * Retrieves all artists authorized as podcast authors.
+     *
+     * @return a list of podcast authors.
+     */
+    List<Artist> getPodcastAuthors();
+
+    /**
      * Inserts a new podcast into the database.
      *
      * @param artistCode the code of the artist creating the podcast
@@ -60,6 +68,15 @@ public interface Model {
      * @return the auto-generated code of the inserted podcast
      */
     int insertPodcast(int artistCode, String name, String description, String category);
+
+    /**
+     * Checks whether the specified artist is authorized as a podcast author.
+     *
+     * @param artistCode the unique code of the artist to check
+     * 
+     * @return true if the artist exists and is a podcast author, false otherwise
+     */
+    boolean isPodcastAuthor(int artistCode);
 
     /**
      * Inserts a new episode into a specific podcast (OP 10).

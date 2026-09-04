@@ -3,8 +3,12 @@ package soundwave.model;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import soundwave.data.Artist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
@@ -24,6 +28,7 @@ public final class MockedModel implements Model {
     private final List<User> users;
     private final List<String> savedPodcasts;
     private final Map<Integer, String> artists;
+    private final Set<Integer> podcastAuthorIds;
     private final Map<Integer, String> albums;
 
     /**
@@ -33,6 +38,7 @@ public final class MockedModel implements Model {
         this.users = new ArrayList<>();
         this.savedPodcasts = new ArrayList<>();
         this.artists = new HashMap<>();
+        this.podcastAuthorIds = new HashSet<>();
         this.albums = new HashMap<>();
 
         this.users.add(
@@ -40,7 +46,10 @@ public final class MockedModel implements Model {
                      LocalDate.of(DEFAULT_BIRTH_YEAR, DEFAULT_BIRTH_MONTH, DEFAULT_BIRTH_DAY), 
                      "Italia", DEFAULT_USER_POINTS)
         );
-        this.artists.put(DEFAULT_ARTIST_ID, "Test Artist");
+
+        // Inseriamo un artista di default (es. un autore di podcast così i test di base funzionano)
+        this.artists.put(DEFAULT_ARTIST_ID, "Test Podcast Author");
+        this.podcastAuthorIds.add(DEFAULT_ARTIST_ID);
     }
 
     @Override
@@ -49,6 +58,11 @@ public final class MockedModel implements Model {
                             final String biography, final int startYear, final String artistType) {
         final int newId = this.artists.size() + 1;
         this.artists.put(newId, stageName);
+
+        if ("Autore Podcast".equals(artistType)) {
+            this.podcastAuthorIds.add(newId);
+        }
+
         return newId;
     }
 
@@ -58,6 +72,17 @@ public final class MockedModel implements Model {
         final int newId = this.albums.size() + 1;
         this.albums.put(newId, title);
         return newId;
+    }
+
+    @Override
+    public List<Artist> getPodcastAuthors() {
+        final List<Artist> authors = new ArrayList<>();
+        for (final Map.Entry<Integer, String> entry : this.artists.entrySet()) {
+            if (this.podcastAuthorIds.contains(entry.getKey())) {
+                authors.add(new Artist(entry.getKey(), entry.getValue()));
+            }
+        }
+        return authors;
     }
 
     @Override
@@ -85,13 +110,24 @@ public final class MockedModel implements Model {
 
     @Override
     public void insertListeningEvent(final String username, final int contentCode, final String device, 
-                                    final int eventDuration) {
+                                     final int eventDuration) {
         // Simulazione in memoria
     }
 
     @Override
     public List<User> loadUsers() {
         return List.copyOf(this.users);
+    }
+
+    /**
+     * Checks whether the specified artist is authorized as a podcast author.
+     *
+     * @param artistCode the unique code of the artist to check
+     * @return true if the artist exists and is a podcast author, false otherwise
+     */
+    @Override
+    public boolean isPodcastAuthor(final int artistCode) {
+        return this.podcastAuthorIds.contains(artistCode);
     }
 
     @Override

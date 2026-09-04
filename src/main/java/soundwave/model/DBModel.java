@@ -58,6 +58,16 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<Artist> getPodcastAuthors() {
+        return Artist.DAO.getPodcastAuthors(this.connection);
+    }
+
+    @Override
+    public boolean isPodcastAuthor(final int artistCode) {
+        return Artist.DAO.isPodcastAuthor(this.connection, artistCode);
+    }
+
+    @Override
     public int insertPodcast(final int artistCode, final String name, final String description, final String category) {
         return Podcast.DAO.insert(connection, artistCode, name, description, category);
     }

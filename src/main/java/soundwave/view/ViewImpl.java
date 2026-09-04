@@ -1,6 +1,8 @@
 package soundwave.view;
 
 import java.awt.CardLayout;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -10,6 +12,7 @@ import javax.swing.SwingUtilities;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
+import soundwave.data.Artist;
 import soundwave.data.User;
 
 /**
@@ -78,7 +81,13 @@ public final class ViewImpl extends JFrame implements View {
         this.controller = controller;
 
         this.roleSelectionPanel.addUtenteListener(e -> showPanel(USER_CARD));
-        this.roleSelectionPanel.addAdminListener(e -> showPanel(ADMIN_CARD));
+        this.roleSelectionPanel.addAdminListener(e -> {
+            showPanel(ADMIN_CARD);
+            if (this.controller != null) {
+                final List<Artist> authors = this.controller.getPodcastAuthors();
+                this.adminPanel.setPodcastAuthors(authors);
+            }
+        });
         this.adminPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
         this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
 
@@ -260,8 +269,8 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
-    public void showUsers(final java.util.List<User> users) {
-        final java.util.List<Object[]> rows = new java.util.ArrayList<>();
+    public void showUsers(final List<User> users) {
+        final List<Object[]> rows = new ArrayList<>();
         for (final User user : users) {
             rows.add(new Object[] {
                 user.getUsername(),
@@ -278,6 +287,11 @@ public final class ViewImpl extends JFrame implements View {
     @Override
     public void showGlobalStats(final String statsText) {
         this.adminPanel.setStatsOutputText(statsText);
+    }
+
+    @Override
+    public void setPodcastAuthors(final List<Artist> authors) {
+        this.adminPanel.setPodcastAuthors(authors);
     }
 
     @Override

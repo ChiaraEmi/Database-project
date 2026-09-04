@@ -50,6 +50,17 @@ public final class Artist {
     }
 
     /**
+     * Constructs a lightweight Artist instance for dropdown or summary selections.
+     *
+     * @param artistCode the artist code.
+     * @param stageName the stage name.
+     */
+    public Artist(final int artistCode, final String stageName) {
+        this(artistCode, stageName, null, null, null, "", null,
+             0, "Autore Podcast");
+    }
+
+    /**
      * Gets the artist code.
      *
      * @return the artist code.
@@ -221,6 +232,52 @@ public final class Artist {
                 throw new DAOException(e);
             }
             throw new DAOException("Unable to retrieve generated key for Artist.");
+        }
+
+        /**
+         * Retrieves all artists authorized as podcast authors.
+         *
+         * @param connection the database connection.
+         * 
+         * @return a list of artists who are podcast authors.
+         * 
+         * @throws DAOException if a database access error occurs.
+         */
+        public static List<Artist> getPodcastAuthors(final Connection connection) {
+            final List<Artist> authors = new java.util.ArrayList<>();
+            try (
+                var statement = DAOUtils.prepare(connection, Queries.SELECT_PODCAST_AUTHORS);
+                var resultSet = statement.executeQuery()
+            ) {
+                while (resultSet.next()) {
+                    authors.add(new Artist(
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString("NomeDArte")
+                    ));
+                }
+                return authors;
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
+
+        /**
+         * Checks whether the specified artist is authorized as a podcast author.
+         *
+         * @param connection the database connection.
+         * @param artistCode the unique code of the artist to check.
+         * 
+         * @return true if the artist exists and is a podcast author, false otherwise.
+         * 
+         * @throws DAOException if a database access error occurs.
+         */
+        public static boolean isPodcastAuthor(final Connection connection, final int artistCode) {
+            try (var statement = DAOUtils.prepare(connection, Queries.CHECK_IS_PODCAST_AUTHOR, artistCode);
+                var resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
         }
 
         /**

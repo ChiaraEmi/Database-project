@@ -1,10 +1,15 @@
 package soundwave.controller;
 
 import soundwave.data.DAOException;
+import soundwave.data.SongInput;
+import soundwave.data.User;
 import soundwave.model.Model;
 import soundwave.view.View;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -88,13 +93,24 @@ public final class ControllerImpl implements Controller {
         }
 
         try {
-            final java.util.List<soundwave.data.SongInput> songs = parseSongsInput(rawSongsText);
+            final List<SongInput> songs = parseSongsInput(rawSongsText);
             this.model.insertAlbumWithSongs(artistCode, title, releaseDate, recordCompany, songs);
             return true;
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to save album with songs", e);
             this.view.showError("Errore durante il salvataggio dell'album con i brani.");
             return false;
+        }
+    }
+
+    @Override
+    public List<soundwave.data.Artist> getPodcastAuthors() {
+        try {
+            return this.model.getPodcastAuthors();
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load podcast authors", e);
+            this.view.showError("Errore durante il caricamento degli autori di podcast.");
+            return List.of();
         }
     }
 
@@ -110,6 +126,13 @@ public final class ControllerImpl implements Controller {
         }
 
         try {
+            if (!this.model.isPodcastAuthor(artistCode)) {
+                final String errorMessage = "L'artista selezionato non è abilitato come autore di podcast.";
+                LOGGER.log(Level.WARNING, errorMessage);
+                this.view.showError(errorMessage);
+                return false;
+            }
+
             final String desc = (description == null || description.isBlank()) ? null : description;
             this.model.insertPodcast(artistCode, name, desc, category);
             return true;
@@ -209,7 +232,7 @@ public final class ControllerImpl implements Controller {
     @Override
     public void adminClickedLoadUsers() {
         try {
-            final java.util.List<soundwave.data.User> users = this.model.loadUsers();
+            final List<User> users = this.model.loadUsers();
             this.view.showUsers(users);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to load users", e);
@@ -229,8 +252,8 @@ public final class ControllerImpl implements Controller {
         try {
             final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
             final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
-            final java.util.List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
-            final java.util.List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
+            final List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
+            final List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
             sb.append("=== Artista più ascoltato (Anno ")
@@ -283,8 +306,8 @@ public final class ControllerImpl implements Controller {
         }
     }
 
-    private java.util.List<soundwave.data.SongInput> parseSongsInput(final String rawText) {
-        final java.util.List<soundwave.data.SongInput> songList = new java.util.ArrayList<>();
+    private List<SongInput> parseSongsInput(final String rawText) {
+        final List<SongInput> songList = new ArrayList<>();
         if (rawText == null || rawText.isBlank()) {
             return songList; 
         }
@@ -303,14 +326,14 @@ public final class ControllerImpl implements Controller {
                         ? Integer.parseInt(parts[ARTIST_CODE_INDEX].trim())
                         : 0;
 
-                    final java.util.List<String> genres;
+                    final List<String> genres;
                     if (parts.length > GENRES_INDEX && !parts[GENRES_INDEX].isBlank()) {
-                        genres = java.util.Arrays.asList(parts[GENRES_INDEX].trim().split(";"));
+                        genres = Arrays.asList(parts[GENRES_INDEX].trim().split(";"));
                     } else {
-                        genres = java.util.List.of();
+                        genres = List.of();
                     }
 
-                    songList.add(new soundwave.data.SongInput(
+                    songList.add(new SongInput(
                         songTitle, 
                         duration, 
                         description, 

@@ -10,7 +10,7 @@ public interface View {
     /**
      * Sets the controller controlled by this view.
      *
-     * @param controller the controller to attach
+     * @param controller the controller to attach.
      */
     void setController(Controller controller);
 
@@ -22,28 +22,35 @@ public interface View {
     /**
      * Shows the specified panel by its card name.
      *
-     * @param panelName the identifier of the panel to show
+     * @param panelName the identifier of the panel to show.
      */
     void showPanel(String panelName);
 
     /**
      * Displays the list of registered users in the admin dashboard.
      * 
-     * @param users the list of users to display
+     * @param users the list of users to display.
      */
     void showUsers(java.util.List<soundwave.data.User> users);
 
     /**
      * Displays the formatted global statistics report.
      * 
-     * @param statsText the formatted statistics string
+     * @param statsText the formatted statistics string.
      */
     void showGlobalStats(String statsText);
 
     /**
      * Displays an error message dialog to the user.
      * 
-     * @param message the error message to display
+     * @param message the error message to display.
      */
     void showError(String message);
+
+    /**
+     * Displays a success message dialog to the user.
+     * 
+     * @param message the esuccess message to display.
+     */
+    void showSuccess(String message);
 }

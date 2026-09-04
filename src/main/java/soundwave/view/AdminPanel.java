@@ -12,9 +12,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.JTextComponent;
 
 /**
  * Panel representing the main dashboard for the Administrator, organized in tabs with input forms.
@@ -72,9 +75,16 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtDiscountPercentage = new JTextField(FIELD_COLUMNS);
     private final JButton btnSavePromotion = new JButton("Salva Promozione");
 
-    // --- Area per Gestione Utenti ---
+    // --- Area per Gestione Utenti (Sola Lettura) ---
     private final JButton btnFetchUsers = new JButton("Carica Utenti");
-    private final JTextArea txtUsersOutput = new JTextArea(10, 30);
+    private final DefaultTableModel usersTableModel = new DefaultTableModel(
+        new Object[]{"Username", "Nome", "Cognome", "Email", "Paese", "Credito Bonus"}, 0) {
+        @Override
+        public boolean isCellEditable(final int row, final int column) {
+            return false;
+        }
+    };
+    private final JTable tableUsers = new JTable(usersTableModel);
 
     // --- Campi di testo per Statistiche Globali (OP 22) ---
     private final javax.swing.JComboBox<Integer> comboStatsYear = new javax.swing.JComboBox<>(
@@ -297,8 +307,8 @@ public final class AdminPanel extends JPanel {
         this.btnFetchUsers.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         panel.add(this.btnFetchUsers, BorderLayout.NORTH);
 
-        this.txtUsersOutput.setEditable(false);
-        panel.add(new JScrollPane(this.txtUsersOutput), BorderLayout.CENTER);
+        this.tableUsers.setFillsViewportHeight(true);
+        panel.add(new JScrollPane(this.tableUsers), BorderLayout.CENTER);
 
         return panel;
     }
@@ -629,12 +639,15 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Sets the users output text.
+     * Sets the users data in the table.
      * 
-     * @param text the users text to set.
+     * @param usersData a list of object arrays representing user rows.
      */
-    public void setUsersOutputText(final String text) {
-        this.txtUsersOutput.setText(text);
+    public void setUsersTableData(final java.util.List<Object[]> usersData) {
+        this.usersTableModel.setRowCount(0);
+        for (final Object[] row : usersData) {
+            this.usersTableModel.addRow(row);
+        }
     }
 
     /**
@@ -707,5 +720,32 @@ public final class AdminPanel extends JPanel {
      */
     public void addFetchUsersListener(final ActionListener listener) {
         this.btnFetchUsers.addActionListener(listener);
+    }
+
+    /**
+     * Clears all text fields and text areas across all forms in the admin panel.
+     */
+    public void clearAllForms() {
+        final JTextComponent[] textComponents = {
+            // Artist Form
+            this.txtStageName, this.txtRealName, this.txtRealSurname, 
+            this.txtBirthDate, this.txtProvenanceCountry, this.txtBiography, 
+            this.txtStartYear, this.txtArtistType,
+            // Album & Songs Form
+            this.txtAlbumArtistCode, this.txtAlbumTitle, this.txtAlbumReleaseDate, 
+            this.txtAlbumLabel, this.txtAlbumSongsInput,
+            // Podcast Form
+            this.txtPodcastArtistCode, this.txtPodcastName, 
+            this.txtPodcastDescription, this.txtPodcastCategory,
+            // Episode Form
+            this.txtEpisodePodcastCode, this.txtEpisodeTitle, 
+            this.txtEpisodeDuration, this.txtEpisodeDescription, this.txtEpisodeNumber,
+            // Promotion Form
+            this.txtPromoName, this.txtDiscountPercentage,
+        };
+
+        for (final JTextComponent component : textComponents) {
+            component.setText("");
+        }
     }
 }

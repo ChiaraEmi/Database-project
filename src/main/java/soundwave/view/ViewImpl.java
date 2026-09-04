@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
+import soundwave.data.User;
 
 /**
  * Implementation of the {@link View} interface.
@@ -105,12 +106,18 @@ public final class ViewImpl extends JFrame implements View {
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid artist start year format", ex);
                     JOptionPane.showMessageDialog(this, "Please enter a valid start year (e.g., 2020).", 
-                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
-                this.controller.adminClickedSaveArtist(
+                final boolean success = this.controller.adminClickedSaveArtist(
                     stageName, name, surname, birthDate, country, biography, startYear, artistType
                 );
+
+                if (success) {
+                    showSuccess("Artista inserito con successo!");
+                    this.adminPanel.clearAllForms();
+                }
             }
         });
 
@@ -124,7 +131,8 @@ public final class ViewImpl extends JFrame implements View {
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid album artist code format", ex);
                     JOptionPane.showMessageDialog(this, "Artist code must be a valid number.", 
-                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 final String title = this.adminPanel.getAlbumTitle();
@@ -132,7 +140,14 @@ public final class ViewImpl extends JFrame implements View {
                 final String label = this.adminPanel.getAlbumLabel();
                 final String rawSongsText = this.adminPanel.getAlbumSongsInput();
 
-                this.controller.adminClickedSaveAlbumWithSongs(artistCode, title, releaseDate, label, rawSongsText);
+                final boolean success = this.controller.adminClickedSaveAlbumWithSongs(
+                    artistCode, title, releaseDate, label, rawSongsText
+                );
+
+                if (success) {
+                    showSuccess("Album e brani inseriti con successo!");
+                    this.adminPanel.clearAllForms();
+                }
             }
         });
 
@@ -146,14 +161,20 @@ public final class ViewImpl extends JFrame implements View {
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid podcast artist code format", ex);
                     JOptionPane.showMessageDialog(this, "Podcast artist code must be a valid number.", 
-                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 final String name = this.adminPanel.getPodcastName();
                 final String description = this.adminPanel.getPodcastDescription();
                 final String category = this.adminPanel.getPodcastCategory();
 
-                this.controller.adminClickedSavePodcast(artistCode, name, description, category);
+                final boolean success = this.controller.adminClickedSavePodcast(artistCode, name, description, category);
+
+                if (success) {
+                    showSuccess("Podcast inserito con successo!");
+                    this.adminPanel.clearAllForms();
+                }
             }
         });
 
@@ -167,7 +188,8 @@ public final class ViewImpl extends JFrame implements View {
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid episode podcast code format", ex);
                     JOptionPane.showMessageDialog(this, "Podcast code must be a valid number.", 
-                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 final String title = this.adminPanel.getEpisodeTitle();
@@ -180,7 +202,8 @@ public final class ViewImpl extends JFrame implements View {
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid episode duration format", ex);
                     JOptionPane.showMessageDialog(this, "Duration in seconds must be a valid number.", 
-                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 final String description = this.adminPanel.getEpisodeDescription();
@@ -193,12 +216,18 @@ public final class ViewImpl extends JFrame implements View {
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid episode number format", ex);
                     JOptionPane.showMessageDialog(this, "Episode number must be a valid integer.", 
-                                                    FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
-                this.controller.adminClickedSaveEpisode(
+                final boolean success = this.controller.adminClickedSaveEpisode(
                     podcastCode, title, duration, description, episodeNumber
                 );
+
+                if (success) {
+                    showSuccess("Episodio inserito con successo!");
+                    this.adminPanel.clearAllForms();
+                }
             }
         });
 
@@ -231,12 +260,19 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
-    public void showUsers(final java.util.List<soundwave.data.User> users) {
-        final StringBuilder sb = new StringBuilder();
-        for (final soundwave.data.User user : users) {
-            sb.append(user.toString()).append('\n');
+    public void showUsers(final java.util.List<User> users) {
+        final java.util.List<Object[]> rows = new java.util.ArrayList<>();
+        for (final User user : users) {
+            rows.add(new Object[] {
+                user.getUsername(),
+                user.getName(),
+                user.getSurname(),
+                user.getEmail(),
+                user.getCountry(),
+                user.getBonusCredit(),
+            });
         }
-        this.adminPanel.setUsersOutputText(sb.toString());
+        this.adminPanel.setUsersTableData(rows);
     }
 
     @Override
@@ -244,10 +280,20 @@ public final class ViewImpl extends JFrame implements View {
         this.adminPanel.setStatsOutputText(statsText);
     }
 
+    @Override
+    public void showError(final String message) {
+        JOptionPane.showMessageDialog(this, message, "Errore", JOptionPane.ERROR_MESSAGE);
+    }
+
+    @Override 
+    public void showSuccess(final String message) {
+        JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     /**
      * Gets the role selection panel.
      *
-     * @return the role selection panel
+     * @return the role selection panel.
      */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
@@ -260,7 +306,7 @@ public final class ViewImpl extends JFrame implements View {
     /**
      * Gets the user panel.
      *
-     * @return the user panel
+     * @return the user panel.
      */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
@@ -273,7 +319,7 @@ public final class ViewImpl extends JFrame implements View {
     /**
      * Gets the admin panel.
      *
-     * @return the admin panel
+     * @return the admin panel.
      */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
@@ -281,10 +327,5 @@ public final class ViewImpl extends JFrame implements View {
     )
     public AdminPanel getAdminPanel() {
         return adminPanel;
-    }
-
-    @Override
-    public void showError(final String message) {
-        JOptionPane.showMessageDialog(this, message, "Errore", JOptionPane.ERROR_MESSAGE);
     }
 }

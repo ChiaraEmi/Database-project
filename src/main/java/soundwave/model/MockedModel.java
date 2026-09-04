@@ -56,6 +56,19 @@ public final class MockedModel implements Model {
     }
 
     @Override
+    public User findUser(final String username) {
+        if (username == null) {
+            return null;
+        }
+        for (final User user : this.users) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public int insertArtist(final String stageName, final String name, final String surname, 
                             final LocalDate birthDate, final String provenanceCountry, 
                             final String biography, final int startYear, final String artistType) {

@@ -18,7 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 /**
- * Panel representing the main user dashboard, organized into functional tabs.
+ * Panel representing the main user dashboard.
  */
 public final class UserPanel extends JPanel {
 
@@ -30,6 +30,8 @@ public final class UserPanel extends JPanel {
     private static final int BUTTON_WIDTH = 220;
     private static final int BUTTON_HEIGHT = 35;
     private static final int INSET_GAP = 6;
+
+    private final String currentUsername;
 
     // --- Tab 1: Abbonamento ---
     private final JButton btnActivateSubscription = new JButton("Attiva Sottoscrizione");
@@ -54,16 +56,26 @@ public final class UserPanel extends JPanel {
     private final JButton btnBack = new JButton("Torna alla Selezione Ruolo");
 
     /**
-     * Builds a new UserPanel.
+     * Builds a new UserPanel for the specified user.
+     * 
+     * @param username the username of the logged-in user.
      */
-    public UserPanel() {
+    public UserPanel(final String username) {
         super();
+        this.currentUsername = username;
         this.setLayout(new BorderLayout(0, TITLE_MARGIN));
         this.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
 
+        final JPanel headerPanel = new JPanel(new BorderLayout());
+
         final JLabel titleLabel = new JLabel("Area Utente", SwingConstants.CENTER);
         titleLabel.setFont(titleLabel.getFont().deriveFont(TITLE_FONT_SIZE));
-        this.add(titleLabel, BorderLayout.NORTH);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
+
+        final JLabel userLabel = new JLabel("Utente: " + this.currentUsername);
+        headerPanel.add(userLabel, BorderLayout.EAST);
+
+        this.add(headerPanel, BorderLayout.NORTH);
 
         final JTabbedPane mainTabbedPane = new JTabbedPane();
         mainTabbedPane.addTab("Abbonamento", createSubscriptionTab());
@@ -192,7 +204,14 @@ public final class UserPanel extends JPanel {
         return panel;
     }
 
-    /* --- Getter per i dati di input --- */
+    /**
+     * Gets the current logged-in username.
+     * 
+     * @return the username.
+     */
+    public String getCurrentUsername() {
+        return this.currentUsername;
+    }
 
     /**
      * Gets the selected genre from the combo box.
@@ -230,84 +249,82 @@ public final class UserPanel extends JPanel {
         this.txtStatsOutput.setText(text);
     }
 
-    /* --- Metodi per registrare i Listener --- */
-
     /**
-     * Adds an action listener to the activate subscription button.
+     * Adds a listener for activating a subscription.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addActivateSubscriptionListener(final ActionListener listener) {
         this.btnActivateSubscription.addActionListener(listener);
     }
 
     /**
-     * Adds an action listener to the redeem bonus button.
+     * Adds a listener for redeeming bonus credits.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addRedeemBonusListener(final ActionListener listener) {
         this.btnRedeemBonus.addActionListener(listener);
     }
 
     /**
-     * Adds an action listener to the view subscription status button.
+     * Adds a listener for viewing subscription status.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addViewSubscriptionStatusListener(final ActionListener listener) {
         this.btnViewSubscriptionStatus.addActionListener(listener);
     }
 
     /**
-     * Adds an action listener to the filter by genre button.
+     * Adds a listener for filtering tracks by genre.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addFilterByGenreListener(final ActionListener listener) {
         this.btnFilterByGenre.addActionListener(listener);
     }
 
     /**
-     * Adds an action listener to the search artist button.
+     * Adds a listener for searching an artist.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addSearchArtistListener(final ActionListener listener) {
         this.btnSearchArtist.addActionListener(listener);
     }
 
     /**
-     * Adds an action listener to the create playlist button.
+     * Adds a listener for creating a new playlist.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addCreatePlaylistListener(final ActionListener listener) {
         this.btnCreatePlaylist.addActionListener(listener);
     }
 
     /**
-     * Adds an action listener to the toggle like button.
+     * Adds a listener for toggling a like on a track.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addToggleLikeListener(final ActionListener listener) {
         this.btnToggleLike.addActionListener(listener);
     }
 
     /**
-     * Adds an action listener to the fetch personal stats button.
+     * Adds a listener for fetching personal statistics.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addFetchPersonalStatsListener(final ActionListener listener) {
         this.btnFetchPersonalStats.addActionListener(listener);
     }
 
     /**
-     * Adds an action listener to the back button.
+     * Adds a listener for returning to the role selection screen.
      * 
-     * @param listener the action listener.
+     * @param listener the listener to add.
      */
     public void addBackListener(final ActionListener listener) {
         this.btnBack.addActionListener(listener);

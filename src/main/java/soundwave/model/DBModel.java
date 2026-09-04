@@ -44,6 +44,16 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public User findUser(final String username) {
+        try {
+            return User.DAO.find(this.connection, username).orElse(null);
+        } catch (final SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to find user: " + username, e);
+            return null;
+        }
+    }
+
+    @Override
     public int insertArtist(final String stageName, final String name, final String surname, 
                             final LocalDate birthDate, final String provenanceCountry, 
                             final String biography, final int startYear, final String artistType) {

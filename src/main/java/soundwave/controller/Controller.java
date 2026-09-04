@@ -10,6 +10,15 @@ import soundwave.data.Artist;
 public interface Controller {
 
     /**
+     * Handles the login attempt for a user by checking if they exist in the database.
+     * 
+     * @param username the username entered by the user.
+     * 
+     * @return true if the user exists and login succeeds, false otherwise.
+     */
+    boolean userLoggedIn(String username);
+
+    /**
      * Handles the request to insert a new artist.
      *
      * @param stageName the artist stage name.

@@ -51,6 +51,35 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
+    public boolean userLoggedIn(final String username) {
+        if (username == null || username.isBlank()) {
+            final String errorMessage = "Inserisci un username valido.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return false;
+        }
+
+        try {
+            final User user = this.model.findUser(username); 
+
+            if (user != null) {
+                LOGGER.log(Level.INFO, "User successfully logged in: {0}", username);
+                this.view.openUserPanel(username);
+                return true;
+            } else {
+                final String errorMessage = "Utente non trovato nel database. Verifica il nome inserito.";
+                LOGGER.log(Level.WARNING, errorMessage);
+                this.view.showError(errorMessage);
+                return false;
+            }
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to verify user existence during login", e);
+            this.view.showError("Errore durante la verifica dell'utente nel database.");
+            return false;
+        }
+    }
+
+    @Override
     public boolean adminClickedSaveArtist(final String stageName, final String name, final String surname, 
                                           final String birthDateStr, final String provenanceCountry, 
                                           final String biography, final int startYear, final String artistType) {

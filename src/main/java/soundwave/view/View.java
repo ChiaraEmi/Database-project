@@ -24,6 +24,13 @@ public interface View {
     void start();
 
     /**
+     * Opens and displays the user panel for the specified user.
+     * 
+     * @param username the username of the logged-in user.
+     */
+    void openUserPanel(String username);
+
+    /**
      * Sets the available album artists in the dropdown menu.
      * 
      * @param artists the list of artist objects authorized as album authors.

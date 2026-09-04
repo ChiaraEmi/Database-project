@@ -24,6 +24,14 @@ public interface Model {
     }
 
     /**
+     * Finds a user by their username.
+     * 
+     * @param username the username to search for.
+     * @return the User object if found, or null otherwise.
+     */
+    User findUser(String username);
+
+    /**
      * Inserts a new artist into the database.
      *
      * @param stageName the stage name of the artist.

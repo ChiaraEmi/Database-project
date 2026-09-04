@@ -33,8 +33,8 @@ public final class ViewImpl extends JFrame implements View {
     private final JPanel mainPanel = new JPanel(layout);
 
     private final RoleSelectionPanel roleSelectionPanel;
-    private final UserPanel userPanel;
     private final AdminPanel adminPanel;
+    private UserPanel userPanel;
 
     private transient Controller controller;
 
@@ -67,7 +67,7 @@ public final class ViewImpl extends JFrame implements View {
         this.adminPanel = new AdminPanel();
         mainPanel.add(adminPanel, ADMIN_CARD);
 
-        this.userPanel = new UserPanel();
+        this.userPanel = new UserPanel("Ospite");
         mainPanel.add(userPanel, USER_CARD);
 
         setContentPane(mainPanel);
@@ -80,7 +80,19 @@ public final class ViewImpl extends JFrame implements View {
     public void setController(final Controller controller) {
         this.controller = controller;
 
-        this.roleSelectionPanel.addUtenteListener(e -> showPanel(USER_CARD));
+        this.roleSelectionPanel.addUtenteListener(e -> {
+            final String username = JOptionPane.showInputDialog(
+                this, 
+                "Inserisci il tuo username:", 
+                "Login Utente", 
+                JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (this.controller != null && username != null && !username.isBlank()) {
+                this.controller.userLoggedIn(username.trim());
+            }
+        });
+
         this.roleSelectionPanel.addAdminListener(e -> {
             showPanel(ADMIN_CARD);
             if (this.controller != null) {
@@ -273,6 +285,17 @@ public final class ViewImpl extends JFrame implements View {
     @Override
     public void showPanel(final String panelName) {
         layout.show(mainPanel, panelName);
+    }
+
+    @Override
+    public void openUserPanel(final String username) {
+        mainPanel.remove(this.userPanel);
+        this.userPanel = new UserPanel(username);
+        mainPanel.add(this.userPanel, USER_CARD);
+        this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
+        showPanel(USER_CARD);
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     @Override

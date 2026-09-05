@@ -182,8 +182,8 @@ public final class Playlist {
          */
         public static List<Playlist> getUserPlaylists(final Connection connection, final String username) {
             final List<Playlist> playlists = new ArrayList<>();
-            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_PLAYLISTS_BY_USER, username);
-                 var rs = statement.executeQuery()) {
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_PLAYLISTS_BY_USER, username, username);
+                var rs = statement.executeQuery()) {
                 while (rs.next()) {
                     playlists.add(new Playlist(
                         rs.getInt("CodicePlaylist"),

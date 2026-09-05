@@ -142,10 +142,11 @@ public final class Queries {
     // --- OP 13: AGGIUNTA / RIMOZIONE BRANO DA PLAYLIST ---
     public static final String SELECT_PLAYLISTS_BY_USER = 
         """
-        SELECT CodicePlaylist, Username, NomePlaylist, DataCreazione, Visibilita, Collaborativa 
-        FROM Playlist 
-        WHERE Username = ?
-        ORDER BY NomePlaylist ASC
+        SELECT DISTINCT p.CodicePlaylist, p.Username, p.NomePlaylist, p.DataCreazione, p.Visibilita, p.Collaborativa 
+        FROM Playlist p
+        LEFT JOIN Collaborazioni c ON p.CodicePlaylist = c.CodicePlaylist
+        WHERE p.Username = ? OR (p.Collaborativa = TRUE AND c.Username = ?)
+        ORDER BY p.NomePlaylist ASC
         """;
 
     public static final String CHECK_PERMESSI_PLAYLIST = 

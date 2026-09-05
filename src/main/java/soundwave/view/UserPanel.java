@@ -536,9 +536,12 @@ public final class UserPanel extends JPanel {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Playlist) {
                     final Playlist playlist = (Playlist) value;
-                    // Sostituisci getPlaylistName() con il nome del metodo getter 
-                    // presente nella tua classe Playlist se dovesse differire
-                    setText(playlist.getPlaylistName()); 
+                    String displayName = playlist.getPlaylistName();
+
+                    if (!playlist.getUsername().equals(UserPanel.this.currentUsername)) {
+                        displayName += " (di " + playlist.getUsername() + " - Collaborativa)";
+                    }
+                    setText(displayName);
                 }
                 return this;
             }

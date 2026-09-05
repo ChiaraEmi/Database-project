@@ -146,7 +146,7 @@ public final class ViewImpl extends JFrame implements View {
 
                     if (this.controller != null) {
                         this.adminPanel.setPodcastAuthors(this.controller.getPodcastAuthors());
-                        this.adminPanel.setAlbumArtists(this.controller.getAlbumArtists()); // Aggiorna anche la tendina album
+                        this.adminPanel.setAlbumArtists(this.controller.getAlbumArtists());
                     }
                 }
             }
@@ -292,13 +292,19 @@ public final class ViewImpl extends JFrame implements View {
 
     @Override
     public void openUserPanel(final String username) {
-        // Aggiorna lo username nel pannello esistente (aggiungi questo metodo in UserPanel se non c'è)
         this.userPanel.setCurrentUsername(username);
 
-        // Carica le playlist dell'utente tramite il controller
         if (this.controller != null) {
+            // Caricamento delle playlist
             final List<Playlist> playlists = this.controller.getUserPlaylists(username);
             this.userPanel.setUserPlaylists(playlists);
+
+            // Caricamento e formattazione dei brani preferiti
+            final var likedTracks = this.controller.getUserLikedTracks(username);
+            final List<String> formattedTracks = likedTracks.stream()
+                .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
+                .toList();
+            this.userPanel.setLikedTracks(formattedTracks);
         }
 
         showPanel(USER_CARD);
@@ -443,7 +449,6 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
 
-                // NOTA: Usa la tendina corretta per la rimozione (getSelectedRemovePlaylist)
                 final Playlist selectedPlaylist = this.userPanel.getSelectedRemovePlaylist();
                 if (selectedPlaylist == null) {
                     showError("Seleziona una playlist dalla lista.");

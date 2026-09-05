@@ -9,6 +9,7 @@ import soundwave.data.Artist;
 import soundwave.data.Episode;
 import soundwave.data.Genre;
 import soundwave.data.ListeningEvent;
+import soundwave.data.LikeBrani;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -112,6 +113,21 @@ public final class DBModel implements Model {
     @Override
     public boolean removeTrackFromPlaylist(final String username, final int playlistCode, final int trackCode) {
         return Playlist.DAO.removeTrack(this.connection, username, playlistCode, trackCode);
+    }
+
+    @Override
+    public List<LikeBrani> getLikedTracks(final String username) {
+        return LikeBrani.DAO.getLikedTracks(this.connection, username);
+    }
+
+    @Override
+    public void likeTrack(final String username, final int trackCode) {
+        LikeBrani.DAO.likeTrack(this.connection, username, trackCode);
+    }
+
+    @Override
+    public boolean unlikeTrack(final String username, final int trackCode) {
+        return LikeBrani.DAO.unlikeTrack(this.connection, username, trackCode);
     }
 
     @Override

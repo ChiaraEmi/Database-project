@@ -178,6 +178,29 @@ public final class Queries {
         AND CodiceBrano = ?
         """;
 
+    // --- BRANI PREFERITI (LIKE) ---
+    public static final String SELECT_LIKED_TRACKS_BY_USER = 
+        """
+        SELECT b.CodiceBrano, c.Titolo
+        FROM LikeBrani lb
+        JOIN Brani b ON lb.CodiceBrano = b.CodiceBrano
+        JOIN Contenuti c ON b.CodiceBrano = c.CodiceContenuto
+        WHERE lb.Username = ?
+        ORDER BY c.Titolo ASC
+        """;
+
+    public static final String INSERT_LIKE_BRANO = 
+        """
+        INSERT INTO LikeBrani (Username, CodiceBrano)
+        VALUES (?, ?)
+        """;
+
+    public static final String REMOVE_LIKE_BRANO = 
+        """
+        DELETE FROM LikeBrani
+        WHERE Username = ? AND CodiceBrano = ?
+        """;
+
     // --- OPS 22 ---
     public static final String SELECT_MOST_PLAYED_SONG = 
     """

@@ -5,6 +5,7 @@ import soundwave.data.DAOException;
 import soundwave.data.Playlist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
+import soundwave.data.LikeBrani;
 import soundwave.model.Model;
 import soundwave.view.View;
 
@@ -329,6 +330,68 @@ public final class ControllerImpl implements Controller {
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to remove track from playlist", e);
             this.view.showError("Errore durante la rimozione del brano dalla playlist.");
+            return false;
+        }
+    }
+
+    @Override
+    public List<LikeBrani> getUserLikedTracks(final String username) {
+        if (username == null || username.isBlank()) {
+            final String errorMessage = "Username non valido per il caricamento dei brani preferiti.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return List.of();
+        }
+
+        try {
+            return this.model.getLikedTracks(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load liked tracks for user: " + username, e);
+            this.view.showError("Errore durante il caricamento dei brani preferiti.");
+            return List.of();
+        }
+    }
+
+    @Override
+    public boolean userClickedLikeTrack(final String username, final int trackCode) {
+        if (username == null || username.isBlank() || trackCode <= 0) {
+            final String errorMessage = "Parametri non validi per aggiungere il like al brano.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return false;
+        }
+
+        try {
+            this.model.likeTrack(username, trackCode);
+            this.view.showSuccess("Brano aggiunto ai preferiti con successo!");
+            return true;
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to like track", e);
+            this.view.showError("Impossibile aggiungere il brano ai preferiti (potrebbe essere già presente).");
+            return false;
+        }
+    }
+
+    @Override
+    public boolean userClickedUnlikeTrack(final String username, final int trackCode) {
+        if (username == null || username.isBlank() || trackCode <= 0) {
+            final String errorMessage = "Parametri non validi per rimuovere il like dal brano.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return false;
+        }
+
+        try {
+            final boolean success = this.model.unlikeTrack(username, trackCode);
+            if (success) {
+                this.view.showSuccess("Brano rimosso dai preferiti con successo!");
+            } else {
+                this.view.showError("Il brano selezionato non è presente tra i preferiti.");
+            }
+            return success;
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to unlike track", e);
+            this.view.showError("Errore durante la rimozione del brano dai preferiti.");
             return false;
         }
     }

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import soundwave.data.Artist;
+import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
@@ -147,6 +148,32 @@ public interface Model {
      * @return true if removed successfully, false otherwise.
      */
     boolean removeTrackFromPlaylist(String username, int playlistCode, int trackCode);
+
+    /**
+     * Retrieves all liked tracks for a specific user.
+     *
+     * @param username the username of the user.
+     * @return a list of liked tracks.
+     */
+    List<LikeBrani> getLikedTracks(String username);
+
+    /**
+     * Adds a like to a track for a specific user.
+     *
+     * @param username the username.
+     * @param trackCode the track code.
+     */
+    void likeTrack(String username, int trackCode);
+
+    /**
+     * Removes a like from a track for a specific user.
+     *
+     * @param username the username.
+     * @param trackCode the track code.
+     * 
+     * @return true if removed successfully, false otherwise.
+     */
+    boolean unlikeTrack(String username, int trackCode);
 
     /**
      * Records a listening event for a user.

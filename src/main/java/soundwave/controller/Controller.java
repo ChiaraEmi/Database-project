@@ -3,6 +3,7 @@ package soundwave.controller;
 import java.util.List;
 
 import soundwave.data.Artist;
+import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 
 /**
@@ -143,6 +144,35 @@ public interface Controller {
      * @return true if successfully removed, false otherwise.
      */
     boolean userClickedRemoveTrackFromPlaylist(String username, int playlistCode, int trackCode);
+
+    /**
+     * Retrieves the list of liked tracks belonging to a specific user.
+     * 
+     * @param username the username of the user.
+     * 
+     * @return a list of liked tracks.
+     */
+    List<LikeBrani> getUserLikedTracks(String username);
+
+    /**
+     * Handles the request to add a like to a track for a specific user.
+     *
+     * @param username the user performing the action.
+     * @param trackCode the track code to like.
+     * 
+     * @return true if successfully liked, false otherwise.
+     */
+    boolean userClickedLikeTrack(String username, int trackCode);
+
+    /**
+     * Handles the request to remove a like from a track for a specific user.
+     *
+     * @param username the user performing the action.
+     * @param trackCode the track code to unlike.
+     * 
+     * @return true if successfully removed, false otherwise.
+     */
+    boolean userClickedUnlikeTrack(String username, int trackCode);
 
     /**
      * Handles the request to load and view the list of system users.

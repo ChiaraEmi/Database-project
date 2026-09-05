@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -56,6 +57,8 @@ public final class UserPanel extends JPanel {
 
     // --- Tab 3: Libreria & Playlist ---
     private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
+    private final DefaultListModel<String> likedTracksListModel = new DefaultListModel<>();
+    private final JList<String> likedTracksList = new JList<>(this.likedTracksListModel);
     private final JComboBox<String> comboVisibility = new JComboBox<>(new String[]{"Privata", "Pubblica"});
     private final JCheckBox chkCollaborative = new JCheckBox("Collaborativa");
     private final JButton btnCreatePlaylist = new JButton("Crea Nuova Playlist");
@@ -182,80 +185,182 @@ public final class UserPanel extends JPanel {
     }
 
     /**
-     * Creates the tab for personal library and playlists.
+     * Creates the tab for personal library and playlists, showing liked tracks on the left
+     * and management controls on the right.
      * 
      * @return the library panel.
      */
     private JPanel createLibraryTab() {
-        final JPanel panel = new JPanel(new GridBagLayout());
+        final JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
+
+        // Pannello sinistro: Lista dei brani preferiti
+        final JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setBorder(BorderFactory.createTitledBorder("I tuoi Brani Preferiti"));
+        
+        this.likedTracksList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        final JScrollPane scrollPane = new JScrollPane(this.likedTracksList);
+        scrollPane.setPreferredSize(new Dimension(280, 0));
+        leftPanel.add(scrollPane, BorderLayout.CENTER);
+
+        panel.add(leftPanel, BorderLayout.WEST);
+
+        // Pannello destro: Controlli (Playlist e Modifica Contenuti)
+        final JPanel rightControlsPanel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
-        gbc.anchor = GridBagConstraints.WEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
 
-        // Creazione Playlist
         gbc.gridx = 0;
         gbc.gridy = 0;
+        rightControlsPanel.add(createPlaylistManagementSubPanel(), gbc);
+
+        gbc.gridy++;
+        rightControlsPanel.add(createTrackManagementSubPanel(), gbc);
+
+        gbc.gridy++;
+        gbc.weighty = 1.0; 
+        rightControlsPanel.add(new JPanel(), gbc);
+
+        panel.add(rightControlsPanel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    /**
+     * Sub-panel for playlist creation and general actions.
+     * 
+     * @return the playlist management sub-panel.
+     */
+    private JPanel createPlaylistManagementSubPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Gestione Playlist"));
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Nome Playlist
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(new JLabel("Nome Playlist:"), gbc);
+
         gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(this.txtPlaylistName, gbc);
 
+        // Visibilità
         gbc.gridx = 0;
         gbc.gridy++;
+        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(new JLabel("Visibilità:"), gbc);
+
         gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(this.comboVisibility, gbc);
 
+        // Checkbox Collaborativa
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(this.chkCollaborative, gbc);
 
+        // Pulsante Crea
         gbc.gridy++;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(this.btnCreatePlaylist, gbc);
 
+        // Pulsante Like
         gbc.gridy++;
         panel.add(this.btnToggleLike, gbc);
 
-        // Sezione: Aggiungi Brano (Usa comboUserPlaylists)
-        gbc.gridy++;
-        panel.add(new JLabel("--- Aggiungi Brano a Playlist ---"), gbc);
+        return panel;
+    }
 
-        gbc.gridy++;
+    /**
+     * Sub-panel for adding and removing tracks.
+     * 
+     * @return the track management sub-panel.
+     */
+    private JPanel createTrackManagementSubPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Modifica Contenuti Playlist"));
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Sezione Aggiungi
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         gbc.gridwidth = 1;
-        panel.add(new JLabel("Seleziona Playlist:"), gbc);
+        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.NONE;
+        panel.add(new JLabel("Aggiungi a:"), gbc);
+
         gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(this.comboUserPlaylists, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
+        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(new JLabel("Codice Brano:"), gbc);
+
         gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(this.txtAddTrackCode, gbc);
 
+        // Pulsante Aggiungi
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(this.btnAddTrack, gbc);
 
-        // Sezione: Rimuovi Brano (Usa removeTrackPlaylistCombo)
+        // Separatore visivo
         gbc.gridy++;
-        panel.add(new JLabel("--- Rimuovi Brano da Playlist ---"), gbc);
+        gbc.insets = new Insets(12, 8, 6, 8);
+        panel.add(new JLabel("------------------------------------"), gbc);
 
+        // Sezione Rimuovi
         gbc.gridy++;
+        gbc.insets = new Insets(6, 8, 6, 8);
         gbc.gridwidth = 1;
-        panel.add(new JLabel("Seleziona Playlist:"), gbc);
+        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.NONE;
+        panel.add(new JLabel("Rimuovi da:"), gbc);
+
         gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(this.removeTrackPlaylistCombo, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
+        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(new JLabel("Codice Brano:"), gbc);
+
         gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(this.txtRemoveTrackCode, gbc);
 
+        // Pulsante Rimuovi
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(this.btnRemoveTrack, gbc);
 
         return panel;
@@ -375,7 +480,7 @@ public final class UserPanel extends JPanel {
      * @param username the username to set.
      */
     public void setCurrentUsername(final String username) {
-        this.currentUsername = username; // o il campo corrispondente che usi per tracciare l'utente
+        this.currentUsername = username;
     }
 
     /**
@@ -401,103 +506,60 @@ public final class UserPanel extends JPanel {
         }
     }
 
+    /**
+     * Sets the list of liked tracks strings to display in the UI.
+     * 
+     * @param likedTracks the list of formatted track strings.
+     */
+    public void setLikedTracks(final List<String> likedTracks) {
+        this.likedTracksListModel.clear();
+        for (final String track : likedTracks) {
+            this.likedTracksListModel.addElement(track);
+        }
+    }
+
     // --- Listener Methods ---
 
-    /**
-     * Adds a listener for activating a subscription.
-     * 
-     * @param listener the listener to add.
-     */
     public void addActivateSubscriptionListener(final ActionListener listener) {
         this.btnActivateSubscription.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for redeeming bonus credits.
-     * 
-     * @param listener the listener to add.
-     */
     public void addRedeemBonusListener(final ActionListener listener) {
         this.btnRedeemBonus.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for viewing subscription status.
-     * 
-     * @param listener the listener to add.
-     */
     public void addViewSubscriptionStatusListener(final ActionListener listener) {
         this.btnViewSubscriptionStatus.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for filtering tracks by genre.
-     * 
-     * @param listener the listener to add.
-     */
     public void addFilterByGenreListener(final ActionListener listener) {
         this.btnFilterByGenre.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for searching an artist.
-     * 
-     * @param listener the listener to add.
-     */
     public void addSearchArtistListener(final ActionListener listener) {
         this.btnSearchArtist.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for creating a new playlist.
-     * 
-     * @param listener the listener to add.
-     */
     public void addCreatePlaylistListener(final ActionListener listener) {
         this.btnCreatePlaylist.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for toggling a like on a track.
-     * 
-     * @param listener the listener to add.
-     */
     public void addToggleLikeListener(final ActionListener listener) {
         this.btnToggleLike.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for adding a track to a playlist.
-     * 
-     * @param listener the listener to add.
-     */
     public void addAddTrackListener(final ActionListener listener) {
         this.btnAddTrack.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for removing a track from a playlist.
-     * 
-     * @param listener the listener to add.
-     */
     public void addRemoveTrackListener(final ActionListener listener) {
         this.btnRemoveTrack.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for fetching personal statistics.
-     * 
-     * @param listener the listener to add.
-     */
     public void addFetchPersonalStatsListener(final ActionListener listener) {
         this.btnFetchPersonalStats.addActionListener(listener);
     }
 
-    /**
-     * Adds a listener for returning to the role selection screen.
-     * 
-     * @param listener the listener to add.
-     */
     public void addBackListener(final ActionListener listener) {
         this.btnBack.addActionListener(listener);
     }
@@ -518,7 +580,7 @@ public final class UserPanel extends JPanel {
     }
 
     /**
-     * Configures a combo box to display only the playlist name.
+     * Configures a combo box to display the playlist name and handles collaborative formatting.
      * 
      * @param comboBox the JComboBox to configure.
      */
@@ -537,7 +599,7 @@ public final class UserPanel extends JPanel {
                 if (value instanceof Playlist) {
                     final Playlist playlist = (Playlist) value;
                     String displayName = playlist.getPlaylistName();
-
+                    
                     if (!playlist.getUsername().equals(UserPanel.this.currentUsername)) {
                         displayName += " (di " + playlist.getUsername() + " - Collaborativa)";
                     }

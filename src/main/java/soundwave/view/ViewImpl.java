@@ -262,20 +262,32 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        this.adminPanel.addFetchStatsListener(e -> {
+        this.adminPanel.addFetchGlobalAlbumsListener(e -> {
+            if (this.controller != null) {
+                this.controller.adminRequestedGlobalAlbums(); 
+            }
+        });
+
+        this.adminPanel.addFetchYearlyStatsListener(e -> {
             if (this.controller != null) {
                 int year = CURRENT_YEAR;
                 try {
-                    if (!this.adminPanel.getStatsYear().isBlank()) {
-                        year = Integer.parseInt(this.adminPanel.getStatsYear());
+                    final Object rawYear = this.adminPanel.getStatsYear();
+                    if (rawYear instanceof Integer) {
+                        year = (Integer) rawYear;
+                    } else if (rawYear instanceof String && !((String) rawYear).isBlank()) {
+                        year = Integer.parseInt((String) rawYear);
+                    } else if (rawYear != null) {
+                        year = Integer.parseInt(rawYear.toString());
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid stats year format", ex);
                     JOptionPane.showMessageDialog(this, "Reference year must be a valid number.", 
-                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                            FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
-                this.controller.adminRequestedGlobalStats(year);
+                this.controller.adminRequestedYearlyStats(year);
             }
         });
     }
@@ -326,9 +338,24 @@ public final class ViewImpl extends JFrame implements View {
         this.adminPanel.setUsersTableData(rows);
     }
 
+    /**
+     * Shows the global albums above average in the admin panel.
+     * 
+     * @param statsText the text to display.
+     */
     @Override
-    public void showGlobalStats(final String statsText) {
-        this.adminPanel.setStatsOutputText(statsText);
+    public void showGlobalAlbumsStats(final String statsText) {
+        this.adminPanel.setGlobalAlbumsOutputText(statsText);
+    }
+
+    /**
+     * Shows the yearly statistics in the admin panel.
+     * 
+     * @param statsText the text to display.
+     */
+    @Override
+    public void showYearlyStats(final String statsText) {
+        this.adminPanel.setYearlyStatsOutputText(statsText);
     }
 
     @Override

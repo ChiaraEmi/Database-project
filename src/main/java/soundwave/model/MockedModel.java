@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.sound.midi.Track;
-
 import soundwave.data.Artist;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
@@ -162,11 +160,9 @@ public final class MockedModel implements Model {
         return true;
     }
 
-    
-
     @Override
     public void insertListeningEvent(final String username, final int contentCode, final String device, 
-                                     final int eventDuration) {
+                                    final int eventDuration) {
         // Simulazione in memoria
     }
 
@@ -208,10 +204,7 @@ public final class MockedModel implements Model {
 
     @Override
     public List<LikeBrani> getLikedTracks(final String username) {
-        final List<LikeBrani> likedTracks = new ArrayList<>();
-        // Se desideri restituire un elemento mock di prova, puoi istanziarlo qui,
-        // altrimenti puoi lasciare la lista vuota per iniziare.
-        return likedTracks;
+        return new ArrayList<>();
     }
 
     @Override

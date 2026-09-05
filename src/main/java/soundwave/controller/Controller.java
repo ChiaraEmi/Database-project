@@ -180,9 +180,14 @@ public interface Controller {
     void adminClickedLoadUsers();
 
     /**
-     * Handles the request to load and view global statistics.
-     * 
-     * @param year the reference year for annual statistics.
+     * Handles the request to fetch albums above global average.
      */
-    void adminRequestedGlobalStats(int year);
+    void adminRequestedGlobalAlbums();
+
+    /**
+     * Handles the request to fetch yearly stats for a specific year.
+     * 
+     * @param year the year chosen by the admin.
+     */
+    void adminRequestedYearlyStats(int year);
 }

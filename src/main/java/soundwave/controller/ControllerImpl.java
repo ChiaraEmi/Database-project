@@ -28,8 +28,8 @@ public final class ControllerImpl implements Controller {
     private static final int ARTIST_CODE_INDEX = 4;
     private static final int GENRES_INDEX = 5;
 
-    private static final String SECTION_FOOTER_SUFFIX = ") ===\n";
     private static final String NEW_LINE = "\n";
+    private static final String SECTION_CLOSE_SUFFIX = ") ===";
     private static final int INITIAL_BUILDER_CAPACITY = 512;
 
     private final Model model;
@@ -408,50 +408,12 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public void adminRequestedGlobalStats(final int year) {
-        if (year <= 0) {
-            final String errorMessage = "Inserisci un anno valido per visualizzare le statistiche globali.";
-            LOGGER.log(Level.WARNING, errorMessage);
-            this.view.showError(errorMessage);
-            return;
-        }
-
+    public void adminRequestedGlobalAlbums() {
         try {
-            final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
-            final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
-            final List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
             final List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
-            sb.append("=== Artista più ascoltato (Anno ")
-              .append(year)
-              .append(SECTION_FOOTER_SUFFIX)
-              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato")
-              .append(NEW_LINE)
-              .append(NEW_LINE)
-              .append("=== Genere più ascoltato (Anno ")
-              .append(year)
-              .append(SECTION_FOOTER_SUFFIX)
-              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato")
-              .append(NEW_LINE)
-              .append(NEW_LINE)
-              .append("=== Utenti sopra la media ascolti (Anno ")
-              .append(year)
-              .append(SECTION_FOOTER_SUFFIX);
-
-            if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
-                for (final String u : usersAboveAvg) {
-                    sb.append("• ")
-                      .append(u)
-                      .append(NEW_LINE);
-                }
-            } else {
-                sb.append("Nessun utente trovato.")
-                  .append(NEW_LINE);
-            }
-
-            sb.append(NEW_LINE)
-              .append("=== Album sopra la media globale delle recensioni ===")
+            sb.append("=== Album sopra la media globale delle recensioni ===")
               .append(NEW_LINE);
 
             if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
@@ -465,11 +427,64 @@ public final class ControllerImpl implements Controller {
                   .append(NEW_LINE);
             }
 
-            this.view.showGlobalStats(sb.toString());
+            this.view.showGlobalAlbumsStats(sb.toString());
 
         } catch (final DAOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to load global stats", e);
-            this.view.showError("Errore durante il caricamento delle statistiche globali.");
+            LOGGER.log(Level.SEVERE, "Failed to load global albums", e);
+            this.view.showError("Errore durante il caricamento degli album globali.");
+        }
+    }
+
+    @Override
+    public void adminRequestedYearlyStats(final int year) {
+        if (year <= 0) {
+            final String errorMessage = "Inserisci un anno valido per visualizzare le statistiche.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return;
+        }
+
+        try {
+            final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
+            final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
+            final List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
+
+            final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
+            sb.append("=== Artista più ascoltato (Anno ")
+              .append(year)
+              .append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE)
+              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato")
+              .append(NEW_LINE)
+              .append(NEW_LINE)
+              .append("=== Genere più ascoltato (Anno ")
+              .append(year)
+              .append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE)
+              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato")
+              .append(NEW_LINE)
+              .append(NEW_LINE)
+              .append("=== Utenti sopra la media ascolti (Anno ")
+              .append(year)
+              .append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE);
+
+            if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
+                for (final String u : usersAboveAvg) {
+                    sb.append("• ")
+                      .append(u)
+                      .append(NEW_LINE);
+                }
+            } else {
+                sb.append("Nessun utente trovato.")
+                  .append(NEW_LINE);
+            }
+
+            this.view.showYearlyStats(sb.toString());
+
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load yearly stats", e);
+            this.view.showError("Errore durante il caricamento delle statistiche annuali.");
         }
     }
 

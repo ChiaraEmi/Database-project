@@ -41,8 +41,12 @@ public final class UserPanel extends JPanel {
     private static final int BUTTON_WIDTH = 220;
     private static final int BUTTON_HEIGHT = 35;
     private static final int INSET_GAP = 6;
+    private static final int PREFERRED_SCROLL_PANE_WIDTH = 280;
+    private static final int INSET_TOP_LARGE = 12;
 
     private String currentUsername;
+
+    private final JLabel userLabel = new JLabel();
 
     // --- Tab 1: Abbonamento ---
     private final JButton btnActivateSubscription = new JButton("Attiva Sottoscrizione");
@@ -97,8 +101,8 @@ public final class UserPanel extends JPanel {
         titleLabel.setFont(titleLabel.getFont().deriveFont(TITLE_FONT_SIZE));
         headerPanel.add(titleLabel, BorderLayout.CENTER);
 
-        final JLabel userLabel = new JLabel("Utente: " + this.currentUsername);
-        headerPanel.add(userLabel, BorderLayout.EAST);
+        this.userLabel.setText("Utente: " + this.currentUsername);
+        headerPanel.add(this.userLabel, BorderLayout.EAST);
 
         this.add(headerPanel, BorderLayout.NORTH);
 
@@ -197,10 +201,10 @@ public final class UserPanel extends JPanel {
         // Pannello sinistro: Lista dei brani preferiti
         final JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBorder(BorderFactory.createTitledBorder("I tuoi Brani Preferiti"));
-        
+
         this.likedTracksList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         final JScrollPane scrollPane = new JScrollPane(this.likedTracksList);
-        scrollPane.setPreferredSize(new Dimension(280, 0));
+        scrollPane.setPreferredSize(new Dimension(PREFERRED_SCROLL_PANE_WIDTH, 0));
         leftPanel.add(scrollPane, BorderLayout.CENTER);
 
         panel.add(leftPanel, BorderLayout.WEST);
@@ -238,7 +242,7 @@ public final class UserPanel extends JPanel {
         final JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Gestione Playlist"));
         final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.insets = new Insets(INSET_GAP, 8, INSET_GAP, 8);
         gbc.anchor = GridBagConstraints.WEST;
 
         // Nome Playlist
@@ -293,7 +297,7 @@ public final class UserPanel extends JPanel {
         final JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Modifica Contenuti Playlist"));
         final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.insets = new Insets(INSET_GAP, 8, INSET_GAP, 8);
         gbc.anchor = GridBagConstraints.WEST;
 
         // Sezione Aggiungi
@@ -329,12 +333,12 @@ public final class UserPanel extends JPanel {
 
         // Separatore visivo
         gbc.gridy++;
-        gbc.insets = new Insets(12, 8, 6, 8);
+        gbc.insets = new Insets(INSET_TOP_LARGE, 8, INSET_GAP, 8);
         panel.add(new JLabel("------------------------------------"), gbc);
 
         // Sezione Rimuovi
         gbc.gridy++;
-        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.insets = new Insets(INSET_GAP, 8, INSET_GAP, 8);
         gbc.gridwidth = 1;
         gbc.weightx = 0.0;
         gbc.fill = GridBagConstraints.NONE;
@@ -481,6 +485,10 @@ public final class UserPanel extends JPanel {
      */
     public void setCurrentUsername(final String username) {
         this.currentUsername = username;
+        if (this.userLabel != null) {
+            this.userLabel.setText("Utente: " + this.currentUsername);
+            this.userLabel.repaint();
+        }
     }
 
     /**
@@ -520,46 +528,103 @@ public final class UserPanel extends JPanel {
 
     // --- Listener Methods ---
 
+    // --- Listener Methods ---
+
+    /**
+     * Adds an action listener for the activate subscription button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addActivateSubscriptionListener(final ActionListener listener) {
         this.btnActivateSubscription.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the redeem bonus button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addRedeemBonusListener(final ActionListener listener) {
         this.btnRedeemBonus.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the view subscription status button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addViewSubscriptionStatusListener(final ActionListener listener) {
         this.btnViewSubscriptionStatus.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the filter by genre button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addFilterByGenreListener(final ActionListener listener) {
         this.btnFilterByGenre.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the search artist button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addSearchArtistListener(final ActionListener listener) {
         this.btnSearchArtist.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the create playlist button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addCreatePlaylistListener(final ActionListener listener) {
         this.btnCreatePlaylist.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the toggle like button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addToggleLikeListener(final ActionListener listener) {
         this.btnToggleLike.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the add track button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addAddTrackListener(final ActionListener listener) {
         this.btnAddTrack.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the remove track button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addRemoveTrackListener(final ActionListener listener) {
         this.btnRemoveTrack.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the fetch personal stats button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addFetchPersonalStatsListener(final ActionListener listener) {
         this.btnFetchPersonalStats.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener for the back button.
+     * 
+     * @param listener the action listener to add.
+     */
     public void addBackListener(final ActionListener listener) {
         this.btnBack.addActionListener(listener);
     }
@@ -599,7 +664,7 @@ public final class UserPanel extends JPanel {
                 if (value instanceof Playlist) {
                     final Playlist playlist = (Playlist) value;
                     String displayName = playlist.getPlaylistName();
-                    
+
                     if (!playlist.getUsername().equals(UserPanel.this.currentUsername)) {
                         displayName += " (di " + playlist.getUsername() + " - Collaborativa)";
                     }

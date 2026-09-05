@@ -59,11 +59,18 @@ public interface View {
     void showUsers(List<User> users);
 
     /**
-     * Displays the formatted global statistics report.
+     * Shows the global albums above average in the admin panel.
      * 
-     * @param statsText the formatted statistics string.
+     * @param statsText the text to display.
      */
-    void showGlobalStats(String statsText);
+    void showGlobalAlbumsStats(String statsText);
+
+    /**
+     * Shows the yearly statistics in the admin panel.
+     * 
+     * @param statsText the text to display.
+     */
+    void showYearlyStats(String statsText);
 
     /**
      * Displays an error message dialog to the user.

@@ -3,6 +3,7 @@ package soundwave.view;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -37,7 +38,7 @@ public final class AdminPanel extends JPanel {
     private static final int BORDER_SIZE = 15;
     private static final int TITLE_MARGIN = 10;
     private static final int FIELD_COLUMNS = 20;
-    private static final int BUTTON_WIDTH = 160;
+    private static final int BUTTON_WIDTH = 220;
     private static final int BUTTON_HEIGHT = 32;
     private static final int INSET_GAP = 8;
     private static final int DEFAULT_SONGS_ROWS = 5;
@@ -96,8 +97,10 @@ public final class AdminPanel extends JPanel {
     // --- Campi di testo per Statistiche Globali (OP 22) ---
     private final JComboBox<Integer> comboStatsYear = new JComboBox<>(
         new Integer[]{2026, 2025, 2024});
-    private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche");
-    private final JTextArea txtStatsOutput = new JTextArea(10, 30);
+    private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche Globali");
+    private final JButton btnFetchYearlyStats = new JButton("Carica Statistiche per Anno");
+    private final JTextArea txtGlobalAlbumsOutput = new JTextArea(6, 30);
+    private final JTextArea txtYearlyStatsOutput = new JTextArea(8, 30);
 
     private final JButton btnBack = new JButton("Disconnetti / Cambia Ruolo");
 
@@ -358,30 +361,53 @@ public final class AdminPanel extends JPanel {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
-        final JPanel topPanel = new JPanel(new GridBagLayout());
+        // --- SOTTOPANNELLO 1: Statistiche Globali (Album sopra la media) ---
+        final JPanel globalPanel = new JPanel(new BorderLayout(0, 5));
+        globalPanel.setBorder(BorderFactory.createTitledBorder("Album con Media Voto Superiore alla Media Globale"));
+
+        // AGGIUNGIAMO IL PULSANTE IN ALTO NEL SOTTOPANNELLO
+        this.btnFetchGlobalStats.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        final JPanel topGlobalPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        topGlobalPanel.add(this.btnFetchGlobalStats);
+        globalPanel.add(topGlobalPanel, BorderLayout.NORTH);
+
+        this.txtGlobalAlbumsOutput.setEditable(false);
+        globalPanel.add(new JScrollPane(this.txtGlobalAlbumsOutput), BorderLayout.CENTER);
+
+        // --- SOTTOPANNELLO 2: Statistiche Annuali (Dipendenti dall'anno) ---
+        final JPanel yearlyPanel = new JPanel(new BorderLayout(0, 5));
+        yearlyPanel.setBorder(BorderFactory.createTitledBorder("Statistiche Annuali"));
+
+        final JPanel topYearPanel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.insets = new Insets(DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING);
         gbc.anchor = GridBagConstraints.WEST;
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        topPanel.add(new JLabel("Anno di riferimento:"), gbc);
+        topYearPanel.add(new JLabel("Anno di riferimento:"), gbc);
 
         gbc.gridx = 1;
-        // Inseriamo la ComboBox al posto del JTextField
-        topPanel.add(this.comboStatsYear, gbc);
+        topYearPanel.add(this.comboStatsYear, gbc);
 
-        this.btnFetchGlobalStats.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.btnFetchYearlyStats.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        topPanel.add(this.btnFetchGlobalStats, gbc);
+        topYearPanel.add(this.btnFetchYearlyStats, gbc);
 
-        panel.add(topPanel, BorderLayout.NORTH);
+        yearlyPanel.add(topYearPanel, BorderLayout.NORTH);
 
-        this.txtStatsOutput.setEditable(false);
-        panel.add(new JScrollPane(this.txtStatsOutput), BorderLayout.CENTER);
+        this.txtYearlyStatsOutput.setEditable(false);
+        yearlyPanel.add(new JScrollPane(this.txtYearlyStatsOutput), BorderLayout.CENTER);
+
+        // --- Unione dei due pannelli principali in un unico contenitore ---
+        final JPanel containerPanel = new JPanel(new java.awt.GridLayout(2, 1, 0, INSET_GAP));
+        containerPanel.add(globalPanel);
+        containerPanel.add(yearlyPanel);
+
+        panel.add(containerPanel, BorderLayout.CENTER);
 
         return panel;
     }
@@ -446,6 +472,24 @@ public final class AdminPanel extends JPanel {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(button, gbc);
+    }
+
+    /**
+     * Adds an action listener to the fetch global albums button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addFetchGlobalAlbumsListener(final ActionListener listener) {
+        this.btnFetchGlobalStats.addActionListener(listener); // o btnFetchGlobalAlbums se hai chiamato così il pulsante
+    }
+
+    /**
+     * Adds an action listener to the fetch yearly stats button.
+     * 
+     * @param listener the action listener.
+     */
+    public void addFetchYearlyStatsListener(final ActionListener listener) {
+        this.btnFetchYearlyStats.addActionListener(listener);
     }
 
     /**
@@ -667,13 +711,12 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Gets the statistics year from the dropdown menu.
+     * Gets the currently selected year from the stats combo box.
      * 
-     * @return the statistics year as a String.
+     * @return the selected year integer.
      */
-    public String getStatsYear() {
-        final Integer selectedYear = (Integer) this.comboStatsYear.getSelectedItem();
-        return selectedYear != null ? selectedYear.toString() : "";
+    public Integer getStatsYear() {
+        return (Integer) this.comboStatsYear.getSelectedItem();
     }
 
     /**
@@ -701,12 +744,21 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Sets the statistics output text.
+     * Sets the global albums statistics text.
      * 
-     * @param text the statistics text to set.
+     * @param text the text to set.
      */
-    public void setStatsOutputText(final String text) {
-        this.txtStatsOutput.setText(text);
+    public void setGlobalAlbumsOutputText(final String text) {
+        this.txtGlobalAlbumsOutput.setText(text);
+    }
+
+    /**
+     * Sets the yearly statistics text.
+     * 
+     * @param text the text to set.
+     */
+    public void setYearlyStatsOutputText(final String text) {
+        this.txtYearlyStatsOutput.setText(text);
     }
 
     /**

@@ -13,6 +13,12 @@ public final class MockedModel implements Model {
     private final List<String> savedPodcasts = new ArrayList<>();
 
     @Override
+    public void insertPromotion( final String name, final String description, final LocalDate startDate, final LocalDate endDate, final String discountType, 
+                                 final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
+        System.out.println("[MOCK] Artist inserted: " + name);
+    }
+
+    @Override
     public int insertArtist(final String stageName, final String name, final String surname, 
                             final LocalDate birthDate, final String provenanceCountry, 
                             final String biography, final int startYear, final String artistType) {

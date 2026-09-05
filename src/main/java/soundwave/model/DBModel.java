@@ -1,6 +1,7 @@
 package soundwave.model;
 
 import soundwave.data.Podcast;
+import soundwave.data.Promotion;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.data.Playlist;
@@ -36,6 +37,13 @@ public final class DBModel implements Model {
     public DBModel(final Connection connection) {
         Objects.requireNonNull(connection, "Model created with null connection");
         this.connection = connection;
+    }
+
+    @Override
+    public void insertPromotion( final String name, final String description, final LocalDate startDate, final LocalDate endDate, final String discountType, 
+                                 final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
+        Promotion.DAO.insertPromotion(connection, name, description, startDate, endDate, 
+                                             discountType, discountValue, requiredMonths, planCodes);
     }
 
     @Override

@@ -85,6 +85,25 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
+
+        // --- Inserimento Promozione (OP 6) ---
+        this.adminPanel.addSavePromotionListener(e -> {
+            if (this.controller != null) {
+                final String name = this.adminPanel.getPromoName();
+                final String description = this.adminPanel.getPromoDescription();
+                final String startDate = this.adminPanel.getPromoStartDate();
+                final String endDate = this.adminPanel.getPromoEndDate();
+                final String discountType = this.adminPanel.getDiscountType();
+                final String discountValue = this.adminPanel.getDiscountValue();
+                final String requiredMonths = this.adminPanel.getRequiredMonths();
+                final String planCodes = this.adminPanel.getPromoPlanCodes();
+
+                this.controller.adminClickedSavePromotion(
+                    name, description, startDate, endDate, discountType, discountValue, requiredMonths, planCodes
+                );
+            }
+        });
+
         // --- Inserimento Artista (OP 7) ---
         this.adminPanel.addSaveArtistListener(e -> {
             if (this.controller != null) {

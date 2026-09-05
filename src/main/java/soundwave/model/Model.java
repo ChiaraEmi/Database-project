@@ -24,6 +24,21 @@ public interface Model {
     }
 
     /**
+     * Insert a new promotion into the database (OP 6)
+     * @param name
+     * @param description
+     * @param startDate
+     * @param endDate
+     * @param discountType
+     * @param discountValue
+     * @param requiredMonths
+     * @param planCodes
+     */
+    void insertPromotion( String name, String description, LocalDate startDate, LocalDate endDate, String discountType, 
+                                    double discountValue, Integer requiredMonths, List<Integer> planCodes);
+
+
+    /**
      * Inserts a new artist into the database.
      *
      * @param stageName the stage name of the artist.

@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -67,8 +68,15 @@ public final class AdminPanel extends JPanel {
 
     // --- Campi di testo per Inserimento Promozione (OP 6) ---
     private final JTextField txtPromoName = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtDiscountPercentage = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPromoDescription = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPromoStartDate = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPromoEndDate = new JTextField(FIELD_COLUMNS);
+    private final JComboBox<String> comboDiscountType = new JComboBox<>(new String[]{"Percentuale", "Fisso"});
+    private final JTextField txtDiscountValue = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtRequiredMonths = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPromoPlanCodes = new JTextField(FIELD_COLUMNS);
     private final JButton btnSavePromotion = new JButton("Salva Promozione");
+
 
     // --- Area per Gestione Utenti ---
     private final JButton btnFetchUsers = new JButton("Carica Utenti");
@@ -218,8 +226,19 @@ public final class AdminPanel extends JPanel {
         addSectionHeader(panel, gbc, row++, "Gestione Promozioni e Sconti");
 
         addFormField(panel, gbc, row++, "Nome Promozione:", this.txtPromoName);
-        addFormField(panel, gbc, row++, "Sconto (%):", this.txtDiscountPercentage);
+        addFormField(panel, gbc, row++, "Descrizione:", this.txtPromoDescription);
+        addFormField(panel, gbc, row++, "Data Inizio (YYYY-MM-DD):", this.txtPromoStartDate);
+        addFormField(panel, gbc, row++, "Data Fine (YYYY-MM-DD):", this.txtPromoEndDate);
 
+        gbc.gridx = 0;
+        gbc.gridy = row++;
+        panel.add(new JLabel("Tipo Sconto:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.comboDiscountType,gbc);
+
+        addFormField(panel, gbc, row++, "Valore Sconto:", this.txtDiscountValue);
+        addFormField(panel, gbc, row++, "Mesi Richiesti (opzionale):", this.txtRequiredMonths);
+        addFormField(panel, gbc, row++, "Piani Abbonamento (codici separati da virgola):", this.txtPromoPlanCodes);
         addCenteredButton(panel, gbc, row, this.btnSavePromotion);
         return panel;
     }
@@ -322,7 +341,13 @@ public final class AdminPanel extends JPanel {
     public String getEpisodeNumber() { return this.txtEpisodeNumber.getText(); }
 
     public String getPromoName() { return this.txtPromoName.getText(); }
-    public String getDiscountPercentage() { return this.txtDiscountPercentage.getText(); }
+    public String getPromoDescription() { return this.txtPromoDescription.getText(); }
+    public String getPromoStartDate() { return this.txtPromoStartDate.getText(); }
+    public String getPromoEndDate() { return this.txtPromoEndDate.getText(); }
+    public String getDiscountType() { return (String) this.comboDiscountType.getSelectedItem(); }
+    public String getDiscountValue() { return this.txtDiscountValue.getText(); }
+    public String getRequiredMonths() { return this.txtRequiredMonths.getText(); }
+    public String getPromoPlanCodes() { return this.txtPromoPlanCodes.getText(); }
 
     public void setStatsOutputText(final String text) { this.txtStatsOutput.setText(text); }
     public String getStatsYear() { return this.txtStatsYear.getText(); }

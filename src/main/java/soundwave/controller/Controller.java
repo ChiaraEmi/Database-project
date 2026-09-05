@@ -5,6 +5,21 @@ package soundwave.controller;
  */
 public interface Controller {
 
+
+    /**
+     * Handles the request to insert a new promotion (OP 6)
+     * @param name
+     * @param description
+     * @param startDate
+     * @param endDate
+     * @param discountType
+     * @param discountValueStr
+     * @param rqrMonths
+     * @param planCodesStr
+     */
+    void adminClickedSavePromotion( String name, String description, String startDate, String endDate, String discountType, 
+                                    String discountValueStr, String rqrMonths, String planCodesStr);
+
     /**
      * Handles the request to insert a new artist (OP 7).
      *

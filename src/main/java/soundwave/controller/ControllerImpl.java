@@ -1,8 +1,13 @@
 package soundwave.controller;
 
 import soundwave.data.DAOException;
+import soundwave.data.DAOUtils;
 import soundwave.model.Model;
 import soundwave.view.View;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -13,6 +18,18 @@ public final class ControllerImpl implements Controller {
 
     private final Model model;
     private final View view;
+
+    // Local error reporting fallback when the View doesn't expose a showError method
+    private void showError(final String message) {
+        // Fallback: print to stderr so errors are at least visible during execution/tests
+        System.err.println(message);
+    }
+
+    // Local success reporting fallback when the View doesn't expose a showSuccess method
+    private void showSuccess(final String message) {
+        // Fallback: print to stdout so success messages are visible during execution/tests
+        System.out.println(message);
+    }
 
     /**
      * Constructs a new ControllerImpl.
@@ -30,6 +47,50 @@ public final class ControllerImpl implements Controller {
         this.model = model;
         this.view = view;
     }
+
+    @Override
+    public void adminClickedSavePromotion(final String name, final String description, final String startDate, final String endDate, final String discountType, 
+                                          final String discountValueStr, final String rqrMonths, final String planCodesStr) {
+        try {
+            final LocalDate start = LocalDate.parse(startDate);
+            final LocalDate end = LocalDate.parse(endDate);
+            final double discountValue = Double.parseDouble(discountValueStr);
+            final Integer requiredMonths = (rqrMonths == null || rqrMonths.isBlank()) ? null : Integer.parseInt(rqrMonths);
+            final List<Integer> planCodes = new ArrayList<>();
+            if (planCodesStr != null && !planCodesStr.isBlank()) {
+                for (final String code : planCodesStr.split(",")) {
+                    planCodes.add(Integer.parseInt(code.trim()));
+                }
+            }
+
+            if(start.isAfter(end)) {
+                showError("La data inzio non può essere dopo la data fine");
+                return;
+            }
+            if(planCodes.isEmpty()) {
+                showError("Devi specificare almeno un piano di abbonamento");
+                return;
+            }
+            if(discountValue <= 0.0) {
+                showError("Il valore dello sconto deve essere maggiore di 0");
+                return;
+            }
+
+            this.model.insertPromotion(name, description, start, end, discountType, discountValue, requiredMonths, planCodes);
+            showSuccess("Promozione creata con successo");
+        } catch (final java.time.format.DateTimeParseException e) {
+            //showError("Formato data non valido. Usa YYYY-MM-DD. qui ");
+        } catch (final NumberFormatException e) {
+            //showError("Valore numerico non valido. Controlla sconto, mesi richiesti e codici piani");
+        } catch (final DAOException e) {
+            //showError("Impossibile salvare la promozione.");
+        } catch (final Exception e) {
+            //showError("Errore imprevisto:" + e.getMessage());
+            //e.printStackTrace();
+        }
+    }
+    
+
 
     @Override
     public void adminClickedSaveArtist(final String stageName, final String name, final String surname, 

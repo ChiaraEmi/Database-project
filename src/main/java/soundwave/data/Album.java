@@ -154,7 +154,7 @@ public final class Album {
         private DAO() { }
 
         /**
-         * Inserts a new album and its associated songs into the database within a transaction (OP 8).
+         * Inserts a new album and its associated songs into the database.
          *
          * @param connection the database connection.
          * @param artistCode the artist code.
@@ -172,15 +172,6 @@ public final class Album {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
-                // 1. Verifica esistenza dell'artista
-                try (var checkStmt = DAOUtils.prepare(connection, Queries.CHECK_ARTIST_EXISTS, artistCode);
-                     var resultSet = checkStmt.executeQuery()) {
-                    if (!resultSet.next()) {
-                        throw new DAOException("Artist with ID " + artistCode + " does not exist.");
-                    }
-                }
-
-                // 2. Inserimento dell'Album
                 int albumCode = -1;
                 try (var statement = DAOUtils.prepareWithKeys(
                     connection,
@@ -199,41 +190,44 @@ public final class Album {
                     }
                 }
 
-                // 3. Inserimento dei brani correlati tramite Song.DAO.insert
                 for (final var songInput : songs) {
                     Song.DAO.insert(
                         connection,
                         albumCode,
-                        songInput.title,
-                        songInput.duration,
-                        songInput.description,
-                        songInput.trackNumber,
-                        songInput.artistCodeForSong,
-                        songInput.genres,
+                        songInput.getTitle(),
+                        songInput.getDuration(),
+                        songInput.getDescription(),
+                        songInput.getTrackNumber(),
+                        songInput.getArtistCodeForSong(),
+                        songInput.getGenres(),
                         releaseDate
                     );
                 }
 
-                // 4. Aggiornamento della durata totale dell'album
                 try (var updateStmt = DAOUtils.prepare(connection, Queries.UPDATE_ALBUM_DURATION, albumCode, albumCode)) {
                     updateStmt.executeUpdate();
                 }
 
                 connection.commit();
                 return albumCode;
+
             } catch (final SQLException e) {
+
                 try {
                     connection.rollback();
                 } catch (final SQLException rollbackEx) {
                     e.addSuppressed(rollbackEx);
                 }
                 throw new DAOException(e);
+
             } finally {
+
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException ignored) {
                     // Intentionally ignored
                 }
+
             }
         }
 
@@ -247,14 +241,16 @@ public final class Album {
             final List<String> albums = new ArrayList<>();
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING);
                  var resultSet = statement.executeQuery()) {
-                
+
                 while (resultSet.next()) {
-                    albums.add("Album: " + resultSet.getString("TitoloAlbum") + 
-                               " - Media Voti: " + resultSet.getDouble("MediaVoti"));
+                    albums.add("Album: " + resultSet.getString("TitoloAlbum") 
+                                + " - Media Voti: " + resultSet.getDouble("MediaVoti"));
                 }
+
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
+
             return albums;
         }
     }

@@ -1,7 +1,6 @@
 package soundwave.data;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -10,9 +9,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Represents a user entity within the Soundwave system.
+ * Represents a User entity.
  */
 public final class User {
+
+    private static final String FIELD_USERNAME = "Username";
 
     private final String username;
     private final String name;
@@ -61,7 +62,7 @@ public final class User {
     /**
      * Returns the username of the user.
      * 
-     * @return the username
+     * @return the username.
      */
     public String getUsername() {
         return username;
@@ -70,7 +71,7 @@ public final class User {
     /**
      * Returns the name of the user.
      * 
-     * @return the name
+     * @return the name.
      */
     public String getName() {
         return name;
@@ -79,7 +80,7 @@ public final class User {
     /**
      * Returns the surname of the user.
      * 
-     * @return the surname
+     * @return the surname.
      */
     public String getSurname() {
         return surname;
@@ -88,7 +89,7 @@ public final class User {
     /**
      * Returns the email of the user.
      * 
-     * @return the email
+     * @return the email.
      */
     public String getEmail() {
         return email;
@@ -97,7 +98,7 @@ public final class User {
     /**
      * Returns the password of the user.
      * 
-     * @return the password
+     * @return the password.
      */
     public String getPassword() {
         return password;
@@ -106,7 +107,7 @@ public final class User {
     /**
      * Returns the birth date of the user.
      * 
-     * @return the birth date
+     * @return the birth date.
      */
     public LocalDate getBirthDate() {
         return birthDate;
@@ -115,7 +116,7 @@ public final class User {
     /**
      * Returns the country of the user.
      * 
-     * @return the country
+     * @return the country.
      */
     public String getCountry() {
         return country;
@@ -124,7 +125,7 @@ public final class User {
     /**
      * Returns the bonus credit of the user.
      * 
-     * @return the bonus credit
+     * @return the bonus credit.
      */
     public int getBonusCredit() {
         return bonusCredit;
@@ -171,7 +172,7 @@ public final class User {
      */
     public static final class DAO {
 
-        private DAO() {}
+        private DAO() { }
 
         /**
          * OP1
@@ -260,23 +261,23 @@ public final class User {
         /**
          * Retrieves a list of all users from the database.
          * 
-         * @param connection the active database connection
-         * @return a list of users
-         * @throws SQLException if a database error occurs
+         * @param connection the active database connection.
+         * @return a list of users.
+         * @throws SQLException if a database error occurs.
          */
         public static List<User> list(final Connection connection) throws SQLException {
             Objects.requireNonNull(connection, "Connection cannot be null");
-            var users = new ArrayList<User>();
-            String query = "SELECT Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus FROM Utenti";
-            
+            final var users = new ArrayList<User>();
+            final String query = "SELECT " + FIELD_USERNAME 
+                                + ", Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus FROM Utenti";
+
             try (var statement = connection.createStatement();
                  var resultSet = statement.executeQuery(query)) {
                 while (resultSet.next()) {
-                    Date sqlDate = resultSet.getDate("DataNascita");
-                    LocalDate localDate = (sqlDate != null) ? sqlDate.toLocalDate() : null;
+                    final LocalDate localDate = resultSet.getObject("DataNascita", LocalDate.class);
 
                     users.add(new User(
-                        resultSet.getString("Username"),
+                        resultSet.getString(FIELD_USERNAME),
                         resultSet.getString("Nome"),
                         resultSet.getString("Cognome"),
                         resultSet.getString("Email"),
@@ -293,25 +294,28 @@ public final class User {
         /**
          * Finds a specific user by their unique username.
          * 
-         * @param connection the active database connection
-         * @param username   the username to search for
-         * @return an Optional containing the user if found, or empty otherwise
-         * @throws SQLException if a database error occurs
+         * @param connection the active database connection.
+         * @param username   the username to search for.
+         * 
+         * @return an Optional containing the user if found, or empty otherwise.
+         * 
+         * @throws SQLException if a database error occurs.
          */
         public static Optional<User> find(final Connection connection, final String username) throws SQLException {
             Objects.requireNonNull(connection, "Connection cannot be null");
             Objects.requireNonNull(username, "Username cannot be null");
-            String query = "SELECT Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus FROM Utenti WHERE Username = ?";
-            
+            final String query = "SELECT " + FIELD_USERNAME 
+                + ", Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus "
+                + "FROM Utenti WHERE " + FIELD_USERNAME + " = ?";
+
             try (var statement = connection.prepareStatement(query)) {
                 statement.setString(1, username);
                 try (var resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
-                        Date sqlDate = resultSet.getDate("DataNascita");
-                        LocalDate localDate = (sqlDate != null) ? sqlDate.toLocalDate() : null;
+                        final LocalDate localDate = resultSet.getObject("DataNascita", LocalDate.class);
 
                         return Optional.of(new User(
-                            resultSet.getString("Username"),
+                            resultSet.getString(FIELD_USERNAME),
                             resultSet.getString("Nome"),
                             resultSet.getString("Cognome"),
                             resultSet.getString("Email"),
@@ -335,14 +339,14 @@ public final class User {
          */
         public static List<String> getUsersAboveAverageListens(final Connection connection, final int year) {
             final List<String> users = new ArrayList<>();
-            // La query richiede l'anno due volte a causa della struttura della subquery
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_USERS_ABOVE_AVG_LISTENS, year, year);
                  var resultSet = statement.executeQuery()) {
-                
+
                 while (resultSet.next()) {
-                    users.add("Utente: " + resultSet.getString("Username") + 
-                              " - Ascolti: " + resultSet.getInt("NumeroAscolti"));
+                    users.add("Utente: " + resultSet.getString(FIELD_USERNAME) 
+                                        + " - Ascolti: " + resultSet.getInt("NumeroAscolti"));
                 }
+
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }

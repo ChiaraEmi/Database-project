@@ -97,7 +97,7 @@ public final class Episode {
         }
 
         /**
-         * Inserts a new podcast episode into the database (OP 10).
+         * Inserts a new podcast episode into the database.
          * First creates the parent record in Contenuti via Content.DAO.insert,
          * then links it to the Podcast in Episodi.
          *

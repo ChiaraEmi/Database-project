@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 /**
- * Panel representing the main user dashboard, organized into functional tabs.
+ * Panel representing the main user dashboard.
  */
 public final class UserPanel extends JPanel {
 
@@ -27,9 +28,12 @@ public final class UserPanel extends JPanel {
     private static final int BORDER_SIZE = 20;
     private static final int TITLE_MARGIN = 10;
     private static final int FIELD_COLUMNS = 15;
+    private static final int SMALL_FIELD_COLUMNS = 5;
     private static final int BUTTON_WIDTH = 220;
     private static final int BUTTON_HEIGHT = 35;
     private static final int INSET_GAP = 6;
+
+    private final String currentUsername;
 
     // --- Tab 1: Abbonamento ---
     private final JButton btnActivateSubscription = new JButton("Attiva Sottoscrizione");
@@ -44,8 +48,20 @@ public final class UserPanel extends JPanel {
 
     // --- Tab 3: Libreria & Playlist ---
     private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
+    private final JComboBox<String> comboVisibility = new JComboBox<>(new String[]{"Privata", "Pubblica"});
+    private final JCheckBox chkCollaborative = new JCheckBox("Collaborativa");
     private final JButton btnCreatePlaylist = new JButton("Crea Nuova Playlist");
     private final JButton btnToggleLike = new JButton("Aggiungi / Rimuovi Like");
+
+    // Campi per Aggiunta Brano in Playlist
+    private final JTextField txtAddPlaylistCode = new JTextField(SMALL_FIELD_COLUMNS);
+    private final JTextField txtAddTrackCode = new JTextField(SMALL_FIELD_COLUMNS);
+    private final JButton btnAddTrack = new JButton("Aggiungi Brano");
+
+    // Campi per Rimozione Brano da Playlist
+    private final JTextField txtRemovePlaylistCode = new JTextField(SMALL_FIELD_COLUMNS);
+    private final JTextField txtRemoveTrackCode = new JTextField(SMALL_FIELD_COLUMNS);
+    private final JButton btnRemoveTrack = new JButton("Rimuovi Brano");
 
     // --- Tab 4: Statistiche & Ascolti ---
     private final JButton btnFetchPersonalStats = new JButton("Visualizza Statistiche Annuali");
@@ -54,19 +70,27 @@ public final class UserPanel extends JPanel {
     private final JButton btnBack = new JButton("Torna alla Selezione Ruolo");
 
     /**
-     * Builds a new UserPanel.
+     * Builds a new UserPanel for the specified user.
+     * 
+     * @param username the username of the logged-in user.
      */
-    public UserPanel() {
+    public UserPanel(final String username) {
         super();
+        this.currentUsername = username;
         this.setLayout(new BorderLayout(0, TITLE_MARGIN));
         this.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
 
-        // Intestazione principale
+        final JPanel headerPanel = new JPanel(new BorderLayout());
+
         final JLabel titleLabel = new JLabel("Area Utente", SwingConstants.CENTER);
         titleLabel.setFont(titleLabel.getFont().deriveFont(TITLE_FONT_SIZE));
-        this.add(titleLabel, BorderLayout.NORTH);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
 
-        // Schede principali dell'utente
+        final JLabel userLabel = new JLabel("Utente: " + this.currentUsername);
+        headerPanel.add(userLabel, BorderLayout.EAST);
+
+        this.add(headerPanel, BorderLayout.NORTH);
+
         final JTabbedPane mainTabbedPane = new JTabbedPane();
         mainTabbedPane.addTab("Abbonamento", createSubscriptionTab());
         mainTabbedPane.addTab("Esplora", createExploreTab());
@@ -75,7 +99,6 @@ public final class UserPanel extends JPanel {
 
         this.add(mainTabbedPane, BorderLayout.CENTER);
 
-        // Barra inferiore di ritorno
         final JPanel bottomPanel = new JPanel();
         bottomPanel.add(this.btnBack);
         this.add(bottomPanel, BorderLayout.SOUTH);
@@ -83,6 +106,8 @@ public final class UserPanel extends JPanel {
 
     /**
      * Creates the tab for subscription management (OP 2, 4, 5).
+     * 
+     * @return the subscription panel.
      */
     private JPanel createSubscriptionTab() {
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -110,6 +135,8 @@ public final class UserPanel extends JPanel {
 
     /**
      * Creates the tab for exploring catalog (OP 19, 20).
+     * 
+     * @return the explore panel.
      */
     private JPanel createExploreTab() {
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -117,7 +144,6 @@ public final class UserPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Sezione Genere
         gbc.gridx = 0;
         gbc.gridy = 0;
         panel.add(new JLabel("Genere:"), gbc);
@@ -129,7 +155,6 @@ public final class UserPanel extends JPanel {
         gbc.gridwidth = 2;
         panel.add(this.btnFilterByGenre, gbc);
 
-        // Sezione Profilo Artista
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -147,6 +172,8 @@ public final class UserPanel extends JPanel {
 
     /**
      * Creates the tab for personal library and playlists (OP 12, 14).
+     * 
+     * @return the library panel.
      */
     private JPanel createLibraryTab() {
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -154,7 +181,7 @@ public final class UserPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Nuova Playlist
+        // Creazione Playlist
         gbc.gridx = 0;
         gbc.gridy = 0;
         panel.add(new JLabel("Nome Playlist:"), gbc);
@@ -162,21 +189,71 @@ public final class UserPanel extends JPanel {
         panel.add(this.txtPlaylistName, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy++;
+        panel.add(new JLabel("Visibilità:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.comboVisibility, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
         gbc.gridwidth = 2;
+        panel.add(this.chkCollaborative, gbc);
+
+        gbc.gridy++;
         panel.add(this.btnCreatePlaylist, gbc);
 
-        // Gestione Preferiti
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
+        gbc.gridy++;
         panel.add(this.btnToggleLike, gbc);
+
+        // Sezione: Aggiungi Brano
+        gbc.gridy++;
+        panel.add(new JLabel("--- Aggiungi Brano a Playlist ---"), gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        panel.add(new JLabel("Codice Playlist:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtAddPlaylistCode, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(new JLabel("Codice Brano:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtAddTrackCode, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        panel.add(this.btnAddTrack, gbc);
+
+        // Sezione: Rimuovi Brano
+        gbc.gridy++;
+        panel.add(new JLabel("--- Rimuovi Brano da Playlist ---"), gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        panel.add(new JLabel("Codice Playlist:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtRemovePlaylistCode, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(new JLabel("Codice Brano:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtRemoveTrackCode, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        panel.add(this.btnRemoveTrack, gbc);
 
         return panel;
     }
 
     /**
-     * Creates the tab for personal listening statistics (OP 21).
+     * Creates the tab for personal listening statistics.
+     * 
+     * @return the statistics panel.
      */
     private JPanel createStatsTab() {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
@@ -191,58 +268,200 @@ public final class UserPanel extends JPanel {
         return panel;
     }
 
-    /* --- Getter per i dati di input --- */
+    /**
+     * Gets the current logged-in username.
+     * 
+     * @return the username.
+     */
+    public String getCurrentUsername() {
+        return this.currentUsername;
+    }
 
+    /**
+     * Gets the selected genre from the combo box.
+     * 
+     * @return the selected genre string.
+     */
     public String getSelectedGenre() {
         return (String) this.comboGenre.getSelectedItem();
     }
 
+    /**
+     * Gets the artist name entered in the search field.
+     * 
+     * @return the searched artist name.
+     */
     public String getSearchedArtist() {
         return this.txtArtistProfileName.getText();
     }
 
+    /**
+     * Gets the playlist name entered in the text field.
+     * 
+     * @return the playlist name.
+     */
     public String getPlaylistName() {
-        return this.txtPlaylistName.getText();
+        return this.txtPlaylistName.getText().trim();
     }
 
+    /**
+     * Gets the selected playlist visibility.
+     * 
+     * @return the visibility string.
+     */
+    public String getPlaylistVisibility() {
+        return (String) this.comboVisibility.getSelectedItem();
+    }
+
+    /**
+     * Checks whether the playlist is marked as collaborative.
+     * 
+     * @return true if collaborative, false otherwise.
+     */
+    public boolean isPlaylistCollaborative() {
+        return this.chkCollaborative.isSelected();
+    }
+
+    /** 
+     * Gets the playlist code for adding a track.
+     * 
+     * @return playlist code string.
+     */
+    public String getAddTrackPlaylistCode() {
+        return this.txtAddPlaylistCode.getText().trim();
+    }
+
+    /** 
+     * Gets the track code for adding.
+     * 
+     * @return track code string.
+     */
+    public String getAddTrackCode() {
+        return this.txtAddTrackCode.getText().trim();
+    }
+
+    /** 
+     * Gets the playlist code for removing a track.
+     * 
+     * @return playlist code string.
+     */
+    public String getRemoveTrackPlaylistCode() {
+        return this.txtRemovePlaylistCode.getText().trim();
+    }
+
+    /** 
+     * Gets the track code for removing.
+     * 
+     * @return track code string.
+     */
+    public String getRemoveTrackCode() {
+        return this.txtRemoveTrackCode.getText().trim();
+    }
+
+    /**
+     * Sets the text of the personal stats output area.
+     * 
+     * @param text the statistics text to display.
+     */
     public void setPersonalStatsOutput(final String text) {
         this.txtStatsOutput.setText(text);
     }
 
-    /* --- Metodi per registrare gli Listener --- */
-
+    /**
+     * Adds a listener for activating a subscription.
+     * 
+     * @param listener the listener to add.
+     */
     public void addActivateSubscriptionListener(final ActionListener listener) {
         this.btnActivateSubscription.addActionListener(listener);
     }
 
+    /**
+     * Adds a listener for redeeming bonus credits.
+     * 
+     * @param listener the listener to add.
+     */
     public void addRedeemBonusListener(final ActionListener listener) {
         this.btnRedeemBonus.addActionListener(listener);
     }
 
+    /**
+     * Adds a listener for viewing subscription status.
+     * 
+     * @param listener the listener to add.
+     */
     public void addViewSubscriptionStatusListener(final ActionListener listener) {
         this.btnViewSubscriptionStatus.addActionListener(listener);
     }
 
+    /**
+     * Adds a listener for filtering tracks by genre.
+     * 
+     * @param listener the listener to add.
+     */
     public void addFilterByGenreListener(final ActionListener listener) {
         this.btnFilterByGenre.addActionListener(listener);
     }
 
+    /**
+     * Adds a listener for searching an artist.
+     * 
+     * @param listener the listener to add.
+     */
     public void addSearchArtistListener(final ActionListener listener) {
         this.btnSearchArtist.addActionListener(listener);
     }
 
+    /**
+     * Adds a listener for creating a new playlist.
+     * 
+     * @param listener the listener to add.
+     */
     public void addCreatePlaylistListener(final ActionListener listener) {
         this.btnCreatePlaylist.addActionListener(listener);
     }
 
+    /**
+     * Adds a listener for toggling a like on a track.
+     * 
+     * @param listener the listener to add.
+     */
     public void addToggleLikeListener(final ActionListener listener) {
         this.btnToggleLike.addActionListener(listener);
     }
 
+    /**
+     * Adds a listener for adding a track to a playlist.
+     * 
+     * @param listener the listener to add.
+     */
+    public void addAddTrackListener(final ActionListener listener) {
+        this.btnAddTrack.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener for removing a track from a playlist.
+     * 
+     * @param listener the listener to add.
+     */
+    public void addRemoveTrackListener(final ActionListener listener) {
+        this.btnRemoveTrack.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener for fetching personal statistics.
+     * 
+     * @param listener the listener to add.
+     */
     public void addFetchPersonalStatsListener(final ActionListener listener) {
         this.btnFetchPersonalStats.addActionListener(listener);
     }
 
+    /**
+     * Adds a listener for returning to the role selection screen.
+     * 
+     * @param listener the listener to add.
+     */
     public void addBackListener(final ActionListener listener) {
         this.btnBack.addActionListener(listener);
     }

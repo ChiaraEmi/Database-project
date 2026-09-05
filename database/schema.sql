@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS Playlist (
     CodicePlaylist INT AUTO_INCREMENT PRIMARY KEY,
     Username VARCHAR(50) NOT NULL,
     NomePlaylist VARCHAR(100) NOT NULL,
-    DataCreazione DATETIME DEFAULT CURRENT_TIMESTAMP,
+    DataCreazione DATE DEFAULT (CURRENT_DATE),
     Visibilita ENUM('Pubblica', 'Privata') DEFAULT 'Privata',
     Collaborativa BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS EventiAscolto (
     Username VARCHAR(50) NOT NULL,
     CodiceContenuto INT NOT NULL,
     DataOra DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Dispositivo VARCHAR(50),
+    Dispositivo VARCHAR(50) NOT NULL,
     DurataEvento INT NOT NULL,
     PRIMARY KEY (Username, CodiceContenuto, DataOra),
     FOREIGN KEY (Username) REFERENCES Utenti(Username) ON DELETE CASCADE,

@@ -8,12 +8,15 @@ import soundwave.data.Playlist;
 import soundwave.data.Album;
 import soundwave.data.Artist;
 import soundwave.data.Episode;
+import soundwave.data.Genre;
 import soundwave.data.ListeningEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -23,12 +26,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public final class DBModel implements Model {
 
+    private static final Logger LOGGER = Logger.getLogger(DBModel.class.getName());
+
     private final Connection connection;
 
     /**
      * Constructs a new DBModel instance with the given database connection.
      *
-     * @param connection the active database connection
+     * @param connection the active database connection.
      */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP2", 
@@ -37,6 +42,16 @@ public final class DBModel implements Model {
     public DBModel(final Connection connection) {
         Objects.requireNonNull(connection, "Model created with null connection");
         this.connection = connection;
+    }
+
+    @Override
+    public User findUser(final String username) {
+        try {
+            return User.DAO.find(this.connection, username).orElse(null);
+        } catch (final SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to find user: " + username, e);
+            return null;
+        }
     }
 
     @Override
@@ -61,13 +76,28 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<Artist> getAlbumArtists() {
+        return Artist.DAO.getAlbumArtists(this.connection);
+    }
+
+    @Override
+    public List<Artist> getPodcastAuthors() {
+        return Artist.DAO.getPodcastAuthors(this.connection);
+    }
+
+    @Override
+    public boolean isPodcastAuthor(final int artistCode) {
+        return Artist.DAO.isPodcastAuthor(this.connection, artistCode);
+    }
+
+    @Override
     public int insertPodcast(final int artistCode, final String name, final String description, final String category) {
         return Podcast.DAO.insert(connection, artistCode, name, description, category);
     }
 
     @Override
     public int insertEpisode(final int podcastCode, final String title, final int duration, 
-                             final String description, final int episodeNumber) {
+                           final String description, final int episodeNumber) {
         return Episode.DAO.insert(connection, podcastCode, title, duration, description, episodeNumber);
     }
 
@@ -78,8 +108,13 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public void addTrackToPlaylist(final int playlistCode, final int trackCode) {
-        Playlist.DAO.addTrack(connection, playlistCode, trackCode);
+    public boolean addTrackToPlaylist(final String username, final int playlistCode, final int trackCode) {
+        return Playlist.DAO.addTrackWithPermission(this.connection, username, playlistCode, trackCode);
+    }
+
+    @Override
+    public boolean removeTrackFromPlaylist(final String username, final int playlistCode, final int trackCode) {
+        return Playlist.DAO.removeTrack(this.connection, username, playlistCode, trackCode);
     }
 
     @Override
@@ -91,29 +126,29 @@ public final class DBModel implements Model {
     public List<User> loadUsers() {
         try {
             return User.DAO.list(this.connection);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (final SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load users from the database.", e);
             return List.of();
         }
     }
 
     @Override
     public String getMostPlayedArtist(final int year) {
-        return soundwave.data.Artist.DAO.getMostPlayedArtist(this.connection, year);
+        return Artist.DAO.getMostPlayedArtist(this.connection, year);
     }
 
     @Override
     public String getMostPlayedGenre(final int year) {
-        return soundwave.data.Genre.DAO.getMostPlayedGenre(this.connection, year);
+        return Genre.DAO.getMostPlayedGenre(this.connection, year);
     }
 
     @Override
     public List<String> getUsersAboveAverageListens(final int year) {
-        return soundwave.data.User.DAO.getUsersAboveAverageListens(this.connection, year);
+        return User.DAO.getUsersAboveAverageListens(this.connection, year);
     }
 
     @Override
     public List<String> getAlbumsAboveGlobalAverage() {
-        return soundwave.data.Album.DAO.getAlbumsAboveGlobalAverage(this.connection);
+        return Album.DAO.getAlbumsAboveGlobalAverage(this.connection);
     }
 }

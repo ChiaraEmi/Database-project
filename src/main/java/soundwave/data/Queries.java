@@ -258,6 +258,14 @@ public final class Queries {
         """;
 
     // --- OP 8: INSERIMENTO ALBUM E RELATIVI BRANI ---
+    public static final String SELECT_ALBUM_ARTISTS = 
+        """
+        SELECT CodiceArtista, NomeDArte 
+        FROM Artisti 
+        WHERE TipoArtista != 'Autore Podcast'
+        ORDER BY NomeDArte ASC
+        """;
+
     public static final String INSERT_ALBUM = 
         """
         INSERT INTO Album (CodiceArtista, TitoloAlbum, DataPubblicazione, CasaDiscografica)
@@ -308,17 +316,25 @@ public final class Queries {
         """;
 
     // --- OP 9: INSERIMENTO PODCAST ---
-    public static final String CHECK_ARTIST_EXISTS = 
+    public static final String SELECT_PODCAST_AUTHORS = 
         """
         SELECT CodiceArtista, NomeDArte 
         FROM Artisti 
-        WHERE CodiceArtista = ?
+        WHERE TipoArtista = 'Autore Podcast'
+        ORDER BY NomeDArte ASC
         """;
 
     public static final String INSERT_PODCAST = 
         """
         INSERT INTO Podcast (CodiceArtista, NomePodcast, DescrizionePodcast, Categoria)
         VALUES (?, ?, ?, ?)
+        """;
+
+    public static final String CHECK_IS_PODCAST_AUTHOR = 
+        """
+        SELECT CodiceArtista 
+        FROM Artisti 
+        WHERE CodiceArtista = ? AND TipoArtista = 'Autore Podcast'
         """;
 
     // --- OP 10: INSERIMENTO EPISODIO ---
@@ -365,7 +381,7 @@ public final class Queries {
     public static final String INSERT_PLAYLIST = 
         """
         INSERT INTO Playlist (Username, NomePlaylist, DataCreazione, Visibilita, Collaborativa)
-        VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)
+        VALUES (?, ?, CURRENT_DATE, ?, ?)
         """;
 
     // --- OP 13: AGGIUNTA / RIMOZIONE BRANO DA PLAYLIST ---

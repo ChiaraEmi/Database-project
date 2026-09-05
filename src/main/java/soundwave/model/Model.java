@@ -4,12 +4,12 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
 
+import soundwave.data.Artist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
 /**
- * Represents the application model, defining core business operations 
- * and data interactions for the Soundwave application.
+ * Represents the application model.
  */
 public interface Model {
 
@@ -22,6 +22,14 @@ public interface Model {
     static Model fromConnection(final Connection connection) {
         return new DBModel(connection);
     }
+
+    /**
+     * Finds a user by their username.
+     * 
+     * @param username the username to search for.
+     * @return the User object if found, or null otherwise.
+     */
+    User findUser(String username);
 
     /**
      * Insert a new promotion into the database (OP 6)
@@ -52,19 +60,33 @@ public interface Model {
      * @return the generated artist code.
      */
     int insertArtist(String stageName, String name, String surname, LocalDate birthDate, 
-                     String provenanceCountry, String biography, int startYear, String artistType);
-    
+                        String provenanceCountry, String biography, int startYear, String artistType);
+
     /**
      * Inserts a new album along with its songs, artists, and genres into the system (OP 8).
      *
      * @param artistCode the code of the main artist/band of the album.
      * @param title the title of the album.
-     * @param releaseYear the release year.
+     * @param releaseDate the release date.
      * @param recordCompany the record company name.
      * @param songs the list of song inputs containing details for each track.
      * @return the generated album code.
      */
     int insertAlbumWithSongs(int artistCode, String title, String releaseDate, String recordCompany, List<SongInput> songs);
+
+    /**
+     * Retrieves all artists authorized as album authors.
+     *
+     * @return a list of album authors.
+     */
+    List<Artist> getAlbumArtists();
+
+    /**
+     * Retrieves all artists authorized as podcast authors.
+     *
+     * @return a list of podcast authors.
+     */
+    List<Artist> getPodcastAuthors();
 
     /**
      * Inserts a new podcast into the database.
@@ -76,6 +98,15 @@ public interface Model {
      * @return the auto-generated code of the inserted podcast
      */
     int insertPodcast(int artistCode, String name, String description, String category);
+
+    /**
+     * Checks whether the specified artist is authorized as a podcast author.
+     *
+     * @param artistCode the unique code of the artist to check
+     * 
+     * @return true if the artist exists and is a podcast author, false otherwise
+     */
+    boolean isPodcastAuthor(int artistCode);
 
     /**
      * Inserts a new episode into a specific podcast (OP 10).
@@ -101,12 +132,26 @@ public interface Model {
     int insertPlaylist(String username, String playlistName, String visibility, boolean isCollaborative);
 
     /**
-     * Adds a track to a playlist.
+     * Adds a track to a playlist after checking user permissions.
      *
-     * @param playlistCode the code of the playlist
-     * @param trackCode the code of the track to add
+     * @param username the user performing the action.
+     * @param playlistCode the playlist code.
+     * @param trackCode the track code.
+     * 
+     * @return true if added successfully, false otherwise.
      */
-    void addTrackToPlaylist(int playlistCode, int trackCode);
+    boolean addTrackToPlaylist(String username, int playlistCode, int trackCode);
+
+    /**
+     * Removes a track from a playlist after checking user permissions.
+     *
+     * @param username the user performing the action.
+     * @param playlistCode the playlist code.
+     * @param trackCode the track code.
+     * 
+     * @return true if removed successfully, false otherwise.
+     */
+    boolean removeTrackFromPlaylist(String username, int playlistCode, int trackCode);
 
     /**
      * Records a listening event for a user.

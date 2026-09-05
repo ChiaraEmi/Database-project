@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,6 +12,7 @@ import java.util.Objects;
  * Represents an Artist entity.
  */
 public final class Artist {
+    private static final String NOME_ARTE_LITERAL = "NomeDArte";
 
     private final int artistCode;
     private final String stageName;
@@ -35,8 +37,9 @@ public final class Artist {
      * @param startYear the start year of activity.
      * @param artistType the type of artist.
      */
-    public Artist(final int artistCode, final String stageName, final String name, final String surname, final LocalDate birthDate, 
-                  final String country, final String biography, final int startYear, final String artistType) {
+    public Artist(final int artistCode, final String stageName, final String name, final String surname, 
+                    final LocalDate birthDate, final String country, final String biography, 
+                    final int startYear, final String artistType) {
         this.artistCode = artistCode;
         this.stageName = stageName == null ? "" : stageName;
         this.name = name;
@@ -46,6 +49,17 @@ public final class Artist {
         this.biography = biography;
         this.startYear = startYear;
         this.artistType = artistType == null ? "" : artistType;
+    }
+
+    /**
+     * Constructs a lightweight Artist instance for dropdown or summary selections.
+     *
+     * @param artistCode the artist code.
+     * @param stageName the stage name.
+     */
+    public Artist(final int artistCode, final String stageName) {
+        this(artistCode, stageName, null, null, null, "", null,
+             0, "Autore Podcast");
     }
 
     /**
@@ -183,7 +197,7 @@ public final class Artist {
         private DAO() { }
 
         /**
-         * Inserts a new artist into the database (OP 7).
+         * Inserts a new artist into the database.
          *
          * @param connection the database connection.
          * @param stageName the stage name of the artist.
@@ -223,23 +237,99 @@ public final class Artist {
         }
 
         /**
+         * Retrieves all artists eligible to publish albums.
+         *
+         * @param connection the database connection.
+         * 
+         * @return a list of eligible artists.
+         * 
+         * @throws DAOException if a database access error occurs.
+         */
+        public static List<Artist> getAlbumArtists(final Connection connection) {
+            final List<Artist> artists = new ArrayList<>();
+            try (
+                var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUM_ARTISTS);
+                var resultSet = statement.executeQuery()
+            ) {
+                while (resultSet.next()) {
+                    artists.add(new Artist(
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString(NOME_ARTE_LITERAL)
+                    ));
+                }
+                return artists;
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
+
+        /**
+         * Retrieves all artists authorized as podcast authors.
+         *
+         * @param connection the database connection.
+         * 
+         * @return a list of artists who are podcast authors.
+         * 
+         * @throws DAOException if a database access error occurs.
+         */
+        public static List<Artist> getPodcastAuthors(final Connection connection) {
+            final List<Artist> authors = new ArrayList<>();
+            try (
+                var statement = DAOUtils.prepare(connection, Queries.SELECT_PODCAST_AUTHORS);
+                var resultSet = statement.executeQuery()
+            ) {
+                while (resultSet.next()) {
+                    authors.add(new Artist(
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString(NOME_ARTE_LITERAL)
+                    ));
+                }
+                return authors;
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
+
+        /**
+         * Checks whether the specified artist is authorized as a podcast author.
+         *
+         * @param connection the database connection.
+         * @param artistCode the unique code of the artist to check.
+         * 
+         * @return true if the artist exists and is a podcast author, false otherwise.
+         * 
+         * @throws DAOException if a database access error occurs.
+         */
+        public static boolean isPodcastAuthor(final Connection connection, final int artistCode) {
+            try (var statement = DAOUtils.prepare(connection, Queries.CHECK_IS_PODCAST_AUTHOR, artistCode);
+                var resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
+
+        /**
          * Retrieves the most played artist in a specific year.
          *
          * @param connection the database connection.
          * @param year the year to check.
+         * 
          * @return a string representation of the most played artist.
          */
         public static String getMostPlayedArtist(final Connection connection, final int year) {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_MOST_PLAYED_ARTIST, year);
                 var resultSet = statement.executeQuery()) {
-                
+
                 if (resultSet.next()) {
-                    return "Artista: " + resultSet.getString("NomeDArte") + 
-                        " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
+                    return "Artista: " + resultSet.getString(NOME_ARTE_LITERAL)
+                            + " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
                 }
+
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
+
             return "Nessun artista trovato per quest'anno.";
         }
     }

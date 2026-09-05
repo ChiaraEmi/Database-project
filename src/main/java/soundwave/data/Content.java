@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a Content (Contenuto) entity.
+ * Represents a Content entity.
  */
 public final class Content {
 
@@ -112,7 +112,8 @@ public final class Content {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.contentCode, this.title, this.duration, this.description, this.publicationDate, this.contentType);
+        return Objects.hash(this.contentCode, this.title, this.duration, this.description, 
+                            this.publicationDate, this.contentType);
     }
 
     @Override

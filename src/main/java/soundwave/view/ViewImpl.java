@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
+import soundwave.data.Playlist;
 import soundwave.data.User;
 
 /**
@@ -298,6 +299,12 @@ public final class ViewImpl extends JFrame implements View {
         // Riattiva tutti i listener sul nuovo pannello utente
         initUserPanelListeners();
 
+        // Carica le playlist dell'utente tramite il controller
+        if (this.controller != null) {
+            final List<Playlist> playlists = this.controller.getUserPlaylists(username);
+            this.userPanel.setUserPlaylists(playlists);
+        }
+
         showPanel(USER_CARD);
         mainPanel.revalidate();
         mainPanel.repaint();
@@ -366,6 +373,7 @@ public final class ViewImpl extends JFrame implements View {
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
     )
+    @Override 
     public UserPanel getUserPanel() {
         return userPanel;
     }
@@ -379,6 +387,7 @@ public final class ViewImpl extends JFrame implements View {
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
     )
+    @Override 
     public AdminPanel getAdminPanel() {
         return adminPanel;
     }
@@ -393,55 +402,82 @@ public final class ViewImpl extends JFrame implements View {
                 final boolean isCollaborative = this.userPanel.isPlaylistCollaborative();
                 final String currentUsername = this.userPanel.getCurrentUsername();
 
-                this.controller.userClickedCreatePlaylist(currentUsername, playlistName, visibility, isCollaborative);
+                final boolean success = this.controller.userClickedCreatePlaylist(
+                    currentUsername, playlistName, visibility, isCollaborative
+                );
+
+                if (success) {
+                    showSuccess("Playlist creata con successo!");
+                    this.userPanel.clearAllForms();
+                }
             }
         });
 
         this.userPanel.addAddTrackListener(e -> {
             if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
-                int playlistCode = 0;
-                int trackCode = 0;
 
+                final Playlist selectedPlaylist = this.userPanel.getSelectedUserPlaylist();
+                if (selectedPlaylist == null) {
+                    showError("Seleziona una playlist dalla lista.");
+                    return;
+                }
+                final int playlistCode = selectedPlaylist.getPlaylistCode();
+
+                int trackCode = 0;
                 try {
-                    if (!this.userPanel.getAddTrackPlaylistCode().isBlank()) {
-                        playlistCode = Integer.parseInt(this.userPanel.getAddTrackPlaylistCode());
-                    }
                     if (!this.userPanel.getAddTrackCode().isBlank()) {
                         trackCode = Integer.parseInt(this.userPanel.getAddTrackCode());
                     }
                 } catch (final NumberFormatException ex) {
-                    LOGGER.log(Level.SEVERE, "Invalid playlist code or track code format", ex);
-                    JOptionPane.showMessageDialog(this, "Playlist code and track code must be valid numbers.", 
+                    LOGGER.log(Level.SEVERE, "Invalid track code format", ex);
+                    JOptionPane.showMessageDialog(this, "Track code must be a valid number.", 
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                this.controller.userClickedAddTrackToPlaylist(currentUsername, playlistCode, trackCode);
+                final boolean success = this.controller.userClickedAddTrackToPlaylist(
+                    currentUsername, playlistCode, trackCode
+                );
+
+                if (success) {
+                    showSuccess("Brano aggiunto alla playlist con successo!");
+                    this.userPanel.clearAllForms();
+                }
             }
         });
 
         this.userPanel.addRemoveTrackListener(e -> {
             if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
-                int playlistCode = 0;
-                int trackCode = 0;
 
+                final Playlist selectedPlaylist = this.userPanel.getSelectedUserPlaylist();
+                if (selectedPlaylist == null) {
+                    showError("Seleziona una playlist dalla lista.");
+                    return;
+                }
+                final int playlistCode = selectedPlaylist.getPlaylistCode();
+
+                int trackCode = 0;
                 try {
-                    if (!this.userPanel.getRemoveTrackPlaylistCode().isBlank()) {
-                        playlistCode = Integer.parseInt(this.userPanel.getRemoveTrackPlaylistCode());
-                    }
                     if (!this.userPanel.getRemoveTrackCode().isBlank()) {
                         trackCode = Integer.parseInt(this.userPanel.getRemoveTrackCode());
                     }
                 } catch (final NumberFormatException ex) {
-                    LOGGER.log(Level.SEVERE, "Invalid playlist code or track code format", ex);
-                    JOptionPane.showMessageDialog(this, "Playlist code and track code must be valid numbers.", 
+                    LOGGER.log(Level.SEVERE, "Invalid track code format", ex);
+                    JOptionPane.showMessageDialog(this, "Track code must be a valid number.", 
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                this.controller.userClickedRemoveTrackFromPlaylist(currentUsername, playlistCode, trackCode);
+                final boolean success = this.controller.userClickedRemoveTrackFromPlaylist(
+                    currentUsername, playlistCode, trackCode
+                );
+
+                if (success) {
+                    showSuccess("Brano rimosso dalla playlist con successo!");
+                    this.userPanel.clearAllForms();
+                }
             }
         });
     }

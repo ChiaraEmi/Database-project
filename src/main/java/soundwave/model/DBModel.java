@@ -100,6 +100,11 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<Playlist> getUserPlaylists(final String username) {
+        return Playlist.DAO.getUserPlaylists(this.connection, username);
+    }
+
+    @Override
     public boolean addTrackToPlaylist(final String username, final int playlistCode, final int trackCode) {
         return Playlist.DAO.addTrackWithPermission(this.connection, username, playlistCode, trackCode);
     }

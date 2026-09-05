@@ -1,22 +1,30 @@
 package soundwave.view;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.util.List;
+
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.text.JTextComponent;
+
+import soundwave.data.Playlist;
 
 /**
  * Panel representing the main user dashboard.
@@ -53,13 +61,13 @@ public final class UserPanel extends JPanel {
     private final JButton btnCreatePlaylist = new JButton("Crea Nuova Playlist");
     private final JButton btnToggleLike = new JButton("Aggiungi / Rimuovi Like");
 
-    // Campi per Aggiunta Brano in Playlist
-    private final JTextField txtAddPlaylistCode = new JTextField(SMALL_FIELD_COLUMNS);
+    // Campi per Aggiunta Brano in Playlist (Tendina 1)
+    private final JComboBox<Playlist> comboUserPlaylists = new JComboBox<>();
     private final JTextField txtAddTrackCode = new JTextField(SMALL_FIELD_COLUMNS);
     private final JButton btnAddTrack = new JButton("Aggiungi Brano");
 
-    // Campi per Rimozione Brano da Playlist
-    private final JTextField txtRemovePlaylistCode = new JTextField(SMALL_FIELD_COLUMNS);
+    // Campi per Rimozione Brano da Playlist (Tendina 2 separata)
+    private final JComboBox<Playlist> removeTrackPlaylistCombo = new JComboBox<>();
     private final JTextField txtRemoveTrackCode = new JTextField(SMALL_FIELD_COLUMNS);
     private final JButton btnRemoveTrack = new JButton("Rimuovi Brano");
 
@@ -102,10 +110,13 @@ public final class UserPanel extends JPanel {
         final JPanel bottomPanel = new JPanel();
         bottomPanel.add(this.btnBack);
         this.add(bottomPanel, BorderLayout.SOUTH);
+
+        setupPlaylistComboBox(this.comboUserPlaylists);
+        setupPlaylistComboBox(this.removeTrackPlaylistCombo);
     }
 
     /**
-     * Creates the tab for subscription management (OP 2, 4, 5).
+     * Creates the tab for subscription management.
      * 
      * @return the subscription panel.
      */
@@ -134,7 +145,7 @@ public final class UserPanel extends JPanel {
     }
 
     /**
-     * Creates the tab for exploring catalog (OP 19, 20).
+     * Creates the tab for exploring catalog.
      * 
      * @return the explore panel.
      */
@@ -171,7 +182,7 @@ public final class UserPanel extends JPanel {
     }
 
     /**
-     * Creates the tab for personal library and playlists (OP 12, 14).
+     * Creates the tab for personal library and playlists.
      * 
      * @return the library panel.
      */
@@ -205,15 +216,15 @@ public final class UserPanel extends JPanel {
         gbc.gridy++;
         panel.add(this.btnToggleLike, gbc);
 
-        // Sezione: Aggiungi Brano
+        // Sezione: Aggiungi Brano (Usa comboUserPlaylists)
         gbc.gridy++;
         panel.add(new JLabel("--- Aggiungi Brano a Playlist ---"), gbc);
 
         gbc.gridy++;
         gbc.gridwidth = 1;
-        panel.add(new JLabel("Codice Playlist:"), gbc);
+        panel.add(new JLabel("Seleziona Playlist:"), gbc);
         gbc.gridx = 1;
-        panel.add(this.txtAddPlaylistCode, gbc);
+        panel.add(this.comboUserPlaylists, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -226,15 +237,15 @@ public final class UserPanel extends JPanel {
         gbc.gridwidth = 2;
         panel.add(this.btnAddTrack, gbc);
 
-        // Sezione: Rimuovi Brano
+        // Sezione: Rimuovi Brano (Usa removeTrackPlaylistCombo)
         gbc.gridy++;
         panel.add(new JLabel("--- Rimuovi Brano da Playlist ---"), gbc);
 
         gbc.gridy++;
         gbc.gridwidth = 1;
-        panel.add(new JLabel("Codice Playlist:"), gbc);
+        panel.add(new JLabel("Seleziona Playlist:"), gbc);
         gbc.gridx = 1;
-        panel.add(this.txtRemovePlaylistCode, gbc);
+        panel.add(this.removeTrackPlaylistCombo, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -322,13 +333,22 @@ public final class UserPanel extends JPanel {
         return this.chkCollaborative.isSelected();
     }
 
-    /** 
-     * Gets the playlist code for adding a track.
+    /**
+     * Gets the selected playlist from the addition combo box.
      * 
-     * @return playlist code string.
+     * @return the selected Playlist object, or null if none.
      */
-    public String getAddTrackPlaylistCode() {
-        return this.txtAddPlaylistCode.getText().trim();
+    public Playlist getSelectedUserPlaylist() {
+        return (Playlist) this.comboUserPlaylists.getSelectedItem();
+    }
+
+    /**
+     * Gets the selected playlist from the removal combo box.
+     * 
+     * @return the selected Playlist object, or null if none.
+     */
+    public Playlist getSelectedRemovePlaylist() {
+        return (Playlist) this.removeTrackPlaylistCombo.getSelectedItem();
     }
 
     /** 
@@ -338,15 +358,6 @@ public final class UserPanel extends JPanel {
      */
     public String getAddTrackCode() {
         return this.txtAddTrackCode.getText().trim();
-    }
-
-    /** 
-     * Gets the playlist code for removing a track.
-     * 
-     * @return playlist code string.
-     */
-    public String getRemoveTrackPlaylistCode() {
-        return this.txtRemovePlaylistCode.getText().trim();
     }
 
     /** 
@@ -366,6 +377,22 @@ public final class UserPanel extends JPanel {
     public void setPersonalStatsOutput(final String text) {
         this.txtStatsOutput.setText(text);
     }
+
+    /**
+     * Sets the available user playlists in both combo boxes (addition and removal).
+     * 
+     * @param playlists the list of playlists.
+     */
+    public void setUserPlaylists(final List<Playlist> playlists) {
+        this.comboUserPlaylists.removeAllItems();
+        this.removeTrackPlaylistCombo.removeAllItems();
+        for (final Playlist p : playlists) {
+            this.comboUserPlaylists.addItem(p);
+            this.removeTrackPlaylistCombo.addItem(p);
+        }
+    }
+
+    // --- Listener Methods ---
 
     /**
      * Adds a listener for activating a subscription.
@@ -464,5 +491,48 @@ public final class UserPanel extends JPanel {
      */
     public void addBackListener(final ActionListener listener) {
         this.btnBack.addActionListener(listener);
+    }
+
+    /**
+     * Clears all text fields in the user panel.
+     */
+    public void clearAllForms() {
+        final JTextComponent[] textComponents = {
+            this.txtPlaylistName, 
+            this.txtAddTrackCode, 
+            this.txtRemoveTrackCode
+        };
+
+        for (final JTextComponent component : textComponents) {
+            component.setText("");
+        }
+    }
+
+    /**
+     * Configures a combo box to display only the playlist name.
+     * 
+     * @param comboBox the JComboBox to configure.
+     */
+    private void setupPlaylistComboBox(final JComboBox<Playlist> comboBox) {
+        comboBox.setRenderer(new DefaultListCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Component getListCellRendererComponent(
+                    final JList<?> list, 
+                    final Object value, 
+                    final int index, 
+                    final boolean isSelected, 
+                    final boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Playlist) {
+                    final Playlist playlist = (Playlist) value;
+                    // Sostituisci getPlaylistName() con il nome del metodo getter 
+                    // presente nella tua classe Playlist se dovesse differire
+                    setText(playlist.getPlaylistName()); 
+                }
+                return this;
+            }
+        });
     }
 }

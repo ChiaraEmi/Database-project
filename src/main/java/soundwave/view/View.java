@@ -78,4 +78,18 @@ public interface View {
      * @param message the esuccess message to display.
      */
     void showSuccess(String message);
+
+    /**
+     * Gets the user panel.
+     * 
+     * @return the UserPanel instance.
+     */
+    UserPanel getUserPanel();
+
+    /**
+     * Gets the admin panel.
+     * 
+     * @return the AdminPanel instance.
+     */
+    AdminPanel getAdminPanel();
 }

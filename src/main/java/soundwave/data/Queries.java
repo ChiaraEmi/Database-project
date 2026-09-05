@@ -140,6 +140,14 @@ public final class Queries {
         """;
 
     // --- OP 13: AGGIUNTA / RIMOZIONE BRANO DA PLAYLIST ---
+    public static final String SELECT_PLAYLISTS_BY_USER = 
+        """
+        SELECT CodicePlaylist, Username, NomePlaylist, DataCreazione, Visibilita, Collaborativa 
+        FROM Playlist 
+        WHERE Username = ?
+        ORDER BY NomePlaylist ASC
+        """;
+
     public static final String CHECK_PERMESSI_PLAYLIST = 
         """
         SELECT P.CodicePlaylist 
@@ -147,6 +155,13 @@ public final class Queries {
         LEFT JOIN Collaborazioni C ON P.CodicePlaylist = C.CodicePlaylist
         WHERE P.CodicePlaylist = ? 
         AND (P.Username = ? OR C.Username = ?)
+        """;
+
+    public static final String CHECK_DUPLICATE_TRACK_IN_PLAYLIST = 
+        """
+        SELECT 1 
+        FROM Inclusioni 
+        WHERE CodicePlaylist = ? AND CodiceBrano = ?
         """;
 
     public static final String ADD_BRANO_TO_PLAYLIST = 

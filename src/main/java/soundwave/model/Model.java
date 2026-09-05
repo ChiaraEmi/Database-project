@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import soundwave.data.Artist;
+import soundwave.data.Playlist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
@@ -115,6 +116,15 @@ public interface Model {
      * @return the auto-generated code of the created playlist
      */
     int insertPlaylist(String username, String playlistName, String visibility, boolean isCollaborative);
+
+    /**
+     * Retrieves all playlists belonging to a specific user.
+     *
+     * @param username the username of the playlist owner.
+     * 
+     * @return a list of playlists.
+     */
+    List<Playlist> getUserPlaylists(String username);
 
     /**
      * Adds a track to a playlist after checking user permissions.

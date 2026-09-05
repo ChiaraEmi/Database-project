@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import soundwave.data.Artist;
+import soundwave.data.Playlist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
@@ -135,6 +136,15 @@ public final class MockedModel implements Model {
     public int insertPlaylist(final String username, final String playlistName, final String visibility, 
                                 final boolean isCollaborative) {
         return DEFAULT_PLAYLIST_ID;
+    }
+
+    @Override
+    public List<Playlist> getUserPlaylists(final String username) {
+        final List<Playlist> playlists = new ArrayList<>();
+        // Esempio di popolamento mock con i parametri corretti:
+        playlists.add(new Playlist(1, username, "I miei preferiti", 
+                                    "2026-01-01", "Pubblica", false));
+        return playlists;
     }
 
     @Override

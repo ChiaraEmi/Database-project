@@ -3,6 +3,7 @@ package soundwave.controller;
 import java.util.List;
 
 import soundwave.data.Artist;
+import soundwave.data.Playlist;
 
 /**
  * Defines the controller interface for the application.
@@ -111,6 +112,15 @@ public interface Controller {
      * @return true if the playlist was successfully created, false otherwise.
      */
     boolean userClickedCreatePlaylist(String username, String playlistName, String visibility, boolean isCollaborative);
+
+    /**
+     * Retrieves the list of playlists belonging to a specific user.
+     * 
+     * @param username the owner's username.
+     * 
+     * @return a list of playlists.
+     */
+    List<Playlist> getUserPlaylists(String username);
 
     /**
      * Adds a track to a playlist for a specific user after checking permissions.

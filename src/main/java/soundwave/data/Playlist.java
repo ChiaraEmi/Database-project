@@ -2,6 +2,7 @@ package soundwave.data;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -173,6 +174,33 @@ public final class Playlist {
         }
 
         /**
+         * Retrieves all playlists associated with a specific user.
+         *
+         * @param connection the database connection.
+         * @param username the username of the owner.
+         * @return a list of playlists belonging to the user.
+         */
+        public static List<Playlist> getUserPlaylists(final Connection connection, final String username) {
+            final List<Playlist> playlists = new ArrayList<>();
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_PLAYLISTS_BY_USER, username);
+                 var rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    playlists.add(new Playlist(
+                        rs.getInt("CodicePlaylist"),
+                        rs.getString("Username"),
+                        rs.getString("NomePlaylist"),
+                        rs.getString("DataCreazione"),
+                        rs.getString("Visibilita"),
+                        rs.getBoolean("Collaborativa")
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return playlists;
+        }
+
+        /**
          * Inserts a track into a playlist via the Inclusioni table.
          *
          * @param connection the database connection.
@@ -194,21 +222,31 @@ public final class Playlist {
         }
 
         /**
-         * Adds a track to a playlist after checking user permissions.
+         * Adds a track to a playlist after checking user permissions and avoiding duplicates.
          *
          * @param connection the database connection.
          * @param username the user performing the action.
          * @param playlistCode the playlist code.
          * @param trackCode the track code.
          * 
-         * @return true if added successfully, false if the user lacks permissions.
+         * @return true if added successfully, false if permissions are missing or the track is already present.
          */
         public static boolean addTrackWithPermission(final Connection connection, final String username,
-                                                     final int playlistCode, final int trackCode) {
+                                                   final int playlistCode, final int trackCode) {
+
             try (var checkStmt = DAOUtils.prepare(connection, Queries.CHECK_PERMESSI_PLAYLIST, playlistCode, username, username);
                  var rs = checkStmt.executeQuery()) {
                 if (!rs.next()) {
                     return false; // Permesso negato
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+
+            try (var dupStmt = DAOUtils.prepare(connection, Queries.CHECK_DUPLICATE_TRACK_IN_PLAYLIST, playlistCode, trackCode);
+                 var rsDup = dupStmt.executeQuery()) {
+                if (rsDup.next()) {
+                    return false; // Brano già presente nella playlist
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);
@@ -239,9 +277,9 @@ public final class Playlist {
                 throw new DAOException(e);
             }
 
-            try (var statement = DAOUtils.prepare(connection, Queries.REMOVE_BRANO_FROM_PLAYLIST, playlistCode, trackCode)) {
-                statement.executeUpdate();
-                return true;
+            try (var deleteStmt = DAOUtils.prepare(connection, Queries.REMOVE_BRANO_FROM_PLAYLIST, playlistCode, trackCode)) {
+                final int rowsAffected = deleteStmt.executeUpdate();
+                return rowsAffected > 0;
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }

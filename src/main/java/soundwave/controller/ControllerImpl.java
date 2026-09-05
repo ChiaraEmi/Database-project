@@ -2,6 +2,7 @@ package soundwave.controller;
 
 import soundwave.data.Artist;
 import soundwave.data.DAOException;
+import soundwave.data.Playlist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.model.Model;
@@ -231,7 +232,7 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public boolean userClickedCreatePlaylist(final String username, final String playlistName, 
-                                            final String visibility, final boolean isCollaborative) {
+                                        final String visibility, final boolean isCollaborative) {
         if (playlistName == null || playlistName.isBlank()) {
             final String errorMessage = "Inserisci un nome valido per la playlist.";
             LOGGER.log(Level.WARNING, errorMessage);
@@ -246,6 +247,10 @@ public final class ControllerImpl implements Controller {
                 LOGGER.log(Level.INFO, "Playlist ''{0}'' created successfully for user {1}", 
                             new Object[]{playlistName, username});
                 this.view.showSuccess("Playlist creata con successo!");
+
+                final List<Playlist> updatedPlaylists = this.model.getUserPlaylists(username);
+                this.view.getUserPanel().setUserPlaylists(updatedPlaylists);
+
                 return true;
             } else {
                 final String errorMessage = "Impossibile creare la playlist nel database.";
@@ -257,6 +262,24 @@ public final class ControllerImpl implements Controller {
             LOGGER.log(Level.SEVERE, "Failed to create playlist", e);
             this.view.showError("Errore durante la creazione della playlist.");
             return false;
+        }
+    }
+
+    @Override
+    public List<Playlist> getUserPlaylists(final String username) {
+        if (username == null || username.isBlank()) {
+            final String errorMessage = "Username non valido per il caricamento delle playlist.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return List.of();
+        }
+
+        try {
+            return this.model.getUserPlaylists(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load playlists for user: " + username, e);
+            this.view.showError("Errore durante il caricamento delle playlist dell'utente.");
+            return List.of();
         }
     }
 
@@ -274,7 +297,9 @@ public final class ControllerImpl implements Controller {
             if (success) {
                 this.view.showSuccess("Brano aggiunto alla playlist con successo!");
             } else {
-                this.view.showError("Non hai i permessi per modificare questa playlist.");
+                final String errorMessage = "Impossibile aggiungere il brano: "
+                                            + "verifica di avere i permessi o che il brano non sia già presente.";
+                this.view.showError(errorMessage);
             }
             return success;
         } catch (final DAOException e) {
@@ -298,7 +323,7 @@ public final class ControllerImpl implements Controller {
             if (success) {
                 this.view.showSuccess("Brano rimosso dalla playlist con successo!");
             } else {
-                this.view.showError("Non hai i permessi per modificare questa playlist.");
+                this.view.showError("Il brano selezionato non fa parte di questa playlist o non hai i permessi.");
             }
             return success;
         } catch (final DAOException e) {

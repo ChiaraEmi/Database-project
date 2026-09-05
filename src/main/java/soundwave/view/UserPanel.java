@@ -41,7 +41,7 @@ public final class UserPanel extends JPanel {
     private static final int BUTTON_HEIGHT = 35;
     private static final int INSET_GAP = 6;
 
-    private final String currentUsername;
+    private String currentUsername;
 
     // --- Tab 1: Abbonamento ---
     private final JButton btnActivateSubscription = new JButton("Attiva Sottoscrizione");
@@ -370,6 +370,15 @@ public final class UserPanel extends JPanel {
     }
 
     /**
+     * Sets the current username for this user panel and updates any relevant UI components.
+     * 
+     * @param username the username to set.
+     */
+    public void setCurrentUsername(final String username) {
+        this.currentUsername = username; // o il campo corrispondente che usi per tracciare l'utente
+    }
+
+    /**
      * Sets the text of the personal stats output area.
      * 
      * @param text the statistics text to display.
@@ -500,7 +509,7 @@ public final class UserPanel extends JPanel {
         final JTextComponent[] textComponents = {
             this.txtPlaylistName, 
             this.txtAddTrackCode, 
-            this.txtRemoveTrackCode
+            this.txtRemoveTrackCode,
         };
 
         for (final JTextComponent component : textComponents) {

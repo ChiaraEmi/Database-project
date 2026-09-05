@@ -81,6 +81,8 @@ public final class ViewImpl extends JFrame implements View {
     public void setController(final Controller controller) {
         this.controller = controller;
 
+        initUserPanelListeners();
+
         this.roleSelectionPanel.addUtenteListener(e -> {
             final String username = JOptionPane.showInputDialog(
                 this, 
@@ -276,8 +278,6 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.adminRequestedGlobalStats(year);
             }
         });
-
-        initUserPanelListeners();
     }
 
     @Override
@@ -292,12 +292,8 @@ public final class ViewImpl extends JFrame implements View {
 
     @Override
     public void openUserPanel(final String username) {
-        mainPanel.remove(this.userPanel);
-        this.userPanel = new UserPanel(username);
-        mainPanel.add(this.userPanel, USER_CARD);
-
-        // Riattiva tutti i listener sul nuovo pannello utente
-        initUserPanelListeners();
+        // Aggiorna lo username nel pannello esistente (aggiungi questo metodo in UserPanel se non c'è)
+        this.userPanel.setCurrentUsername(username);
 
         // Carica le playlist dell'utente tramite il controller
         if (this.controller != null) {
@@ -306,8 +302,6 @@ public final class ViewImpl extends JFrame implements View {
         }
 
         showPanel(USER_CARD);
-        mainPanel.revalidate();
-        mainPanel.repaint();
     }
 
     @Override
@@ -407,7 +401,6 @@ public final class ViewImpl extends JFrame implements View {
                 );
 
                 if (success) {
-                    showSuccess("Playlist creata con successo!");
                     this.userPanel.clearAllForms();
                 }
             }
@@ -441,7 +434,6 @@ public final class ViewImpl extends JFrame implements View {
                 );
 
                 if (success) {
-                    showSuccess("Brano aggiunto alla playlist con successo!");
                     this.userPanel.clearAllForms();
                 }
             }
@@ -451,7 +443,8 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
 
-                final Playlist selectedPlaylist = this.userPanel.getSelectedUserPlaylist();
+                // NOTA: Usa la tendina corretta per la rimozione (getSelectedRemovePlaylist)
+                final Playlist selectedPlaylist = this.userPanel.getSelectedRemovePlaylist();
                 if (selectedPlaylist == null) {
                     showError("Seleziona una playlist dalla lista.");
                     return;
@@ -475,7 +468,6 @@ public final class ViewImpl extends JFrame implements View {
                 );
 
                 if (success) {
-                    showSuccess("Brano rimosso dalla playlist con successo!");
                     this.userPanel.clearAllForms();
                 }
             }

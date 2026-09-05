@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
+import soundwave.data.Plan;
 import soundwave.data.User;
 
 /**
@@ -115,6 +116,7 @@ public final class ViewImpl extends JFrame implements View {
         // --- Inserimento Promozione (OP 6) ---
         this.adminPanel.addSavePromotionListener(e -> {
             if (this.controller != null) {
+                final String code = this.adminPanel.getPromoCode();
                 final String name = this.adminPanel.getPromoName();
                 final String description = this.adminPanel.getPromoDescription();
                 final String startDate = this.adminPanel.getPromoStartDate();
@@ -125,7 +127,7 @@ public final class ViewImpl extends JFrame implements View {
                 final String planCodes = this.adminPanel.getPromoPlanCodes();
 
                 this.controller.adminClickedSavePromotion(
-                    name, description, startDate, endDate, discountType, discountValue, requiredMonths, planCodes
+                    code, name, description, startDate, endDate, discountType, discountValue, requiredMonths, planCodes
                 );
             }
         });
@@ -295,7 +297,7 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.adminRequestedGlobalStats(year);
             }
         });
-
+      
         initUserPanelListeners();
     }
 
@@ -340,6 +342,16 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
+    public void showActivateSubsriptionDialog(final String username, final List<Plan> plans) {
+        this.userPanel.showActivateSubscriptionDialog(username, plans, this.controller, data -> {
+            if (this.controller != null) {
+                this.controller.userActivateSubscription(username, data);
+            }
+        });
+    }
+    
+    
+    @Override
     public void showGlobalStats(final String statsText) {
         this.adminPanel.setStatsOutputText(statsText);
     }
@@ -362,6 +374,12 @@ public final class ViewImpl extends JFrame implements View {
     @Override 
     public void showSuccess(final String message) {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    @Override 
+    public void showSuccessAndCloseDialog(final String message) {
+        JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
+        this.userPanel.closeActivateSubscriptionDialog();
     }
 
     /**
@@ -464,5 +482,13 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.userClickedRemoveTrackFromPlaylist(currentUsername, playlistCode, trackCode);
             }
         });
+    
+        this.userPanel.addActivateSubscriptionListener(e -> {
+            if (this.controller !=  null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                this.controller.userRequestedSubscriptionPlans(currentUsername);
+            }
+        });
+    
     }
 }

@@ -74,7 +74,7 @@ public final class Queries {
     public static final String INSERT_SUBSCRIPTION_PROMOTIONAL = 
         """
         INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
-        SELECT ?, A.CodiceAbbonamento, P.CodicePromozione, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attivo', ?
+        SELECT ?, A.CodiceAbbonamento, P.CodicePromozione, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attiva', ?
         FROM Abbonamenti A
         JOIN ValiditaPromozioni V ON  V.CodiceAbbonamento = A.CodiceAbbonamento 
         JOIN Promozioni P ON P.CodicePromozione = V.CodicePromozione
@@ -107,7 +107,7 @@ public final class Queries {
     public static final String INSERT_SUBSCRIPTION_INVITE = 
         """
         INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
-        SELECT ?, A.CodiceAbbonamento, NULL, CI.Codice, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attivo', ?
+        SELECT ?, A.CodiceAbbonamento, NULL, CI.Codice, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attiva', ?
         FROM CodiciInvito CI JOIN Abbonamenti A 
         WHERE CI.Codice=? 
         AND A.CodiceAbbonamento=?;
@@ -240,8 +240,8 @@ public final class Queries {
     // --- OP 6: INSERIMENTO DI UNA NUOVA CAMPAGNA PROMOZIONALE ---
     public static final String INSERT_PROMOTIONAL_CAMPAIGN = 
         """
-        INSERT INTO Promozioni (Nome, Descrizione, DataInizioPromo, DataFinePromo, TipoSconto, ValoreSconto, MesiRichiesti)
-        VALUES ( ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Promozioni (Codice, Nome, Descrizione, DataInizioPromo, DataFinePromo, TipoSconto, ValoreSconto, MesiRichiesti)
+        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
     public static final String INSERT_PROMOTIONAL_VALIDITY = 

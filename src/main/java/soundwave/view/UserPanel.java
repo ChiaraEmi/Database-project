@@ -2,10 +2,14 @@ package soundwave.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.function.Consumer;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -16,7 +20,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JFrame;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+
+import soundwave.controller.Controller;
+import soundwave.data.Plan;
+import soundwave.view.ActivateSubscriptionDialog;
 
 /**
  * Panel representing the main user dashboard.
@@ -33,6 +43,7 @@ public final class UserPanel extends JPanel {
     private static final int BUTTON_HEIGHT = 35;
     private static final int INSET_GAP = 6;
 
+    private ActivateSubscriptionDialog activedialog;
     private final String currentUsername;
 
     // --- Tab 1: Abbonamento ---
@@ -465,4 +476,76 @@ public final class UserPanel extends JPanel {
     public void addBackListener(final ActionListener listener) {
         this.btnBack.addActionListener(listener);
     }
+
+    public void showActivateSubscriptionDialog(final String username, final List<Plan> plans, final Controller controller, final Consumer<ActivateSubscriptionDialog.SubscriptionData> onActivate) {
+        final JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+
+        this.activedialog = new ActivateSubscriptionDialog(parent, username, plans);
+
+        // --- Listener per Codice Promozionale ---
+        activedialog.addApplyPromotionListener(promoCode -> {
+            // Verifica che il codice promozionale è valido
+            if (controller != null) {
+                int planCode = activedialog.getSelectedPlanCode();
+                if (planCode <= 0) {
+                    activedialog.showError("Seleziona prima un piano di abbonamento.");
+                    return;
+                }
+                controller.verifyPromotionCode(promoCode, planCode, result -> {
+                    boolean valid = (boolean) result[0];
+                    if (valid) {
+                        // Applica promozione
+                        double discountValue = (double) result[1];
+                        String discountType = (String) result[2];
+                        double originalPrice = (double) result[3];
+
+                        double discountedPrice = 0.0;
+                        if ("Percentuale".equals(discountType)) {
+                            discountedPrice = originalPrice * (1- discountValue / 100.0);
+                        } else if ("Fisso".equals(discountType)) {
+                            discountedPrice = Math.max(0, originalPrice - discountValue);
+                        } 
+
+                        activedialog.updatePriceWithDiscount(discountedPrice);
+                        activedialog.setPromoCodeApplied(true);
+                        activedialog.showSuccess("Promozione valida");
+                    } else {
+                        activedialog.showError("Codice promozionale non valido.");
+                    }
+                });
+            }
+            
+        });
+
+        activedialog.addActivateListener(onActivate);
+
+        // --- Listener per Codice Invito ---
+        activedialog.addVerifyInviteListener(inviteCode -> {
+            // Verifica che il codice esista
+            if (controller != null) {
+                controller.verifyInviteCode(inviteCode, isValid -> {
+                    if (isValid) {
+                        // Applica sconto del 20%
+                        double currentPrice = activedialog.getCurrentPrice();
+                        double discountedPrice = currentPrice * 0.80;
+                        activedialog.updatePriceWithDiscount(discountedPrice);
+                        activedialog.setInviteCodeVerified(true);
+                        activedialog.showSuccess("Codice invito valido! Sconto del 20% applicato.");
+                    } else {
+                        activedialog.showError("Codice invito non valido.");
+                    }
+                });
+            }
+        });
+
+        activedialog.setVisible(true);
+    }
+
+    public void closeActivateSubscriptionDialog() {
+        if (this.activedialog != null) {
+            this.activedialog.closeDialog();
+            this.activedialog = null;
+        }
+    }
+
 }

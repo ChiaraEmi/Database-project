@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS Abbonamenti (
 );
 
 CREATE TABLE IF NOT EXISTS Promozioni (
-    CodicePromozione INT AUTO_INCREMENT PRIMARY KEY,
+    CodicePromozione VARCHAR(50) PRIMARY KEY,
     Nome VARCHAR(100) NOT NULL,
     Descrizione TEXT,
     DataInizioPromo DATE NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS Sottoscrizioni (
     CodiceSottoscrizione INT AUTO_INCREMENT PRIMARY KEY,
     Username VARCHAR(50) NOT NULL,
     CodiceAbbonamento INT NOT NULL,
-    CodicePromozione INT,
+    CodicePromozione VARCHAR(50),
     CodiceInvito VARCHAR(50),
     DataInizio DATE NOT NULL,
     DataFine DATE NOT NULL,
@@ -213,7 +213,7 @@ CREATE TABLE IF NOT EXISTS Follow (
 );
 
 CREATE TABLE IF NOT EXISTS ValiditaPromozioni (
-    CodicePromozione INT NOT NULL,
+    CodicePromozione VARCHAR(50) NOT NULL,
     CodiceAbbonamento INT NOT NULL,
     PRIMARY KEY (CodicePromozione, CodiceAbbonamento),
     FOREIGN KEY (CodicePromozione) REFERENCES Promozioni(CodicePromozione) ON DELETE CASCADE,

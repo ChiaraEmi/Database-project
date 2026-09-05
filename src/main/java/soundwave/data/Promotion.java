@@ -188,6 +188,7 @@ public final class Promotion {
          * Inserts a new promotion into the database and associates it with the specified subscription plans.
          *
          * @param connection            the database connection
+         * @param code
          * @param name                  the name of the promotion
          * @param description           the description of the promotion
          * @param beginDate             the start date of the promotion
@@ -196,9 +197,9 @@ public final class Promotion {
          * @param discountValue         the value of the discount
          * @param requiredMonths        optional field for the month when the promotion was requested
          * @param subscriptionPlanCodes list of subscription plan codes to associate with the promotion
-         * @return the generated promotion code
+         * @return 
          */
-        public static int insertPromotion(final Connection connection, final String name, final String description, final LocalDate beginDate, final LocalDate endDate, final String discountType, final double discountValue, final Integer requiredMonths, final List<Integer> subscriptionPlanCodes) {
+        public static int insertPromotion(final Connection connection, final String code, final String name, final String description, final LocalDate beginDate, final LocalDate endDate, final String discountType, final double discountValue, final Integer requiredMonths, final List<Integer> subscriptionPlanCodes) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
@@ -206,7 +207,7 @@ public final class Promotion {
             
                 //1. Insert the promotion and get the generated promotion code  
                 int promotionCode;
-                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN,Statement.RETURN_GENERATED_KEYS, name, description, Date.valueOf(beginDate), Date.valueOf(endDate), discountType, discountValue, requiredMonths)) {
+                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN,Statement.RETURN_GENERATED_KEYS, code, name, description, Date.valueOf(beginDate), Date.valueOf(endDate), discountType, discountValue, requiredMonths)) {
                     statement.executeUpdate();
 
                     try (var generatedKeys = statement.getGeneratedKeys()) {
@@ -222,7 +223,7 @@ public final class Promotion {
                 if(subscriptionPlanCodes != null && !subscriptionPlanCodes.isEmpty()) {
                     try (var statement = connection.prepareStatement(Queries.INSERT_PROMOTIONAL_VALIDITY)) {
                         for (int planCode : subscriptionPlanCodes) {
-                            statement.setInt(1, promotionCode);
+                            statement.setString(1, code);
                             statement.setInt(2, planCode);
                             statement.addBatch();
                         }

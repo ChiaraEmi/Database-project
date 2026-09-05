@@ -49,10 +49,10 @@ INSERT INTO Abbonamenti (CodiceAbbonamento, TipoAbbonamento, Durata, Costo) VALU
 
 -- 5. PROMOZIONI
 INSERT INTO Promozioni (CodicePromozione, Nome, Descrizione, DataInizioPromo, DataFinePromo, TipoSconto, ValoreSconto, MesiRichiesti) VALUES
-(1, 'Promo Estate 2026', 'Sconto del 20% sul piano annuale', '2026-06-01', '2026-08-31', 'Percentuale', 20.00, 12),
-(2, 'Benvenuto', 'Sconto fisso di 5 Euro', '2026-01-01', '2026-12-31', 'Fisso', 5.00, 1),
-(3, 'Black Friday', 'Sconto del 50% sul piano annuale', '2026-11-20', '2026-11-30', 'Percentuale', 50.00, 12),
-(4, 'Student Promo', 'Sconto fisso speciale studenti', '2026-01-01', '2026-12-31', 'Fisso', 2.00, 1);
+('PROMO20', 'Promo Estate 2026', 'Sconto del 20% sul piano annuale', '2026-06-01', '2026-08-31', 'Percentuale', 20.00, 12),
+('WELCOME', 'Benvenuto', 'Sconto fisso di 5 Euro', '2026-01-01', '2026-12-31', 'Fisso', 5.00, 1),
+('BLACKFRI', 'Black Friday', 'Sconto del 50% sul piano annuale', '2026-11-20', '2026-11-30', 'Percentuale', 50.00, 12),
+('STUDENT', 'Student Promo', 'Sconto fisso speciale studenti', '2026-01-01', '2026-12-31', 'Fisso', 2.00, 1);
 
 -- 6. CONTENUTI (Brani ed Episodi)
 INSERT INTO Contenuti (CodiceContenuto, Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto) VALUES
@@ -227,16 +227,16 @@ INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
 
 -- 20. VALIDITA PROMOZIONI
 INSERT INTO ValiditaPromozioni (CodicePromozione, CodiceAbbonamento) VALUES
-(1, 2),
-(2, 1),
-(3, 2),
-(4, 4);
+('PROMO20', 2),
+('WELCOME', 1),
+('BLACKFRI', 2),
+('STUDENT', 4);
 
 -- 21. SOTTOSCRIZIONI
 INSERT INTO Sottoscrizioni (CodiceSottoscrizione, Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
-(1, 'mario88', 2, 1, 'INV_MARIO', '2026-01-01', '2027-01-01', 'Attiva', TRUE),
-(2, 'davide_99', 1, 2, 'INV_DAVIDE', '2026-02-01', '2026-03-01', 'Attiva', FALSE),
-(3, 'sofia_b', 4, 4, 'INV_SOFIA', '2026-02-10', '2026-03-10', 'Attiva', TRUE);
+(1, 'mario88', 2, null, 'INV_MARCO', '2026-01-01', '2027-01-01', 'Attiva', TRUE),
+(2, 'davide_99', 2, 'PROMO20', null, '2026-02-01', '2026-03-01', 'Scaduta', FALSE),
+(3, 'sofia_b', 4, null, null, '2026-02-10', '2026-03-10', 'Scaduta', FALSE);
 
 -- 22. TRANSAZIONI
 INSERT INTO Transazioni (CodiceTransazione, CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) VALUES

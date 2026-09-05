@@ -15,7 +15,7 @@ public final class Subscription {
     private final int code;
     private final String username;
     private final int subscriptionPlanCode;
-    private final Integer promotionCode;
+    private final String promotionCode;
     private final String inviteCode;
     private final LocalDate startDate;
     private final LocalDate endDate;
@@ -35,7 +35,7 @@ public final class Subscription {
      * @param status               the current status of the subscription.
      * @param autoRenew            whether the subscription is set to auto-renew.
      */
-    public Subscription(final int code, final String username, final int subscriptionPlanCode, final Integer promotionCode, final String inviteCode, 
+    public Subscription(final int code, final String username, final int subscriptionPlanCode, final String promotionCode, final String inviteCode, 
                         final LocalDate startDate, final LocalDate endDate, final String status, final boolean autoRenew) {
 
         this.code = Objects.requireNonNull(code, "Code can not be null");
@@ -81,7 +81,7 @@ public final class Subscription {
      *
      * @return the promotion code, or null if none was applied.
      */
-    public Integer getPromotionCode() {
+    public String getPromotionCode() {
         return promotionCode;
     }
 
@@ -250,7 +250,7 @@ public final class Subscription {
          * @return the generated subscription code.
          * @throws DAOException if any database operation fails.
          */
-        public static int insertWithPromotion(final Connection connection, final String username, final int subscriptionPlanCode, final int promotionCode, final boolean autoRenew, final String paymentMethod) {
+        public static int insertWithPromotion(final Connection connection, final String username, final int subscriptionPlanCode, final String promotionCode, final boolean autoRenew, final String paymentMethod) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
@@ -274,7 +274,7 @@ public final class Subscription {
 
                     String discountType = resultSet.getString("TipoSconto");
                     double discountValue = resultSet.getDouble("ValoreSconto");
-                    double originalPrice = resultSet.getDouble("Prezzo");
+                    double originalPrice = resultSet.getDouble("Costo");
 
                     if ("Percentuale".equals(discountType)) {
                         discountedPrice = originalPrice * (1- discountValue / 100.0);
@@ -386,7 +386,7 @@ public final class Subscription {
                 Transaction.DAO.insertWithInvite(connection, subscriptionCode, paymentMethod, subscriptionPlanCode);
 
                 //7. Aggiorna il credito bonus dell'utente che ha invitato
-                //User.DAO.updateBonusCredit(connection, inviterUsername, 10);
+                User.DAO.incrementBonusCredit(connection, inviterUsername);
                 
                 connection.commit();
                 return subscriptionCode;
@@ -425,7 +425,7 @@ public final class Subscription {
                             resultSet.getInt("CodiceSottoscrizione"),
                             resultSet.getString("Username"),
                             resultSet.getInt("CodiceAbbonamento"),
-                            resultSet.getObject("CodicePromozione") != null ? resultSet.getInt("CodicePromozione") : null,
+                            resultSet.getString("CodicePromozione"),
                             resultSet.getString("CodiceInvito"),
                             resultSet.getDate("DataInizio").toLocalDate(),
                             resultSet.getDate("DataFine").toLocalDate(),

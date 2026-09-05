@@ -182,7 +182,7 @@ public final class InviteCode {
         private static String generateCode(final String username) {
             final var timestamp = System.currentTimeMillis();
             final var hash = Integer.toHexString((username + timestamp).hashCode());
-            return "SW" + hash.toUpperCase().substring(0, Math.min(8, hash.length()));
+            return "SW-" + hash.toUpperCase().substring(0, Math.min(8, hash.length()));
         }
     }
 

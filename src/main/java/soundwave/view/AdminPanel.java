@@ -78,6 +78,7 @@ public final class AdminPanel extends JPanel {
     private final JButton btnSaveEpisode = new JButton("Salva Episodio");
 
     // --- Campi di testo per Inserimento Promozione (OP 6) ---
+    private final JTextField txtPromoCode = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPromoName = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPromoDescription = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPromoStartDate = new JTextField(FIELD_COLUMNS);
@@ -329,6 +330,7 @@ public final class AdminPanel extends JPanel {
         addSectionHeader(panel, gbc, row, "Gestione Promozioni e Sconti");
         row++;
 
+        addFormField(panel, gbc, row++, "Codice Promozione:", this.txtPromoCode);
         addFormField(panel, gbc, row++, "Nome Promozione:", this.txtPromoName);
         addFormField(panel, gbc, row++, "Descrizione:", this.txtPromoDescription);
         addFormField(panel, gbc, row++, "Data Inizio (YYYY-MM-DD):", this.txtPromoStartDate);
@@ -673,6 +675,7 @@ public final class AdminPanel extends JPanel {
         return this.txtPromoName.getText();
     }
 
+    public String getPromoCode() { return this.txtPromoCode.getText(); }
     public String getPromoDescription() { return this.txtPromoDescription.getText(); }
     public String getPromoStartDate() { return this.txtPromoStartDate.getText(); }
     public String getPromoEndDate() { return this.txtPromoEndDate.getText(); }

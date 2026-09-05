@@ -1,8 +1,10 @@
 package soundwave.controller;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import soundwave.data.Artist;
+import soundwave.view.ActivateSubscriptionDialog;
 
 /**
  * Defines the controller interface for the application.
@@ -21,7 +23,7 @@ public interface Controller {
      * @param rqrMonths
      * @param planCodesStr
      */
-    void adminClickedSavePromotion( String name, String description, String startDate, String endDate, String discountType, 
+    void adminClickedSavePromotion( String code, String name, String description, String startDate, String endDate, String discountType, 
                                     String discountValueStr, String rqrMonths, String planCodesStr);
 
     /**
@@ -102,6 +104,21 @@ public interface Controller {
      * @return true if successfully saved, false otherwise.
      */
     boolean adminClickedSaveEpisode(int podcastCode, String title, int duration, String description, int episodeNumber);
+
+    /**
+     * User requests the list of plans disponible
+     * @param username the username
+     */
+    void userRequestedSubscriptionPlans(String username);
+
+    /**
+     * User activate a subscription
+     * @param username the username
+     * @param data the date of subscription
+     */
+    void userActivateSubscription(String username, ActivateSubscriptionDialog.SubscriptionData data);
+    void verifyInviteCode(String inviteCode, Consumer<Boolean> callback);
+    void verifyPromotionCode(String promoCode, int planCode, Consumer<Object[]> callback);
 
     /**
      * Handles the request to generate a listening event.

@@ -2,14 +2,21 @@ package soundwave.model;
 
 import soundwave.data.Podcast;
 import soundwave.data.Promotion;
+import soundwave.data.Queries;
+import soundwave.data.Subscription;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.data.Playlist;
 import soundwave.data.Album;
 import soundwave.data.Artist;
+import soundwave.data.DAOException;
+import soundwave.data.DAOUtils;
 import soundwave.data.Episode;
 import soundwave.data.Genre;
+import soundwave.data.InviteCode;
 import soundwave.data.ListeningEvent;
+import soundwave.data.Plan;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -55,9 +62,9 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public void insertPromotion( final String name, final String description, final LocalDate startDate, final LocalDate endDate, final String discountType, 
+    public void insertPromotion( final String code, final String name, final String description, final LocalDate startDate, final LocalDate endDate, final String discountType, 
                                  final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
-        Promotion.DAO.insertPromotion(connection, name, description, startDate, endDate, 
+        Promotion.DAO.insertPromotion(connection, code, name, description, startDate, endDate, 
                                              discountType, discountValue, requiredMonths, planCodes);
     }
 
@@ -150,5 +157,51 @@ public final class DBModel implements Model {
     @Override
     public List<String> getAlbumsAboveGlobalAverage() {
         return Album.DAO.getAlbumsAboveGlobalAverage(this.connection);
+    }
+
+    @Override
+    public List<Plan> getSubscriptioPlans() {
+        return Plan.DAO.listAll(connection);
+    }
+
+    @Override
+    public int activateSubscription(final String username, final int planCode, final String paymentMethod, final String promoCode, final String inviteCode, final boolean autoRenew) {
+        
+        if(planCode <= 0) {
+            throw new DAOException("Piano di abbonamento non valido");
+        }
+        
+        //caso 1: attivazione con codice promozionale
+        if (promoCode != null && !promoCode.trim().isEmpty()) {
+            return Subscription.DAO.insertWithPromotion(connection, username, planCode,
+                promoCode.trim(), autoRenew, paymentMethod);
+        }
+        //caso 2: attivazione con codice invito  
+        if (inviteCode != null && !inviteCode.trim().isEmpty()) {
+            return Subscription.DAO.insertWithInvite(connection, username, planCode, inviteCode.trim(), autoRenew, paymentMethod);
+        }
+        //caso 3: attivazione standard
+        return Subscription.DAO.insertStandard(connection, username, planCode, autoRenew, paymentMethod);
+    }
+
+    @Override
+    public boolean verifyInviteCode(final String inviteCode) {
+        return InviteCode.DAO.exists(connection, inviteCode);
+    }
+
+    @Override
+    public Object[] verifyPromotionCode(final String promoCode, final int planCode) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_PROMOTION_VALIDITY, promoCode, planCode);
+            var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                String discountType = rs.getString("TipoSconto");
+                double discountValue = rs.getDouble("ValoreSconto");
+                double originalPrice = rs.getDouble("Costo");
+                return new Object[]{true, discountValue, discountType, originalPrice};
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return new Object[]{false, 0, null, 0};
     }
 }

@@ -2,9 +2,11 @@ package soundwave.controller;
 
 import soundwave.data.Artist;
 import soundwave.data.DAOException;
+import soundwave.data.Plan;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.model.Model;
+import soundwave.view.ActivateSubscriptionDialog;
 import soundwave.view.View;
 
 import java.time.LocalDate;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -63,7 +66,7 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public void adminClickedSavePromotion(final String name, final String description, final String startDate, final String endDate, final String discountType, 
+    public void adminClickedSavePromotion(final String code, final String name, final String description, final String startDate, final String endDate, final String discountType, 
                                           final String discountValueStr, final String rqrMonths, final String planCodesStr) {
         try {
             final LocalDate start = LocalDate.parse(startDate);
@@ -72,8 +75,8 @@ public final class ControllerImpl implements Controller {
             final Integer requiredMonths = (rqrMonths == null || rqrMonths.isBlank()) ? null : Integer.parseInt(rqrMonths);
             final List<Integer> planCodes = new ArrayList<>();
             if (planCodesStr != null && !planCodesStr.isBlank()) {
-                for (final String code : planCodesStr.split(",")) {
-                    planCodes.add(Integer.parseInt(code.trim()));
+                for (final String codePlan : planCodesStr.split(",")) {
+                    planCodes.add(Integer.parseInt(codePlan.trim()));
                 }
             }
 
@@ -90,7 +93,7 @@ public final class ControllerImpl implements Controller {
                 return;
             }
 
-            this.model.insertPromotion(name, description, start, end, discountType, discountValue, requiredMonths, planCodes);
+            this.model.insertPromotion(code, name, description, start, end, discountType, discountValue, requiredMonths, planCodes);
             showSuccess("Promozione creata con successo");
         } catch (final java.time.format.DateTimeParseException e) {
             //showError("Formato data non valido. Usa YYYY-MM-DD. qui ");
@@ -259,6 +262,48 @@ public final class ControllerImpl implements Controller {
             this.view.showError("Errore durante il salvataggio dell'episodio.");
             return false;
         }
+    }
+
+    @Override
+    public void userRequestedSubscriptionPlans(final String username) {
+        try {
+            final List<Plan> plans = this.model.getSubscriptioPlans();
+            this.view.showActivateSubsriptionDialog(username, plans);
+        } catch (final DAOException e) {
+            this.view.showError("Impossibile caricare i piani di abbonamento");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void userActivateSubscription(final String username, final ActivateSubscriptionDialog.SubscriptionData data) {
+        try {
+            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod, data.promoCode, data.inviteCode, data.autoRenew);
+            this.view.showSuccessAndCloseDialog("Sottoscrizione attivata con successo! Codice: " + subscriptionCode);
+        } catch (final DAOException e) {
+            this.view.showError("Impossibile attivare la sottoscrizione: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void verifyInviteCode(final String inviteCode, final Consumer<Boolean> callback) {
+        try {
+            boolean exists = this.model.verifyInviteCode(inviteCode);
+            callback.accept(exists);
+        } catch (final DAOException e) {
+            callback.accept(false);
+        }
+    }
+
+    @Override
+    public void verifyPromotionCode(final String promoCode, final int planCode, final Consumer<Object[]> callback){
+        try {
+            Object[] result = this.model.verifyPromotionCode(promoCode, planCode);
+            callback.accept(result);
+        } catch (final DAOException e) {
+            callback.accept(new Object[]{false, 0, null, 0});
+        } 
     }
 
     @Override

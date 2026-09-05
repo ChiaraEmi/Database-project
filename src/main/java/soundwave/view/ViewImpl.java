@@ -275,6 +275,8 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.adminRequestedGlobalStats(year);
             }
         });
+
+        initUserPanelListeners();
     }
 
     @Override
@@ -292,7 +294,10 @@ public final class ViewImpl extends JFrame implements View {
         mainPanel.remove(this.userPanel);
         this.userPanel = new UserPanel(username);
         mainPanel.add(this.userPanel, USER_CARD);
-        this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
+
+        // Riattiva tutti i listener sul nuovo pannello utente
+        initUserPanelListeners();
+
         showPanel(USER_CARD);
         mainPanel.revalidate();
         mainPanel.repaint();
@@ -376,5 +381,68 @@ public final class ViewImpl extends JFrame implements View {
     )
     public AdminPanel getAdminPanel() {
         return adminPanel;
+    }
+
+    private void initUserPanelListeners() {
+        this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
+
+        this.userPanel.addCreatePlaylistListener(e -> {
+            if (this.controller != null) {
+                final String playlistName = this.userPanel.getPlaylistName();
+                final String visibility = this.userPanel.getPlaylistVisibility();
+                final boolean isCollaborative = this.userPanel.isPlaylistCollaborative();
+                final String currentUsername = this.userPanel.getCurrentUsername();
+
+                this.controller.userClickedCreatePlaylist(currentUsername, playlistName, visibility, isCollaborative);
+            }
+        });
+
+        this.userPanel.addAddTrackListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                int playlistCode = 0;
+                int trackCode = 0;
+
+                try {
+                    if (!this.userPanel.getAddTrackPlaylistCode().isBlank()) {
+                        playlistCode = Integer.parseInt(this.userPanel.getAddTrackPlaylistCode());
+                    }
+                    if (!this.userPanel.getAddTrackCode().isBlank()) {
+                        trackCode = Integer.parseInt(this.userPanel.getAddTrackCode());
+                    }
+                } catch (final NumberFormatException ex) {
+                    LOGGER.log(Level.SEVERE, "Invalid playlist code or track code format", ex);
+                    JOptionPane.showMessageDialog(this, "Playlist code and track code must be valid numbers.", 
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                this.controller.userClickedAddTrackToPlaylist(currentUsername, playlistCode, trackCode);
+            }
+        });
+
+        this.userPanel.addRemoveTrackListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                int playlistCode = 0;
+                int trackCode = 0;
+
+                try {
+                    if (!this.userPanel.getRemoveTrackPlaylistCode().isBlank()) {
+                        playlistCode = Integer.parseInt(this.userPanel.getRemoveTrackPlaylistCode());
+                    }
+                    if (!this.userPanel.getRemoveTrackCode().isBlank()) {
+                        trackCode = Integer.parseInt(this.userPanel.getRemoveTrackCode());
+                    }
+                } catch (final NumberFormatException ex) {
+                    LOGGER.log(Level.SEVERE, "Invalid playlist code or track code format", ex);
+                    JOptionPane.showMessageDialog(this, "Playlist code and track code must be valid numbers.", 
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                this.controller.userClickedRemoveTrackFromPlaylist(currentUsername, playlistCode, trackCode);
+            }
+        });
     }
 }

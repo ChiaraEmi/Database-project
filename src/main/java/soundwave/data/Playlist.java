@@ -192,5 +192,59 @@ public final class Playlist {
                 throw new DAOException(e);
             }
         }
+
+        /**
+         * Adds a track to a playlist after checking user permissions.
+         *
+         * @param connection the database connection.
+         * @param username the user performing the action.
+         * @param playlistCode the playlist code.
+         * @param trackCode the track code.
+         * 
+         * @return true if added successfully, false if the user lacks permissions.
+         */
+        public static boolean addTrackWithPermission(final Connection connection, final String username,
+                                                     final int playlistCode, final int trackCode) {
+            try (var checkStmt = DAOUtils.prepare(connection, Queries.CHECK_PERMESSI_PLAYLIST, playlistCode, username, username);
+                 var rs = checkStmt.executeQuery()) {
+                if (!rs.next()) {
+                    return false; // Permesso negato
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+
+            addTrack(connection, playlistCode, trackCode);
+            return true;
+        }
+
+        /**
+         * Removes a track from a playlist after checking user permissions.
+         *
+         * @param connection the database connection.
+         * @param username the user performing the action.
+         * @param playlistCode the playlist code.
+         * @param trackCode the track code.
+         * 
+         * @return true if removed successfully, false if the user lacks permissions.
+         */
+        public static boolean removeTrack(final Connection connection, final String username,
+                                          final int playlistCode, final int trackCode) {
+            try (var checkStmt = DAOUtils.prepare(connection, Queries.CHECK_PERMESSI_PLAYLIST, playlistCode, username, username);
+                 var rs = checkStmt.executeQuery()) {
+                if (!rs.next()) {
+                    return false; // Permesso negato
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+
+            try (var statement = DAOUtils.prepare(connection, Queries.REMOVE_BRANO_FROM_PLAYLIST, playlistCode, trackCode)) {
+                statement.executeUpdate();
+                return true;
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
     }
 }

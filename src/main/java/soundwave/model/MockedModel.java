@@ -138,8 +138,15 @@ public final class MockedModel implements Model {
     }
 
     @Override
-    public void addTrackToPlaylist(final int playlistCode, final int trackCode) {
-        // Simulazione in memoria
+    public boolean addTrackToPlaylist(final String username, final int playlistCode, final int trackCode) {
+        // Simulazione in memoria dell'aggiunta del brano
+        return true;
+    }
+
+    @Override
+    public boolean removeTrackFromPlaylist(final String username, final int playlistCode, final int trackCode) {
+        // Simulazione in memoria della rimozione del brano
+        return true;
     }
 
     @Override

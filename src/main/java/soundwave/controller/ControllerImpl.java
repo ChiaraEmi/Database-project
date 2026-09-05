@@ -231,18 +231,28 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public boolean userClickedCreatePlaylist(final String username, final String playlistName, 
-                                             final String visibility, final boolean isCollaborative) {
-
-        if (username == null || username.isBlank() || playlistName == null || playlistName.isBlank()) {
-            final String errorMessage = "Compila i campi obbligatori per creare la playlist (Username e Nome Playlist).";
+                                            final String visibility, final boolean isCollaborative) {
+        if (playlistName == null || playlistName.isBlank()) {
+            final String errorMessage = "Inserisci un nome valido per la playlist.";
             LOGGER.log(Level.WARNING, errorMessage);
             this.view.showError(errorMessage);
             return false;
         }
 
         try {
-            this.model.insertPlaylist(username, playlistName, visibility, isCollaborative);
-            return true;
+            final int playlistId = this.model.insertPlaylist(username, playlistName.trim(), visibility, isCollaborative);
+
+            if (playlistId > 0) {
+                LOGGER.log(Level.INFO, "Playlist ''{0}'' created successfully for user {1}", 
+                            new Object[]{playlistName, username});
+                this.view.showSuccess("Playlist creata con successo!");
+                return true;
+            } else {
+                final String errorMessage = "Impossibile creare la playlist nel database.";
+                LOGGER.log(Level.WARNING, errorMessage);
+                this.view.showError(errorMessage);
+                return false;
+            }
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to create playlist", e);
             this.view.showError("Errore durante la creazione della playlist.");
@@ -251,21 +261,49 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public boolean userClickedAddTrackToPlaylist(final int playlistCode, final int trackCode) {
-
-        if (playlistCode <= 0 || trackCode <= 0) {
-            final String errorMessage = "Impossibile aggiungere il brano: playlist o brano non validi.";
+    public boolean userClickedAddTrackToPlaylist(final String username, final int playlistCode, final int trackCode) {
+        if (username == null || username.isBlank() || playlistCode <= 0 || trackCode <= 0) {
+            final String errorMessage = "Parametri non validi per l'aggiunta del brano.";
             LOGGER.log(Level.WARNING, errorMessage);
             this.view.showError(errorMessage);
             return false;
         }
 
         try {
-            this.model.addTrackToPlaylist(playlistCode, trackCode);
-            return true;
+            final boolean success = this.model.addTrackToPlaylist(username, playlistCode, trackCode);
+            if (success) {
+                this.view.showSuccess("Brano aggiunto alla playlist con successo!");
+            } else {
+                this.view.showError("Non hai i permessi per modificare questa playlist.");
+            }
+            return success;
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to add track to playlist", e);
             this.view.showError("Errore durante l'aggiunta del brano alla playlist.");
+            return false;
+        }
+    }
+
+    @Override
+    public boolean userClickedRemoveTrackFromPlaylist(final String username, final int playlistCode, final int trackCode) {
+        if (username == null || username.isBlank() || playlistCode <= 0 || trackCode <= 0) {
+            final String errorMessage = "Parametri non validi per la rimozione del brano.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return false;
+        }
+
+        try {
+            final boolean success = this.model.removeTrackFromPlaylist(username, playlistCode, trackCode);
+            if (success) {
+                this.view.showSuccess("Brano rimosso dalla playlist con successo!");
+            } else {
+                this.view.showError("Non hai i permessi per modificare questa playlist.");
+            }
+            return success;
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to remove track from playlist", e);
+            this.view.showError("Errore durante la rimozione del brano dalla playlist.");
             return false;
         }
     }

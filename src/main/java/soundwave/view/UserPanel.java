@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,6 +28,7 @@ public final class UserPanel extends JPanel {
     private static final int BORDER_SIZE = 20;
     private static final int TITLE_MARGIN = 10;
     private static final int FIELD_COLUMNS = 15;
+    private static final int SMALL_FIELD_COLUMNS = 5;
     private static final int BUTTON_WIDTH = 220;
     private static final int BUTTON_HEIGHT = 35;
     private static final int INSET_GAP = 6;
@@ -46,8 +48,20 @@ public final class UserPanel extends JPanel {
 
     // --- Tab 3: Libreria & Playlist ---
     private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
+    private final JComboBox<String> comboVisibility = new JComboBox<>(new String[]{"Privata", "Pubblica"});
+    private final JCheckBox chkCollaborative = new JCheckBox("Collaborativa");
     private final JButton btnCreatePlaylist = new JButton("Crea Nuova Playlist");
     private final JButton btnToggleLike = new JButton("Aggiungi / Rimuovi Like");
+
+    // Campi per Aggiunta Brano in Playlist
+    private final JTextField txtAddPlaylistCode = new JTextField(SMALL_FIELD_COLUMNS);
+    private final JTextField txtAddTrackCode = new JTextField(SMALL_FIELD_COLUMNS);
+    private final JButton btnAddTrack = new JButton("Aggiungi Brano");
+
+    // Campi per Rimozione Brano da Playlist
+    private final JTextField txtRemovePlaylistCode = new JTextField(SMALL_FIELD_COLUMNS);
+    private final JTextField txtRemoveTrackCode = new JTextField(SMALL_FIELD_COLUMNS);
+    private final JButton btnRemoveTrack = new JButton("Rimuovi Brano");
 
     // --- Tab 4: Statistiche & Ascolti ---
     private final JButton btnFetchPersonalStats = new JButton("Visualizza Statistiche Annuali");
@@ -167,6 +181,7 @@ public final class UserPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
+        // Creazione Playlist
         gbc.gridx = 0;
         gbc.gridy = 0;
         panel.add(new JLabel("Nome Playlist:"), gbc);
@@ -174,14 +189,63 @@ public final class UserPanel extends JPanel {
         panel.add(this.txtPlaylistName, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        panel.add(this.btnCreatePlaylist, gbc);
+        gbc.gridy++;
+        panel.add(new JLabel("Visibilità:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.comboVisibility, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy++;
         gbc.gridwidth = 2;
+        panel.add(this.chkCollaborative, gbc);
+
+        gbc.gridy++;
+        panel.add(this.btnCreatePlaylist, gbc);
+
+        gbc.gridy++;
         panel.add(this.btnToggleLike, gbc);
+
+        // Sezione: Aggiungi Brano
+        gbc.gridy++;
+        panel.add(new JLabel("--- Aggiungi Brano a Playlist ---"), gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        panel.add(new JLabel("Codice Playlist:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtAddPlaylistCode, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(new JLabel("Codice Brano:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtAddTrackCode, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        panel.add(this.btnAddTrack, gbc);
+
+        // Sezione: Rimuovi Brano
+        gbc.gridy++;
+        panel.add(new JLabel("--- Rimuovi Brano da Playlist ---"), gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        panel.add(new JLabel("Codice Playlist:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtRemovePlaylistCode, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        panel.add(new JLabel("Codice Brano:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.txtRemoveTrackCode, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        panel.add(this.btnRemoveTrack, gbc);
 
         return panel;
     }
@@ -237,7 +301,61 @@ public final class UserPanel extends JPanel {
      * @return the playlist name.
      */
     public String getPlaylistName() {
-        return this.txtPlaylistName.getText();
+        return this.txtPlaylistName.getText().trim();
+    }
+
+    /**
+     * Gets the selected playlist visibility.
+     * 
+     * @return the visibility string.
+     */
+    public String getPlaylistVisibility() {
+        return (String) this.comboVisibility.getSelectedItem();
+    }
+
+    /**
+     * Checks whether the playlist is marked as collaborative.
+     * 
+     * @return true if collaborative, false otherwise.
+     */
+    public boolean isPlaylistCollaborative() {
+        return this.chkCollaborative.isSelected();
+    }
+
+    /** 
+     * Gets the playlist code for adding a track.
+     * 
+     * @return playlist code string.
+     */
+    public String getAddTrackPlaylistCode() {
+        return this.txtAddPlaylistCode.getText().trim();
+    }
+
+    /** 
+     * Gets the track code for adding.
+     * 
+     * @return track code string.
+     */
+    public String getAddTrackCode() {
+        return this.txtAddTrackCode.getText().trim();
+    }
+
+    /** 
+     * Gets the playlist code for removing a track.
+     * 
+     * @return playlist code string.
+     */
+    public String getRemoveTrackPlaylistCode() {
+        return this.txtRemovePlaylistCode.getText().trim();
+    }
+
+    /** 
+     * Gets the track code for removing.
+     * 
+     * @return track code string.
+     */
+    public String getRemoveTrackCode() {
+        return this.txtRemoveTrackCode.getText().trim();
     }
 
     /**
@@ -310,6 +428,24 @@ public final class UserPanel extends JPanel {
      */
     public void addToggleLikeListener(final ActionListener listener) {
         this.btnToggleLike.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener for adding a track to a playlist.
+     * 
+     * @param listener the listener to add.
+     */
+    public void addAddTrackListener(final ActionListener listener) {
+        this.btnAddTrack.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener for removing a track from a playlist.
+     * 
+     * @param listener the listener to add.
+     */
+    public void addRemoveTrackListener(final ActionListener listener) {
+        this.btnRemoveTrack.addActionListener(listener);
     }
 
     /**

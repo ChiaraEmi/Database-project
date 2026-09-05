@@ -136,7 +136,7 @@ public final class Queries {
     public static final String INSERT_PLAYLIST = 
         """
         INSERT INTO Playlist (Username, NomePlaylist, DataCreazione, Visibilita, Collaborativa)
-        VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)
+        VALUES (?, ?, CURRENT_DATE, ?, ?)
         """;
 
     // --- OP 13: AGGIUNTA / RIMOZIONE BRANO DA PLAYLIST ---

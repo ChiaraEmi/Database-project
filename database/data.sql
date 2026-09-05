@@ -146,11 +146,11 @@ INSERT INTO Brani (CodiceBrano, CodiceAlbum, NumeroTraccia) VALUES
 
 -- 11. PLAYLIST
 INSERT INTO Playlist (CodicePlaylist, Username, NomePlaylist, DataCreazione, Visibilita, Collaborativa) VALUES
-(1, 'mario88', 'Top Italian Pop', '2026-01-15 10:30:00', 'Pubblica', TRUE),
-(2, 'luisa_g', 'Workout Rock', '2026-02-01 14:00:00', 'Privata', FALSE),
-(3, 'davide_99', 'Global Hits', '2026-02-10 18:20:00', 'Pubblica', FALSE),
-(4, 'sofia_b', 'Rap & Rhymes', '2026-02-18 20:00:00', 'Pubblica', TRUE),
-(5, 'elena_v', 'Chillout Vibes', '2026-03-01 11:10:00', 'Privata', FALSE);
+(1, 'mario88', 'Top Italian Pop', '2026-01-15', 'Pubblica', TRUE),
+(2, 'luisa_g', 'Workout Rock', '2026-02-01', 'Privata', FALSE),
+(3, 'davide_99', 'Global Hits', '2026-02-10', 'Pubblica', FALSE),
+(4, 'sofia_b', 'Rap & Rhymes', '2026-02-18', 'Pubblica', TRUE),
+(5, 'elena_v', 'Chillout Vibes', '2026-03-01', 'Privata', FALSE);
 
 -- 12. COLLABORAZIONI
 INSERT INTO Collaborazioni (CodicePlaylist, Username) VALUES

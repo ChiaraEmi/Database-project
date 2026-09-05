@@ -117,12 +117,26 @@ public interface Model {
     int insertPlaylist(String username, String playlistName, String visibility, boolean isCollaborative);
 
     /**
-     * Adds a track to a playlist.
+     * Adds a track to a playlist after checking user permissions.
      *
-     * @param playlistCode the code of the playlist
-     * @param trackCode the code of the track to add
+     * @param username the user performing the action.
+     * @param playlistCode the playlist code.
+     * @param trackCode the track code.
+     * 
+     * @return true if added successfully, false otherwise.
      */
-    void addTrackToPlaylist(int playlistCode, int trackCode);
+    boolean addTrackToPlaylist(String username, int playlistCode, int trackCode);
+
+    /**
+     * Removes a track from a playlist after checking user permissions.
+     *
+     * @param username the user performing the action.
+     * @param playlistCode the playlist code.
+     * @param trackCode the track code.
+     * 
+     * @return true if removed successfully, false otherwise.
+     */
+    boolean removeTrackFromPlaylist(String username, int playlistCode, int trackCode);
 
     /**
      * Records a listening event for a user.

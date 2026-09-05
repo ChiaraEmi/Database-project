@@ -101,26 +101,38 @@ public interface Controller {
     boolean userGeneratedListeningEvent(String username, int contentCode, String device, int eventDuration);
 
     /**
-     * Handles the request to create a new playlist.
-     *
-     * @param username the owner's username.
-     * @param playlistName the playlist name.
-     * @param visibility the visibility state.
-     * @param isCollaborative true if collaborative, false otherwise.
+     * Handles the creation of a new playlist for the specified user with custom options.
      * 
-     * @return true if successfully created, false otherwise.
+     * @param username the username of the creator.
+     * @param playlistName the name of the playlist.
+     * @param visibility the visibility mode (e.g., "Pubblica", "Privata").
+     * @param isCollaborative true if the playlist is collaborative, false otherwise.
+     * 
+     * @return true if the playlist was successfully created, false otherwise.
      */
     boolean userClickedCreatePlaylist(String username, String playlistName, String visibility, boolean isCollaborative);
 
     /**
-     * Handles the request to add a track to a playlist.
+     * Adds a track to a playlist for a specific user after checking permissions.
      *
-     * @param playlistCode the playlist code.
-     * @param trackCode the track code.
+     * @param username the user performing the action.
+     * @param playlistCode the playlist target code.
+     * @param trackCode the track code to add.
      * 
      * @return true if successfully added, false otherwise.
      */
-    boolean userClickedAddTrackToPlaylist(int playlistCode, int trackCode);
+    boolean userClickedAddTrackToPlaylist(String username, int playlistCode, int trackCode);
+
+    /**
+     * Removes a track from a playlist for a specific user after checking permissions.
+     *
+     * @param username the user performing the action.
+     * @param playlistCode the playlist target code.
+     * @param trackCode the track code to remove.
+     * 
+     * @return true if successfully removed, false otherwise.
+     */
+    boolean userClickedRemoveTrackFromPlaylist(String username, int playlistCode, int trackCode);
 
     /**
      * Handles the request to load and view the list of system users.

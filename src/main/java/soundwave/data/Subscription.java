@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.sql.Statement;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Represents a subscription entity within the Soundwave system.
@@ -21,6 +23,8 @@ public final class Subscription {
     private final LocalDate endDate;
     private final String status;
     private final boolean autoRenew;
+    private static final Logger LOG = Logger.getLogger(Subscription.class.getName());
+    private static final String RESET_AUTOCOMMIT_ERROR = "Failed to reset auto-commit to ";
 
     /**
      * Constructs a new Subscription instance.
@@ -233,7 +237,7 @@ public final class Subscription {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    LOG.log(Level.SEVERE, RESET_AUTOCOMMIT_ERROR + autoCommit, e);
                 }
             }
         }
@@ -314,7 +318,7 @@ public final class Subscription {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    LOG.log(Level.SEVERE, RESET_AUTOCOMMIT_ERROR + autoCommit, e);
                 }
             }
         }
@@ -401,7 +405,7 @@ public final class Subscription {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    LOG.log(Level.SEVERE, RESET_AUTOCOMMIT_ERROR + autoCommit, e);
                 }
             }
         }
@@ -476,7 +480,7 @@ public final class Subscription {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    LOG.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
                 }
             }
         }
@@ -589,7 +593,7 @@ public final class Subscription {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    LOG.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
                 }
             }
         }
@@ -649,7 +653,7 @@ public final class Subscription {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    LOG.log(Level.SEVERE, RESET_AUTOCOMMIT_ERROR + autoCommit, e);
                 }
             }
         }

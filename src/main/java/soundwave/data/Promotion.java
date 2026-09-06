@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.sql.Statement;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Represents a promotion entity within the Soundwave system.
@@ -21,6 +23,8 @@ public final class Promotion {
     private final String discountType; // Type of promotion, e.g., "percentage" or "value"
     private final double discountValue; // Value of the discount, either as a percentage or a fixed amount
     private final Integer requiredMonths; // Optional field for the month when the promotion was requested
+    private static final Logger log = Logger.getLogger(Promotion.class.getName());
+
 
     /**
      * Creates a new Promotion instance.
@@ -232,7 +236,7 @@ public final class Promotion {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    log.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
                 }
             }
         }

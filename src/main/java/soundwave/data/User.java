@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.sql.Date;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Represents a User entity.
@@ -24,6 +26,9 @@ public final class User {
     private final LocalDate birthDate;
     private final String country;
     private final int bonusCredit;
+
+    private static final Logger log = Logger.getLogger(Subscription.class.getName());
+
 
     /**
      * Creates a new User instance.
@@ -239,7 +244,7 @@ public final class User {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    log.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
                 }
             }
         }

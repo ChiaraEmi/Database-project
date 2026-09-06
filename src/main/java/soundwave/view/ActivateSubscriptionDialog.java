@@ -26,6 +26,21 @@ import soundwave.data.Plan;
  * Dialog for activating a subscription
  */
 public final class ActivateSubscriptionDialog extends JDialog {
+
+    private static final int DIALOG_WIDTH = 600;
+    private static final int DIALOG_HEIGHT = 500;
+    private static final int DIALOG_GAP = 10;
+    private static final int BORDER_PADDING = 15;
+    private static final int INSET_SIZE = 6;
+    private static final int TEXT_FIELD_COLUMNS = 30;
+
+    private static final int COLOR_RGB_GREEN = 0;
+    private static final int COLOR_RGB_BLUE = 120;
+    private static final int COLOR_RGB_DARK_BLUE = 215;
+    private static final int COLOR_RGB_100 = 100;
+
+    private static final int FONT_STYLE_BOLD = Font.BOLD;
+    
     private final JComboBox<String> comboPlans;
     private final JComboBox<String> comboPayment;
     private final JTextField txtPromoCode;
@@ -67,15 +82,15 @@ public final class ActivateSubscriptionDialog extends JDialog {
         this.promoCodeApplied = false;
         this.inviteCodeVerified = false;
 
-        setLayout(new BorderLayout(10,10));
-        setSize(600,500);
+        setLayout(new BorderLayout(DIALOG_GAP,DIALOG_GAP));
+        setSize(DIALOG_WIDTH,DIALOG_HEIGHT);
         setLocationRelativeTo(parent);
 
         // === Main Panel ===
         final JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        panel.setBorder(BorderFactory.createEmptyBorder(BORDER_PADDING, BORDER_PADDING, BORDER_PADDING, BORDER_PADDING));
         final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.insets = new Insets(INSET_SIZE, INSET_SIZE, INSET_SIZE, INSET_SIZE);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -86,7 +101,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
         gbc.gridy = row++;
         gbc.gridwidth = 2;
         final JLabel lblUser = new JLabel("Utente: " + username);
-        lblUser.setFont(lblUser.getFont().deriveFont(Font.BOLD, 14f));
+        lblUser.setFont(lblUser.getFont().deriveFont(FONT_STYLE_BOLD, 14f));
         panel.add(lblUser, gbc);
         gbc.gridwidth = 1;
 
@@ -133,7 +148,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
         gbc.gridy = row;
         panel.add(new JLabel("Codice Promozionale:"), gbc);
 
-        this.txtPromoCode = new JTextField(30);
+        this.txtPromoCode = new JTextField(TEXT_FIELD_COLUMNS);
         gbc.gridx = 1;
         gbc.weightx = 1.0;          // ← IMPORTANTE! Prende tutto lo spazio extra
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -153,7 +168,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
         gbc.fill = GridBagConstraints.NONE;
         panel.add(new JLabel("Codice Invito:"), gbc);
 
-        this.txtInviteCode = new JTextField(30);
+        this.txtInviteCode = new JTextField(TEXT_FIELD_COLUMNS);
         gbc.gridx = 1;
         gbc.weightx = 1.0;          
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -185,8 +200,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
         gbc.gridy = row;
         gbc.gridwidth = 3;
         this.lblTotal = new JLabel("Totale da pagare: €0.00");
-        this.lblTotal.setFont(this.lblTotal.getFont().deriveFont(Font.BOLD, 16f));
-        this.lblTotal.setForeground(new Color(0, 120, 0));
+        this.lblTotal.setFont(this.lblTotal.getFont().deriveFont(FONT_STYLE_BOLD, 16f));
+        this.lblTotal.setForeground(new Color(COLOR_RGB_BLUE, COLOR_RGB_DARK_BLUE, COLOR_RGB_GREEN));
         panel.add(this.lblTotal, gbc);
         gbc.gridwidth = 1;
 
@@ -196,9 +211,9 @@ public final class ActivateSubscriptionDialog extends JDialog {
 
         gbc.gridx = 2;
         this.btnActivate = new JButton("Attiva Sottoscrizione");
-        this.btnActivate.setBackground(new Color(0, 120, 215));
+        this.btnActivate.setBackground(new Color(COLOR_RGB_GREEN, COLOR_RGB_BLUE, COLOR_RGB_DARK_BLUE));
         this.btnActivate.setForeground(Color.WHITE);
-        this.btnActivate.setFont(this.btnActivate.getFont().deriveFont(Font.BOLD));
+        this.btnActivate.setFont(this.btnActivate.getFont().deriveFont(FONT_STYLE_BOLD));
         panel.add(this.btnActivate, gbc);
 
         add(panel, BorderLayout.CENTER);
@@ -211,18 +226,31 @@ public final class ActivateSubscriptionDialog extends JDialog {
 
     }
 
+    /**
+     * Aggiungere header per panel
+     * 
+     * @param panel panel da aggiungere
+     * @param gbc 
+     * @param row
+     * @param title
+     * @return
+     */
     private int addSectionHeader(final JPanel panel, final GridBagConstraints gbc, int row, final String title) {
         gbc.gridx = 0;
         gbc.gridy = row++;
         gbc.gridwidth = 3;
         final JLabel lblSection = new JLabel("──── " + title + " ────");
-        lblSection.setFont(lblSection.getFont().deriveFont(Font.BOLD, 12f));
-        lblSection.setForeground(new Color(100,100,100));
+        lblSection.setFont(lblSection.getFont().deriveFont(FONT_STYLE_BOLD, 12f));
+        lblSection.setForeground(new Color(COLOR_RGB_100, COLOR_RGB_100, COLOR_RGB_100));
         panel.add(lblSection, gbc);
         gbc.gridwidth = 1;
         return row;
     }
 
+    /**
+     * Aggiorna il prezzo totale in base al piano selezionato dal combo box.
+     * Viene chiamato quando l'utente cambia la selezione del piano.
+     */
     private void updateTotalPrice() {
         final int selectedIndex = this.comboPlans.getSelectedIndex();
         if (selectedIndex >= 0 && selectedIndex < plans.size()) {
@@ -232,11 +260,23 @@ public final class ActivateSubscriptionDialog extends JDialog {
         }
     }
 
+    /**
+     * Aggiorna il prezzo totale con uno sconto applicato.
+     * Utilizzato dopo la verifica di un codice promozionale o invito.
+     * 
+     * @param discountedPrice il prezzo scontato da visualizzare
+     */
     public void updatePriceWithDiscount(final double discountedPrice) {
         this.currentPrice = discountedPrice;
         this.lblTotal.setText("Totale da pagare: €" + String.format("%.2f", currentPrice));
     }
 
+    /**
+     * Aggiunge un listener per il pulsante di attivazione della sottoscrizione.
+     * Prima di attivare, controlla se i codici promozionali o invito sono stati applicati/verificati.
+     *
+     * @param onActivate il Consumer che riceve i dati della sottoscrizione quando viene attivata
+     */
     public void addActivateListener(final Consumer<SubscriptionData> onActivate) {
         this.onActivate = onActivate;
         this.btnActivate.addActionListener(e -> {
@@ -287,6 +327,12 @@ public final class ActivateSubscriptionDialog extends JDialog {
         });
     }
 
+    /**
+     * Aggiunge un listener per il pulsante di applicazione del codice promozionale.
+     * Quando l'utente clicca "Applica", viene passato il codice al Consumer.
+     *
+     * @param onApply il Consumer che riceve il codice promozionale inserito
+     */
     public void addApplyPromotionListener(final Consumer<String> onApply) {
         this.btnApplyPromo.addActionListener(e -> {
             if (onApply != null) {
@@ -295,6 +341,12 @@ public final class ActivateSubscriptionDialog extends JDialog {
         });
     }
 
+    /**
+     * Aggiunge un listener per il pulsante di verifica del codice invito.
+     * Quando l'utente clicca "Verifica", viene passato il codice al Consumer.
+     *
+     * @param onVerify il Consumer che riceve il codice invito inserito
+     */
     public void addVerifyInviteListener(final Consumer<String> onVerify) {
         this.btnVerifyInvite.addActionListener(e -> {
             if (onVerify != null) {
@@ -303,15 +355,28 @@ public final class ActivateSubscriptionDialog extends JDialog {
         });
     }
 
+    /**
+     * Imposta lo stato di applicazione del codice promozionale.
+     * Utilizzato per tracciare se il codice è stato già applicato.
+     *
+     * @param applied true se il codice promozionale è stato applicato, false altrimenti
+     */
     public void setPromoCodeApplied(final boolean applied) {
         this.promoCodeApplied = applied;
     }
 
+    /**
+     * Imposta lo stato di verifica del codice invito.
+     * Utilizzato per tracciare se il codice è stato già verificato.
+     *
+     * @param verified true se il codice invito è stato verificato, false altrimenti
+     */
     public void setInviteCodeVerified(final boolean verified) {
         this.inviteCodeVerified = verified;
     }
 
     public String getUsername() { return username; }
+
     public int getSelectedPlanCode() {
         final int index = this.comboPlans.getSelectedIndex();
         return index >= 0 && index < plans.size() ? plans.get(index).getPlanCode() : -1;
@@ -323,9 +388,13 @@ public final class ActivateSubscriptionDialog extends JDialog {
     }
 
     public String getPaymentMethod() { return (String) this.comboPayment.getSelectedItem(); }
+    
     public String getPromoCode() { return this.txtPromoCode.getText().trim(); }
+    
     public String getInviteCode() { return this.txtInviteCode.getText().trim(); }
+    
     public boolean isAutoRenew() { return this.chkAutoRenew.isSelected(); }
+    
     public double getCurrentPrice() { return this.currentPrice; }
 
     public static final class SubscriptionData {

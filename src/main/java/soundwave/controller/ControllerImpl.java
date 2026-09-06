@@ -40,18 +40,6 @@ public final class ControllerImpl implements Controller {
     private final Model model;
     private final View view;
 
-    // Local error reporting fallback when the View doesn't expose a showError method
-    private void showError(final String message) {
-        // Fallback: print to stderr so errors are at least visible during execution/tests
-        System.err.println(message);
-    }
-
-    // Local success reporting fallback when the View doesn't expose a showSuccess method
-    private void showSuccess(final String message) {
-        // Fallback: print to stdout so success messages are visible during execution/tests
-        System.out.println(message);
-    }
-
     /**
      * Constructs a new ControllerImpl.
      *

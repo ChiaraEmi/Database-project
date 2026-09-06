@@ -242,4 +242,20 @@ public final class MockedModel implements Model {
         );
     }
 
+    @Override
+    public int getBonusCredits(final String username) {
+        if ("mario88".equals(username)) return 12;
+        if ("davide_99".equals(username)) return 15;
+        return 2; 
+    }
+
+    @Override
+    public int redeemBonus(final String username, final int planCode, final boolean autoRenew) {
+        System.out.println("[MOCK] Riscatto bonus per: " + username);
+        System.out.println("[MOCK] Piano: " + planCode);
+        System.out.println("[MOCK] AutoRenew: " + autoRenew);
+        return 999;
+    }
+
+
 }

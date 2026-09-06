@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import soundwave.data.Artist;
 import soundwave.view.ActivateSubscriptionDialog;
+import soundwave.view.RedeemBonusDialog;
 
 /**
  * Defines the controller interface for the application.
@@ -121,6 +122,9 @@ public interface Controller {
     void verifyPromotionCode(String promoCode, int planCode, Consumer<Object[]> callback);
     List<Object[]> getSubscriptionData(String username);
 
+    void userRequestedRedeemBonus(String username);
+
+    void userRedeemedBonus(String username, RedeemBonusDialog.RedeemData data);
 
     /**
      * Handles the request to generate a listening event.

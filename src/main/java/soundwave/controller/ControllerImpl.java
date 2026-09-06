@@ -7,6 +7,7 @@ import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.model.Model;
 import soundwave.view.ActivateSubscriptionDialog;
+import soundwave.view.RedeemBonusDialog;
 import soundwave.view.View;
 
 import java.time.LocalDate;
@@ -314,6 +315,40 @@ public final class ControllerImpl implements Controller {
             this.view.showError("Impossibile caricare i dati: " + e.getMessage());
             e.printStackTrace();
             return List.of();
+        }
+    }
+
+
+    @Override
+    public void userRequestedRedeemBonus(final String username) {
+        try {
+            // 1. Recupera i piani disponibili
+            final List<Plan> plans = this.model.getSubscriptioPlans();
+            
+            // 2. Recupera i crediti bonus dell'utente
+            final int bonusCredits = this.model.getBonusCredits(username);
+            
+            // 3. Mostra il Dialog
+            this.view.showRedeemBonusDialog(username, plans, bonusCredits);
+            
+        } catch (final DAOException e) {
+            this.view.showError("Impossibile caricare i dati: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void userRedeemedBonus(final String username, final RedeemBonusDialog.RedeemData data) {
+        try {
+            final int subscriptionCode = this.model.redeemBonus(
+                username, 
+                data.planCode, 
+                data.autoRenew
+            );
+            this.view.showSuccess("Sottoscrizione riscattata con crediti bonus! Codice: " + subscriptionCode);
+        } catch (final DAOException e) {
+            this.view.showError("Impossibile riscattare: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

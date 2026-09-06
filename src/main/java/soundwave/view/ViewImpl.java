@@ -350,6 +350,15 @@ public final class ViewImpl extends JFrame implements View {
         });
     }
 
+    @Override
+public void showRedeemBonusDialog(final String username, final List<Plan> plans, 
+                                  final int bonusCredits) {
+    this.userPanel.showRedeemBonusDialog(username, plans, bonusCredits, data -> {
+        if (this.controller != null) {
+            this.controller.userRedeemedBonus(username, data);
+        }
+    });
+}
 
     
     
@@ -497,6 +506,13 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 this.userPanel.showSubscriptionStatusDialog(currentUsername);
+            }
+        });
+
+        this.userPanel.addRedeemBonusListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                this.controller.userRequestedRedeemBonus(currentUsername);
             }
         });
     

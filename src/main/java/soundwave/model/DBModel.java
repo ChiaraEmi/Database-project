@@ -263,4 +263,43 @@ public final class DBModel implements Model {
         return subscriptions;
     }
 
+    @Override
+    public int getBonusCredits(final String username) {
+        return User.DAO.getBonusCredit(this.connection, username);
+    }
+
+    @Override
+    public int redeemBonus(final String username, final int planCode, final boolean autoRenew) {
+        // Verifica che il piano sia mensile
+        if (!Plan.DAO.isMonthlyPlan(connection, planCode)) {
+            throw new DAOException("Il riscatto con crediti bonus è disponibile solo per piani mensili.");
+        }
+        
+        // Verifica crediti bonus
+        if (!User.DAO.hasEnoughBonusCredit(connection, username)) {
+            throw new DAOException("Crediti bonus insufficienti. Servono almeno 2 crediti.");
+        }
+        
+        // Se l'utente ha già una sottoscrizione attiva, rinnova
+        // Altrimenti crea una nuova sottoscrizione
+        try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
+            var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                // 4.2 - Rinnovo con crediti bonus
+                int subscriptionCode = rs.getInt("CodiceSottoscrizione");
+                Subscription.DAO.renewWithBonus(connection, username, subscriptionCode);
+                return subscriptionCode;
+            } else {
+                // 4.1 - Nuova sottoscrizione con crediti bonus
+                return Subscription.DAO.redeemBonusForNew(connection, username, planCode, autoRenew);
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+
+
+
+
 }

@@ -618,4 +618,21 @@ public final class UserPanel extends JPanel {
             }
         }
     }
+
+    public void showRedeemBonusDialog(final String username, final List<Plan> plans, 
+                                  final int bonusCredits,
+                                  final Consumer<RedeemBonusDialog.RedeemData> onRedeem) {
+        
+        final JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        final RedeemBonusDialog dialog = new RedeemBonusDialog(parent, username, plans, bonusCredits);
+        
+        dialog.addRedeemListener(onRedeem);
+        dialog.addCancelListener(() -> {
+            System.out.println("[DEBUG] Riscatto annullato");
+        });
+        
+        dialog.setVisible(true);
+    }
+
+
 }

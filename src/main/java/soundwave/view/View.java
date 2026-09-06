@@ -94,5 +94,5 @@ public interface View {
      */
     void showSuccessAndCloseDialog(String message);
 
-
+    void showRedeemBonusDialog(String username, List<Plan> plans, int bonusCredits);
 }

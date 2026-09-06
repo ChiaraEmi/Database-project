@@ -231,4 +231,11 @@ public interface Model {
      * @return [subCode, planType, startDate, endDate, status, autoRenew, promoCode, inviteCode, transactionsList]
      */
     List<Object[]> getSubscriptionData(String username);
+
+    int getBonusCredits(String username);
+    int redeemBonus(String username, int planCode, boolean autoRenew);
+
+
+
+
 }

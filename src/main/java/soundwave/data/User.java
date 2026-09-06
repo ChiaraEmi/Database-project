@@ -259,6 +259,25 @@ public final class User {
             }
         }
 
+        public static int getBonusCredit(final Connection connection, final String username) {
+            Objects.requireNonNull(connection, "Connection cannot be null");
+            Objects.requireNonNull(username, "Username cannot be null");
+            final String query = "SELECT CreditoBonus FROM Utenti WHERE Username = ?";
+
+            try (var statement = connection.prepareStatement(query)) {
+                 statement.setString(1, username);
+                try (var resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getInt("CreditoBonus");
+                    }
+                    throw new DAOException("User not found: " + username);
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
+
+
         /**
          * Retrieves a list of all users from the database.
          * 

@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -142,6 +141,7 @@ public final class AdminPanel extends JPanel {
         mainTabbedPane.addTab("Nuovi Inserimenti", insertTabbedPane);
         mainTabbedPane.addTab("Statistiche Piattaforma", createStatsPanel());
         mainTabbedPane.addTab("Gestione Utenti", createUsersPanel());
+        mainTabbedPane.addTab("Rinnovi Automatici", createAutoRenewalPanel());
 
         this.add(mainTabbedPane, BorderLayout.CENTER);
 
@@ -454,20 +454,6 @@ public final class AdminPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.insets = new Insets(15, INSET_GAP, INSET_GAP, INSET_GAP);
         
-        // Aggiungi un separatore visivo
-        topPanel.add(new JSeparator(), gbc);
-        
-        gbc.gridy = 3;
-        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
-        
-        this.btnRunAutoRenewal.setPreferredSize(new Dimension(BUTTON_WIDTH + 40, BUTTON_HEIGHT));
-        this.btnRunAutoRenewal.setBackground(new Color(0, 120, 215));
-        this.btnRunAutoRenewal.setForeground(Color.WHITE);
-        this.btnRunAutoRenewal.setFont(this.btnRunAutoRenewal.getFont().deriveFont(Font.BOLD));
-        topPanel.add(this.btnRunAutoRenewal, gbc);
-
-
-
         yearlyPanel.add(topYearPanel, BorderLayout.NORTH);
 
         this.txtYearlyStatsOutput.setEditable(false);
@@ -479,6 +465,66 @@ public final class AdminPanel extends JPanel {
 
         panel.add(containerPanel, BorderLayout.CENTER);
 
+        return panel;
+    }
+
+    /**
+     * Creates the panel for automatic renewal management.
+    * 
+    * @return the auto-renewal panel.
+     */
+    private JPanel createAutoRenewalPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        
+        int row = 0;
+
+        // Titolo
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        
+        final JLabel titleLabel = new JLabel("Gestione Rinnovi Automatici");
+        titleLabel.setFont(titleLabel.getFont().deriveFont(20f));
+        panel.add(titleLabel, gbc);
+        row++;
+
+        // Separatore
+        gbc.gridy = row;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(new JSeparator(), gbc);
+        row++;
+
+        // Istruzioni
+        gbc.gridy = row;
+        gbc.fill = GridBagConstraints.NONE;
+
+        final JLabel lblInfo = new JLabel(
+            "<html><center>Avvia il processo di rinnovo automatico<br>" +
+            "per tutte le sottoscrizioni in scadenza</center></html>"
+        );
+        lblInfo.setFont(lblInfo.getFont().deriveFont(16f));
+        panel.add(lblInfo, gbc);
+        
+        // Spazio
+        gbc.gridy = row;
+        panel.add(new JLabel(" "), gbc);
+        row++;
+
+        // Pulsante
+        gbc.gridy = row;
+        gbc.fill = GridBagConstraints.NONE;
+
+        this.btnRunAutoRenewal.setPreferredSize(new Dimension(300, 60));
+        this.btnRunAutoRenewal.setBackground(new Color(0, 120, 215));
+        this.btnRunAutoRenewal.setForeground(Color.WHITE);
+        this.btnRunAutoRenewal.setFont(this.btnRunAutoRenewal.getFont().deriveFont(16f));
+        panel.add(this.btnRunAutoRenewal, gbc);
+        
         return panel;
     }
 

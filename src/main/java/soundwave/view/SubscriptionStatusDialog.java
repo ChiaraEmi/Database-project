@@ -84,9 +84,6 @@ public final class SubscriptionStatusDialog extends JDialog {
     private static final int FLOW_LAYOUT_GAP = 10;
 
     private static final int BORDER_SIZE = 10;
-    private static final int BORDER_PADDING = 8;
-    private static final int BUTTON_WIDTH = 160;
-    private static final int BUTTON_HEIGHT = 32;
 
     private final JPanel contentPanel;
     private final JScrollPane scrollPane;
@@ -170,15 +167,6 @@ public final class SubscriptionStatusDialog extends JDialog {
             final String promoCode,
             final String inviteCode,
             final List<String> transactions
-            final int subCode,
-            final String planType,
-            final String startDate,
-            final String endDate,
-            final String status,
-            final boolean autoRenew,
-            final String promoCode,
-            final String inviteCode,
-            final List<String> transactions
     ) {
         // Create the panel for this specific subscription block
         final JPanel blockPanel = new JPanel();
@@ -201,9 +189,9 @@ public final class SubscriptionStatusDialog extends JDialog {
         // Status label with conditional coloring
         final JLabel lblStatus = new JLabel(status);
         lblStatus.setFont(new Font(FONT_FAMILY, FONT_STYLE_BOLD, FONT_SIZE_STATUS));
-        if ("Attiva".equals(status)) {
+        if (STATUS_ATTIVA.equals(status)) {
             lblStatus.setForeground(new Color(COLOR_GREEN, COLOR_GREEN_DARK, COLOR_GREEN));
-        } else if ("Scaduta".equals(status)) {
+        } else if (STATUS_SCADUTA.equals(status)) {
             lblStatus.setForeground(new Color(COLOR_RED, COLOR_GREEN_DARK, COLOR_RED_DARK));
         } else {
             lblStatus.setForeground(new Color(COLOR_RED, COLOR_YELLOW, COLOR_GREEN));

@@ -465,12 +465,6 @@ public final class ViewImpl extends JFrame implements View {
         
         dialog.setVisible(true);
     }
-    
-    
-    @Override
-    public void showGlobalStats(final String statsText) {
-        this.adminPanel.setStatsOutputText(statsText);
-    }
 
     @Override
     public void setAlbumArtists(final List<Artist> artists) {

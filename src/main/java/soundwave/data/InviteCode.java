@@ -3,7 +3,6 @@ package soundwave.data;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.sql.Connection;

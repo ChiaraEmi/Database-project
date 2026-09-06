@@ -102,22 +102,6 @@ public interface Controller {
      */
     boolean adminClickedSaveEpisode(int podcastCode, String title, int duration, String description, int episodeNumber);
 
-    /**
-     * User requests the list of plans disponible
-     * @param username the username
-     */
-    void userRequestedSubscriptionPlans(String username);
-
-    /**
-     * User activate a subscription
-     * @param username the username
-     * @param data the date of subscription
-     */
-    void userActivateSubscription(String username, ActivateSubscriptionDialog.SubscriptionData data);
-    void verifyInviteCode(String inviteCode, Consumer<Boolean> callback);
-    void verifyPromotionCode(String promoCode, int planCode, Consumer<Object[]> callback);
-    List<Object[]> getSubscriptionData(String username);
-
     void userRequestedRedeemBonus(String username);
 
     void userRedeemedBonus(String username, RedeemBonusDialog.RedeemData data);

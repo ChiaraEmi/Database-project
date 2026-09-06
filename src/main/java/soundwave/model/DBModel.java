@@ -4,7 +4,6 @@ import soundwave.data.Podcast;
 import soundwave.data.Promotion;
 import soundwave.data.Queries;
 import soundwave.data.Subscription;
-import soundwave.data.Transaction;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.data.Playlist;

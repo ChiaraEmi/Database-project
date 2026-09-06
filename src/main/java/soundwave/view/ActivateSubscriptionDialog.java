@@ -28,18 +28,6 @@ import soundwave.data.Plan;
  */
 public final class ActivateSubscriptionDialog extends JDialog {
 
-    private static final int DIALOG_WIDTH = 600;
-    private static final int DIALOG_HEIGHT = 500;
-    private static final int DIALOG_GAP = 10;
-    private static final int BORDER_PADDING = 15;
-    private static final int INSET_SIZE = 6;
-    private static final int TEXT_FIELD_COLUMNS = 30;
-
-    private static final int COLOR_RGB_GREEN = 0;
-    private static final int COLOR_RGB_BLUE = 120;
-    private static final int COLOR_RGB_DARK_BLUE = 215;
-    private static final int COLOR_RGB_100 = 100;
-
     private static final int FONT_STYLE_BOLD = Font.BOLD;
     
     // --- Costanti per eliminare i magic number e le stringhe hardcoded ---
@@ -255,11 +243,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
         gbc.gridy = row;
         gbc.gridwidth = 3;
         this.lblTotal = new JLabel(TOTAL_LABEL_PREFIX + "0.00");
-        this.lblTotal.setFont(this.lblTotal.getFont().deriveFont(Font.BOLD, TOTAL_FONT_SIZE));
+        this.lblTotal.setFont(this.lblTotal.getFont().deriveFont(FONT_STYLE_BOLD, TOTAL_FONT_SIZE));
         this.lblTotal.setForeground(TOTAL_LABEL_COLOR);
-        this.lblTotal = new JLabel("Totale da pagare: €0.00");
-        this.lblTotal.setFont(this.lblTotal.getFont().deriveFont(FONT_STYLE_BOLD, 16f));
-        this.lblTotal.setForeground(new Color(COLOR_RGB_BLUE, COLOR_RGB_DARK_BLUE, COLOR_RGB_GREEN));
         panel.add(this.lblTotal, gbc);
         gbc.gridwidth = 1;
 

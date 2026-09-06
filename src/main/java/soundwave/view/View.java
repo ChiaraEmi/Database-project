@@ -117,7 +117,15 @@ public interface View {
      */
     void showSuccessAndCloseDialog(String message);
 
+    /**
+     * Show the dialog when the user uses credit bonus for renew or activate subscription
+     * 
+     * @param username the user
+     * @param plans the list of plans disponible
+     * @param bonusCredits the number of credit bonus of user
+     */
     void showRedeemBonusDialog(String username, List<Plan> plans, int bonusCredits);
+    
     /**
      * Gets the user panel.
      * 
@@ -131,5 +139,9 @@ public interface View {
      * @return the AdminPanel instance.
      */
     AdminPanel getAdminPanel();
+
+    /**
+     * Show the dialog for register new user
+     */
     void showRegisterDialog();
 }

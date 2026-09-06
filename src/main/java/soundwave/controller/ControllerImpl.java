@@ -21,8 +21,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
-
 import java.util.logging.Level;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -72,27 +70,27 @@ public final class ControllerImpl implements Controller {
 
             if (code == null || code.trim().isEmpty()) {
                 this.view.showError("Il codice promozione è obbligatorio.");
-                return;
+                return false;
             }
             if (name == null || name.trim().isEmpty()) {
                 this.view.showError("Il nome della promozione è obbligatorio.");
-                return;
+                return false;
             }
             if (startDate == null || startDate.trim().isEmpty()) {
                 this.view.showError("La data inizio è obbligatoria.");
-                return;
+                return false;
             }
             if (endDate == null || endDate.trim().isEmpty()) {
                 this.view.showError("La data fine è obbligatoria.");
-                return;
+                return false;
             }
             if (discountValueStr == null || discountValueStr.trim().isEmpty()) {
                 this.view.showError("Il valore dello sconto è obbligatorio.");
-                return;
+                return false;
             }
             if (planCodesStr == null || planCodesStr.trim().isEmpty()) {
                 this.view.showError("Devi specificare almeno un piano di abbonamento.");
-                return;
+                return false;
             }
 
             final LocalDate start = LocalDate.parse(startDate);

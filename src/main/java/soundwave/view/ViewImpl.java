@@ -117,6 +117,26 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
+        // --- Inserimento Promozione (OP 6) ---
+        this.adminPanel.addSavePromotionListener(e -> {
+            if (this.controller != null) {
+                final String code = this.adminPanel.getPromoCode();
+                final String name = this.adminPanel.getPromoName();
+                final String description = this.adminPanel.getPromoDescription();
+                final String startDate = this.adminPanel.getPromoStartDate();
+                final String endDate = this.adminPanel.getPromoEndDate();
+                final String discountType = this.adminPanel.getDiscountType();
+                final String discountValue = this.adminPanel.getDiscountValue();
+                final String requiredMonths = this.adminPanel.getRequiredMonths();
+                final String planCodes = this.adminPanel.getPromoPlanCodes();
+
+                this.controller.adminClickedSavePromotion(
+                    code, name, description, startDate, endDate, discountType, discountValue, 
+                    requiredMonths, planCodes
+                );
+            }
+        });
+
         this.adminPanel.addSaveArtistListener(e -> {
             if (this.controller != null) {
                 final String stageName = this.adminPanel.getArtistStageName();
@@ -291,7 +311,7 @@ public final class ViewImpl extends JFrame implements View {
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid stats year format", ex);
                     JOptionPane.showMessageDialog(this, "Reference year must be a valid number.", 
-                            FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -315,11 +335,9 @@ public final class ViewImpl extends JFrame implements View {
         this.userPanel.setCurrentUsername(username);
 
         if (this.controller != null) {
-            // Caricamento delle playlist
             final List<Playlist> playlists = this.controller.getUserPlaylists(username);
             this.userPanel.setUserPlaylists(playlists);
 
-            // Caricamento e formattazione dei brani preferiti
             final var likedTracks = this.controller.getUserLikedTracks(username);
             final List<String> formattedTracks = likedTracks.stream()
                 .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
@@ -346,21 +364,11 @@ public final class ViewImpl extends JFrame implements View {
         this.adminPanel.setUsersTableData(rows);
     }
 
-    /**
-     * Shows the global albums above average in the admin panel.
-     * 
-     * @param statsText the text to display.
-     */
     @Override
     public void showGlobalAlbumsStats(final String statsText) {
         this.adminPanel.setGlobalAlbumsOutputText(statsText);
     }
 
-    /**
-     * Shows the yearly statistics in the admin panel.
-     * 
-     * @param statsText the text to display.
-     */
     @Override
     public void showYearlyStats(final String statsText) {
         this.adminPanel.setYearlyStatsOutputText(statsText);
@@ -391,11 +399,6 @@ public final class ViewImpl extends JFrame implements View {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /**
-     * Gets the role selection panel.
-     *
-     * @return the role selection panel.
-     */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
@@ -404,11 +407,6 @@ public final class ViewImpl extends JFrame implements View {
         return this.roleSelectionPanel;
     }
 
-    /**
-     * Gets the user panel.
-     *
-     * @return the user panel.
-     */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
@@ -418,11 +416,6 @@ public final class ViewImpl extends JFrame implements View {
         return userPanel;
     }
 
-    /**
-     * Gets the admin panel.
-     *
-     * @return the admin panel.
-     */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."

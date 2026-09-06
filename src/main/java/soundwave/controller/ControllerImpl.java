@@ -2,12 +2,14 @@ package soundwave.controller;
 
 import soundwave.data.Artist;
 import soundwave.data.DAOException;
+import soundwave.data.LikeBrani;
+import soundwave.data.Plan;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
 import soundwave.data.SongInput;
 import soundwave.data.User;
-import soundwave.data.LikeBrani;
 import soundwave.model.Model;
+import soundwave.view.ActivateSubscriptionDialog;
 import soundwave.view.View;
 
 import java.time.LocalDate;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -52,6 +55,114 @@ public final class ControllerImpl implements Controller {
         this.model = model;
         this.view = view;
     }
+
+    // ==========================================
+    // ABBONAMENTI E PROMOZIONI (da Versione 1)
+    // ==========================================
+
+    @Override
+    public void adminClickedSavePromotion(final String code, final String name, final String description, final String startDate, final String endDate, final String discountType, 
+                                          final String discountValueStr, final String rqrMonths, final String planCodesStr) {
+        try {
+            final LocalDate start = LocalDate.parse(startDate);
+            final LocalDate end = LocalDate.parse(endDate);
+            final double discountValue = Double.parseDouble(discountValueStr);
+            final Integer requiredMonths = (rqrMonths == null || rqrMonths.isBlank()) ? null : Integer.parseInt(rqrMonths);
+            final List<Integer> planCodes = new ArrayList<>();
+            if (planCodesStr != null && !planCodesStr.isBlank()) {
+                for (final String codePlan : planCodesStr.split(",")) {
+                    planCodes.add(Integer.parseInt(codePlan.trim()));
+                }
+            }
+
+            if (start.isAfter(end)) {
+                this.view.showError("La data inizio non può essere dopo la data fine");
+                return;
+            }
+            if (planCodes.isEmpty()) {
+                this.view.showError("Devi specificare almeno un piano di abbonamento");
+                return;
+            }
+            if (discountValue <= 0.0) {
+                this.view.showError("Il valore dello sconto deve essere maggiore di 0");
+                return;
+            }
+
+            this.model.insertPromotion(code, name, description, start, end, discountType, discountValue, requiredMonths, planCodes);
+            this.view.showSuccess("Promozione creata con successo");
+        } catch (final java.time.format.DateTimeParseException e) {
+            LOGGER.log(Level.WARNING, "Invalid date format for promotion", e);
+            this.view.showError("Formato data non valido. Usa YYYY-MM-DD.");
+        } catch (final NumberFormatException e) {
+            LOGGER.log(Level.WARNING, "Invalid number format for promotion", e);
+            this.view.showError("Valore numerico non valido. Controlla sconto, mesi richiesti e codici piani.");
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to save promotion", e);
+            this.view.showError("Impossibile salvare la promozione nel database.");
+        } catch (final Exception e) {
+            LOGGER.log(Level.SEVERE, "Unexpected error saving promotion", e);
+            this.view.showError("Errore imprevisto: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void userRequestedSubscriptionPlans(final String username) {
+        try {
+            final List<Plan> plans = this.model.getSubscriptioPlans();
+            this.view.showActivateSubsriptionDialog(username, plans);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load subscription plans", e);
+            this.view.showError("Impossibile caricare i piani di abbonamento");
+        }
+    }
+
+    @Override
+    public void userActivateSubscription(final String username, final ActivateSubscriptionDialog.SubscriptionData data) {
+        try {
+            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod, data.promoCode, data.inviteCode, data.autoRenew);
+            this.view.showSuccessAndCloseDialog("Sottoscrizione attivata con successo! Codice: " + subscriptionCode);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to activate subscription", e);
+            this.view.showError("Impossibile attivare la sottoscrizione: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void verifyInviteCode(final String inviteCode, final Consumer<Boolean> callback) {
+        try {
+            boolean exists = this.model.verifyInviteCode(inviteCode);
+            callback.accept(exists);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to verify invite code", e);
+            callback.accept(false);
+        }
+    }
+
+    @Override
+    public void verifyPromotionCode(final String promoCode, final int planCode, final Consumer<Object[]> callback) {
+        try {
+            Object[] result = this.model.verifyPromotionCode(promoCode, planCode);
+            callback.accept(result);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to verify promotion code", e);
+            callback.accept(new Object[]{false, 0, null, 0});
+        } 
+    }
+
+    @Override
+    public List<Object[]> getSubscriptionData(final String username) {
+        try {
+            return this.model.getSubscriptionData(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load subscription data", e);
+            this.view.showError("Impossibile caricare i dati: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    // ==========================================
+    // AUTENTICAZIONE E GESTIONE ARTISTI/CONTENUTI
+    // ==========================================
 
     @Override
     public boolean userLoggedIn(final String username) {
@@ -171,7 +282,7 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public boolean adminClickedSavePodcast(final int artistCode, final String name, 
-                                          final String description, final String category) {
+                                         final String description, final String category) {
 
         if (artistCode <= 0 || name == null || name.isBlank() || category == null || category.isBlank()) {
             final String errorMessage = "Compila i campi obbligatori del podcast (Artista, Nome e Categoria).";
@@ -200,8 +311,8 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public boolean adminClickedSaveEpisode(final int podcastCode, final String title, 
-                                          final int duration, final String description, 
-                                          final int episodeNumber) {
+                                         final int duration, final String description, 
+                                         final int episodeNumber) {
 
         if (podcastCode <= 0 || title == null || title.isBlank() || duration <= 0 || episodeNumber <= 0) {
             final String errorMessage = "Compila i campi obbligatori dell'episodio (Podcast, Titolo, Durata e Numero Episodio).";
@@ -223,7 +334,7 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public boolean userGeneratedListeningEvent(final String username, final int contentCode, 
-                                               final String device, final int eventDuration) {
+                                             final String device, final int eventDuration) {
 
         if (username == null || username.isBlank() || contentCode <= 0 || device == null || device.isBlank() 
             || eventDuration <= 0) {
@@ -242,6 +353,10 @@ public final class ControllerImpl implements Controller {
             return false;
         }
     }
+
+    // ==========================================
+    // PLAYLIST, PREFERITI E LIBRERIA UTENTE
+    // ==========================================
 
     @Override
     public boolean userClickedCreatePlaylist(final String username, final String playlistName, 
@@ -310,8 +425,7 @@ public final class ControllerImpl implements Controller {
             if (success) {
                 this.view.showSuccess("Brano aggiunto alla playlist con successo!");
             } else {
-                final String errorMessage = "Impossibile aggiungere il brano: "
-                                            + "verifica di avere i permessi o che il brano non sia già presente.";
+                final String errorMessage = "Impossibile aggiungere il brano: verifica di avere i permessi o che il brano non sia già presente.";
                 this.view.showError(errorMessage);
             }
             return success;
@@ -408,6 +522,10 @@ public final class ControllerImpl implements Controller {
         }
     }
 
+    // ==========================================
+    // AMMINISTRAZIONE E STATISTICHE
+    // ==========================================
+
     @Override
     public void adminClickedLoadUsers() {
         try {
@@ -499,6 +617,10 @@ public final class ControllerImpl implements Controller {
             this.view.showError("Errore durante il caricamento delle statistiche annuali.");
         }
     }
+
+    // ==========================================
+    // METODI PRIVATI DI SUPPORTO
+    // ==========================================
 
     private List<SongInput> parseSongsInput(final String rawText) {
         final List<SongInput> songList = new ArrayList<>();

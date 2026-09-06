@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS Abbonamenti (
 );
 
 CREATE TABLE IF NOT EXISTS Promozioni (
-    CodicePromozione INT AUTO_INCREMENT PRIMARY KEY,
+    CodicePromozione VARCHAR(50) PRIMARY KEY,
     Nome VARCHAR(100) NOT NULL,
     Descrizione TEXT,
     DataInizioPromo DATE NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS Sottoscrizioni (
     CodiceSottoscrizione INT AUTO_INCREMENT PRIMARY KEY,
     Username VARCHAR(50) NOT NULL,
     CodiceAbbonamento INT NOT NULL,
-    CodicePromozione INT,
+    CodicePromozione VARCHAR(50),
     CodiceInvito VARCHAR(50),
     DataInizio DATE NOT NULL,
     DataFine DATE NOT NULL,
@@ -131,17 +131,17 @@ CREATE TABLE IF NOT EXISTS Transazioni (
     MetodoPagamento VARCHAR(50) NOT NULL,
     Stato ENUM('Completata', 'Fallita') NOT NULL,
 
-    Foreign KEY (CodiceSottoscrizione) REFERENCES Sottoscrizioni(CodiceSottoscrizione)
+    FOREIGN KEY (CodiceSottoscrizione) REFERENCES Sottoscrizioni(CodiceSottoscrizione)
 );
 
 CREATE TABLE IF NOT EXISTS Album (
     CodiceAlbum INT AUTO_INCREMENT PRIMARY KEY,
     CodiceArtista INT NOT NULL,
     TitoloAlbum VARCHAR(100) NOT NULL,
-    DataPubblicazione VARCHAR(10) NOT NULL,
+    DataPubblicazione DATE NOT NULL,
     CasaDiscografica VARCHAR(50) NOT NULL,
     MediaVoti DECIMAL(4,2) DEFAULT 0.00,
-    DurataTotale INT DEFAULT 0, 
+    DurataTotale INT DEFAULT 0,
     UNIQUE(CodiceArtista, TitoloAlbum),
     FOREIGN KEY (CodiceArtista) REFERENCES Artisti(CodiceArtista) ON DELETE CASCADE
 );
@@ -186,10 +186,12 @@ CREATE TABLE IF NOT EXISTS Appartenenze (
     FOREIGN KEY (NomeGenere) REFERENCES Generi(NomeGenere) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Inclusione (
-    PRIMARY KEY (CodiceBrano, CodicePlaylist),
-    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE,
-    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS Inclusioni (
+    CodicePlaylist INT NOT NULL,
+    CodiceBrano INT NOT NULL,
+    PRIMARY KEY (CodicePlaylist, CodiceBrano),
+    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE,
+    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS LikeBrani (
@@ -211,7 +213,7 @@ CREATE TABLE IF NOT EXISTS Follow (
 );
 
 CREATE TABLE IF NOT EXISTS ValiditaPromozioni (
-    CodicePromozione INT NOT NULL,
+    CodicePromozione VARCHAR(50) NOT NULL,
     CodiceAbbonamento INT NOT NULL,
     PRIMARY KEY (CodicePromozione, CodiceAbbonamento),
     FOREIGN KEY (CodicePromozione) REFERENCES Promozioni(CodicePromozione) ON DELETE CASCADE,

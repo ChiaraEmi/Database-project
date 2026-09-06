@@ -1,11 +1,13 @@
 package soundwave.controller;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import soundwave.data.Artist;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
+import soundwave.view.ActivateSubscriptionDialog;
 
 /**
  * Defines the controller interface for the application.
@@ -198,4 +200,61 @@ public interface Controller {
      * @param year the year chosen by the admin.
      */
     void adminRequestedYearlyStats(int year);
+
+    /**
+     * Handles the request from an administrator to save a new promotional offer.
+     *
+     * @param code the promo code.
+     * @param name the promotion name.
+     * @param description the promotion description.
+     * @param startDate the start date string.
+     * @param endDate the end date string.
+     * @param discountType the type of discount.
+     * @param discountValueStr the discount value as a string.
+     * @param rqrMonths the required months as a string.
+     * @param planCodesStr the comma-separated plan codes associated with the promotion.
+     */
+    void adminClickedSavePromotion(String code, String name, String description, String startDate, 
+                                   String endDate, String discountType, String discountValueStr, 
+                                   String rqrMonths, String planCodesStr);
+
+    /**
+     * Requests the available subscription plans for a user and displays the activation dialog.
+     *
+     * @param username the username requesting the subscription plans.
+     */
+    void userRequestedSubscriptionPlans(String username);
+
+    /**
+     * Handles the activation of a subscription for a user based on the dialog data.
+     *
+     * @param username the username activating the subscription.
+     * @param data the subscription data container from the view.
+     */
+    void userActivateSubscription(String username, ActivateSubscriptionDialog.SubscriptionData data);
+
+    /**
+     * Asynchronously verifies if an invite code is valid.
+     *
+     * @param inviteCode the invite code to check.
+     * @param callback the callback consumer receiving the verification result.
+     */
+    void verifyInviteCode(String inviteCode, Consumer<Boolean> callback);
+
+    /**
+     * Asynchronously verifies if a promotion code is valid for a specific plan.
+     *
+     * @param promoCode the promo code to check.
+     * @param planCode the target plan code.
+     * @param callback the callback consumer receiving the result array.
+     */
+    void verifyPromotionCode(String promoCode, int planCode, Consumer<Object[]> callback);
+
+    /**
+     * Retrieves subscription details and history for a specific user.
+     *
+     * @param username the username whose subscription data is requested.
+     * @return a list of object arrays representing subscription details.
+     */
+    List<Object[]> getSubscriptionData(String username);
 }

@@ -73,16 +73,22 @@ public final class AdminPanel extends JPanel {
 
     // --- Campi di testo per Inserimento Episodio (OP 10) ---
     private final JComboBox<Podcast> comboEpisodePodcast = new JComboBox<>();
-    private final JTextField txtEpisodePodcastCode = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeTitle = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeDuration = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeDescription = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeNumber = new JTextField(FIELD_COLUMNS);
     private final JButton btnSaveEpisode = new JButton("Salva Episodio");
 
-    // --- Campi di testo per Inserimento Promozione (OP 6) ---
+    // --- Campi di testo per Inserimento Promozione (OP 6) - Importati dal 1° blocco ---
+    private final JTextField txtPromoCode = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPromoName = new JTextField(FIELD_COLUMNS);
-    private final JTextField txtDiscountPercentage = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPromoDescription = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPromoStartDate = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPromoEndDate = new JTextField(FIELD_COLUMNS);
+    private final JComboBox<String> comboDiscountType = new JComboBox<>(new String[]{"Percentuale", "Fisso"});
+    private final JTextField txtDiscountValue = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtRequiredMonths = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPromoPlanCodes = new JTextField(FIELD_COLUMNS);
     private final JButton btnSavePromotion = new JButton("Salva Promozione");
 
     // --- Area per Gestione Utenti (Sola Lettura) ---
@@ -293,7 +299,6 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Renderizzatore per mostrare il nome del podcast nel menu a tendina
         this.comboEpisodePodcast.setRenderer(new javax.swing.DefaultListCellRenderer() {
             private static final long serialVersionUID = 1L;
 
@@ -303,7 +308,7 @@ public final class AdminPanel extends JPanel {
                     final boolean isSelected, final boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Podcast) {
-                    setText(((Podcast) value).getName()); // Modifica con il metodo corretto del nome podcast
+                    setText(((Podcast) value).getName());
                 }
                 return this;
             }
@@ -313,7 +318,7 @@ public final class AdminPanel extends JPanel {
         addSectionHeader(panel, gbc, row, "Aggiungi Episodio al Podcast");
         row++;
 
-        addFormComboField(panel, gbc, row, "Podcast:", this.comboEpisodePodcast); // <-- Usiamo la combo
+        addFormComboField(panel, gbc, row, "Podcast:", this.comboEpisodePodcast);
         row++;
         addFormField(panel, gbc, row, "Titolo Episodio:", this.txtEpisodeTitle);
         row++;
@@ -329,7 +334,7 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Creates the form panel for managing promotions and discounts.
+     * Creates the form panel for managing promotions and discounts (Imported fields from block 1).
      * 
      * @return the promotion form panel.
      */
@@ -343,12 +348,23 @@ public final class AdminPanel extends JPanel {
         addSectionHeader(panel, gbc, row, "Gestione Promozioni e Sconti");
         row++;
 
-        addFormField(panel, gbc, row, "Nome Promozione:", this.txtPromoName);
-        row++;
-        addFormField(panel, gbc, row, "Sconto (%):", this.txtDiscountPercentage);
-        row++;
+        addFormField(panel, gbc, row++, "Codice Promozione:", this.txtPromoCode);
+        addFormField(panel, gbc, row++, "Nome Promozione:", this.txtPromoName);
+        addFormField(panel, gbc, row++, "Descrizione:", this.txtPromoDescription);
+        addFormField(panel, gbc, row++, "Data Inizio (YYYY-MM-DD):", this.txtPromoStartDate);
+        addFormField(panel, gbc, row++, "Data Fine (YYYY-MM-DD):", this.txtPromoEndDate);
 
+        gbc.gridx = 0;
+        gbc.gridy = row++;
+        panel.add(new JLabel("Tipo Sconto:"), gbc);
+        gbc.gridx = 1;
+        panel.add(this.comboDiscountType, gbc);
+
+        addFormField(panel, gbc, row++, "Valore Sconto:", this.txtDiscountValue);
+        addFormField(panel, gbc, row++, "Mesi Richiesti (opzionale):", this.txtRequiredMonths);
+        addFormField(panel, gbc, row++, "Piani Abbonamento (codici separati da virgola):", this.txtPromoPlanCodes);
         addCenteredButton(panel, gbc, row, this.btnSavePromotion);
+        
         return panel;
     }
 
@@ -379,11 +395,9 @@ public final class AdminPanel extends JPanel {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
-        // --- SOTTOPANNELLO 1: Statistiche Globali (Album sopra la media) ---
         final JPanel globalPanel = new JPanel(new BorderLayout(0, 5));
         globalPanel.setBorder(BorderFactory.createTitledBorder("Album con Media Voto Superiore alla Media Globale"));
 
-        // AGGIUNGIAMO IL PULSANTE IN ALTO NEL SOTTOPANNELLO
         this.btnFetchGlobalStats.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         final JPanel topGlobalPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         topGlobalPanel.add(this.btnFetchGlobalStats);
@@ -392,7 +406,6 @@ public final class AdminPanel extends JPanel {
         this.txtGlobalAlbumsOutput.setEditable(false);
         globalPanel.add(new JScrollPane(this.txtGlobalAlbumsOutput), BorderLayout.CENTER);
 
-        // --- SOTTOPANNELLO 2: Statistiche Annuali (Dipendenti dall'anno) ---
         final JPanel yearlyPanel = new JPanel(new BorderLayout(0, 5));
         yearlyPanel.setBorder(BorderFactory.createTitledBorder("Statistiche Annuali"));
 
@@ -420,7 +433,6 @@ public final class AdminPanel extends JPanel {
         this.txtYearlyStatsOutput.setEditable(false);
         yearlyPanel.add(new JScrollPane(this.txtYearlyStatsOutput), BorderLayout.CENTER);
 
-        // --- Unione dei due pannelli principali in un unico contenitore ---
         final JPanel containerPanel = new JPanel(new java.awt.GridLayout(2, 1, 0, INSET_GAP));
         containerPanel.add(globalPanel);
         containerPanel.add(yearlyPanel);
@@ -430,14 +442,6 @@ public final class AdminPanel extends JPanel {
         return panel;
     }
 
-    /**
-     * Adds a section header label to a form panel.
-     * 
-     * @param panel the target panel.
-     * @param gbc the grid bag constraints.
-     * @param row the grid row index.
-     * @param title the header title.
-     */
     private void addSectionHeader(final JPanel panel, final GridBagConstraints gbc, final int row, final String title) {
         final JLabel sectionLabel = new JLabel(title);
         sectionLabel.setFont(sectionLabel.getFont().deriveFont(SECTION_FONT_SIZE));
@@ -445,18 +449,9 @@ public final class AdminPanel extends JPanel {
         gbc.gridy = row;
         gbc.gridwidth = 2;
         panel.add(sectionLabel, gbc);
-        gbc.gridwidth = 1; // Reset
+        gbc.gridwidth = 1;
     }
 
-    /**
-     * Adds a form field with a label and text field to a panel.
-     * 
-     * @param panel the target panel.
-     * @param gbc the grid bag constraints.
-     * @param row the grid row index.
-     * @param labelText the text for the label.
-     * @param field the text field component.
-     */
     private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row, 
                             final String labelText, final JTextField field) {
         gbc.gridx = 0;
@@ -475,14 +470,6 @@ public final class AdminPanel extends JPanel {
         panel.add(comboBox, gbc);
     }
 
-    /**
-     * Adds a centered action button to a form panel.
-     * 
-     * @param panel the target panel.
-     * @param gbc the grid bag constraints.
-     * @param row the grid row index.
-     * @param button the button component.
-     */
     private void addCenteredButton(final JPanel panel, final GridBagConstraints gbc, final int row, final JButton button) {
         button.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         gbc.gridx = 0;
@@ -492,257 +479,67 @@ public final class AdminPanel extends JPanel {
         panel.add(button, gbc);
     }
 
-    /**
-     * Adds an action listener to the fetch global albums button.
-     * 
-     * @param listener the action listener.
-     */
     public void addFetchGlobalAlbumsListener(final ActionListener listener) {
-        this.btnFetchGlobalStats.addActionListener(listener); // o btnFetchGlobalAlbums se hai chiamato così il pulsante
+        this.btnFetchGlobalStats.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the fetch yearly stats button.
-     * 
-     * @param listener the action listener.
-     */
     public void addFetchYearlyStatsListener(final ActionListener listener) {
         this.btnFetchYearlyStats.addActionListener(listener);
     }
 
-    /**
-     * Gets the artist's stage name.
-     * 
-     * @return the stage name.
-     */
-    public String getArtistStageName() {
-        return this.txtStageName.getText();
-    }
+    public String getArtistStageName() { return this.txtStageName.getText(); }
+    public String getArtistRealName() { return this.txtRealName.getText(); }
+    public String getArtistRealSurname() { return this.txtRealSurname.getText(); }
+    public String getArtistBirthDate() { return this.txtBirthDate.getText(); }
+    public String getArtistProvenanceCountry() { return this.txtProvenanceCountry.getText(); }
+    public String getArtistBiography() { return this.txtBiography.getText(); }
+    public String getArtistStartYear() { return this.txtStartYear.getText(); }
+    public String getArtistType() { return this.txtArtistType.getText(); }
 
-    /**
-     * Gets the artist's real name.
-     * 
-     * @return the real name.
-     */
-    public String getArtistRealName() {
-        return this.txtRealName.getText();
-    }
-
-    /**
-     * Gets the artist's real surname.
-     * 
-     * @return the real surname.
-     */
-    public String getArtistRealSurname() {
-        return this.txtRealSurname.getText();
-    }
-
-    /**
-     * Gets the artist's birth date.
-     * 
-     * @return the birth date.
-     */
-    public String getArtistBirthDate() {
-        return this.txtBirthDate.getText();
-    }
-
-    /**
-     * Gets the artist's provenance country.
-     * 
-     * @return the provenance country.
-     */
-    public String getArtistProvenanceCountry() {
-        return this.txtProvenanceCountry.getText();
-    }
-
-    /**
-     * Gets the artist's biography.
-     * 
-     * @return the biography.
-     */
-    public String getArtistBiography() {
-        return this.txtBiography.getText();
-    }
-
-    /**
-     * Gets the artist's start year.
-     * 
-     * @return the start year.
-     */
-    public String getArtistStartYear() {
-        return this.txtStartYear.getText();
-    }
-
-    /**
-     * Gets the artist's type.
-     * 
-     * @return the artist type.
-     */
-    public String getArtistType() {
-        return this.txtArtistType.getText();
-    }
-
-    /**
-     * Gets the selected artist code for the album.
-     * 
-     * @return the artist code as a String, or an empty string if none selected.
-     */
     public String getAlbumArtistCode() {
         final Artist selectedArtist = (Artist) this.comboAlbumArtist.getSelectedItem();
         return selectedArtist != null ? String.valueOf(selectedArtist.getArtistCode()) : "";
     }
 
-    /**
-     * Gets the album title.
-     * 
-     * @return the album title.
-     */
-    public String getAlbumTitle() {
-        return this.txtAlbumTitle.getText();
-    }
+    public String getAlbumTitle() { return this.txtAlbumTitle.getText(); }
+    public String getAlbumReleaseDate() { return this.txtAlbumReleaseDate.getText(); }
+    public String getAlbumLabel() { return this.txtAlbumLabel.getText(); }
+    public String getAlbumSongsInput() { return this.txtAlbumSongsInput.getText(); }
 
-    /**
-     * Gets the album release date.
-     * 
-     * @return the release date.
-     */
-    public String getAlbumReleaseDate() {
-        return this.txtAlbumReleaseDate.getText();
-    }
-
-    /**
-     * Gets the album record label.
-     * 
-     * @return the record label.
-     */
-    public String getAlbumLabel() {
-        return this.txtAlbumLabel.getText();
-    }
-
-    /**
-     * Gets the input text for album songs.
-     * 
-     * @return the songs input text.
-     */
-    public String getAlbumSongsInput() {
-        return this.txtAlbumSongsInput.getText();
-    }
-
-    /**
-     * Gets the selected artist code for the podcast.
-     * 
-     * @return the artist code as a String, or an empty string if none selected.
-     */
     public String getPodcastArtistCode() {
         final Artist selectedArtist = (Artist) this.comboPodcastArtist.getSelectedItem();
         return selectedArtist != null ? String.valueOf(selectedArtist.getArtistCode()) : "";
     }
 
-    /**
-     * Gets the podcast name.
-     * 
-     * @return the podcast name.
-     */
-    public String getPodcastName() {
-        return this.txtPodcastName.getText();
-    }
+    public String getPodcastName() { return this.txtPodcastName.getText(); }
+    public String getPodcastDescription() { return this.txtPodcastDescription.getText(); }
+    public String getPodcastCategory() { return this.txtPodcastCategory.getText(); }
 
-    /**
-     * Gets the podcast description.
-     * 
-     * @return the podcast description.
-     */
-    public String getPodcastDescription() {
-        return this.txtPodcastDescription.getText();
-    }
-
-    /**
-     * Gets the podcast category.
-     * 
-     * @return the podcast category.
-     */
-    public String getPodcastCategory() {
-        return this.txtPodcastCategory.getText();
-    }
-
-    /**
-     * Gets the selected podcast code for the episode.
-     * 
-     * @return the podcast code as a String, or an empty string if none selected.
-     */
     public String getEpisodePodcastCode() {
         final Podcast selectedPodcast = (Podcast) this.comboEpisodePodcast.getSelectedItem();
         return selectedPodcast != null ? String.valueOf(selectedPodcast.getPodcastCode()) : "";
     }
 
-    /**
-     * Gets the episode title.
-     * 
-     * @return the episode title.
-     */
-    public String getEpisodeTitle() {
-        return this.txtEpisodeTitle.getText();
-    }
+    public String getEpisodeTitle() { return this.txtEpisodeTitle.getText(); }
+    public String getEpisodeDuration() { return this.txtEpisodeDuration.getText(); }
+    public String getEpisodeDescription() { return this.txtEpisodeDescription.getText(); }
+    public String getEpisodeNumber() { return this.txtEpisodeNumber.getText(); }
 
-    /**
-     * Gets the episode duration.
-     * 
-     * @return the episode duration.
-     */
-    public String getEpisodeDuration() {
-        return this.txtEpisodeDuration.getText();
-    }
+    // --- Getter Promozione aggiornati al 1° blocco ---
+    public String getPromoCode() { return this.txtPromoCode.getText(); }
+    public String getPromoName() { return this.txtPromoName.getText(); }
+    public String getPromoDescription() { return this.txtPromoDescription.getText(); }
+    public String getPromoStartDate() { return this.txtPromoStartDate.getText(); }
+    public String getPromoEndDate() { return this.txtPromoEndDate.getText(); }
+    public String getDiscountType() { return (String) this.comboDiscountType.getSelectedItem(); }
+    public String getDiscountValue() { return this.txtDiscountValue.getText(); }
+    public String getRequiredMonths() { return this.txtRequiredMonths.getText(); }
+    public String getPromoPlanCodes() { return this.txtPromoPlanCodes.getText(); }
 
-    /**
-     * Gets the episode description.
-     * 
-     * @return the episode description.
-     */
-    public String getEpisodeDescription() {
-        return this.txtEpisodeDescription.getText();
-    }
-
-    /**
-     * Gets the episode number.
-     * 
-     * @return the episode number.
-     */
-    public String getEpisodeNumber() {
-        return this.txtEpisodeNumber.getText();
-    }
-
-    /**
-     * Gets the promotion name.
-     * 
-     * @return the promotion name.
-     */
-    public String getPromoName() {
-        return this.txtPromoName.getText();
-    }
-
-    /**
-     * Gets the discount percentage.
-     * 
-     * @return the discount percentage.
-     */
-    public String getDiscountPercentage() {
-        return this.txtDiscountPercentage.getText();
-    }
-
-    /**
-     * Gets the currently selected year from the stats combo box.
-     * 
-     * @return the selected year integer.
-     */
     public Integer getStatsYear() {
         return (Integer) this.comboStatsYear.getSelectedItem();
     }
 
-    /**
-     * Sets the available artists for albums in the dropdown menu.
-     * 
-     * @param artists the list of artist objects eligible for albums.
-     */
     public void setAlbumArtists(final List<Artist> artists) {
         this.comboAlbumArtist.removeAllItems();
         for (final Artist artist : artists) {
@@ -750,11 +547,6 @@ public final class AdminPanel extends JPanel {
         }
     }
 
-    /**
-     * Sets the available podcast authors in the dropdown menu.
-     * 
-     * @param authors the list of artist objects authorized as podcast authors.
-     */
     public void setPodcastAuthors(final List<Artist> authors) {
         this.comboPodcastArtist.removeAllItems();
         for (final Artist artist : authors) {
@@ -762,11 +554,6 @@ public final class AdminPanel extends JPanel {
         }
     }
 
-    /**
-     * Sets the available podcasts in the dropdown menu.
-     * 
-     * @param podcasts the list of podcasts.
-     */
     public void setPodcasts(final List<Podcast> podcasts) {
         this.comboEpisodePodcast.removeAllItems();
         for (final Podcast podcast : podcasts) {
@@ -774,29 +561,14 @@ public final class AdminPanel extends JPanel {
         }
     }
 
-    /**
-     * Sets the global albums statistics text.
-     * 
-     * @param text the text to set.
-     */
     public void setGlobalAlbumsOutputText(final String text) {
         this.txtGlobalAlbumsOutput.setText(text);
     }
 
-    /**
-     * Sets the yearly statistics text.
-     * 
-     * @param text the text to set.
-     */
     public void setYearlyStatsOutputText(final String text) {
         this.txtYearlyStatsOutput.setText(text);
     }
 
-    /**
-     * Sets the users data in the table.
-     * 
-     * @param usersData a list of object arrays representing user rows.
-     */
     public void setUsersTableData(final List<Object[]> usersData) {
         this.usersTableModel.setRowCount(0);
         for (final Object[] row : usersData) {
@@ -804,81 +576,38 @@ public final class AdminPanel extends JPanel {
         }
     }
 
-    /**
-     * Adds an action listener to the save artist button.
-     * 
-     * @param listener the action listener.
-     */
     public void addSaveArtistListener(final ActionListener listener) {
         this.btnSaveArtist.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the save album button.
-     * 
-     * @param listener the action listener.
-     */
     public void addSaveAlbumListener(final ActionListener listener) {
         this.btnSaveAlbum.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the save podcast button.
-     * 
-     * @param listener the action listener.
-     */
     public void addSavePodcastListener(final ActionListener listener) {
         this.btnSavePodcast.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the save episode button.
-     * 
-     * @param listener the action listener.
-     */
     public void addSaveEpisodeListener(final ActionListener listener) {
         this.btnSaveEpisode.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the save promotion button.
-     * 
-     * @param listener the action listener.
-     */
     public void addSavePromotionListener(final ActionListener listener) {
         this.btnSavePromotion.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the fetch stats button.
-     * 
-     * @param listener the action listener.
-     */
     public void addFetchStatsListener(final ActionListener listener) {
         this.btnFetchGlobalStats.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the back button.
-     * 
-     * @param listener the action listener.
-     */
     public void addBackListener(final ActionListener listener) {
         this.btnBack.addActionListener(listener);
     }
 
-    /**
-     * Adds an action listener to the fetch users button.
-     * 
-     * @param listener the action listener.
-     */
     public void addFetchUsersListener(final ActionListener listener) {
         this.btnFetchUsers.addActionListener(listener);
     }
 
-    /**
-     * Clears all text fields and text areas across all forms in the admin panel.
-     */
     public void clearAllForms() {
         final JTextComponent[] textComponents = {
             // Artist Form
@@ -892,10 +621,12 @@ public final class AdminPanel extends JPanel {
             this.txtPodcastName, 
             this.txtPodcastDescription, this.txtPodcastCategory,
             // Episode Form
-            this.txtEpisodePodcastCode, this.txtEpisodeTitle, 
+            this.txtEpisodeTitle, 
             this.txtEpisodeDuration, this.txtEpisodeDescription, this.txtEpisodeNumber,
-            // Promotion Form
-            this.txtPromoName, this.txtDiscountPercentage,
+            // Promotion Form (Aggiornato)
+            this.txtPromoCode, this.txtPromoName, this.txtPromoDescription, 
+            this.txtPromoStartDate, this.txtPromoEndDate, this.txtDiscountValue, 
+            this.txtRequiredMonths, this.txtPromoPlanCodes
         };
 
         for (final JTextComponent component : textComponents) {

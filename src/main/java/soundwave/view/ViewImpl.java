@@ -1,6 +1,7 @@
 package soundwave.view;
 
 import java.awt.CardLayout;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -103,6 +104,11 @@ public final class ViewImpl extends JFrame implements View {
                 this.adminPanel.setPodcastAuthors(authors);
             }
         });
+        
+        this.roleSelectionPanel.addRegisterListener(e -> {
+            this.showRegisterDialog();
+        });      
+        
         this.adminPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
         this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
 
@@ -351,15 +357,40 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
-public void showRedeemBonusDialog(final String username, final List<Plan> plans, 
-                                  final int bonusCredits) {
-    this.userPanel.showRedeemBonusDialog(username, plans, bonusCredits, data -> {
-        if (this.controller != null) {
-            this.controller.userRedeemedBonus(username, data);
-        }
-    });
-}
+    public void showRedeemBonusDialog(final String username, final List<Plan> plans, 
+                                    final int bonusCredits) {
+        this.userPanel.showRedeemBonusDialog(username, plans, bonusCredits, data -> {
+            if (this.controller != null) {
+                this.controller.userRedeemedBonus(username, data);
+            }
+        });
+    }
 
+    @Override
+    public void showRegisterDialog() {
+        RegisterDialog dialog = new RegisterDialog(this);
+        
+        dialog.addRegisterListener(() -> {
+            if (this.controller != null) {
+                String username = dialog.getUsername();
+                String name = dialog.getName();
+                String surname = dialog.getSurname();
+                String email = dialog.getEmail();
+                String password = dialog.getPassword();
+                LocalDate birthDate = dialog.getBirthDate();
+                String country = dialog.getCountry();
+                
+                // Chiama il controller per registrare
+                this.controller.userRegistered(username, name, surname, email, password, birthDate, country);
+                
+                // Chiudi il dialog solo dopo il successo
+                // Il successo verrà gestito dal controller
+                dialog.dispose();
+            }
+        });
+        
+        dialog.setVisible(true);
+    }
     
     
     @Override

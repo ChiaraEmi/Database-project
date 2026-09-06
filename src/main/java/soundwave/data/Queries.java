@@ -22,7 +22,7 @@ public final class Queries {
 
     public static final String INSERT_USER = 
         """
-        INSERT INTO Utenti (Username, Email, Password, Nome, Cognome, DataNascita, Paese, CreditiBonus)
+        INSERT INTO Utenti (Username, Email, Password, Nome, Cognome, DataNascita, Paese, CreditoBonus)
         VALUES (?, ?, ?, ?, ?, ?, ?, 0)
         """;
 
@@ -240,7 +240,7 @@ public final class Queries {
     // --- OP 6: INSERIMENTO DI UNA NUOVA CAMPAGNA PROMOZIONALE ---
     public static final String INSERT_PROMOTIONAL_CAMPAIGN = 
         """
-        INSERT INTO Promozioni (Codice, Nome, Descrizione, DataInizioPromo, DataFinePromo, TipoSconto, ValoreSconto, MesiRichiesti)
+        INSERT INTO Promozioni (CodicePromozione, Nome, Descrizione, DataInizioPromo, DataFinePromo, TipoSconto, ValoreSconto, MesiRichiesti)
         VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 

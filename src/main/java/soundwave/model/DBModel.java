@@ -298,6 +298,13 @@ public final class DBModel implements Model {
         }
     }
 
+    @Override
+    public String registerUser(final String username, final String name, final String surname,
+                            final String email, final String password, 
+                            final LocalDate birthDate, final String country) {
+        return User.DAO.register(connection, username, name, surname, email, password, birthDate, country);
+    }
+
 
 
 

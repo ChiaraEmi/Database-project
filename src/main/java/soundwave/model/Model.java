@@ -235,6 +235,8 @@ public interface Model {
     int getBonusCredits(String username);
     int redeemBonus(String username, int planCode, boolean autoRenew);
 
+    String registerUser(String username, String name, String surname, String email, 
+                        String password, LocalDate birthDate, String country);
 
 
 

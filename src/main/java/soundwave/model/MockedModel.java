@@ -257,5 +257,15 @@ public final class MockedModel implements Model {
         return 999;
     }
 
+    @Override
+    public String registerUser(final String username, final String name, final String surname,
+                            final String email, final String password, 
+                            final LocalDate birthDate, final String country) {
+        System.out.println("[MOCK] Utente registrato: " + username);
+        System.out.println("[MOCK] Email: " + email);
+        System.out.println("[MOCK] Codice invito generato: INV_" + username.toUpperCase());
+        return "INV_" + username.toUpperCase();
+    }
+
 
 }

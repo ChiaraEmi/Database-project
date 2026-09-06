@@ -1,5 +1,6 @@
 package soundwave.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -125,6 +126,9 @@ public interface Controller {
     void userRequestedRedeemBonus(String username);
 
     void userRedeemedBonus(String username, RedeemBonusDialog.RedeemData data);
+
+    void userRegistered(String username, String name, String surname, String email, 
+                    String password, LocalDate birthDate, String country);
 
     /**
      * Handles the request to generate a listening event.

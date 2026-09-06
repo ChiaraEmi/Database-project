@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
+
 import java.util.logging.Level;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -70,6 +73,32 @@ public final class ControllerImpl implements Controller {
     public void adminClickedSavePromotion(final String code, final String name, final String description, final String startDate, final String endDate, final String discountType, 
                                           final String discountValueStr, final String rqrMonths, final String planCodesStr) {
         try {
+
+            if (code == null || code.trim().isEmpty()) {
+                this.view.showError("Il codice promozione è obbligatorio.");
+                return;
+            }
+            if (name == null || name.trim().isEmpty()) {
+                this.view.showError("Il nome della promozione è obbligatorio.");
+                return;
+            }
+            if (startDate == null || startDate.trim().isEmpty()) {
+                this.view.showError("La data inizio è obbligatoria.");
+                return;
+            }
+            if (endDate == null || endDate.trim().isEmpty()) {
+                this.view.showError("La data fine è obbligatoria.");
+                return;
+            }
+            if (discountValueStr == null || discountValueStr.trim().isEmpty()) {
+                this.view.showError("Il valore dello sconto è obbligatorio.");
+                return;
+            }
+            if (planCodesStr == null || planCodesStr.trim().isEmpty()) {
+                this.view.showError("Devi specificare almeno un piano di abbonamento.");
+                return;
+            }
+
             final LocalDate start = LocalDate.parse(startDate);
             final LocalDate end = LocalDate.parse(endDate);
             final double discountValue = Double.parseDouble(discountValueStr);
@@ -82,29 +111,30 @@ public final class ControllerImpl implements Controller {
             }
 
             if(start.isAfter(end)) {
-                showError("La data inzio non può essere dopo la data fine");
+                this.view.showError("La data inzio non può essere dopo la data fine");
                 return;
             }
             if(planCodes.isEmpty()) {
-                showError("Devi specificare almeno un piano di abbonamento");
+                this.view.showError("Devi specificare almeno un piano di abbonamento");
                 return;
             }
             if(discountValue <= 0.0) {
-                showError("Il valore dello sconto deve essere maggiore di 0");
+                this.view.showError("Il valore dello sconto deve essere maggiore di 0");
                 return;
             }
 
             this.model.insertPromotion(code, name, description, start, end, discountType, discountValue, requiredMonths, planCodes);
-            showSuccess("Promozione creata con successo");
+            this.view.showSuccess("Promozione creata con successo");
         } catch (final java.time.format.DateTimeParseException e) {
-            //showError("Formato data non valido. Usa YYYY-MM-DD. qui ");
+            this.view.showError("Formato data non valido. Usa YYYY-MM-DD. qui ");
         } catch (final NumberFormatException e) {
-            //showError("Valore numerico non valido. Controlla sconto, mesi richiesti e codici piani");
+            this.view.showError("Valore numerico non valido. Controlla sconto, mesi richiesti e codici piani");
         } catch (final DAOException e) {
-            //showError("Impossibile salvare la promozione.");
+            this.view.showError("Impossibile salvare la promozione:" + e.getMessage());
+            e.printStackTrace();
         } catch (final Exception e) {
-            //showError("Errore imprevisto:" + e.getMessage());
-            //e.printStackTrace();
+            this.view.showError("Errore imprevisto:" + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -352,6 +382,27 @@ public final class ControllerImpl implements Controller {
         }
     }
 
+    @Override
+    public void userRegistered(final String username, final String name, final String surname,
+                            final String email, final String password, 
+                            final LocalDate birthDate, final String country) {
+        try {
+            // Registra l'utente e genera il codice invito
+            String inviteCode = this.model.registerUser(username, name, surname, email, 
+                                                        password, birthDate, country);
+            
+            // Mostra successo con il codice invito
+            this.view.showSuccess("Utente registrato con successo!\n" +
+                                "Username: " + username + "\n" +
+                                "Codice Invito: " + inviteCode + "\n\n" +
+                                "Ora puoi accedere con le tue credenziali.");
+            
+        } catch (final DAOException e) {
+            this.view.showError("Errore durante la registrazione: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public boolean userGeneratedListeningEvent(final String username, final int contentCode, 
@@ -571,4 +622,5 @@ public final class ControllerImpl implements Controller {
         }
         return songList;
     }
+
 }

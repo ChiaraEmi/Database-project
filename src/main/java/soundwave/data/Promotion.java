@@ -13,7 +13,7 @@ import java.sql.Statement;
  */
 public final class Promotion {
 
-    private final int promotioncode;
+    private final String promotioncode;
     private final String name;
     private final String description;
     private final LocalDate beginDate;
@@ -35,7 +35,7 @@ public final class Promotion {
      * @param requiredMonths optional field for the month when the promotion was requested
      */
     public Promotion(
-            final int promotioncode,
+            final String promotioncode,
             final String name,
             final String description,
             final LocalDate beginDate,
@@ -44,7 +44,7 @@ public final class Promotion {
             final double discountValue,
             final Integer requiredMonths
     ) {
-        this.promotioncode = promotioncode;
+        this.promotioncode = Objects.requireNonNull(promotioncode, "Il codice promozione è obbligatorio.");
         this.name = Objects.requireNonNull(name, "Name cannot be null");
         this.description = Objects.requireNonNull(description, "Description cannot be null");
         this.beginDate = Objects.requireNonNull(beginDate, "Begin date cannot be null");
@@ -59,7 +59,7 @@ public final class Promotion {
      *
      * @return the promotion code
      */
-    public int getPromotionCode() {
+    public String getPromotionCode() {
         return promotioncode;
     }
 
@@ -197,26 +197,16 @@ public final class Promotion {
          * @param discountValue         the value of the discount
          * @param requiredMonths        optional field for the month when the promotion was requested
          * @param subscriptionPlanCodes list of subscription plan codes to associate with the promotion
-         * @return 
          */
-        public static int insertPromotion(final Connection connection, final String code, final String name, final String description, final LocalDate beginDate, final LocalDate endDate, final String discountType, final double discountValue, final Integer requiredMonths, final List<Integer> subscriptionPlanCodes) {
+        public static void insertPromotion(final Connection connection, final String code, final String name, final String description, final LocalDate beginDate, final LocalDate endDate, final String discountType, final double discountValue, final Integer requiredMonths, final List<Integer> subscriptionPlanCodes) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
             
-                //1. Insert the promotion and get the generated promotion code  
-                int promotionCode;
-                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN,Statement.RETURN_GENERATED_KEYS, code, name, description, Date.valueOf(beginDate), Date.valueOf(endDate), discountType, discountValue, requiredMonths)) {
+                //2. Insert promotion
+                try (var statement = DAOUtils.prepare(connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN, code, name, description, Date.valueOf(beginDate), Date.valueOf(endDate), discountType, discountValue, requiredMonths)) {
                     statement.executeUpdate();
-
-                    try (var generatedKeys = statement.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            promotionCode = generatedKeys.getInt(1);
-                        } else {
-                            throw new DAOException("Unable to retrieve generated promotion code.");
-                        }
-                    }
                 }
 
                 //2. Insert the promotion-plan associations
@@ -231,7 +221,6 @@ public final class Promotion {
                     }
                 }
                 connection.commit();
-                return promotionCode;
             } catch (final SQLException e) {
                 try {
                     connection.rollback();

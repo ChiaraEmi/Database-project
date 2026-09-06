@@ -61,7 +61,7 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtAlbumTitle = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumReleaseDate = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS);
-    private final JTextArea txtAlbumSongsInput = new JTextArea(DEFAULT_SONGS_ROWS, 20); 
+    private final JTextArea txtAlbumSongsInput = new JTextArea(DEFAULT_SONGS_ROWS, 40); 
     private final JButton btnSaveAlbum = new JButton("Salva Album");
 
     // --- Campi di testo per inserimento Podcast (OP 9) ---
@@ -232,13 +232,27 @@ public final class AdminPanel extends JPanel {
         addFormField(panel, gbc, row, "Casa Discografica:", this.txtAlbumLabel);
         row++;
 
+        // --- Sezione Elenco Brani con Istruzioni ---
         gbc.gridx = 0;
         gbc.gridy = row;
         panel.add(new JLabel("Elenco Brani:"), gbc);
 
         gbc.gridx = 1;
         this.txtAlbumSongsInput.setLineWrap(true);
+        this.txtAlbumSongsInput.setWrapStyleWord(true);
         panel.add(new JScrollPane(this.txtAlbumSongsInput), gbc);
+        row++;
+
+        // Riga aggiuntiva per le istruzioni sul formato
+        gbc.gridx = 1;
+        gbc.gridy = row;
+        final JLabel formatHelpLabel = new JLabel("<html><small style='color:gray;'>"
+                                                + "<b>Regola:</b> Inserisci una sola riga per ogni brano.<br>"
+                                                + "<b>Formato:</b> Titolo, Durata(s), N.Traccia, Descrizione, "
+                                                + "CodiceArtista, Genere1;Genere2<br>"
+                                                + "(es. Sunshine, 210, 1, Brano estivo, 5, Pop;Dance)"
+                                                + "</small></html>");
+        panel.add(formatHelpLabel, gbc);
         row++;
 
         addCenteredButton(panel, gbc, row, this.btnSaveAlbum);

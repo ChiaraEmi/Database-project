@@ -90,6 +90,8 @@ public final class UserPanel extends JPanel {
 
     // --- Tab 4: Statistiche & Ascolti ---
     private final JButton btnFetchPersonalStats = new JButton("Visualizza Statistiche Annuali");
+    private final JComboBox<Integer> comboStatsYear = new JComboBox<>(
+        new Integer[]{2026, 2025, 2024});
     private final JTextArea txtStatsOutput = new JTextArea(8, 30);
 
     private final JButton btnBack = new JButton("Torna alla Selezione Ruolo");
@@ -386,8 +388,25 @@ public final class UserPanel extends JPanel {
         final JPanel panel = new JPanel(new BorderLayout(0, INSET_GAP));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
+        final JPanel topStatsPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        topStatsPanel.add(new JLabel("Anno di riferimento:"), gbc);
+        
+        gbc.gridx = 1;
+        topStatsPanel.add(this.comboStatsYear, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
         this.btnFetchPersonalStats.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        panel.add(this.btnFetchPersonalStats, BorderLayout.NORTH);
+        topStatsPanel.add(this.btnFetchPersonalStats, gbc);
+
+        panel.add(topStatsPanel, BorderLayout.NORTH);
 
         this.txtStatsOutput.setEditable(false);
         panel.add(new JScrollPane(this.txtStatsOutput), BorderLayout.CENTER);
@@ -483,6 +502,16 @@ public final class UserPanel extends JPanel {
      */
     public String getRemoveTrackCode() {
         return this.txtRemoveTrackCode.getText().trim();
+    }
+
+    /**
+     * Gets the statistics year from the dropdown menu.
+     * 
+     * @return the statistics year as a String.
+     */
+    public String getStatsYear() {
+        final Integer selectedYear = (Integer) this.comboStatsYear.getSelectedItem();
+        return selectedYear != null ? selectedYear.toString() : "";
     }
 
     /**

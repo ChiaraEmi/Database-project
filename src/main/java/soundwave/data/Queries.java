@@ -462,84 +462,145 @@ public final class Queries {
         WHERE Username = ? AND CodiceBrano = ?
         """;
 
-    // --- OPS 22 ---
-    public static final String SELECT_MOST_PLAYED_SONG = 
-    """
-    SELECT B.CodiceBrano, C.Titolo, COUNT(*) AS NumeroAscolti
-    FROM EventiAscolto E
-    JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
-    JOIN Contenuti C ON B.CodiceBrano = C.CodiceContenuto 
-    WHERE YEAR(E.DataOra) = ?
-    GROUP BY B.CodiceBrano, C.Titolo
-    ORDER BY NumeroAscolti DESC
-    LIMIT 1
-    """;
+    // --- OP 21: STATISTICHE PERSONALI DELL'UTENTE ---
 
-    public static final String SELECT_MOST_PLAYED_ARTIST = 
-    """
-    SELECT A.CodiceArtista, A.NomeDArte, COUNT(*) AS NumeroAscolti
-    FROM (
-        SELECT E.DataOra, C.CodiceArtista
+    // 1. Totale ascolti e minuti totali nell'anno
+    public static final String SELECT_PERSONAL_TOTALS_YEAR = 
+        """
+        SELECT COUNT(*) AS TotaleAscolti, SUM(E.DurataEvento) AS TotaleSecondi
+        FROM EventiAscolto E
+        WHERE E.Username = ? AND YEAR(E.DataOra) = ?
+        """;
+
+    // 2. I 5 contenuti più ascoltati dall'utente
+    public static final String SELECT_PERSONAL_TOP_TRACKS = 
+        """
+        SELECT C.CodiceContenuto, C.Titolo, COUNT(*) AS NumeroAscolti
+        FROM EventiAscolto E
+        JOIN Contenuti C ON E.CodiceContenuto = C.CodiceContenuto
+        WHERE E.Username = ? AND YEAR(E.DataOra) = ?
+        GROUP BY C.CodiceContenuto, C.Titolo
+        ORDER BY NumeroAscolti DESC
+        LIMIT 5
+        """;
+
+    // 3. I 5 artisti più ascoltati dall'utente (gestisce sia Brani/Cantare che Episodi/Podcast)
+    public static final String SELECT_PERSONAL_TOP_ARTISTS = 
+        """
+        SELECT A.CodiceArtista, A.NomeDArte, COUNT(*) AS NumeroAscolti
+        FROM (
+            SELECT E.DataOra, C.CodiceArtista
+            FROM EventiAscolto E
+            JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+            JOIN Cantare C ON B.CodiceBrano = C.CodiceBrano
+            WHERE E.Username = ?
+
+            UNION ALL
+
+            SELECT E.DataOra, P.CodiceArtista
+            FROM EventiAscolto E
+            JOIN Episodi EP ON E.CodiceContenuto = EP.CodiceEpisodio
+            JOIN Podcast P ON EP.CodicePodcast = P.CodicePodcast
+            WHERE E.Username = ?
+        ) AS AscoltiArtista
+        JOIN Artisti A ON AscoltiArtista.CodiceArtista = A.CodiceArtista
+        WHERE YEAR(AscoltiArtista.DataOra) = ?
+        GROUP BY A.CodiceArtista, A.NomeDArte
+        ORDER BY NumeroAscolti DESC
+        LIMIT 5
+        """;
+
+    // 4. Il genere musicale più ascoltato dall'utente
+    public static final String SELECT_PERSONAL_TOP_GENRE = 
+        """
+        SELECT A.NomeGenere, COUNT(*) AS NumeroAscolti
         FROM EventiAscolto E
         JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
-        JOIN Cantare C ON B.CodiceBrano = C.CodiceBrano
+        JOIN Appartenenze A ON B.CodiceBrano = A.CodiceBrano
+        WHERE E.Username = ? AND YEAR(E.DataOra) = ?
+        GROUP BY A.NomeGenere
+        ORDER BY NumeroAscolti DESC
+        LIMIT 1
+        """;
 
-        UNION ALL
-
-        SELECT E.DataOra, P.CodiceArtista
+    // --- OPS 22 ---
+    public static final String SELECT_MOST_PLAYED_SONG = 
+        """
+        SELECT B.CodiceBrano, C.Titolo, COUNT(*) AS NumeroAscolti
         FROM EventiAscolto E
-        JOIN Episodi EP ON E.CodiceContenuto = EP.CodiceEpisodio
-        JOIN Podcast P ON EP.CodicePodcast = P.CodicePodcast
-    ) AS AscoltiArtista
-    JOIN Artisti A ON AscoltiArtista.CodiceArtista = A.CodiceArtista
-    WHERE YEAR(AscoltiArtista.DataOra) = ?
-    GROUP BY A.CodiceArtista, A.NomeDArte
-    ORDER BY NumeroAscolti DESC
-    LIMIT 1
-    """;
+        JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+        JOIN Contenuti C ON B.CodiceBrano = C.CodiceContenuto 
+        WHERE YEAR(E.DataOra) = ?
+        GROUP BY B.CodiceBrano, C.Titolo
+        ORDER BY NumeroAscolti DESC
+        LIMIT 1
+        """;
+
+    public static final String SELECT_MOST_PLAYED_ARTIST = 
+        """
+        SELECT A.CodiceArtista, A.NomeDArte, COUNT(*) AS NumeroAscolti
+        FROM (
+            SELECT E.DataOra, C.CodiceArtista
+            FROM EventiAscolto E
+            JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+            JOIN Cantare C ON B.CodiceBrano = C.CodiceBrano
+
+            UNION ALL
+
+            SELECT E.DataOra, P.CodiceArtista
+            FROM EventiAscolto E
+            JOIN Episodi EP ON E.CodiceContenuto = EP.CodiceEpisodio
+            JOIN Podcast P ON EP.CodicePodcast = P.CodicePodcast
+        ) AS AscoltiArtista
+        JOIN Artisti A ON AscoltiArtista.CodiceArtista = A.CodiceArtista
+        WHERE YEAR(AscoltiArtista.DataOra) = ?
+        GROUP BY A.CodiceArtista, A.NomeDArte
+        ORDER BY NumeroAscolti DESC
+        LIMIT 1
+        """;
 
     public static final String SELECT_MOST_PLAYED_GENRE = 
-    """
-    SELECT A.NomeGenere, COUNT(*) AS NumeroAscolti
-    FROM EventiAscolto E
-    JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
-    JOIN Appartenenze A ON B.CodiceBrano = A.CodiceBrano
-    WHERE YEAR(E.DataOra) = ? 
-    GROUP BY A.NomeGenere
-    ORDER BY NumeroAscolti DESC
-    LIMIT 1
-    """;
+        """
+        SELECT A.NomeGenere, COUNT(*) AS NumeroAscolti
+        FROM EventiAscolto E
+        JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+        JOIN Appartenenze A ON B.CodiceBrano = A.CodiceBrano
+        WHERE YEAR(E.DataOra) = ? 
+        GROUP BY A.NomeGenere
+        ORDER BY NumeroAscolti DESC
+        LIMIT 1
+        """;
 
     public static final String SELECT_USERS_ABOVE_AVG_LISTENS = 
-    """
-    SELECT E.Username, COUNT(*) AS NumeroAscolti
-    FROM EventiAscolto E
-    WHERE YEAR(E.DataOra) = ? 
-    GROUP BY E.Username
-    HAVING COUNT(*) > (
-        SELECT AVG(TotaleAscolti)
-        FROM (SELECT COUNT(*) AS TotaleAscolti
-    FROM EventiAscolto
-    WHERE YEAR(DataOra) = ? 
-    GROUP BY Username ) AS AscoltiPerUtente
-    )
-    """;
+        """
+        SELECT E.Username, COUNT(*) AS NumeroAscolti
+        FROM EventiAscolto E
+        WHERE YEAR(E.DataOra) = ? 
+        GROUP BY E.Username
+        HAVING COUNT(*) > (
+            SELECT AVG(TotaleAscolti)
+            FROM (SELECT COUNT(*) AS TotaleAscolti
+        FROM EventiAscolto
+        WHERE YEAR(DataOra) = ? 
+        GROUP BY Username ) AS AscoltiPerUtente
+        )
+        """;
 
     public static final String SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING = 
-    """
-    SELECT A.CodiceAlbum, A.TitoloAlbum, A.MediaVoti
-    FROM ALBUM A
-    WHERE A.MediaVoti > (
-        SELECT AVG(MediaVoti)
-        FROM ALBUM)
-    """;
+        """
+        SELECT A.CodiceAlbum, A.TitoloAlbum, A.MediaVoti
+        FROM ALBUM A
+        WHERE A.MediaVoti > (
+            SELECT AVG(MediaVoti)
+            FROM ALBUM)
+        """;
 
     public static final String SELECT_ALL_GENRES = 
-    """
-    SELECT NomeGenere 
-    FROM Generi
-    ORDER BY NomeGenere ASC
-    """;
+        """
+        SELECT NomeGenere 
+        FROM Generi
+        ORDER BY NomeGenere ASC
+        """;
 
     private Queries() { }
 }

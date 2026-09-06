@@ -76,6 +76,13 @@ public interface View {
     void showActivateSubsriptionDialog(String username, List<Plan> plans);
 
     /**
+     * Displays the personal yearly listening statistics for a user.
+     *
+     * @param statsText the formatted string containing the personal statistics.
+     */
+    void showPersonalStats(String statsText);
+
+    /**
      * Shows the global albums above average in the admin panel.
      * 
      * @param statsText the text to display.

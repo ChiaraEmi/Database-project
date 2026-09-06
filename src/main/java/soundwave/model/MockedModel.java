@@ -258,7 +258,7 @@ public final class MockedModel implements Model {
 
     @Override
     public Object[] verifyPromotionCode(final String promoCode, final int planCode) {
-        List<String> validCodes = List.of("PROMO20", "WELCOME", "BLACKFRI", "STUDENT");
+        final List<String> validCodes = List.of("PROMO20", "WELCOME", "BLACKFRI", "STUDENT");
     
         if (promoCode != null && validCodes.contains(promoCode.toUpperCase(java.util.Locale.ROOT))) {
             return new Object[]{true, 20.0, "Percentuale", 89.99};
@@ -268,13 +268,44 @@ public final class MockedModel implements Model {
 
     @Override
     public List<Object[]> getSubscriptionData(final String username) {
-        List<String> trans1 = List.of("2026-01-01 10:00:00 | €71.99 | Completata");
-        List<String> trans2 = List.of("2026-02-01 12:15:00 | €4.99 | Completata");
+        final List<String> trans1 = List.of("2026-01-01 10:00:00 | €71.99 | Completata");
+        final List<String> trans2 = List.of("2026-02-01 12:15:00 | €4.99 | Completata");
         
         return List.of(
             new Object[]{1, "Annuale Premium", "2026-01-01", "2027-01-01", "Attiva", true, "-", "INV_MARIO", trans1},
             new Object[]{2, "Mensile Standard", "2026-02-01", "2026-03-01", "Scaduta", false, "PROMO20", "-", trans2}
         );
+    }
+
+    @Override
+    public Object[] getPersonalTotals(final String username, final int year) {
+        // Ritorna [TotaleAscolti, TotaleSecondi] simulati
+        return new Object[]{125, 18500};
+    }
+
+    @Override
+    public List<Object[]> getPersonalTopTracks(final String username, final int year) {
+        return List.of(
+            new Object[]{1, "Blinding Lights", 45},
+            new Object[]{2, "Levitating", 30},
+            new Object[]{3, "Starboy", 25},
+            new Object[]{4, "Save Your Tears", 15},
+            new Object[]{5, "As It Was", 10}
+        );
+    }
+
+    @Override
+    public List<Object[]> getPersonalTopArtists(final String username, final int year) {
+        return List.of(
+            new Object[]{1, "The Weeknd", 70},
+            new Object[]{2, "Dua Lipa", 50},
+            new Object[]{3, "Harry Styles", 35}
+        );
+    }
+
+    @Override
+    public String getPersonalTopGenre(final String username, final int year) {
+        return "Pop";
     }
 
 }

@@ -238,7 +238,7 @@ public final class ControllerImpl implements Controller {
 
         if (artistCode <= 0 || title == null || title.isBlank() || releaseDate == null || releaseDate.isBlank()
             || recordCompany == null || recordCompany.isBlank() || rawSongsText == null || rawSongsText.isBlank()) {
-            final String errorMessage = "Compila i campi obbligatori (Artista, Titolo, Data e Casa Discografica).";
+            final String errorMessage = "Compila i campi obbligatori (Titolo, Data, Casa Discografica, Elenco brani).";
             LOGGER.log(Level.WARNING, errorMessage);
             this.view.showError(errorMessage);
             return false;
@@ -293,7 +293,7 @@ public final class ControllerImpl implements Controller {
                                          final String description, final String category) {
 
         if (artistCode <= 0 || name == null || name.isBlank() || category == null || category.isBlank()) {
-            final String errorMessage = "Compila i campi obbligatori del podcast (Artista, Nome e Categoria).";
+            final String errorMessage = "Compila i campi obbligatori (Nome e Categoria).";
             LOGGER.log(Level.WARNING, errorMessage);
             this.view.showError(errorMessage);
             return false;
@@ -323,7 +323,7 @@ public final class ControllerImpl implements Controller {
                                          final int episodeNumber) {
 
         if (podcastCode <= 0 || title == null || title.isBlank() || duration <= 0 || episodeNumber <= 0) {
-            final String errorMessage = "Compila i campi obbligatori dell'episodio (Podcast, Titolo, Durata e Numero Episodio).";
+            final String errorMessage = "Compila i campi obbligatori (Titolo, Durata e Numero Episodio).";
             LOGGER.log(Level.WARNING, errorMessage);
             this.view.showError(errorMessage);
             return false;
@@ -536,6 +536,63 @@ public final class ControllerImpl implements Controller {
     // ==========================================
 
     @Override
+    public void userRequestedPersonalStats(final String username, final int year) {
+        if (username == null || username.isBlank() || year <= 0) {
+            final String errorMessage = "Username o anno non validi per visualizzare le statistiche personali.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return;
+        }
+
+        try {
+            final Object[] totals = this.model.getPersonalTotals(username, year);
+            final List<Object[]> topTracks = this.model.getPersonalTopTracks(username, year);
+            final List<Object[]> topArtists = this.model.getPersonalTopArtists(username, year);
+            final String topGenre = this.model.getPersonalTopGenre(username, year);
+
+            final int totalListens = (int) totals[0];
+            final int totalSeconds = (int) totals[1];
+            final int totalMinutes = totalSeconds / 60;
+
+            final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
+            sb.append("=== Statistiche Personali (Anno ").append(year).append(SECTION_CLOSE_SUFFIX).append(NEW_LINE)
+              .append("• Ascolti totali: ").append(totalListens).append(NEW_LINE)
+              .append("• Tempo totale di ascolto: ").append(totalMinutes).append(" minuti (").append(totalSeconds).append(" secondi)").append(NEW_LINE)
+              .append("• Genere preferito: ").append(topGenre).append(NEW_LINE)
+              .append(NEW_LINE);
+
+            sb.append("=== I tuoi 5 brani più ascoltati ===").append(NEW_LINE);
+            if (topTracks != null && !topTracks.isEmpty()) {
+                for (final Object[] track : topTracks) {
+                    final String title = (String) track[1];
+                    final int count = (int) track[2];
+                    sb.append("• ").append(title).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
+                }
+            } else {
+                sb.append("Nessun brano trovato per questo anno.").append(NEW_LINE);
+            }
+            sb.append(NEW_LINE);
+
+            sb.append("=== I tuoi 5 artisti più ascoltati ===").append(NEW_LINE);
+            if (topArtists != null && !topArtists.isEmpty()) {
+                for (final Object[] artist : topArtists) {
+                    final String artistName = (String) artist[1];
+                    final int count = (int) artist[2];
+                    sb.append("• ").append(artistName).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
+                }
+            } else {
+                sb.append("Nessun artista trovato per questo anno.").append(NEW_LINE);
+            }
+
+            this.view.showPersonalStats(sb.toString());
+
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load personal stats for user: " + username, e);
+            this.view.showError("Errore durante il caricamento delle statistiche personali.");
+        }
+    }
+
+    @Override
     public void adminClickedLoadUsers() {
         try {
             final List<User> users = this.model.loadUsers();
@@ -626,10 +683,6 @@ public final class ControllerImpl implements Controller {
             this.view.showError("Errore durante il caricamento delle statistiche annuali.");
         }
     }
-
-    // ==========================================
-    // METODI PRIVATI DI SUPPORTO
-    // ==========================================
 
     private List<SongInput> parseSongsInput(final String rawText) {
         final List<SongInput> songList = new ArrayList<>();

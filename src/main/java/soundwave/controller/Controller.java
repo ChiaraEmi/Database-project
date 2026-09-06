@@ -190,6 +190,14 @@ public interface Controller {
     void adminClickedLoadUsers();
 
     /**
+     * Handles the request to load and display personal yearly listening statistics for a specific user.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     */
+    void userRequestedPersonalStats(String username, int year);
+
+    /**
      * Handles the request to fetch albums above global average.
      */
     void adminRequestedGlobalAlbums();

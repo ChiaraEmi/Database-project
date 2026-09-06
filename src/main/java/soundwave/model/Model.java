@@ -226,6 +226,47 @@ public interface Model {
     List<User> loadUsers();
 
     /**
+     * Retrieves the total number of listens and total listening duration (in seconds)
+     * for a specific user during a given year.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     * 
+     * @return an Object array containing total listens (Integer) and total seconds (Integer).
+     */
+    Object[] getPersonalTotals(String username, int year);
+
+    /**
+     * Retrieves the top 5 most played tracks for a specific user during a given year.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     * 
+     * @return a list of Object arrays containing track code, title, and play count.
+     */
+    List<Object[]> getPersonalTopTracks(String username, int year);
+
+    /**
+     * Retrieves the top 5 most played artists for a specific user during a given year.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     * 
+     * @return a list of Object arrays containing artist code, stage name, and play count.
+     */
+    List<Object[]> getPersonalTopArtists(String username, int year);
+
+    /**
+     * Retrieves the most listened musical genre for a specific user during a given year.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     * 
+     * @return the name of the top genre as a String, or "-" if none available.
+     */
+    String getPersonalTopGenre(String username, int year);
+
+    /**
      * Retrieves the most played artist in a specific year.
      *
      * @param year the year to check.

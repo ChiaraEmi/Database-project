@@ -374,6 +374,11 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
+    public void showPersonalStats(final String statsText) {
+        this.userPanel.setPersonalStatsOutput(statsText);
+    }
+
+    @Override
     public void showGlobalAlbumsStats(final String statsText) {
         this.adminPanel.setGlobalAlbumsOutputText(statsText);
     }
@@ -552,6 +557,30 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 this.userPanel.showSubscriptionStatusDialog(currentUsername);
+            }
+        });
+
+        this.userPanel.addFetchPersonalStatsListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                int year = CURRENT_YEAR;
+                try {
+                    final Object rawYear = this.userPanel.getStatsYear();
+                    if (rawYear instanceof Integer) {
+                        year = (Integer) rawYear;
+                    } else if (rawYear instanceof String && !((String) rawYear).isBlank()) {
+                        year = Integer.parseInt((String) rawYear);
+                    } else if (rawYear != null) {
+                        year = Integer.parseInt(rawYear.toString());
+                    }
+                } catch (final NumberFormatException ex) {
+                    LOGGER.log(Level.SEVERE, "Invalid personal stats year format", ex);
+                    JOptionPane.showMessageDialog(this, "L'anno di riferimento deve essere un numero valido.", 
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                this.controller.userRequestedPersonalStats(currentUsername, year);
             }
         });
     }

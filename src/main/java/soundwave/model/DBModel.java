@@ -168,6 +168,71 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public Object[] getPersonalTotals(final String username, final int year) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOTALS_YEAR, username, year);
+             var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                final int totalListens = rs.getInt("TotaleAscolti");
+                final int totalSeconds = rs.getInt("TotaleSecondi"); // Gestisce anche eventuali NULL se non ci sono ascolti
+                return new Object[]{totalListens, totalSeconds};
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return new Object[]{0, 0};
+    }
+
+    @Override
+    public List<Object[]> getPersonalTopTracks(final String username, final int year) {
+        final List<Object[]> tracks = new ArrayList<>();
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_TRACKS, username, year);
+             var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                tracks.add(new Object[]{
+                    rs.getInt("CodiceContenuto"),
+                    rs.getString("Titolo"),
+                    rs.getInt("NumeroAscolti")
+                });
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return tracks;
+    }
+
+    @Override
+    public List<Object[]> getPersonalTopArtists(final String username, final int year) {
+        final List<Object[]> artists = new ArrayList<>();
+        // Nota: La query ha due COUNT/UNION con l'username, quindi passiamo l'username due volte seguito dall'anno
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_ARTISTS, username, username, year);
+             var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                artists.add(new Object[]{
+                    rs.getInt("CodiceArtista"),
+                    rs.getString("NomeDArte"),
+                    rs.getInt("NumeroAscolti")
+                });
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return artists;
+    }
+
+    @Override
+    public String getPersonalTopGenre(final String username, final int year) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_GENRE, username, year);
+             var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("NomeGenere");
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return "-";
+    }
+
+    @Override
     public String getMostPlayedArtist(final int year) {
         return Artist.DAO.getMostPlayedArtist(this.connection, year);
     }

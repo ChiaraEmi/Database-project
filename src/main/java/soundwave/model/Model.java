@@ -225,4 +225,10 @@ public interface Model {
 
     boolean verifyInviteCode(String inviteCode);
     Object[] verifyPromotionCode(String promoCode, int planCode);
+    /**
+     * Retrieve subscription data in a structured format
+     * @param username
+     * @return [subCode, planType, startDate, endDate, status, autoRenew, promoCode, inviteCode, transactionsList]
+     */
+    List<Object[]> getSubscriptionData(String username);
 }

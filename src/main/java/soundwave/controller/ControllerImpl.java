@@ -307,6 +307,18 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
+    public List<Object[]> getSubscriptionData(final String username) {
+        try {
+            return this.model.getSubscriptionData(username);
+        } catch (final DAOException e) {
+            this.view.showError("Impossibile caricare i dati: " + e.getMessage());
+            e.printStackTrace();
+            return List.of();
+        }
+    }
+
+
+    @Override
     public boolean userGeneratedListeningEvent(final String username, final int contentCode, 
                                                final String device, final int eventDuration) {
 

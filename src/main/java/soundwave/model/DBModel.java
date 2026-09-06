@@ -20,6 +20,7 @@ import soundwave.data.Plan;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -204,4 +205,62 @@ public final class DBModel implements Model {
         }
         return new Object[]{false, 0, null, 0};
     }
+
+    @Override
+    public List<Object[]> getSubscriptionData(final String username) {
+        final List<Object[]> subscriptions = new ArrayList<>();
+        
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_SUBSCRIPTIONS_WITH_TRANSACTIONS, username);
+            var rs = stmt.executeQuery()) {
+            
+            int currentSub = -1; //corrente sottoscrizione
+            List<String> transactions = new ArrayList<>();
+            Object[] currentData = null;
+            
+            while (rs.next()) {
+                int subCode = rs.getInt("CodiceSottoscrizione");
+                
+                if (currentSub != subCode) {
+                    if (currentData != null) {
+                        currentData[8] = new ArrayList<>(transactions);
+                        subscriptions.add(currentData);
+                    }
+                    
+                    currentSub = subCode;
+                    transactions = new ArrayList<>();
+                    
+                    currentData = new Object[] {
+                        subCode,
+                        rs.getString("TipoAbbonamento"),
+                        rs.getDate("DataInizio") != null ? rs.getDate("DataInizio").toString() : "-",
+                        rs.getDate("DataFine") != null ? rs.getDate("DataFine").toString() : "-",
+                        rs.getString("StatoSottoscrizione"),
+                        rs.getBoolean("RinnovoAutomatico"),
+                        rs.getString("CodicePromozione"),
+                        rs.getString("CodiceInvito"),
+                        transactions
+                    };
+                }
+                
+                if (rs.getObject("CodiceTransazione") != null) {
+                    String trans = String.format("%s | €%.2f | %s",
+                        rs.getTimestamp("DataTransazione") != null ? rs.getTimestamp("DataTransazione").toString() : "-",
+                        rs.getDouble("Importo"),
+                        rs.getString("StatoTransazione") != null ? rs.getString("StatoTransazione") : "-"
+                    );
+                    transactions.add(trans);
+                }
+            }
+            
+            if (currentData != null) {
+                currentData[8] = new ArrayList<>(transactions);
+                subscriptions.add(currentData);
+            }
+            
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return subscriptions;
+    }
+
 }

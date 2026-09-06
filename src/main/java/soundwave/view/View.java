@@ -93,4 +93,6 @@ public interface View {
      * @param message the esuccess message to display.
      */
     void showSuccessAndCloseDialog(String message);
+
+
 }

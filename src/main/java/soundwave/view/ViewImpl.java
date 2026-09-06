@@ -343,12 +343,14 @@ public final class ViewImpl extends JFrame implements View {
 
     @Override
     public void showActivateSubsriptionDialog(final String username, final List<Plan> plans) {
-        this.userPanel.showActivateSubscriptionDialog(username, plans, this.controller, data -> {
+        this.userPanel.showActivateSubscriptionDialog(username, plans, data -> {
             if (this.controller != null) {
                 this.controller.userActivateSubscription(username, data);
             }
         });
     }
+
+
     
     
     @Override
@@ -422,6 +424,7 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     private void initUserPanelListeners() {
+        this.userPanel.setController(this.controller);
         this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
 
         this.userPanel.addCreatePlaylistListener(e -> {
@@ -487,6 +490,13 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller !=  null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 this.controller.userRequestedSubscriptionPlans(currentUsername);
+            }
+        });
+
+        this.userPanel.addViewSubscriptionStatusListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                this.userPanel.showSubscriptionStatusDialog(currentUsername);
             }
         });
     

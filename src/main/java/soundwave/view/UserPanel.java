@@ -43,7 +43,10 @@ public final class UserPanel extends JPanel {
     private static final int BUTTON_HEIGHT = 35;
     private static final int INSET_GAP = 6;
 
+    private transient Controller controller;
+
     private ActivateSubscriptionDialog activedialog;
+    private SubscriptionStatusDialog statusDialog;
     private final String currentUsername;
 
     // --- Tab 1: Abbonamento ---
@@ -113,6 +116,11 @@ public final class UserPanel extends JPanel {
         final JPanel bottomPanel = new JPanel();
         bottomPanel.add(this.btnBack);
         this.add(bottomPanel, BorderLayout.SOUTH);
+    }
+
+
+    public void setController(Controller controller) {
+        this.controller = controller;
     }
 
     /**
@@ -477,7 +485,7 @@ public final class UserPanel extends JPanel {
         this.btnBack.addActionListener(listener);
     }
 
-    public void showActivateSubscriptionDialog(final String username, final List<Plan> plans, final Controller controller, final Consumer<ActivateSubscriptionDialog.SubscriptionData> onActivate) {
+    public void showActivateSubscriptionDialog(final String username, final List<Plan> plans, final Consumer<ActivateSubscriptionDialog.SubscriptionData> onActivate) {
         final JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
 
         this.activedialog = new ActivateSubscriptionDialog(parent, username, plans);
@@ -485,13 +493,13 @@ public final class UserPanel extends JPanel {
         // --- Listener per Codice Promozionale ---
         activedialog.addApplyPromotionListener(promoCode -> {
             // Verifica che il codice promozionale è valido
-            if (controller != null) {
+            if (this.controller != null) {
                 int planCode = activedialog.getSelectedPlanCode();
                 if (planCode <= 0) {
                     activedialog.showError("Seleziona prima un piano di abbonamento.");
                     return;
                 }
-                controller.verifyPromotionCode(promoCode, planCode, result -> {
+                this.controller.verifyPromotionCode(promoCode, planCode, result -> {
                     boolean valid = (boolean) result[0];
                     if (valid) {
                         // Applica promozione
@@ -522,8 +530,8 @@ public final class UserPanel extends JPanel {
         // --- Listener per Codice Invito ---
         activedialog.addVerifyInviteListener(inviteCode -> {
             // Verifica che il codice esista
-            if (controller != null) {
-                controller.verifyInviteCode(inviteCode, isValid -> {
+            if (this.controller != null) {
+                this.controller.verifyInviteCode(inviteCode, isValid -> {
                     if (isValid) {
                         // Applica sconto del 20%
                         double currentPrice = activedialog.getCurrentPrice();
@@ -548,4 +556,66 @@ public final class UserPanel extends JPanel {
         }
     }
 
+
+    public void showSubscriptionStatusDialog(final String username) {
+        if (this.statusDialog != null && this.statusDialog.isVisible()) {
+            this.statusDialog.dispose();
+        }
+        
+        this.statusDialog = new SubscriptionStatusDialog(
+            (JFrame) SwingUtilities.getWindowAncestor(this), 
+            username
+        );
+        
+        // Carica i dati
+        loadSubscriptionData(username);
+        
+        this.statusDialog.setOnRefresh(() -> {
+            loadSubscriptionData(username);
+            this.statusDialog.showSuccess("Dati aggiornati");
+        });
+        
+        this.statusDialog.setVisible(true);
+    }
+
+    private void loadSubscriptionData(String username) {
+        if (this.controller != null) {
+            try {
+                List<Object[]> data = this.controller.getSubscriptionData(username);
+                if (this.statusDialog != null) {
+                    this.statusDialog.clear();
+                    
+                    if (data.isEmpty()) {
+                        this.statusDialog.addSubscriptionBlock(
+                            0, "Nessuna sottoscrizione trovata", "", "", "", false, "", "", List.of()
+                        );
+                    } else {
+                        for (Object[] sub : data) {
+                            int subCode = (int) sub[0];
+                            String planType = (String) sub[1];
+                            String startDate = (String) sub[2];
+                            String endDate = (String) sub[3];
+                            String status = (String) sub[4];
+                            boolean autoRenew = (boolean) sub[5];
+                            String promoCode = (String) sub[6];
+                            String inviteCode = (String) sub[7];
+                            @SuppressWarnings("unchecked")
+                            List<String> transactions = (List<String>) sub[8];
+                            
+                            this.statusDialog.addSubscriptionBlock(
+                                subCode, planType, startDate, endDate, status,
+                                autoRenew, promoCode, inviteCode, transactions
+                            );
+                        }
+                    }
+                    this.statusDialog.refreshUI();
+                }
+            } catch (final Exception e) {
+                e.printStackTrace();
+                if (this.statusDialog != null) {
+                    this.statusDialog.showError("Errore durante il caricamento dei dati.");
+                }
+            }
+        }
+    }
 }

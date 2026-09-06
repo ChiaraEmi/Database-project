@@ -119,6 +119,8 @@ public interface Controller {
     void userActivateSubscription(String username, ActivateSubscriptionDialog.SubscriptionData data);
     void verifyInviteCode(String inviteCode, Consumer<Boolean> callback);
     void verifyPromotionCode(String promoCode, int planCode, Consumer<Object[]> callback);
+    List<Object[]> getSubscriptionData(String username);
+
 
     /**
      * Handles the request to generate a listening event.

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import soundwave.data.Artist;
-import soundwave.data.InviteCode;
 import soundwave.data.Plan;
 import soundwave.data.SongInput;
 import soundwave.data.User;
@@ -230,6 +229,17 @@ public final class MockedModel implements Model {
             return new Object[]{true, 20.0, "Percentuale", 89.99};
         }
         return new Object[]{false, 0.0, null, 0.0};
+    }
+
+    @Override
+    public List<Object[]> getSubscriptionData(final String username) {
+        List<String> trans1 = List.of("2026-01-01 10:00:00 | €71.99 | Completata");
+        List<String> trans2 = List.of("2026-02-01 12:15:00 | €4.99 | Completata");
+        
+        return List.of(
+            new Object[]{1, "Annuale Premium", "2026-01-01", "2027-01-01", "Attiva", true, "-", "INV_MARIO", trans1},
+            new Object[]{2, "Mensile Standard", "2026-02-01", "2026-03-01", "Scaduta", false, "PROMO20", "-", trans2}
+        );
     }
 
 }

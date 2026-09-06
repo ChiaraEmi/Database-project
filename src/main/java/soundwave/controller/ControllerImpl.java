@@ -61,8 +61,9 @@ public final class ControllerImpl implements Controller {
     // ==========================================
 
     @Override
-    public void adminClickedSavePromotion(final String code, final String name, final String description, final String startDate, final String endDate, final String discountType, 
-                                          final String discountValueStr, final String rqrMonths, final String planCodesStr) {
+    public boolean adminClickedSavePromotion(final String code, final String name, final String description, 
+                                            final String startDate, final String endDate, final String discountType, 
+                                            final String discountValueStr, final String rqrMonths, final String planCodesStr) {
         try {
             final LocalDate start = LocalDate.parse(startDate);
             final LocalDate end = LocalDate.parse(endDate);
@@ -77,31 +78,37 @@ public final class ControllerImpl implements Controller {
 
             if (start.isAfter(end)) {
                 this.view.showError("La data inizio non può essere dopo la data fine");
-                return;
+                return false;
             }
             if (planCodes.isEmpty()) {
                 this.view.showError("Devi specificare almeno un piano di abbonamento");
-                return;
+                return false;
             }
             if (discountValue <= 0.0) {
                 this.view.showError("Il valore dello sconto deve essere maggiore di 0");
-                return;
+                return false;
             }
 
-            this.model.insertPromotion(code, name, description, start, end, discountType, discountValue, requiredMonths, planCodes);
-            this.view.showSuccess("Promozione creata con successo");
+            this.model.insertPromotion(code, name, description, start, end, discountType, 
+                                        discountValue, requiredMonths, planCodes);
+            return true;
+
         } catch (final java.time.format.DateTimeParseException e) {
             LOGGER.log(Level.WARNING, "Invalid date format for promotion", e);
             this.view.showError("Formato data non valido. Usa YYYY-MM-DD.");
+            return false;
         } catch (final NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Invalid number format for promotion", e);
             this.view.showError("Valore numerico non valido. Controlla sconto, mesi richiesti e codici piani.");
+            return false; // <-- AGGIUNTO per coerenza
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to save promotion", e);
             this.view.showError("Impossibile salvare la promozione nel database.");
+            return false; // <-- AGGIUNTO per coerenza
         } catch (final Exception e) {
             LOGGER.log(Level.SEVERE, "Unexpected error saving promotion", e);
             this.view.showError("Errore imprevisto: " + e.getMessage());
+            return false; // <-- AGGIUNTO per coerenza
         }
     }
 
@@ -119,7 +126,8 @@ public final class ControllerImpl implements Controller {
     @Override
     public void userActivateSubscription(final String username, final ActivateSubscriptionDialog.SubscriptionData data) {
         try {
-            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod, data.promoCode, data.inviteCode, data.autoRenew);
+            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod, 
+                                                                        data.promoCode, data.inviteCode, data.autoRenew);
             this.view.showSuccessAndCloseDialog("Sottoscrizione attivata con successo! Codice: " + subscriptionCode);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to activate subscription", e);
@@ -130,7 +138,7 @@ public final class ControllerImpl implements Controller {
     @Override
     public void verifyInviteCode(final String inviteCode, final Consumer<Boolean> callback) {
         try {
-            boolean exists = this.model.verifyInviteCode(inviteCode);
+            final boolean exists = this.model.verifyInviteCode(inviteCode);
             callback.accept(exists);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to verify invite code", e);
@@ -141,7 +149,7 @@ public final class ControllerImpl implements Controller {
     @Override
     public void verifyPromotionCode(final String promoCode, final int planCode, final Consumer<Object[]> callback) {
         try {
-            Object[] result = this.model.verifyPromotionCode(promoCode, planCode);
+            final Object[] result = this.model.verifyPromotionCode(promoCode, planCode);
             callback.accept(result);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to verify promotion code", e);
@@ -163,7 +171,7 @@ public final class ControllerImpl implements Controller {
     // ==========================================
     // AUTENTICAZIONE E GESTIONE ARTISTI/CONTENUTI
     // ==========================================
-    
+
     @Override
     public boolean userLoggedIn(final String username) {
         if (username == null || username.isBlank()) {
@@ -425,7 +433,8 @@ public final class ControllerImpl implements Controller {
             if (success) {
                 this.view.showSuccess("Brano aggiunto alla playlist con successo!");
             } else {
-                final String errorMessage = "Impossibile aggiungere il brano: verifica di avere i permessi o che il brano non sia già presente.";
+                final String errorMessage = "Impossibile aggiungere il brano: verifica di avere "
+                                            + "i permessi o che il brano non sia già presente.";
                 this.view.showError(errorMessage);
             }
             return success;

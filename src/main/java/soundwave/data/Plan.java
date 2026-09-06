@@ -125,12 +125,12 @@ public final class Plan {
         public static List<Plan> listAll(final Connection connection) {
             Objects.requireNonNull(connection, "Connection cannot be null");
             final List<Plan> plans = new ArrayList<>();
-            final String query =  """
+            final String query = """
                                     SELECT CodiceAbbonamento, TipoAbbonamento, Durata, Costo
                                     FROM Abbonamenti
                                     ORDER BY Durata, Costo
-                                  """;
-            
+                                 """;
+
             try (var stmt = connection.createStatement();
                  var rs = stmt.executeQuery(query)) {
                 while (rs.next()) {

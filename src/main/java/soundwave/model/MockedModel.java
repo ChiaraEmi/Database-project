@@ -260,7 +260,7 @@ public final class MockedModel implements Model {
     public Object[] verifyPromotionCode(final String promoCode, final int planCode) {
         List<String> validCodes = List.of("PROMO20", "WELCOME", "BLACKFRI", "STUDENT");
     
-        if (promoCode != null && validCodes.contains(promoCode.toUpperCase())) {
+        if (promoCode != null && validCodes.contains(promoCode.toUpperCase(java.util.Locale.ROOT))) {
             return new Object[]{true, 20.0, "Percentuale", 89.99};
         }
         return new Object[]{false, 0.0, null, 0.0};

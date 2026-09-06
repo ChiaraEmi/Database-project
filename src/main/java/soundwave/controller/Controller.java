@@ -213,8 +213,10 @@ public interface Controller {
      * @param discountValueStr the discount value as a string.
      * @param rqrMonths the required months as a string.
      * @param planCodesStr the comma-separated plan codes associated with the promotion.
+     * 
+     * @return true if successfully saved, false otherwise.
      */
-    void adminClickedSavePromotion(String code, String name, String description, String startDate, 
+    boolean adminClickedSavePromotion(String code, String name, String description, String startDate, 
                                    String endDate, String discountType, String discountValueStr, 
                                    String rqrMonths, String planCodesStr);
 

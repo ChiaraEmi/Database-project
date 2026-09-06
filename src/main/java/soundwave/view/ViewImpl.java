@@ -131,10 +131,15 @@ public final class ViewImpl extends JFrame implements View {
                 final String requiredMonths = this.adminPanel.getRequiredMonths();
                 final String planCodes = this.adminPanel.getPromoPlanCodes();
 
-                this.controller.adminClickedSavePromotion(
+                final boolean success = this.controller.adminClickedSavePromotion(
                     code, name, description, startDate, endDate, discountType, discountValue, 
                     requiredMonths, planCodes
                 );
+
+                if (success) {
+                    showSuccess("Promozione inserita con successo!");
+                    this.adminPanel.clearAllForms();
+                }
             }
         });
 
@@ -320,7 +325,7 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.adminRequestedYearlyStats(year);
             }
         });
-      
+
         initUserPanelListeners();
     }
 
@@ -535,9 +540,9 @@ public final class ViewImpl extends JFrame implements View {
                 }
             }
         });
-    
+
         this.userPanel.addActivateSubscriptionListener(e -> {
-            if (this.controller !=  null) {
+            if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 this.controller.userRequestedSubscriptionPlans(currentUsername);
             }
@@ -549,6 +554,5 @@ public final class ViewImpl extends JFrame implements View {
                 this.userPanel.showSubscriptionStatusDialog(currentUsername);
             }
         });
-    
     }
 }

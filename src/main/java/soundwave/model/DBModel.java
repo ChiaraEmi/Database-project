@@ -64,8 +64,9 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public void insertPromotion( final String code, final String name, final String description, final LocalDate startDate, final LocalDate endDate, final String discountType, 
-                                 final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
+    public void insertPromotion(final String code, final String name, final String description, 
+                                final LocalDate startDate, final LocalDate endDate, final String discountType, 
+                                final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
         Promotion.DAO.insertPromotion(connection, code, name, description, startDate, endDate, 
                                              discountType, discountValue, requiredMonths, planCodes);
     }
@@ -192,9 +193,10 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public int activateSubscription(final String username, final int planCode, final String paymentMethod, final String promoCode, final String inviteCode, final boolean autoRenew) {
-        
-        if(planCode <= 0) {
+    public int activateSubscription(final String username, final int planCode, final String paymentMethod, 
+                                    final String promoCode, final String inviteCode, final boolean autoRenew) {
+
+        if (planCode <= 0) {
             throw new DAOException("Piano di abbonamento non valido");
         }
         
@@ -221,9 +223,9 @@ public final class DBModel implements Model {
         try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_PROMOTION_VALIDITY, promoCode, planCode);
             var rs = stmt.executeQuery()) {
             if (rs.next()) {
-                String discountType = rs.getString("TipoSconto");
-                double discountValue = rs.getDouble("ValoreSconto");
-                double originalPrice = rs.getDouble("Costo");
+                final String discountType = rs.getString("TipoSconto");
+                final double discountValue = rs.getDouble("ValoreSconto");
+                final double originalPrice = rs.getDouble("Costo");
                 return new Object[]{true, discountValue, discountType, originalPrice};
             }
         } catch (final SQLException e) {
@@ -244,7 +246,7 @@ public final class DBModel implements Model {
             Object[] currentData = null;
             
             while (rs.next()) {
-                int subCode = rs.getInt("CodiceSottoscrizione");
+                final int subCode = rs.getInt("CodiceSottoscrizione");
                 
                 if (currentSub != subCode) {
                     if (currentData != null) {
@@ -269,7 +271,7 @@ public final class DBModel implements Model {
                 }
                 
                 if (rs.getObject("CodiceTransazione") != null) {
-                    String trans = String.format("%s | €%.2f | %s",
+                    final String trans = String.format("%s | €%.2f | %s",
                         rs.getTimestamp("DataTransazione") != null ? rs.getTimestamp("DataTransazione").toString() : "-",
                         rs.getDouble("Importo"),
                         rs.getString("StatoTransazione") != null ? rs.getString("StatoTransazione") : "-"

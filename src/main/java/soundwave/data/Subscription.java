@@ -414,7 +414,7 @@ public final class Subscription {
 
                 //7. Aggiorna il credito bonus dell'utente che ha invitato
                 User.DAO.incrementBonusCredit(connection, inviterUsername);
-                
+
                 connection.commit();
                 return subscriptionCode;
             } catch (final SQLException e) {

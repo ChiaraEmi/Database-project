@@ -12,7 +12,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JComponent;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -21,8 +20,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 
-
-public class SubscriptionStatusDialog extends JDialog {
+/**
+ * Dialog to display the subscription status and transaction history of a user.
+ */
+public final class SubscriptionStatusDialog extends JDialog {
     private final JPanel contentPanel;
     private final JScrollPane scrollPane;
     private final JButton btnRefresh;
@@ -31,6 +32,12 @@ public class SubscriptionStatusDialog extends JDialog {
 
     private Runnable onRefresh;
 
+    /**
+     * Constructs a new SubscriptionStatusDialog.
+     *
+     * @param parent   the parent frame.
+     * @param username the username of the account being viewed.
+     */
     public SubscriptionStatusDialog(final JFrame parent, final String username) {
         super(parent, "Sottoscrizioni - " + username, true);
         this.username = username;
@@ -39,7 +46,7 @@ public class SubscriptionStatusDialog extends JDialog {
         setSize(700, 500);
         setLocationRelativeTo(parent);
 
-        // --- Pannello principale con scroll ---
+        // --- Main panel with scroll ---
         this.contentPanel = new JPanel();
         this.contentPanel.setLayout(new BoxLayout(this.contentPanel, BoxLayout.Y_AXIS));
         this.contentPanel.setBackground(Color.WHITE);
@@ -49,8 +56,8 @@ public class SubscriptionStatusDialog extends JDialog {
         this.scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(this.scrollPane, BorderLayout.CENTER);
 
-        // --- Pulsanti ---
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        // --- Buttons panel ---
+        final JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         this.btnRefresh = new JButton("Aggiorna");
         this.btnClose = new JButton("Chiudi");
         btnPanel.add(this.btnRefresh);
@@ -66,7 +73,7 @@ public class SubscriptionStatusDialog extends JDialog {
     }
 
     /**
-     * Pulisce il pannello.
+     * Clears all content from the panel.
      */
     public void clear() {
         this.contentPanel.removeAll();
@@ -75,21 +82,31 @@ public class SubscriptionStatusDialog extends JDialog {
     }
 
     /**
-     * Aggiunge un blocco di sottoscrizione con le sue transazioni.
+     * Adds a subscription details block with its related transactions.
+     *
+     * @param subCode      the unique subscription code.
+     * @param planType     the type of the subscription plan.
+     * @param startDate    the start date of the subscription.
+     * @param endDate      the end date or expiration date.
+     * @param status       the current status (e.g., "Attiva", "Scaduta").
+     * @param autoRenew    true if auto-renewal is enabled, false otherwise.
+     * @param promoCode    the promotional code used, if any.
+     * @param inviteCode   the invite code used, if any.
+     * @param transactions the list of transaction records associated with this subscription.
      */
     public void addSubscriptionBlock(
-            int subCode,
-            String planType,
-            String startDate,
-            String endDate,
-            String status,
-            boolean autoRenew,
-            String promoCode,
-            String inviteCode,
-            List<String> transactions
+            final int subCode,
+            final String planType,
+            final String startDate,
+            final String endDate,
+            final String status,
+            final boolean autoRenew,
+            final String promoCode,
+            final String inviteCode,
+            final List<String> transactions
     ) {
-        // Crea il pannello per questa sottoscrizione
-        JPanel blockPanel = new JPanel();
+        // Create the panel for this specific subscription block
+        final JPanel blockPanel = new JPanel();
         blockPanel.setLayout(new BoxLayout(blockPanel, BoxLayout.Y_AXIS));
         blockPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
@@ -98,16 +115,16 @@ public class SubscriptionStatusDialog extends JDialog {
         blockPanel.setBackground(Color.WHITE);
         blockPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
 
-        // --- Intestazione ---
-        JPanel headerPanel = new JPanel(new BorderLayout());
+        // --- Header ---
+        final JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(Color.WHITE);
-        
-        JLabel lblTitle = new JLabel("Sottoscrizione #" + subCode);
+
+        final JLabel lblTitle = new JLabel("Sottoscrizione #" + subCode);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         headerPanel.add(lblTitle, BorderLayout.WEST);
         
-        // Stato (con colore)
-        JLabel lblStatus = new JLabel(status);
+        // Status label with conditional coloring
+        final JLabel lblStatus = new JLabel(status);
         lblStatus.setFont(new Font("Segoe UI", Font.BOLD, 14));
         if ("Attiva".equals(status)) {
             lblStatus.setForeground(new Color(0, 150, 0));
@@ -121,8 +138,8 @@ public class SubscriptionStatusDialog extends JDialog {
 
         blockPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        // --- Dettagli ---
-        JPanel detailsPanel = new JPanel(new GridLayout(0, 2, 15, 4));
+        // --- Details ---
+        final JPanel detailsPanel = new JPanel(new GridLayout(0, 2, 15, 4));
         detailsPanel.setBackground(Color.WHITE);
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
@@ -147,69 +164,91 @@ public class SubscriptionStatusDialog extends JDialog {
         blockPanel.add(detailsPanel);
         blockPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // --- Transazioni ---
+        // --- Transactions ---
         if (!transactions.isEmpty()) {
-            JLabel lblTrans = new JLabel("Transazioni:");
+            final JLabel lblTrans = new JLabel("Transazioni:");
             lblTrans.setFont(new Font("Segoe UI", Font.BOLD, 13));
             blockPanel.add(lblTrans);
             blockPanel.add(Box.createRigidArea(new Dimension(0, 4)));
 
-            for (String trans : transactions) {
-                JLabel lblTransItem = new JLabel("  • " + trans);
+            for (final String trans : transactions) {
+                final JLabel lblTransItem = new JLabel("  • " + trans);
                 lblTransItem.setFont(new Font("Segoe UI", Font.PLAIN, 12));
                 lblTransItem.setForeground(new Color(60, 60, 60));
                 blockPanel.add(lblTransItem);
             }
         } else {
-            JLabel lblNoTrans = new JLabel("  Nessuna transazione");
+            final JLabel lblNoTrans = new JLabel("  Nessuna transazione");
             lblNoTrans.setFont(new Font("Segoe UI", Font.ITALIC, 12));
             lblNoTrans.setForeground(new Color(150, 150, 150));
             blockPanel.add(lblNoTrans);
         }
 
-        // Aggiungi il blocco al pannello principale
+        // Add the block to the main content panel
         this.contentPanel.add(blockPanel);
         this.contentPanel.add(Box.createRigidArea(new Dimension(0, 12)));
     }
 
     /**
-     * Crea un'etichetta per il campo.
+     * Creates a styled label for field keys.
+     * 
+     * @param text the text to display.
+     * 
+     * @return the configured JLabel.
      */
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
+    private JLabel createLabel(final String text) {
+        final JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
         label.setForeground(new Color(80, 80, 80));
         return label;
     }
 
     /**
-     * Crea un'etichetta per il valore.
+     * Creates a styled label for field values.
+     * 
+     * @param text the text to display.
+     * 
+     * @return the configured JLabel.
      */
-    private JLabel createValueLabel(String text) {
-        JLabel label = new JLabel(text);
+    private JLabel createValueLabel(final String text) {
+        final JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         label.setForeground(new Color(30, 30, 30));
         return label;
     }
 
     /**
-     * Aggiorna il pannello dopo aver aggiunto i blocchi.
+     * Refreshes the UI layout and scrolls back to the top.
      */
     public void refreshUI() {
         this.contentPanel.revalidate();
         this.contentPanel.repaint();
-        // Scrolla in alto
         this.scrollPane.getVerticalScrollBar().setValue(0);
     }
 
-    public void setOnRefresh(Runnable onRefresh) {
+    /**
+     * Sets the action to be performed when the refresh button is clicked.
+     *
+     * @param onRefresh the runnable action.
+     */
+    public void setOnRefresh(final Runnable onRefresh) {
         this.onRefresh = onRefresh;
     }
 
+    /**
+     * Shows an error message dialog.
+     *
+     * @param message the error message to display.
+     */
     public void showError(final String message) {
         JOptionPane.showMessageDialog(this, message, "Errore", JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * Shows a success message dialog.
+     *
+     * @param message the success message to display.
+     */
     public void showSuccess(final String message) {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
     }

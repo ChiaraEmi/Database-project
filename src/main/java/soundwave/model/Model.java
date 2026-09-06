@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import soundwave.data.Artist;
+import soundwave.data.LikeBrani;
+import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.data.Plan;
 import soundwave.data.SongInput;
 import soundwave.data.User;
@@ -17,8 +20,9 @@ public interface Model {
     /**
      * Creates a new Model instance backed by a live database connection.
      *
-     * @param connection the active database connection
-     * @return a Model implementation connected to the database
+     * @param connection the active database connection.
+     * 
+     * @return a Model implementation connected to the database.
      */
     static Model fromConnection(final Connection connection) {
         return new DBModel(connection);
@@ -28,23 +32,26 @@ public interface Model {
      * Finds a user by their username.
      * 
      * @param username the username to search for.
+     * 
      * @return the User object if found, or null otherwise.
      */
     User findUser(String username);
 
     /**
-     * Insert a new promotion into the database (OP 6)
-     * @param name
-     * @param description
-     * @param startDate
-     * @param endDate
-     * @param discountType
-     * @param discountValue
-     * @param requiredMonths
-     * @param planCodes
+     * Insert a new promotion into the database (OP 6).
+     * 
+     * @param code the unique code of the promotion.
+     * @param name the name of the promotion.
+     * @param description the description of the promotion.
+     * @param startDate the start date of the promotion validity.
+     * @param endDate the end date of the promotion validity.
+     * @param discountType the type of discount (e.g., percentage or fixed).
+     * @param discountValue the numerical value of the discount.
+     * @param requiredMonths the minimum required months for the plan (optional).
+     * @param planCodes the list of eligible subscription plan codes.
      */
-    void insertPromotion( String code, String name, String description, LocalDate startDate, LocalDate endDate, String discountType, 
-                                    double discountValue, Integer requiredMonths, List<Integer> planCodes);
+    void insertPromotion(String code, String name, String description, LocalDate startDate, LocalDate endDate, String discountType, 
+                            double discountValue, Integer requiredMonths, List<Integer> planCodes);
 
     void renewSubscriptionNow(String username, int subscriptionCode);
 
@@ -65,6 +72,7 @@ public interface Model {
      * @param biography the biography of the artist (optional).
      * @param startYear the year the artist started their activity.
      * @param artistType the type of artist (e.g., 'Cantante', 'Autore Podcast', 'Band').
+     * 
      * @return the generated artist code.
      */
     int insertArtist(String stageName, String name, String surname, LocalDate birthDate, 
@@ -78,6 +86,7 @@ public interface Model {
      * @param releaseDate the release date.
      * @param recordCompany the record company name.
      * @param songs the list of song inputs containing details for each track.
+     * 
      * @return the generated album code.
      */
     int insertAlbumWithSongs(int artistCode, String title, String releaseDate, String recordCompany, List<SongInput> songs);
@@ -99,45 +108,64 @@ public interface Model {
     /**
      * Inserts a new podcast into the database.
      *
-     * @param artistCode the code of the artist creating the podcast
-     * @param name the name of the podcast
-     * @param description the description of the podcast
-     * @param category the category of the podcast
-     * @return the auto-generated code of the inserted podcast
+     * @param artistCode the code of the artist creating the podcast.
+     * @param name the name of the podcast.
+     * @param description the description of the podcast.
+     * @param category the category of the podcast.
+     * 
+     * @return the auto-generated code of the inserted podcast.
      */
     int insertPodcast(int artistCode, String name, String description, String category);
 
     /**
+     * Retrieves all available podcasts in the system.
+     *
+     * @return a list of all podcasts.
+     */
+    List<Podcast> getPodcasts();
+
+    /**
      * Checks whether the specified artist is authorized as a podcast author.
      *
-     * @param artistCode the unique code of the artist to check
+     * @param artistCode the unique code of the artist to check.
      * 
-     * @return true if the artist exists and is a podcast author, false otherwise
+     * @return true if the artist exists and is a podcast author, false otherwise.
      */
     boolean isPodcastAuthor(int artistCode);
 
     /**
      * Inserts a new episode into a specific podcast (OP 10).
      *
-     * @param podcastCode the podcast code
-     * @param title the episode title
-     * @param duration the duration in seconds
-     * @param description the description of the episode
-     * @param episodeNumber the episode number within the podcast
-     * @return the auto-generated code of the inserted episode
+     * @param podcastCode the podcast code.
+     * @param title the episode title.
+     * @param duration the duration in seconds.
+     * @param description the description of the episode.
+     * @param episodeNumber the episode number within the podcast.
+     * 
+     * @return the auto-generated code of the inserted episode.
      */
     int insertEpisode(int podcastCode, String title, int duration, String description, int episodeNumber);
 
     /**
      * Creates a new playlist for a user.
      *
-     * @param username the owner's username
-     * @param playlistName the name of the playlist
-     * @param visibility the visibility state ('Pubblica' or 'Privata')
-     * @param isCollaborative true if the playlist is collaborative, false otherwise
-     * @return the auto-generated code of the created playlist
+     * @param username the owner's username.
+     * @param playlistName the name of the playlist.
+     * @param visibility the visibility state ('Pubblica' or 'Privata').
+     * @param isCollaborative true if the playlist is collaborative, false otherwise.
+     * 
+     * @return the auto-generated code of the created playlist.
      */
     int insertPlaylist(String username, String playlistName, String visibility, boolean isCollaborative);
+
+    /**
+     * Retrieves all playlists belonging to a specific user.
+     *
+     * @param username the username of the playlist owner.
+     * 
+     * @return a list of playlists.
+     */
+    List<Playlist> getUserPlaylists(String username);
 
     /**
      * Adds a track to a playlist after checking user permissions.
@@ -162,79 +190,180 @@ public interface Model {
     boolean removeTrackFromPlaylist(String username, int playlistCode, int trackCode);
 
     /**
+     * Retrieves all liked tracks for a specific user.
+     *
+     * @param username the username of the user.
+     * 
+     * @return a list of liked tracks.
+     */
+    List<LikeBrani> getLikedTracks(String username);
+
+    /**
+     * Retrieves the list of artists followed by a specific user.
+     * 
+     * @param username the username of the user.
+     * 
+     * @return a list of strings representing the followed artists.
+     */
+    List<String> getFollowedArtists(String username);
+
+    /**
+     * Adds a like to a track for a specific user.
+     *
+     * @param username the username.
+     * @param trackCode the track code.
+     */
+    void likeTrack(String username, int trackCode);
+
+    /**
+     * Removes a like from a track for a specific user.
+     *
+     * @param username the username.
+     * @param trackCode the track code.
+     * 
+     * @return true if removed successfully, false otherwise.
+     */
+    boolean unlikeTrack(String username, int trackCode);
+
+    /**
      * Records a listening event for a user.
      *
-     * @param username the username of the user listening
-     * @param contentCode the code of the content being listened to
-     * @param device the device used for playback
-     * @param eventDuration the duration played in seconds
+     * @param username the username of the user listening.
+     * @param contentCode the code of the content being listened to.
+     * @param device the device used for playback.
+     * @param eventDuration the duration played in seconds.
      */
     void insertListeningEvent(String username, int contentCode, String device, int eventDuration);
 
     /**
      * Retrieves the list of all users registered in the system.
      * 
-     * @return a list of users
+     * @return a list of users.
      */
     List<User> loadUsers();
 
     /**
+     * Retrieves the total number of listens and total listening duration (in seconds)
+     * for a specific user during a given year.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     * 
+     * @return an Object array containing total listens (Integer) and total seconds (Integer).
+     */
+    Object[] getPersonalTotals(String username, int year);
+
+    /**
+     * Retrieves the top 5 most played tracks for a specific user during a given year.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     * 
+     * @return a list of Object arrays containing track code, title, and play count.
+     */
+    List<Object[]> getPersonalTopTracks(String username, int year);
+
+    /**
+     * Retrieves the top 5 most played artists for a specific user during a given year.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     * 
+     * @return a list of Object arrays containing artist code, stage name, and play count.
+     */
+    List<Object[]> getPersonalTopArtists(String username, int year);
+
+    /**
+     * Retrieves the most listened musical genre for a specific user during a given year.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
+     * 
+     * @return the name of the top genre as a String, or "-" if none available.
+     */
+    String getPersonalTopGenre(String username, int year);
+
+    /**
      * Retrieves the most played artist in a specific year.
      *
-     * @param year the year to check
-     * @return a string with the artist details
+     * @param year the year to check.
+     * 
+     * @return a string with the artist details.
      */
     String getMostPlayedArtist(int year);
 
     /**
      * Retrieves the most played music genre in a specific year.
      *
-     * @param year the year to check
-     * @return a string with the genre details
+     * @param year the year to check.
+     * 
+     * @return a string with the genre details.
      */
     String getMostPlayedGenre(int year);
 
     /**
      * Retrieves users with a number of listens above the average for the given year.
      *
-     * @param year the year to check
-     * @return a list of strings representing the users
+     * @param year the year to check.
+     * 
+     * @return a list of strings representing the users.
      */
     List<String> getUsersAboveAverageListens(int year);
 
     /**
      * Retrieves albums with a review average higher than the global average.
      *
-     * @return a list of strings representing the top albums
+     * @return a list of strings representing the top albums.
      */
     List<String> getAlbumsAboveGlobalAverage();
-
 
     /**
      * Recupera tutti i piani di abbonamento disponibili.
      *
-     * @return lista di piani
+     * @return lista di piani.
      */
     List<Plan> getSubscriptioPlans();
 
     /**
-     * Activate subscription
-     * @param username
-     * @param plancode
-     * @param paymentMethod
-     * @param promoCode
-     * @param inviteCode
-     * @param autoRenenw
-     * @return code subscription created
+     * Activates a new subscription for a user.
+     * 
+     * @param username the username of the subscriber.
+     * @param plancode the unique code of the chosen subscription plan.
+     * @param paymentMethod the payment method selected by the user.
+     * @param promoCode the promotional code applied (if any).
+     * @param inviteCode the invite code used (if any).
+     * @param autoRenenw true to enable auto-renewal, false otherwise.
+     * 
+     * @return the unique code of the created subscription.
      */
-    int activateSubscription(String username, int plancode, String paymentMethod, String promoCode, String inviteCode, boolean autoRenenw);
+    int activateSubscription(String username, int plancode, String paymentMethod, 
+                            String promoCode, String inviteCode, boolean autoRenenw);
 
-    boolean verifyInviteCode(String inviteCode);
-    Object[] verifyPromotionCode(String promoCode, int planCode);
     /**
-     * Retrieve subscription data in a structured format
-     * @param username
-     * @return [subCode, planType, startDate, endDate, status, autoRenew, promoCode, inviteCode, transactionsList]
+     * Verifies the validity of an invite code.
+     * 
+     * @param inviteCode the invite code string to verify.
+     * @return true if the invite code is valid and active, false otherwise.
+     */
+    boolean verifyInviteCode(String inviteCode);
+
+    /**
+     * Verifies a promotional code against a specific subscription plan.
+     * 
+     * @param promoCode the promotional code string to verify.
+     * @param planCode the plan code to check eligibility against.
+     * 
+     * @return an Object array containing verification details and discount properties.
+     */
+    Object[] verifyPromotionCode(String promoCode, int planCode);
+
+    /**
+     * Retrieve subscription data in a structured format.
+     * 
+     * @param username the username of the account holder.
+     * 
+     * @return a list of Object arrays representing: [subCode, planType, startDate, endDate, 
+     *         status, autoRenew, promoCode, inviteCode, transactionsList].
      */
     List<Object[]> getSubscriptionData(String username);
 

@@ -44,8 +44,10 @@ public final class Queries {
 
     public static final String INSERT_SUBSCRIPTION_STANDARD = 
         """
-        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
-        SELECT ?, A.CodiceAbbonamento, NULL, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attiva', ?
+        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, 
+        DataInizio, DataFine, Stato, RinnovoAutomatico) 
+        SELECT ?, A.CodiceAbbonamento, NULL, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 
+                'Attiva', ?
         FROM Abbonamenti A
         WHERE A.CodiceAbbonamento= ?;
         """;
@@ -57,13 +59,13 @@ public final class Queries {
         FROM Abbonamenti A
         WHERE A.CodiceAbbonamento= ?;
         """;
-    
+
     // --- 2.2: ATTIVAZIONE DI UNA SOTTOSCRIZIONE CON CODICE PROMOZIONALE ---
     public static final String CHECK_PROMOTION_VALIDITY = 
         """
         SELECT P.CodicePromozione, P.TipoSconto, P.ValoreSconto, P.MesiRichiesti, A.Costo, A.Durata
-        FROM Promozioni P 
-        JOIN ValiditaPromozioni V ON V.CodicePromozione = P.CodicePromozione  
+        FROM Promozioni P
+        JOIN ValiditaPromozioni V ON V.CodicePromozione = P.CodicePromozione
         JOIN Abbonamenti A ON A.CodiceAbbonamento = V.CodiceAbbonamento
         WHERE P.CodicePromozione=? 
         AND A.CodiceAbbonamento=? 
@@ -73,8 +75,10 @@ public final class Queries {
 
     public static final String INSERT_SUBSCRIPTION_PROMOTIONAL = 
         """
-        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
-        SELECT ?, A.CodiceAbbonamento, P.CodicePromozione, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attiva', ?
+        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, 
+        DataInizio, DataFine, Stato, RinnovoAutomatico) 
+        SELECT ?, A.CodiceAbbonamento, P.CodicePromozione, NULL, CURRENT_DATE, 
+                CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attivo', ?
         FROM Abbonamenti A
         JOIN ValiditaPromozioni V ON  V.CodiceAbbonamento = A.CodiceAbbonamento 
         JOIN Promozioni P ON P.CodicePromozione = V.CodicePromozione
@@ -106,8 +110,10 @@ public final class Queries {
 
     public static final String INSERT_SUBSCRIPTION_INVITE = 
         """
-        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
-        SELECT ?, A.CodiceAbbonamento, NULL, CI.Codice, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attiva', ?
+        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, 
+        DataFine, Stato, RinnovoAutomatico) 
+        SELECT ?, A.CodiceAbbonamento, NULL, CI.Codice, CURRENT_DATE, 
+                CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attivo', ?
         FROM CodiciInvito CI JOIN Abbonamenti A 
         WHERE CI.Codice=? 
         AND A.CodiceAbbonamento=?;
@@ -129,7 +135,7 @@ public final class Queries {
         """;
 
     // --- OP 3: RINNOVO AUTOMATICO E ANNULAMENTO DELLA SOTTOSCRIZIONE ---
-    
+
     // ---  3.1: RINNOVO AUTOMATICO ---
 
     public static final String FIND_AUTO_RENEWALS = 
@@ -159,7 +165,7 @@ public final class Queries {
         ) MONTH
         WHERE CodiceSottoscrizione = ?;
         """;
-       
+
     public static final String INSERT_RENEWAL_TRANSACTION = 
         """
         INSERT INTO Transazioni (CodiceSottoscrizione, Importo, MetodoPagamento, Stato)
@@ -205,7 +211,6 @@ public final class Queries {
         WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
         """;
 
-
     // --- OP 4: RISCATTO CON CREDITI BONUS ---
     public static final String CHECK_BONUS_CREDIT = 
         """
@@ -213,7 +218,7 @@ public final class Queries {
         FROM Utenti
         WHERE Username= ? AND CreditoBonus >= 2
         """;
-    
+
     public static final String CHECK_MONTHLY_SUBSCRIPTION = 
         """
         SELECT CodiceAbbonamento, Durata
@@ -231,7 +236,8 @@ public final class Queries {
     // ---  4.1: RISCATTO PER NUOVA SOTTOSCRIZIONE ---
     public static final String INSERT_SUBSCRIPTION_BONUS_CREDIT = 
         """
-        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
+        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, 
+                                    DataInizio, DataFine, Stato, RinnovoAutomatico) 
         VALUES (?, ?, NULL, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL 1 MONTH, 'Attiva', ?);
         """;
 
@@ -260,9 +266,10 @@ public final class Queries {
     // --- OP 5: VISUALIZZIONE SOTTOSCRIZIONI E TRANSAZIONI DI UN UTENTE ---
     public static final String SELECT_SUBSCRIPTIONS_WITH_TRANSACTIONS =
         """
-        SELECT S.CodiceSottoscrizione, A.TipoAbbonamento AS TipoAbbonamento, S.DataInizio, S.DataFine, S.Stato AS StatoSottoscrizione, 
-                S.CodicePromozione, S.CodiceInvito, S.RinnovoAutomatico, T.CodiceTransazione, T.Data AS DataTransazione, T.Importo, 
-                T.MetodoPagamento, T.Stato AS StatoTransazione
+        SELECT S.CodiceSottoscrizione, A.TipoAbbonamento AS TipoAbbonamento, S.DataInizio, S.DataFine, 
+                S.Stato AS StatoSottoscrizione, S.CodicePromozione, S.CodiceInvito, S.RinnovoAutomatico, 
+                T.CodiceTransazione, T.Data AS DataTransazione, T.Importo, T.MetodoPagamento, 
+                T.Stato AS StatoTransazione
         FROM Sottoscrizioni S
         JOIN Abbonamenti A ON  A.CodiceAbbonamento = S.CodiceAbbonamento 
         LEFT JOIN Transazioni T ON S.CodiceSottoscrizione = T.CodiceSottoscrizione
@@ -286,7 +293,8 @@ public final class Queries {
     // --- OP 7: INSERIMENTO ARTISTA ---
     public static final String INSERT_ARTIST = 
         """
-        INSERT INTO Artisti (NomeDArte, Nome, Cognome, DataNascita, PaeseProvenienza, Biografia, AnnoInizioAttivita, TipoArtista)
+        INSERT INTO Artisti (NomeDArte, Nome, Cognome, DataNascita, PaeseProvenienza, Biografia, 
+        AnnoInizioAttivita, TipoArtista)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
@@ -371,6 +379,13 @@ public final class Queries {
         """;
 
     // --- OP 10: INSERIMENTO EPISODIO ---
+    public static final String SELECT_ALL_PODCASTS = 
+        """
+        SELECT CodicePodcast, CodiceArtista, NomePodcast, DescrizionePodcast, Categoria 
+        FROM Podcast 
+        ORDER BY NomePodcast ASC
+        """;
+
     public static final String CHECK_PODCAST_EXISTS = 
         """
         SELECT CodicePodcast, NomePodcast FROM Podcast 
@@ -418,6 +433,15 @@ public final class Queries {
         """;
 
     // --- OP 13: AGGIUNTA / RIMOZIONE BRANO DA PLAYLIST ---
+    public static final String SELECT_PLAYLISTS_BY_USER = 
+        """
+        SELECT DISTINCT p.CodicePlaylist, p.Username, p.NomePlaylist, p.DataCreazione, p.Visibilita, p.Collaborativa 
+        FROM Playlist p
+        LEFT JOIN Collaborazioni c ON p.CodicePlaylist = c.CodicePlaylist
+        WHERE p.Username = ? OR (p.Collaborativa = TRUE AND c.Username = ?)
+        ORDER BY p.NomePlaylist ASC
+        """;
+
     public static final String CHECK_PERMESSI_PLAYLIST = 
         """
         SELECT P.CodicePlaylist 
@@ -425,6 +449,13 @@ public final class Queries {
         LEFT JOIN Collaborazioni C ON P.CodicePlaylist = C.CodicePlaylist
         WHERE P.CodicePlaylist = ? 
         AND (P.Username = ? OR C.Username = ?)
+        """;
+
+    public static final String CHECK_DUPLICATE_TRACK_IN_PLAYLIST = 
+        """
+        SELECT 1 
+        FROM Inclusioni 
+        WHERE CodicePlaylist = ? AND CodiceBrano = ?
         """;
 
     public static final String ADD_BRANO_TO_PLAYLIST = 
@@ -440,84 +471,178 @@ public final class Queries {
         AND CodiceBrano = ?
         """;
 
-    // --- OPS 22 ---
-    public static final String SELECT_MOST_PLAYED_SONG = 
-    """
-    SELECT B.CodiceBrano, C.Titolo, COUNT(*) AS NumeroAscolti
-    FROM EventiAscolto E
-    JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
-    JOIN Contenuti C ON B.CodiceBrano = C.CodiceContenuto 
-    WHERE YEAR(E.DataOra) = ?
-    GROUP BY B.CodiceBrano, C.Titolo
-    ORDER BY NumeroAscolti DESC
-    LIMIT 1
-    """;
+    // --- ARTISTI SEGUITI DALL'UTENTE ---
+    public static final String SELECT_FOLLOWED_ARTISTS_BY_USER = 
+        """
+        SELECT a.CodiceArtista, a.NomeDArte
+        FROM Follow f
+        JOIN Artisti a ON f.CodiceArtista = a.CodiceArtista
+        WHERE f.Username = ?
+        ORDER BY a.NomeDArte ASC
+        """;
+    
+    // --- BRANI PREFERITI (LIKE) ---
+    public static final String SELECT_LIKED_TRACKS_BY_USER = 
+        """
+        SELECT b.CodiceBrano, c.Titolo
+        FROM LikeBrani lb
+        JOIN Brani b ON lb.CodiceBrano = b.CodiceBrano
+        JOIN Contenuti c ON b.CodiceBrano = c.CodiceContenuto
+        WHERE lb.Username = ?
+        ORDER BY c.Titolo ASC
+        """;
 
-    public static final String SELECT_MOST_PLAYED_ARTIST = 
-    """
-    SELECT A.CodiceArtista, A.NomeDArte, COUNT(*) AS NumeroAscolti
-    FROM (
-        SELECT E.DataOra, C.CodiceArtista
+    public static final String INSERT_LIKE_BRANO = 
+        """
+        INSERT INTO LikeBrani (Username, CodiceBrano)
+        VALUES (?, ?)
+        """;
+
+    public static final String REMOVE_LIKE_BRANO = 
+        """
+        DELETE FROM LikeBrani
+        WHERE Username = ? AND CodiceBrano = ?
+        """;
+
+    // --- OP 21: STATISTICHE PERSONALI DELL'UTENTE ---
+
+    // 1. Totale ascolti e minuti totali nell'anno
+    public static final String SELECT_PERSONAL_TOTALS_YEAR = 
+        """
+        SELECT COUNT(*) AS TotaleAscolti, SUM(E.DurataEvento) AS TotaleSecondi
+        FROM EventiAscolto E
+        WHERE E.Username = ? AND YEAR(E.DataOra) = ?
+        """;
+
+    // 2. I 5 contenuti più ascoltati dall'utente
+    public static final String SELECT_PERSONAL_TOP_TRACKS = 
+        """
+        SELECT C.CodiceContenuto, C.Titolo, COUNT(*) AS NumeroAscolti
+        FROM EventiAscolto E
+        JOIN Contenuti C ON E.CodiceContenuto = C.CodiceContenuto
+        WHERE E.Username = ? AND YEAR(E.DataOra) = ?
+        GROUP BY C.CodiceContenuto, C.Titolo
+        ORDER BY NumeroAscolti DESC
+        LIMIT 5
+        """;
+
+    // 3. I 5 artisti più ascoltati dall'utente (gestisce sia Brani/Cantare che Episodi/Podcast)
+    public static final String SELECT_PERSONAL_TOP_ARTISTS = 
+        """
+        SELECT A.CodiceArtista, A.NomeDArte, COUNT(*) AS NumeroAscolti
+        FROM (
+            SELECT E.DataOra, C.CodiceArtista
+            FROM EventiAscolto E
+            JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+            JOIN Cantare C ON B.CodiceBrano = C.CodiceBrano
+            WHERE E.Username = ?
+
+            UNION ALL
+
+            SELECT E.DataOra, P.CodiceArtista
+            FROM EventiAscolto E
+            JOIN Episodi EP ON E.CodiceContenuto = EP.CodiceEpisodio
+            JOIN Podcast P ON EP.CodicePodcast = P.CodicePodcast
+            WHERE E.Username = ?
+        ) AS AscoltiArtista
+        JOIN Artisti A ON AscoltiArtista.CodiceArtista = A.CodiceArtista
+        WHERE YEAR(AscoltiArtista.DataOra) = ?
+        GROUP BY A.CodiceArtista, A.NomeDArte
+        ORDER BY NumeroAscolti DESC
+        LIMIT 5
+        """;
+
+    // 4. Il genere musicale più ascoltato dall'utente
+    public static final String SELECT_PERSONAL_TOP_GENRE = 
+        """
+        SELECT A.NomeGenere, COUNT(*) AS NumeroAscolti
         FROM EventiAscolto E
         JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
-        JOIN Cantare C ON B.CodiceBrano = C.CodiceBrano
+        JOIN Appartenenze A ON B.CodiceBrano = A.CodiceBrano
+        WHERE E.Username = ? AND YEAR(E.DataOra) = ?
+        GROUP BY A.NomeGenere
+        ORDER BY NumeroAscolti DESC
+        LIMIT 1
+        """;
 
-        UNION ALL
-
-        SELECT E.DataOra, P.CodiceArtista
+    // --- OPS 22 ---
+    public static final String SELECT_MOST_PLAYED_SONG = 
+        """
+        SELECT B.CodiceBrano, C.Titolo, COUNT(*) AS NumeroAscolti
         FROM EventiAscolto E
-        JOIN Episodi EP ON E.CodiceContenuto = EP.CodiceEpisodio
-        JOIN Podcast P ON EP.CodicePodcast = P.CodicePodcast
-    ) AS AscoltiArtista
-    JOIN Artisti A ON AscoltiArtista.CodiceArtista = A.CodiceArtista
-    WHERE YEAR(AscoltiArtista.DataOra) = ?
-    GROUP BY A.CodiceArtista, A.NomeDArte
-    ORDER BY NumeroAscolti DESC
-    LIMIT 1
-    """;
+        JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+        JOIN Contenuti C ON B.CodiceBrano = C.CodiceContenuto 
+        WHERE YEAR(E.DataOra) = ?
+        GROUP BY B.CodiceBrano, C.Titolo
+        ORDER BY NumeroAscolti DESC
+        LIMIT 1
+        """;
+
+    public static final String SELECT_MOST_PLAYED_ARTIST = 
+        """
+        SELECT A.CodiceArtista, A.NomeDArte, COUNT(*) AS NumeroAscolti
+        FROM (
+            SELECT E.DataOra, C.CodiceArtista
+            FROM EventiAscolto E
+            JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+            JOIN Cantare C ON B.CodiceBrano = C.CodiceBrano
+
+            UNION ALL
+
+            SELECT E.DataOra, P.CodiceArtista
+            FROM EventiAscolto E
+            JOIN Episodi EP ON E.CodiceContenuto = EP.CodiceEpisodio
+            JOIN Podcast P ON EP.CodicePodcast = P.CodicePodcast
+        ) AS AscoltiArtista
+        JOIN Artisti A ON AscoltiArtista.CodiceArtista = A.CodiceArtista
+        WHERE YEAR(AscoltiArtista.DataOra) = ?
+        GROUP BY A.CodiceArtista, A.NomeDArte
+        ORDER BY NumeroAscolti DESC
+        LIMIT 1
+        """;
 
     public static final String SELECT_MOST_PLAYED_GENRE = 
-    """
-    SELECT A.NomeGenere, COUNT(*) AS NumeroAscolti
-    FROM EventiAscolto E
-    JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
-    JOIN Appartenenze A ON B.CodiceBrano = A.CodiceBrano
-    WHERE YEAR(E.DataOra) = ? 
-    GROUP BY A.NomeGenere
-    ORDER BY NumeroAscolti DESC
-    LIMIT 1
-    """;
+        """
+        SELECT A.NomeGenere, COUNT(*) AS NumeroAscolti
+        FROM EventiAscolto E
+        JOIN Brani B ON E.CodiceContenuto = B.CodiceBrano
+        JOIN Appartenenze A ON B.CodiceBrano = A.CodiceBrano
+        WHERE YEAR(E.DataOra) = ? 
+        GROUP BY A.NomeGenere
+        ORDER BY NumeroAscolti DESC
+        LIMIT 1
+        """;
 
     public static final String SELECT_USERS_ABOVE_AVG_LISTENS = 
-    """
-    SELECT E.Username, COUNT(*) AS NumeroAscolti
-    FROM EventiAscolto E
-    WHERE YEAR(E.DataOra) = ? 
-    GROUP BY E.Username
-    HAVING COUNT(*) > (
-        SELECT AVG(TotaleAscolti)
-        FROM (SELECT COUNT(*) AS TotaleAscolti
-    FROM EventiAscolto
-    WHERE YEAR(DataOra) = ? 
-    GROUP BY Username ) AS AscoltiPerUtente
-    )
-    """;
+        """
+        SELECT E.Username, COUNT(*) AS NumeroAscolti
+        FROM EventiAscolto E
+        WHERE YEAR(E.DataOra) = ? 
+        GROUP BY E.Username
+        HAVING COUNT(*) > (
+            SELECT AVG(TotaleAscolti)
+            FROM (SELECT COUNT(*) AS TotaleAscolti
+        FROM EventiAscolto
+        WHERE YEAR(DataOra) = ? 
+        GROUP BY Username ) AS AscoltiPerUtente
+        )
+        """;
 
     public static final String SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING = 
-    """
-    SELECT A.CodiceAlbum, A.TitoloAlbum, A.MediaVoti
-    FROM ALBUM A
-    WHERE A.MediaVoti > (
-        SELECT AVG(MediaVoti)
-        FROM ALBUM)
-    """;
+        """
+        SELECT A.CodiceAlbum, A.TitoloAlbum, A.MediaVoti
+        FROM ALBUM A
+        WHERE A.MediaVoti > (
+            SELECT AVG(MediaVoti)
+            FROM ALBUM)
+        """;
 
     public static final String SELECT_ALL_GENRES = 
-    """
-    SELECT NomeGenere 
-    FROM Generi
-    ORDER BY NomeGenere ASC
-    """;
+        """
+        SELECT NomeGenere 
+        FROM Generi
+        ORDER BY NomeGenere ASC
+        """;
 
     private Queries() { }
 }

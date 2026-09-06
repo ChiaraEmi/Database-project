@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import soundwave.data.Artist;
+import soundwave.data.LikeBrani;
+import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.view.ActivateSubscriptionDialog;
 import soundwave.view.RedeemBonusDialog;
 
@@ -12,21 +15,6 @@ import soundwave.view.RedeemBonusDialog;
  * Defines the controller interface for the application.
  */
 public interface Controller {
-
-
-    /**
-     * Handles the request to insert a new promotion (OP 6)
-     * @param name
-     * @param description
-     * @param startDate
-     * @param endDate
-     * @param discountType
-     * @param discountValueStr
-     * @param rqrMonths
-     * @param planCodesStr
-     */
-    void adminClickedSavePromotion( String code, String name, String description, String startDate, String endDate, String discountType, 
-                                    String discountValueStr, String rqrMonths, String planCodesStr);
 
     /**
      * Handles the login attempt for a user by checking if they exist in the database.
@@ -81,6 +69,13 @@ public interface Controller {
      * @return a list of podcast authors.
      */
     List<Artist> getPodcastAuthors();
+
+    /**
+     * Retrieves the list of all podcasts.
+     *
+     * @return a list of podcasts.
+     */
+    List<Podcast> getPodcasts();
 
     /**
      * Handles the request to insert a new podcast.
@@ -164,6 +159,15 @@ public interface Controller {
     boolean userClickedCreatePlaylist(String username, String playlistName, String visibility, boolean isCollaborative);
 
     /**
+     * Retrieves the list of playlists belonging to a specific user.
+     * 
+     * @param username the owner's username.
+     * 
+     * @return a list of playlists.
+     */
+    List<Playlist> getUserPlaylists(String username);
+
+    /**
      * Adds a track to a playlist for a specific user after checking permissions.
      *
      * @param username the user performing the action.
@@ -186,14 +190,123 @@ public interface Controller {
     boolean userClickedRemoveTrackFromPlaylist(String username, int playlistCode, int trackCode);
 
     /**
+     * Retrieves the list of liked tracks belonging to a specific user.
+     * 
+     * @param username the username of the user.
+     * 
+     * @return a list of liked tracks.
+     */
+    List<LikeBrani> getUserLikedTracks(String username);
+
+    /**
+     * Returns the list of artists followed by the user.
+     * 
+     * @param username the username.
+     * @return the list of followed artist names.
+     */
+    List<String> getFollowedArtists(String username);
+
+    /**
+     * Handles the request to add a like to a track for a specific user.
+     *
+     * @param username the user performing the action.
+     * @param trackCode the track code to like.
+     * 
+     * @return true if successfully liked, false otherwise.
+     */
+    boolean userClickedLikeTrack(String username, int trackCode);
+
+    /**
+     * Handles the request to remove a like from a track for a specific user.
+     *
+     * @param username the user performing the action.
+     * @param trackCode the track code to unlike.
+     * 
+     * @return true if successfully removed, false otherwise.
+     */
+    boolean userClickedUnlikeTrack(String username, int trackCode);
+
+    /**
      * Handles the request to load and view the list of system users.
      */
     void adminClickedLoadUsers();
 
     /**
-     * Handles the request to load and view global statistics.
-     * 
-     * @param year the reference year for annual statistics.
+     * Handles the request to load and display personal yearly listening statistics for a specific user.
+     *
+     * @param username the username of the user.
+     * @param year the year to filter by.
      */
-    void adminRequestedGlobalStats(int year);
+    void userRequestedPersonalStats(String username, int year);
+
+    /**
+     * Handles the request to fetch albums above global average.
+     */
+    void adminRequestedGlobalAlbums();
+
+    /**
+     * Handles the request to fetch yearly stats for a specific year.
+     * 
+     * @param year the year chosen by the admin.
+     */
+    void adminRequestedYearlyStats(int year);
+
+    /**
+     * Handles the request from an administrator to save a new promotional offer.
+     *
+     * @param code the promo code.
+     * @param name the promotion name.
+     * @param description the promotion description.
+     * @param startDate the start date string.
+     * @param endDate the end date string.
+     * @param discountType the type of discount.
+     * @param discountValueStr the discount value as a string.
+     * @param rqrMonths the required months as a string.
+     * @param planCodesStr the comma-separated plan codes associated with the promotion.
+     * 
+     * @return true if successfully saved, false otherwise.
+     */
+    boolean adminClickedSavePromotion(String code, String name, String description, String startDate, 
+                                   String endDate, String discountType, String discountValueStr, 
+                                   String rqrMonths, String planCodesStr);
+
+    /**
+     * Requests the available subscription plans for a user and displays the activation dialog.
+     *
+     * @param username the username requesting the subscription plans.
+     */
+    void userRequestedSubscriptionPlans(String username);
+
+    /**
+     * Handles the activation of a subscription for a user based on the dialog data.
+     *
+     * @param username the username activating the subscription.
+     * @param data the subscription data container from the view.
+     */
+    void userActivateSubscription(String username, ActivateSubscriptionDialog.SubscriptionData data);
+
+    /**
+     * Asynchronously verifies if an invite code is valid.
+     *
+     * @param inviteCode the invite code to check.
+     * @param callback the callback consumer receiving the verification result.
+     */
+    void verifyInviteCode(String inviteCode, Consumer<Boolean> callback);
+
+    /**
+     * Asynchronously verifies if a promotion code is valid for a specific plan.
+     *
+     * @param promoCode the promo code to check.
+     * @param planCode the target plan code.
+     * @param callback the callback consumer receiving the result array.
+     */
+    void verifyPromotionCode(String promoCode, int planCode, Consumer<Object[]> callback);
+
+    /**
+     * Retrieves subscription details and history for a specific user.
+     *
+     * @param username the username whose subscription data is requested.
+     * @return a list of object arrays representing subscription details.
+     */
+    List<Object[]> getSubscriptionData(String username);
 }

@@ -26,8 +26,8 @@ public final class Plan {
     public Plan(final int planCode, final String typePlan, final int durationMonths, final double price) {
         this.planCode = planCode;
         this.typePlan = Objects.requireNonNull(typePlan, "Type plan cannot be null");
-        this.durationMonths = Objects.requireNonNull(durationMonths, "Duration months cannot be null");
-        this.price = Objects.requireNonNull(price, "Price cannot be null");
+        this.durationMonths = durationMonths;
+        this.price = price;
     }
 
     /**
@@ -70,11 +70,13 @@ public final class Plan {
     public boolean equals(final Object other) {
         if (this == other) {
             return true;
-        } else if (other == null || !(other instanceof Plan)) {
+        }
+        if (!(other instanceof Plan)) {
             return false;
         }
         final Plan a = (Plan) other;
-        return this.planCode == a.planCode && a.typePlan.equals(this.typePlan) && this.durationMonths == a.durationMonths && this.price == a.price;
+        return this.planCode == a.planCode && a.typePlan.equals(this.typePlan) 
+                && this.durationMonths == a.durationMonths && this.price == a.price;
     }
 
     @Override
@@ -93,19 +95,20 @@ public final class Plan {
                 Printer.field("price", this.price)
             )
         );
-    }   
+    }
 
     /**
      * DAO class for Plan.
      */
     public static final class DAO {
-        private DAO() {}
+        private DAO() { }
 
         /**
          * Checks if a given plan code corresponds to a monthly subscription.
          *
          * @param connection the database connection.
          * @param code       the plan code to check.
+         * 
          * @return true if the plan is a monthly subscription, false otherwise.
          */
         public static boolean isMonthlyPlan(final Connection connection, final int code) {
@@ -122,12 +125,12 @@ public final class Plan {
         public static List<Plan> listAll(final Connection connection) {
             Objects.requireNonNull(connection, "Connection cannot be null");
             final List<Plan> plans = new ArrayList<>();
-            final String query =  """
+            final String query = """
                                     SELECT CodiceAbbonamento, TipoAbbonamento, Durata, Costo
                                     FROM Abbonamenti
                                     ORDER BY Durata, Costo
-                                  """;
-            
+                                 """;
+
             try (var stmt = connection.createStatement();
                  var rs = stmt.executeQuery(query)) {
                 while (rs.next()) {

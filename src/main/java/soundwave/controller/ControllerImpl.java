@@ -2,7 +2,10 @@ package soundwave.controller;
 
 import soundwave.data.Artist;
 import soundwave.data.DAOException;
+import soundwave.data.LikeBrani;
 import soundwave.data.Plan;
+import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.model.Model;
@@ -33,8 +36,8 @@ public final class ControllerImpl implements Controller {
     private static final int ARTIST_CODE_INDEX = 4;
     private static final int GENRES_INDEX = 5;
 
-    private static final String SECTION_FOOTER_SUFFIX = ") ===\n";
     private static final String NEW_LINE = "\n";
+    private static final String SECTION_CLOSE_SUFFIX = ") ===";
     private static final int INITIAL_BUILDER_CAPACITY = 512;
 
     private final Model model;
@@ -57,9 +60,14 @@ public final class ControllerImpl implements Controller {
         this.view = view;
     }
 
+    // ==========================================
+    // ABBONAMENTI E PROMOZIONI (da Versione 1)
+    // ==========================================
+
     @Override
-    public void adminClickedSavePromotion(final String code, final String name, final String description, final String startDate, final String endDate, final String discountType, 
-                                          final String discountValueStr, final String rqrMonths, final String planCodesStr) {
+    public boolean adminClickedSavePromotion(final String code, final String name, final String description, 
+                                            final String startDate, final String endDate, final String discountType, 
+                                            final String discountValueStr, final String rqrMonths, final String planCodesStr) {
         try {
 
             if (code == null || code.trim().isEmpty()) {
@@ -98,34 +106,103 @@ public final class ControllerImpl implements Controller {
                 }
             }
 
-            if(start.isAfter(end)) {
-                this.view.showError("La data inzio non può essere dopo la data fine");
-                return;
+            if (start.isAfter(end)) {
+                this.view.showError("La data inizio non può essere dopo la data fine");
+                return false;
             }
-            if(planCodes.isEmpty()) {
+            if (planCodes.isEmpty()) {
                 this.view.showError("Devi specificare almeno un piano di abbonamento");
-                return;
+                return false;
             }
-            if(discountValue <= 0.0) {
+            if (discountValue <= 0.0) {
                 this.view.showError("Il valore dello sconto deve essere maggiore di 0");
-                return;
+                return false;
             }
 
-            this.model.insertPromotion(code, name, description, start, end, discountType, discountValue, requiredMonths, planCodes);
+            this.model.insertPromotion(code, name, description, start, end, discountType, 
+                                        discountValue, requiredMonths, planCodes);
             this.view.showSuccess("Promozione creata con successo");
+            return true;
+
         } catch (final java.time.format.DateTimeParseException e) {
-            this.view.showError("Formato data non valido. Usa YYYY-MM-DD. qui ");
+            LOGGER.log(Level.WARNING, "Invalid date format for promotion", e);
+            this.view.showError("Formato data non valido. Usa YYYY-MM-DD.");
+            return false;
         } catch (final NumberFormatException e) {
-            this.view.showError("Valore numerico non valido. Controlla sconto, mesi richiesti e codici piani");
+            LOGGER.log(Level.WARNING, "Invalid number format for promotion", e);
+            this.view.showError("Valore numerico non valido. Controlla sconto, mesi richiesti e codici piani.");
+            return false; // <-- AGGIUNTO per coerenza
         } catch (final DAOException e) {
-            this.view.showError("Impossibile salvare la promozione:" + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to save promotion", e);
+            this.view.showError("Impossibile salvare la promozione nel database.");
+            return false; 
         } catch (final Exception e) {
-            this.view.showError("Errore imprevisto:" + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Unexpected error saving promotion", e);
+            this.view.showError("Errore imprevisto: " + e.getMessage());
+            return false;
         }
     }
-    
+
+    @Override
+    public void userRequestedSubscriptionPlans(final String username) {
+        try {
+            final List<Plan> plans = this.model.getSubscriptioPlans();
+            this.view.showActivateSubsriptionDialog(username, plans);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load subscription plans", e);
+            this.view.showError("Impossibile caricare i piani di abbonamento");
+        }
+    }
+
+    @Override
+    public void userActivateSubscription(final String username, final ActivateSubscriptionDialog.SubscriptionData data) {
+        try {
+            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod, 
+                                                                        data.promoCode, data.inviteCode, data.autoRenew);
+            this.view.showSuccessAndCloseDialog("Sottoscrizione attivata con successo! Codice: " + subscriptionCode);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to activate subscription", e);
+            this.view.showError("Impossibile attivare la sottoscrizione: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void verifyInviteCode(final String inviteCode, final Consumer<Boolean> callback) {
+        try {
+            final boolean exists = this.model.verifyInviteCode(inviteCode);
+            callback.accept(exists);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to verify invite code", e);
+            callback.accept(false);
+        }
+    }
+
+    @Override
+    public void verifyPromotionCode(final String promoCode, final int planCode, final Consumer<Object[]> callback) {
+        try {
+            final Object[] result = this.model.verifyPromotionCode(promoCode, planCode);
+            callback.accept(result);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to verify promotion code", e);
+            callback.accept(new Object[]{false, 0, null, 0});
+        } 
+    }
+
+    @Override
+    public List<Object[]> getSubscriptionData(final String username) {
+        try {
+            return this.model.getSubscriptionData(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load subscription data", e);
+            this.view.showError("Impossibile caricare i dati: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    // ==========================================
+    // AUTENTICAZIONE E GESTIONE ARTISTI/CONTENUTI
+    // ==========================================
+
     @Override
     public boolean userLoggedIn(final String username) {
         if (username == null || username.isBlank()) {
@@ -192,7 +269,7 @@ public final class ControllerImpl implements Controller {
 
         if (artistCode <= 0 || title == null || title.isBlank() || releaseDate == null || releaseDate.isBlank()
             || recordCompany == null || recordCompany.isBlank() || rawSongsText == null || rawSongsText.isBlank()) {
-            final String errorMessage = "Compila i campi obbligatori (Artista, Titolo, Data e Casa Discografica).";
+            final String errorMessage = "Compila i campi obbligatori (Titolo, Data, Casa Discografica, Elenco brani).";
             LOGGER.log(Level.WARNING, errorMessage);
             this.view.showError(errorMessage);
             return false;
@@ -232,11 +309,22 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
+    public List<Podcast> getPodcasts() {
+        try {
+            return this.model.getPodcasts();
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load podcasts", e);
+            this.view.showError("Errore durante il caricamento dei podcast.");
+            return List.of();
+        }
+    }
+
+    @Override
     public boolean adminClickedSavePodcast(final int artistCode, final String name, 
-                                          final String description, final String category) {
+                                         final String description, final String category) {
 
         if (artistCode <= 0 || name == null || name.isBlank() || category == null || category.isBlank()) {
-            final String errorMessage = "Compila i campi obbligatori del podcast (Artista, Nome e Categoria).";
+            final String errorMessage = "Compila i campi obbligatori (Nome e Categoria).";
             LOGGER.log(Level.WARNING, errorMessage);
             this.view.showError(errorMessage);
             return false;
@@ -262,11 +350,11 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public boolean adminClickedSaveEpisode(final int podcastCode, final String title, 
-                                          final int duration, final String description, 
-                                          final int episodeNumber) {
+                                         final int duration, final String description, 
+                                         final int episodeNumber) {
 
         if (podcastCode <= 0 || title == null || title.isBlank() || duration <= 0 || episodeNumber <= 0) {
-            final String errorMessage = "Compila i campi obbligatori dell'episodio (Podcast, Titolo, Durata e Numero Episodio).";
+            final String errorMessage = "Compila i campi obbligatori (Titolo, Durata e Numero Episodio).";
             LOGGER.log(Level.WARNING, errorMessage);
             this.view.showError(errorMessage);
             return false;
@@ -282,60 +370,6 @@ public final class ControllerImpl implements Controller {
             return false;
         }
     }
-
-    @Override
-    public void userRequestedSubscriptionPlans(final String username) {
-        try {
-            final List<Plan> plans = this.model.getSubscriptioPlans();
-            this.view.showActivateSubsriptionDialog(username, plans);
-        } catch (final DAOException e) {
-            this.view.showError("Impossibile caricare i piani di abbonamento");
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void userActivateSubscription(final String username, final ActivateSubscriptionDialog.SubscriptionData data) {
-        try {
-            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod, data.promoCode, data.inviteCode, data.autoRenew);
-            this.view.showSuccessAndCloseDialog("Sottoscrizione attivata con successo! Codice: " + subscriptionCode);
-        } catch (final DAOException e) {
-            this.view.showError("Impossibile attivare la sottoscrizione: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void verifyInviteCode(final String inviteCode, final Consumer<Boolean> callback) {
-        try {
-            boolean exists = this.model.verifyInviteCode(inviteCode);
-            callback.accept(exists);
-        } catch (final DAOException e) {
-            callback.accept(false);
-        }
-    }
-
-    @Override
-    public void verifyPromotionCode(final String promoCode, final int planCode, final Consumer<Object[]> callback){
-        try {
-            Object[] result = this.model.verifyPromotionCode(promoCode, planCode);
-            callback.accept(result);
-        } catch (final DAOException e) {
-            callback.accept(new Object[]{false, 0, null, 0});
-        } 
-    }
-
-    @Override
-    public List<Object[]> getSubscriptionData(final String username) {
-        try {
-            return this.model.getSubscriptionData(username);
-        } catch (final DAOException e) {
-            this.view.showError("Impossibile caricare i dati: " + e.getMessage());
-            e.printStackTrace();
-            return List.of();
-        }
-    }
-
 
     @Override
     public void userRequestedRedeemBonus(final String username) {
@@ -445,7 +479,7 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public boolean userGeneratedListeningEvent(final String username, final int contentCode, 
-                                               final String device, final int eventDuration) {
+                                             final String device, final int eventDuration) {
 
         if (username == null || username.isBlank() || contentCode <= 0 || device == null || device.isBlank() 
             || eventDuration <= 0) {
@@ -465,9 +499,13 @@ public final class ControllerImpl implements Controller {
         }
     }
 
+    // ==========================================
+    // PLAYLIST, PREFERITI E LIBRERIA UTENTE
+    // ==========================================
+
     @Override
     public boolean userClickedCreatePlaylist(final String username, final String playlistName, 
-                                            final String visibility, final boolean isCollaborative) {
+                                        final String visibility, final boolean isCollaborative) {
         if (playlistName == null || playlistName.isBlank()) {
             final String errorMessage = "Inserisci un nome valido per la playlist.";
             LOGGER.log(Level.WARNING, errorMessage);
@@ -482,6 +520,10 @@ public final class ControllerImpl implements Controller {
                 LOGGER.log(Level.INFO, "Playlist ''{0}'' created successfully for user {1}", 
                             new Object[]{playlistName, username});
                 this.view.showSuccess("Playlist creata con successo!");
+
+                final List<Playlist> updatedPlaylists = this.model.getUserPlaylists(username);
+                this.view.getUserPanel().setUserPlaylists(updatedPlaylists);
+
                 return true;
             } else {
                 final String errorMessage = "Impossibile creare la playlist nel database.";
@@ -493,6 +535,24 @@ public final class ControllerImpl implements Controller {
             LOGGER.log(Level.SEVERE, "Failed to create playlist", e);
             this.view.showError("Errore durante la creazione della playlist.");
             return false;
+        }
+    }
+
+    @Override
+    public List<Playlist> getUserPlaylists(final String username) {
+        if (username == null || username.isBlank()) {
+            final String errorMessage = "Username non valido per il caricamento delle playlist.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return List.of();
+        }
+
+        try {
+            return this.model.getUserPlaylists(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load playlists for user: " + username, e);
+            this.view.showError("Errore durante il caricamento delle playlist dell'utente.");
+            return List.of();
         }
     }
 
@@ -510,7 +570,9 @@ public final class ControllerImpl implements Controller {
             if (success) {
                 this.view.showSuccess("Brano aggiunto alla playlist con successo!");
             } else {
-                this.view.showError("Non hai i permessi per modificare questa playlist.");
+                final String errorMessage = "Impossibile aggiungere il brano: verifica di avere "
+                                            + "i permessi o che il brano non sia già presente.";
+                this.view.showError(errorMessage);
             }
             return success;
         } catch (final DAOException e) {
@@ -534,13 +596,154 @@ public final class ControllerImpl implements Controller {
             if (success) {
                 this.view.showSuccess("Brano rimosso dalla playlist con successo!");
             } else {
-                this.view.showError("Non hai i permessi per modificare questa playlist.");
+                this.view.showError("Il brano selezionato non fa parte di questa playlist o non hai i permessi.");
             }
             return success;
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to remove track from playlist", e);
             this.view.showError("Errore durante la rimozione del brano dalla playlist.");
             return false;
+        }
+    }
+
+    @Override
+    public List<LikeBrani> getUserLikedTracks(final String username) {
+        if (username == null || username.isBlank()) {
+            final String errorMessage = "Username non valido per il caricamento dei brani preferiti.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return List.of();
+        }
+
+        try {
+            return this.model.getLikedTracks(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load liked tracks for user: " + username, e);
+            this.view.showError("Errore durante il caricamento dei brani preferiti.");
+            return List.of();
+        }
+    }
+
+    @Override
+    public List<String> getFollowedArtists(final String username) {
+        if (username == null || username.isBlank()) {
+            final String errorMessage = "Username non valido per il caricamento degli artisti seguiti.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return List.of();
+        }
+
+        try {
+            return this.model.getFollowedArtists(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load followed artists for user: " + username, e);
+            this.view.showError("Errore durante il caricamento degli artisti seguiti.");
+            return List.of();
+        }
+    }
+
+    @Override
+    public boolean userClickedLikeTrack(final String username, final int trackCode) {
+        if (username == null || username.isBlank() || trackCode <= 0) {
+            final String errorMessage = "Parametri non validi per aggiungere il like al brano.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return false;
+        }
+
+        try {
+            this.model.likeTrack(username, trackCode);
+            this.view.showSuccess("Brano aggiunto ai preferiti con successo!");
+            return true;
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to like track", e);
+            this.view.showError("Impossibile aggiungere il brano ai preferiti (potrebbe essere già presente).");
+            return false;
+        }
+    }
+
+    @Override
+    public boolean userClickedUnlikeTrack(final String username, final int trackCode) {
+        if (username == null || username.isBlank() || trackCode <= 0) {
+            final String errorMessage = "Parametri non validi per rimuovere il like dal brano.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return false;
+        }
+
+        try {
+            final boolean success = this.model.unlikeTrack(username, trackCode);
+            if (success) {
+                this.view.showSuccess("Brano rimosso dai preferiti con successo!");
+            } else {
+                this.view.showError("Il brano selezionato non è presente tra i preferiti.");
+            }
+            return success;
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to unlike track", e);
+            this.view.showError("Errore durante la rimozione del brano dai preferiti.");
+            return false;
+        }
+    }
+
+    // ==========================================
+    // AMMINISTRAZIONE E STATISTICHE
+    // ==========================================
+
+    @Override
+    public void userRequestedPersonalStats(final String username, final int year) {
+        if (username == null || username.isBlank() || year <= 0) {
+            final String errorMessage = "Username o anno non validi per visualizzare le statistiche personali.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return;
+        }
+
+        try {
+            final Object[] totals = this.model.getPersonalTotals(username, year);
+            final List<Object[]> topTracks = this.model.getPersonalTopTracks(username, year);
+            final List<Object[]> topArtists = this.model.getPersonalTopArtists(username, year);
+            final String topGenre = this.model.getPersonalTopGenre(username, year);
+
+            final int totalListens = (int) totals[0];
+            final int totalSeconds = (int) totals[1];
+            final int totalMinutes = totalSeconds / 60;
+
+            final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
+            sb.append("=== Statistiche Personali (Anno ").append(year).append(SECTION_CLOSE_SUFFIX).append(NEW_LINE)
+              .append("• Ascolti totali: ").append(totalListens).append(NEW_LINE)
+              .append("• Tempo totale di ascolto: ").append(totalMinutes).append(" minuti (").append(totalSeconds).append(" secondi)").append(NEW_LINE)
+              .append("• Genere preferito: ").append(topGenre).append(NEW_LINE)
+              .append(NEW_LINE);
+
+            sb.append("=== I tuoi 5 brani più ascoltati ===").append(NEW_LINE);
+            if (topTracks != null && !topTracks.isEmpty()) {
+                for (final Object[] track : topTracks) {
+                    final String title = (String) track[1];
+                    final int count = (int) track[2];
+                    sb.append("• ").append(title).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
+                }
+            } else {
+                sb.append("Nessun brano trovato per questo anno.").append(NEW_LINE);
+            }
+            sb.append(NEW_LINE);
+
+            sb.append("=== I tuoi 5 artisti più ascoltati ===").append(NEW_LINE);
+            if (topArtists != null && !topArtists.isEmpty()) {
+                for (final Object[] artist : topArtists) {
+                    final String artistName = (String) artist[1];
+                    final int count = (int) artist[2];
+                    sb.append("• ").append(artistName).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
+                }
+            } else {
+                sb.append("Nessun artista trovato per questo anno.").append(NEW_LINE);
+            }
+
+            this.view.showPersonalStats(sb.toString());
+
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load personal stats for user: " + username, e);
+            this.view.showError("Errore durante il caricamento delle statistiche personali.");
         }
     }
 
@@ -556,50 +759,12 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public void adminRequestedGlobalStats(final int year) {
-        if (year <= 0) {
-            final String errorMessage = "Inserisci un anno valido per visualizzare le statistiche globali.";
-            LOGGER.log(Level.WARNING, errorMessage);
-            this.view.showError(errorMessage);
-            return;
-        }
-
+    public void adminRequestedGlobalAlbums() {
         try {
-            final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
-            final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
-            final List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
             final List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
-            sb.append("=== Artista più ascoltato (Anno ")
-              .append(year)
-              .append(SECTION_FOOTER_SUFFIX)
-              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato")
-              .append(NEW_LINE)
-              .append(NEW_LINE)
-              .append("=== Genere più ascoltato (Anno ")
-              .append(year)
-              .append(SECTION_FOOTER_SUFFIX)
-              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato")
-              .append(NEW_LINE)
-              .append(NEW_LINE)
-              .append("=== Utenti sopra la media ascolti (Anno ")
-              .append(year)
-              .append(SECTION_FOOTER_SUFFIX);
-
-            if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
-                for (final String u : usersAboveAvg) {
-                    sb.append("• ")
-                      .append(u)
-                      .append(NEW_LINE);
-                }
-            } else {
-                sb.append("Nessun utente trovato.")
-                  .append(NEW_LINE);
-            }
-
-            sb.append(NEW_LINE)
-              .append("=== Album sopra la media globale delle recensioni ===")
+            sb.append("=== Album sopra la media globale delle recensioni ===")
               .append(NEW_LINE);
 
             if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
@@ -613,11 +778,64 @@ public final class ControllerImpl implements Controller {
                   .append(NEW_LINE);
             }
 
-            this.view.showGlobalStats(sb.toString());
+            this.view.showGlobalAlbumsStats(sb.toString());
 
         } catch (final DAOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to load global stats", e);
-            this.view.showError("Errore durante il caricamento delle statistiche globali.");
+            LOGGER.log(Level.SEVERE, "Failed to load global albums", e);
+            this.view.showError("Errore durante il caricamento degli album globali.");
+        }
+    }
+
+    @Override
+    public void adminRequestedYearlyStats(final int year) {
+        if (year <= 0) {
+            final String errorMessage = "Inserisci un anno valido per visualizzare le statistiche.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return;
+        }
+
+        try {
+            final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
+            final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
+            final List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
+
+            final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
+            sb.append("=== Artista più ascoltato (Anno ")
+              .append(year)
+              .append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE)
+              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato")
+              .append(NEW_LINE)
+              .append(NEW_LINE)
+              .append("=== Genere più ascoltato (Anno ")
+              .append(year)
+              .append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE)
+              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato")
+              .append(NEW_LINE)
+              .append(NEW_LINE)
+              .append("=== Utenti sopra la media ascolti (Anno ")
+              .append(year)
+              .append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE);
+
+            if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
+                for (final String u : usersAboveAvg) {
+                    sb.append("• ")
+                      .append(u)
+                      .append(NEW_LINE);
+                }
+            } else {
+                sb.append("Nessun utente trovato.")
+                  .append(NEW_LINE);
+            }
+
+            this.view.showYearlyStats(sb.toString());
+
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load yearly stats", e);
+            this.view.showError("Errore durante il caricamento delle statistiche annuali.");
         }
     }
 

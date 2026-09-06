@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 import soundwave.data.Artist;
+import soundwave.data.LikeBrani;
+import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.data.Plan;
 import soundwave.data.SongInput;
 import soundwave.data.User;
@@ -31,6 +34,7 @@ public final class MockedModel implements Model {
     private final Set<Integer> musicArtistIds;
     private final Set<Integer> podcastAuthorIds;
     private final Map<Integer, String> albums;
+    private final List<Podcast> podcasts;
 
     /**
      * Constructs a new MockedModel with initial test data.
@@ -42,6 +46,7 @@ public final class MockedModel implements Model {
         this.musicArtistIds = new HashSet<>();
         this.podcastAuthorIds = new HashSet<>();
         this.albums = new HashMap<>();
+        this.podcasts = new ArrayList<>();
 
         this.users.add(
             new User("mario88", "Mario", "Rossi", "mario@email.com", "pass123", 
@@ -127,6 +132,11 @@ public final class MockedModel implements Model {
     }
 
     @Override
+    public List<Podcast> getPodcasts() {
+        return List.copyOf(this.podcasts);
+    }
+
+    @Override
     public int insertPodcast(final int artistCode, final String name, final String description, final String category) {
         this.savedPodcasts.add(name);
         return this.savedPodcasts.size(); 
@@ -145,6 +155,15 @@ public final class MockedModel implements Model {
     }
 
     @Override
+    public List<Playlist> getUserPlaylists(final String username) {
+        final List<Playlist> playlists = new ArrayList<>();
+        // Esempio di popolamento mock con i parametri corretti:
+        playlists.add(new Playlist(1, username, "I miei preferiti", 
+                                    "2026-01-01", "Pubblica", false));
+        return playlists;
+    }
+
+    @Override
     public boolean addTrackToPlaylist(final String username, final int playlistCode, final int trackCode) {
         // Simulazione in memoria dell'aggiunta del brano
         return true;
@@ -158,7 +177,7 @@ public final class MockedModel implements Model {
 
     @Override
     public void insertListeningEvent(final String username, final int contentCode, final String device, 
-                                     final int eventDuration) {
+                                    final int eventDuration) {
         // Simulazione in memoria
     }
 
@@ -170,8 +189,9 @@ public final class MockedModel implements Model {
     /**
      * Checks whether the specified artist is authorized as a podcast author.
      *
-     * @param artistCode the unique code of the artist to check
-     * @return true if the artist exists and is a podcast author, false otherwise
+     * @param artistCode the unique code of the artist to check.
+     * 
+     * @return true if the artist exists and is a podcast author, false otherwise.
      */
     @Override
     public boolean isPodcastAuthor(final int artistCode) {
@@ -199,6 +219,27 @@ public final class MockedModel implements Model {
     }
 
     @Override
+    public List<LikeBrani> getLikedTracks(final String username) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<String> getFollowedArtists(final String username) {
+        return List.of("The Weeknd", "Dua Lipa", "Harry Styles");
+    }
+
+    @Override
+    public void likeTrack(final String username, final int trackCode) {
+        // Simulazione in memoria dell'aggiunta del like
+    }
+
+    @Override
+    public boolean unlikeTrack(final String username, final int trackCode) {
+        // Simulazione in memoria della rimozione del like
+        return true;
+    }
+
+    @Override 
     public List<Plan> getSubscriptioPlans() {
         return List.of(
             new Plan(1, "Mensile Standard", 1, 9.99),
@@ -209,7 +250,8 @@ public final class MockedModel implements Model {
     }
 
     @Override
-    public int activateSubscription(final String username, final int planCode,final String paymentMethod, final String promoCode, final String inviteCode, final boolean autoRenew) {
+    public int activateSubscription(final String username, final int planCode,final String paymentMethod, 
+                                    final String promoCode, final String inviteCode, final boolean autoRenew) {
         System.out.println("[MOCK] Sottoscrizione attivata per: " + username);
         System.out.println("[MOCK] Piano: " + planCode);
         System.out.println("[MOCK] Metodo: " + paymentMethod);
@@ -223,9 +265,9 @@ public final class MockedModel implements Model {
 
     @Override
     public Object[] verifyPromotionCode(final String promoCode, final int planCode) {
-        List<String> validCodes = List.of("PROMO20", "WELCOME", "BLACKFRI", "STUDENT");
+        final List<String> validCodes = List.of("PROMO20", "WELCOME", "BLACKFRI", "STUDENT");
     
-        if (promoCode != null && validCodes.contains(promoCode.toUpperCase())) {
+        if (promoCode != null && validCodes.contains(promoCode.toUpperCase(java.util.Locale.ROOT))) {
             return new Object[]{true, 20.0, "Percentuale", 89.99};
         }
         return new Object[]{false, 0.0, null, 0.0};
@@ -233,13 +275,44 @@ public final class MockedModel implements Model {
 
     @Override
     public List<Object[]> getSubscriptionData(final String username) {
-        List<String> trans1 = List.of("2026-01-01 10:00:00 | €71.99 | Completata");
-        List<String> trans2 = List.of("2026-02-01 12:15:00 | €4.99 | Completata");
+        final List<String> trans1 = List.of("2026-01-01 10:00:00 | €71.99 | Completata");
+        final List<String> trans2 = List.of("2026-02-01 12:15:00 | €4.99 | Completata");
         
         return List.of(
             new Object[]{1, "Annuale Premium", "2026-01-01", "2027-01-01", "Attiva", true, "-", "INV_MARIO", trans1},
             new Object[]{2, "Mensile Standard", "2026-02-01", "2026-03-01", "Scaduta", false, "PROMO20", "-", trans2}
         );
+    }
+
+    @Override
+    public Object[] getPersonalTotals(final String username, final int year) {
+        // Ritorna [TotaleAscolti, TotaleSecondi] simulati
+        return new Object[]{125, 18500};
+    }
+
+    @Override
+    public List<Object[]> getPersonalTopTracks(final String username, final int year) {
+        return List.of(
+            new Object[]{1, "Blinding Lights", 45},
+            new Object[]{2, "Levitating", 30},
+            new Object[]{3, "Starboy", 25},
+            new Object[]{4, "Save Your Tears", 15},
+            new Object[]{5, "As It Was", 10}
+        );
+    }
+
+    @Override
+    public List<Object[]> getPersonalTopArtists(final String username, final int year) {
+        return List.of(
+            new Object[]{1, "The Weeknd", 70},
+            new Object[]{2, "Dua Lipa", 50},
+            new Object[]{3, "Harry Styles", 35}
+        );
+    }
+
+    @Override
+    public String getPersonalTopGenre(final String username, final int year) {
+        return "Pop";
     }
 
     @Override

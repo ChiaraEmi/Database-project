@@ -16,6 +16,7 @@ import soundwave.data.Episode;
 import soundwave.data.Genre;
 import soundwave.data.InviteCode;
 import soundwave.data.ListeningEvent;
+import soundwave.data.LikeBrani;
 import soundwave.data.Plan;
 
 import java.sql.Connection;
@@ -64,8 +65,9 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public void insertPromotion( final String code, final String name, final String description, final LocalDate startDate, final LocalDate endDate, final String discountType, 
-                                 final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
+    public void insertPromotion(final String code, final String name, final String description, 
+                                final LocalDate startDate, final LocalDate endDate, final String discountType, 
+                                final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
         Promotion.DAO.insertPromotion(connection, code, name, description, startDate, endDate, 
                                              discountType, discountValue, requiredMonths, planCodes);
     }
@@ -213,6 +215,11 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<Podcast> getPodcasts() {
+        return Podcast.DAO.selectAll(this.connection);
+    }
+
+    @Override
     public int insertEpisode(final int podcastCode, final String title, final int duration, 
                            final String description, final int episodeNumber) {
         return Episode.DAO.insert(connection, podcastCode, title, duration, description, episodeNumber);
@@ -225,6 +232,11 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<Playlist> getUserPlaylists(final String username) {
+        return Playlist.DAO.getUserPlaylists(this.connection, username);
+    }
+
+    @Override
     public boolean addTrackToPlaylist(final String username, final int playlistCode, final int trackCode) {
         return Playlist.DAO.addTrackWithPermission(this.connection, username, playlistCode, trackCode);
     }
@@ -232,6 +244,35 @@ public final class DBModel implements Model {
     @Override
     public boolean removeTrackFromPlaylist(final String username, final int playlistCode, final int trackCode) {
         return Playlist.DAO.removeTrack(this.connection, username, playlistCode, trackCode);
+    }
+
+    @Override
+    public List<LikeBrani> getLikedTracks(final String username) {
+        return LikeBrani.DAO.getLikedTracks(this.connection, username);
+    }
+
+    @Override
+    public List<String> getFollowedArtists(final String username) {
+        final List<String> artists = new ArrayList<>();
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_FOLLOWED_ARTISTS_BY_USER, username);
+             var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                artists.add(rs.getString("NomeDArte"));
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return artists;
+    }
+
+    @Override
+    public void likeTrack(final String username, final int trackCode) {
+        LikeBrani.DAO.likeTrack(this.connection, username, trackCode);
+    }
+
+    @Override
+    public boolean unlikeTrack(final String username, final int trackCode) {
+        return LikeBrani.DAO.unlikeTrack(this.connection, username, trackCode);
     }
 
     @Override
@@ -247,6 +288,71 @@ public final class DBModel implements Model {
             LOGGER.log(Level.SEVERE, "Failed to load users from the database.", e);
             return List.of();
         }
+    }
+
+    @Override
+    public Object[] getPersonalTotals(final String username, final int year) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOTALS_YEAR, username, year);
+             var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                final int totalListens = rs.getInt("TotaleAscolti");
+                final int totalSeconds = rs.getInt("TotaleSecondi"); // Gestisce anche eventuali NULL se non ci sono ascolti
+                return new Object[]{totalListens, totalSeconds};
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return new Object[]{0, 0};
+    }
+
+    @Override
+    public List<Object[]> getPersonalTopTracks(final String username, final int year) {
+        final List<Object[]> tracks = new ArrayList<>();
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_TRACKS, username, year);
+             var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                tracks.add(new Object[]{
+                    rs.getInt("CodiceContenuto"),
+                    rs.getString("Titolo"),
+                    rs.getInt("NumeroAscolti")
+                });
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return tracks;
+    }
+
+    @Override
+    public List<Object[]> getPersonalTopArtists(final String username, final int year) {
+        final List<Object[]> artists = new ArrayList<>();
+        // Nota: La query ha due COUNT/UNION con l'username, quindi passiamo l'username due volte seguito dall'anno
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_ARTISTS, username, username, year);
+             var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                artists.add(new Object[]{
+                    rs.getInt("CodiceArtista"),
+                    rs.getString("NomeDArte"),
+                    rs.getInt("NumeroAscolti")
+                });
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return artists;
+    }
+
+    @Override
+    public String getPersonalTopGenre(final String username, final int year) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_GENRE, username, year);
+             var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("NomeGenere");
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return "-";
     }
 
     @Override
@@ -275,9 +381,10 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public int activateSubscription(final String username, final int planCode, final String paymentMethod, final String promoCode, final String inviteCode, final boolean autoRenew) {
-        
-        if(planCode <= 0) {
+    public int activateSubscription(final String username, final int planCode, final String paymentMethod, 
+                                    final String promoCode, final String inviteCode, final boolean autoRenew) {
+
+        if (planCode <= 0) {
             throw new DAOException("Piano di abbonamento non valido");
         }
         
@@ -304,9 +411,9 @@ public final class DBModel implements Model {
         try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_PROMOTION_VALIDITY, promoCode, planCode);
             var rs = stmt.executeQuery()) {
             if (rs.next()) {
-                String discountType = rs.getString("TipoSconto");
-                double discountValue = rs.getDouble("ValoreSconto");
-                double originalPrice = rs.getDouble("Costo");
+                final String discountType = rs.getString("TipoSconto");
+                final double discountValue = rs.getDouble("ValoreSconto");
+                final double originalPrice = rs.getDouble("Costo");
                 return new Object[]{true, discountValue, discountType, originalPrice};
             }
         } catch (final SQLException e) {
@@ -327,7 +434,7 @@ public final class DBModel implements Model {
             Object[] currentData = null;
             
             while (rs.next()) {
-                int subCode = rs.getInt("CodiceSottoscrizione");
+                final int subCode = rs.getInt("CodiceSottoscrizione");
                 
                 if (currentSub != subCode) {
                     if (currentData != null) {
@@ -352,7 +459,7 @@ public final class DBModel implements Model {
                 }
                 
                 if (rs.getObject("CodiceTransazione") != null) {
-                    String trans = String.format("%s | €%.2f | %s",
+                    final String trans = String.format("%s | €%.2f | %s",
                         rs.getTimestamp("DataTransazione") != null ? rs.getTimestamp("DataTransazione").toString() : "-",
                         rs.getDouble("Importo"),
                         rs.getString("StatoTransazione") != null ? rs.getString("StatoTransazione") : "-"

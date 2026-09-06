@@ -14,6 +14,10 @@ import java.util.logging.Level;
  * Represents a subscription entity within the Soundwave system.
  */
 public final class Subscription {
+
+    private static final String ERR_ACTIVE_SUBSCRIPTION = "User already has an active subscription";
+    private static final String ERR_NO_ID_OBTAINED = "Inserting subscription failed, no ID obtained.";
+
     private final int code;
     private final String username;
     private final int subscriptionPlanCode;
@@ -29,22 +33,24 @@ public final class Subscription {
     /**
      * Constructs a new Subscription instance.
      *
-     * @param code                 the unique code of the subscription.
-     * @param username             the username associated with the subscription.
+     * @param code                the unique code of the subscription.
+     * @param username            the username associated with the subscription.
      * @param subscriptionPlanCode the code of the subscription plan.
      * @param promotionCode        the code of any promotion applied (can be null).
-     * @param inviteCode           the invite code used for the subscription (can be null).
-     * @param startDate            the start date of the subscription.
-     * @param endDate              the end date of the subscription.
-     * @param status               the current status of the subscription.
-     * @param autoRenew            whether the subscription is set to auto-renew.
+     * @param inviteCode          the invite code used for the subscription (can be null).
+     * @param startDate           the start date of the subscription.
+     * @param endDate             the end date of the subscription.
+     * @param status              the current status of the subscription.
+     * @param autoRenew           whether the subscription is set to auto-renew.
      */
-    public Subscription(final int code, final String username, final int subscriptionPlanCode, final String promotionCode, final String inviteCode, 
-                        final LocalDate startDate, final LocalDate endDate, final String status, final boolean autoRenew) {
+    public Subscription(final int code, final String username, final int subscriptionPlanCode, 
+                        final String promotionCode, final String inviteCode, final LocalDate startDate, 
+                        final LocalDate endDate, final String status, final boolean autoRenew) {
 
         this.code = Objects.requireNonNull(code, "Code can not be null");
         this.username = Objects.requireNonNull(username, "Username can not be null");
-        this.subscriptionPlanCode = Objects.requireNonNull(subscriptionPlanCode, "Subscription plan code can not be null");
+        this.subscriptionPlanCode = Objects.requireNonNull(subscriptionPlanCode, 
+                                                           "Subscription plan code can not be null");
         this.promotionCode = promotionCode; // can be null
         this.inviteCode = inviteCode; // can be null
         this.startDate = Objects.requireNonNull(startDate, "Start date can not be null");
@@ -138,10 +144,10 @@ public final class Subscription {
     public boolean equals(final Object other) {
         if (this == other) {
             return true;
-        } else if (other == null || !(other instanceof Subscription)) {
+        } else if (!(other instanceof Subscription)) {
             return false;
-        } 
-        
+        }
+
         final var s = (Subscription) other;
         return this.code == s.code 
             && this.username.equals(s.username) 
@@ -181,7 +187,7 @@ public final class Subscription {
      * DAO class for Subscription.
      */
     public static final class DAO {
-        private DAO() {}
+        private DAO() { }
 
         /**
          * OP 2.1
@@ -191,9 +197,13 @@ public final class Subscription {
          * @param username             the username associated with the subscription.
          * @param subscriptionPlanCode the code of the subscription plan.
          * @param autoRenew            whether the subscription should auto-renew.
+         * @param paymentMethod        the method of payment.
+         * 
          * @return the generated subscription code.
          */
-        public static int insertStandard(final Connection connection, final String username, final int subscriptionPlanCode, final boolean autoRenew, final String paymentMethod) {
+        public static int insertStandard(final Connection connection, final String username, 
+                                        final int subscriptionPlanCode, final boolean autoRenew, 
+                                        final String paymentMethod) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
@@ -203,20 +213,21 @@ public final class Subscription {
                 try (var statement = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
                      var resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
-                        throw new DAOException("User already has an active subscription");
+                        throw new DAOException(ERR_ACTIVE_SUBSCRIPTION);
                     }
                 }
-                
+
                 //3. Inserisce la sottoscrizione
-                int subscriptionCode;
-                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_SUBSCRIPTION_STANDARD, Statement.RETURN_GENERATED_KEYS, username, autoRenew, subscriptionPlanCode)) {
+                final int subscriptionCode;
+                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_SUBSCRIPTION_STANDARD, 
+                    Statement.RETURN_GENERATED_KEYS, username, autoRenew, subscriptionPlanCode)) {
                     statement.executeUpdate();
 
                     try (var rs = statement.getGeneratedKeys()) {
                         if (rs.next()) {
                             subscriptionCode = rs.getInt(1);
                         } else {
-                            throw new DAOException("Inserting subscription failed, no ID obtained.");
+                            throw new DAOException(ERR_NO_ID_OBTAINED);
                         }
                     }
                 }
@@ -245,43 +256,49 @@ public final class Subscription {
         /**
          * OP 2.2
          * Inserts a new subscription into the database using a promotion code.
-         * @param connection 
-         * @param username
-         * @param subscriptionPlanCode
-         * @param promotionCode
-         * @param autoRenew
-         * @param paymentMethod
+         * 
+         * @param connection           the active database connection.
+         * @param username             the username of the user subscribing.
+         * @param subscriptionPlanCode the code of the subscription plan.
+         * @param promotionCode        the promotion code used for the subscription.
+         * @param autoRenew            true if the subscription should auto-renew, false otherwise.
+         * @param paymentMethod        the payment method used.
+         * 
          * @return the generated subscription code.
+         * 
          * @throws DAOException if any database operation fails.
          */
-        public static int insertWithPromotion(final Connection connection, final String username, final int subscriptionPlanCode, final String promotionCode, final boolean autoRenew, final String paymentMethod) {
+        public static int insertWithPromotion(final Connection connection, final String username, 
+                                                final int subscriptionPlanCode, final String promotionCode, 
+                                                final boolean autoRenew, final String paymentMethod) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
-                //1. Verifica che l'utente che non abbia già una sottoscrizione attiva
+                // 1. Verifica che l'utente che non abbia già una sottoscrizione attiva
                 try (var statement = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
                      var resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
-                        throw new DAOException("User already has an active subscription");
+                        throw new DAOException(ERR_ACTIVE_SUBSCRIPTION);
                     }
                 }
-                
-                //2. Verifica che il codice promozionale sia valido per il piano selezionato e calcola il prezzo scontato
+
+                // 2. Verifica che il codice promo sia valido per il piano selezionato e calcola il prezzo scontato
                 double discountedPrice = 0.0;
-                try (var statement = DAOUtils.prepare(connection, Queries.CHECK_PROMOTION_VALIDITY, promotionCode, subscriptionPlanCode);
+                try (var statement = DAOUtils.prepare(connection, Queries.CHECK_PROMOTION_VALIDITY, 
+                                                        promotionCode, subscriptionPlanCode);
                      var resultSet = statement.executeQuery()) {
                     if (!resultSet.next()) {
                         throw new DAOException("Promotion code is not valid for the selected plan");
                     }
 
-                    String discountType = resultSet.getString("TipoSconto");
-                    double discountValue = resultSet.getDouble("ValoreSconto");
-                    double originalPrice = resultSet.getDouble("Costo");
+                    final String discountType = resultSet.getString("TipoSconto");
+                    final double discountValue = resultSet.getDouble("ValoreSconto");
+                    final double originalPrice = resultSet.getDouble("Prezzo");
 
                     if ("Percentuale".equals(discountType)) {
-                        discountedPrice = originalPrice * (1- discountValue / 100.0);
+                        discountedPrice = originalPrice * (1 - discountValue / 100.0);
                     } else if ("Fisso".equals(discountType)) {
                         discountedPrice = Math.max(0, originalPrice - discountValue);
                     } 
@@ -289,15 +306,17 @@ public final class Subscription {
                 }
 
                 //3. Inserisce la sottoscrizione con promozione
-                int subscriptionCode;
-                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_SUBSCRIPTION_PROMOTIONAL, Statement.RETURN_GENERATED_KEYS, username, autoRenew, promotionCode, subscriptionPlanCode)) {
+                final int subscriptionCode;
+                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_SUBSCRIPTION_PROMOTIONAL, 
+                                                            Statement.RETURN_GENERATED_KEYS, username, autoRenew, 
+                                                            promotionCode, subscriptionPlanCode)) {
                     statement.executeUpdate();
 
                     try (var rs = statement.getGeneratedKeys()) {
                         if (rs.next()) {
                             subscriptionCode = rs.getInt(1);
                         } else {
-                            throw new DAOException("Inserting subscription failed, no ID obtained.");
+                            throw new DAOException(ERR_NO_ID_OBTAINED);
                         }
                     }
                 }
@@ -326,15 +345,21 @@ public final class Subscription {
         /**
          * OP 2.3
          * Inserts a new subscription into the database using an invite code.
-         * @param connection
-         * @param username
-         * @param subscriptionPlanCode
-         * @param inviteCode
-         * @param autoRenew
-         * @param paymentMethod
+         * 
+         * @param connection           the active database connection.
+         * @param username             the username of the user subscribing.
+         * @param subscriptionPlanCode the code of the subscription plan.
+         * @param inviteCode           the invite code used for the subscription.
+         * @param autoRenew            true if the subscription should auto-renew, false otherwise.
+         * @param paymentMethod        the payment method used.
+         * 
          * @return the generated subscription code.
+         * 
+         * @throws DAOException if a database error occurs.
          */
-        public static int insertWithInvite(final Connection connection, final String username, final int subscriptionPlanCode, final String inviteCode, final boolean autoRenew, final String paymentMethod) {
+        public static int insertWithInvite(final Connection connection, final String username, 
+                                            final int subscriptionPlanCode, final String inviteCode, 
+                                            final boolean autoRenew, final String paymentMethod) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
@@ -344,10 +369,10 @@ public final class Subscription {
                 try (var statement = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
                      var resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
-                        throw new DAOException("User already has an active subscription");
+                        throw new DAOException(ERR_ACTIVE_SUBSCRIPTION);
                     }
                 }
-                
+
                 //2. Verifica se è la prima sottoscrizione dell'utente
                 try (var statement = DAOUtils.prepare(connection, Queries.CHECK_IS_FIRST_SUBSCRIPTION, username);
                      var resultSet = statement.executeQuery()) {
@@ -357,7 +382,7 @@ public final class Subscription {
                 }
 
                 //3. Verifica che il codice invito esista e recupera il proprietario dell'invito
-                String inviterUsername;
+                final String inviterUsername;
                 try (var statement = DAOUtils.prepare(connection, Queries.CHECK_INVITECODE, inviteCode);
                      var resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
@@ -373,15 +398,17 @@ public final class Subscription {
                 }
 
                 //5. Inserisce la sottoscrizione con invito
-                int subscriptionCode;
-                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_SUBSCRIPTION_INVITE, Statement.RETURN_GENERATED_KEYS, username, autoRenew, inviteCode, subscriptionPlanCode)) {
+                final int subscriptionCode;
+                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_SUBSCRIPTION_INVITE, 
+                                                            Statement.RETURN_GENERATED_KEYS, username, autoRenew, 
+                                                            inviteCode, subscriptionPlanCode)) {
                     statement.executeUpdate();
 
                     try (var rs = statement.getGeneratedKeys()) {
                         if (rs.next()) {
                             subscriptionCode = rs.getInt(1);
                         } else {
-                            throw new DAOException("Inserting subscription failed, no ID obtained.");
+                            throw new DAOException(ERR_NO_ID_OBTAINED);
                         }
                     }
                 }
@@ -391,7 +418,7 @@ public final class Subscription {
 
                 //7. Aggiorna il credito bonus dell'utente che ha invitato
                 User.DAO.incrementBonusCredit(connection, inviterUsername);
-                
+
                 connection.commit();
                 return subscriptionCode;
             } catch (final SQLException e) {
@@ -414,16 +441,18 @@ public final class Subscription {
          * OP 3.1
          * Checks if the user has an active subscription that is eligible for renewal.
          * If such a subscription exists, it returns an Optional containing the Subscription object.
-         * @param connection
-         * @param subscriptionCode
+         * 
+         * @param connection       active database connection.
+         * @param subscriptionCode the code of the subscription to disable auto-renew for.
+         * 
          * @return an Optional containing the Subscription object if eligible for renewal, or an empty Optional otherwise.
+         * 
          * @throws DAOException if any database operation fails.
          */
         public static Optional<Subscription> findForRenewal(final Connection connection, final int subscriptionCode) {
-            
             try (var statement = DAOUtils.prepare(connection, Queries.CHECK_SUBSCRIPTION_RENEWAL, subscriptionCode);
                  var resultSet = statement.executeQuery()) {
-    
+
                 if (resultSet.next()) {
                     return Optional.of(new Subscription(
                             resultSet.getInt("CodiceSottoscrizione"),
@@ -446,13 +475,16 @@ public final class Subscription {
         /**
          * OP 3.1
          * Renews an existing subscription by extending its end date and recording the renewal transaction.
-         * @param connection the database connection.
+         * 
+         * @param connection       the database connection.
          * @param subscriptionCode the code of the subscription to renew.
-         * @param paymentMethod the payment method used for the renewal.
-         * @param paymentSuccess indicates whether the payment was successful.
+         * @param paymentMethod    the payment method used for the renewal.
+         * @param paymentSuccess   indicates whether the payment was successful.
+         * 
          * @throws DAOException if any database operation fails.
          */
-        public static void renew(final Connection connection, final int subscriptionCode, final String paymentMethod, final boolean paymentSuccess) {
+        public static void renew(final Connection connection, final int subscriptionCode, 
+                                final String paymentMethod, final boolean paymentSuccess) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
@@ -464,10 +496,11 @@ public final class Subscription {
                             statement.executeUpdate();
                     }
                 }
+
                 //2. Registra la transazione
-                String status = paymentSuccess ? "Completata" : "Fallita";
+                final String status = paymentSuccess ? "Completata" : "Fallita";
                 Transaction.DAO.insertRenewal(connection, subscriptionCode, paymentMethod, status);
-                
+
                 connection.commit();
             } catch (final SQLException e) {
                 try {
@@ -487,14 +520,16 @@ public final class Subscription {
 
         /**
          * OP 3.2
-         * Disable the auto renew of a specific Subscription
-         * @param connection
-         * @param subscriptionCode
-         * @throws DAOException if a database error occurs
+         * Disables the auto-renew of a specific subscription.
+         * 
+         * @param connection       the active database connection.
+         * @param subscriptionCode the code of the subscription to disable auto-renew for.
+         * 
+         * @throws DAOException if a database error occurs.
          */
         public static void disableAutoRenew(final Connection connection, final int subscriptionCode) {
             try (var statement = DAOUtils.prepare(connection, Queries.CANCEL_RENEWAL, subscriptionCode)) {
-                int rowsAffected = statement.executeUpdate();
+                final int rowsAffected = statement.executeUpdate();
                 if (rowsAffected == 0) {
                     throw new DAOException("Subscription not found or not active.");
                 }
@@ -503,16 +538,17 @@ public final class Subscription {
             }
         }
 
-
         /**
-         * Marca una sottoscrizione come scaduta
-         * @param connection
-         * @param subscriptionCode
-         * @@throws DAOException if a database error occurs
+         * Marks a subscription as expired.
+         * 
+         * @param connection       the active database connection.
+         * @param subscriptionCode the code of the subscription to expire.
+         * 
+         * @throws DAOException if a database error occurs.
          */
         public static void expireSubscription(final Connection connection, final int subscriptionCode) {
             try (var statement = DAOUtils.prepare(connection, Queries.EXPIRE_SUBSCRIPTION, subscriptionCode)) {
-                int rowsAffected = statement.executeUpdate();
+                final int rowsAffected = statement.executeUpdate();
                 if (rowsAffected == 0) {
                     throw new DAOException("Subscription not found");
                 }
@@ -523,15 +559,19 @@ public final class Subscription {
 
         /**
          * OP 4.1
-         * Subscribe a monthly plan with credit bonus
-         * @param connection
-         * @param username
-         * @param subscriptionPlanCode
-         * @param autoRenew
-         * @return the genereated subscription code
-         * @throws DAOException if a database error occurs
+         * Subscribe a monthly plan with credit bonus.
+         * 
+         * @param connection           the active database connection.
+         * @param username             the username of the user redeeming the bonus.
+         * @param subscriptionPlanCode the code of the subscription plan.
+         * @param autoRenew            true if the subscription should auto-renew, false otherwise.
+         * 
+         * @return the generated subscription code.
+         * 
+         * @throws DAOException if a database error occurs.
          */
-        public static int redeemBonusForNew(final Connection connection, final String username, final int subscriptionPlanCode, final boolean autoRenew) {
+        public static int redeemBonusForNew(final Connection connection, final String username, 
+                                            final int subscriptionPlanCode, final boolean autoRenew) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
@@ -554,24 +594,25 @@ public final class Subscription {
                 try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
                      var rs = stmt.executeQuery()) {
                     if (rs.next()) {
-                        throw new DAOException("User already has an active subscription.");
+                        throw new DAOException(ERR_ACTIVE_SUBSCRIPTION);
                     }
                 }
 
                 //4.Inserisce la sottoscrizione
-                int subscriptionCode;
+                final int subscriptionCode;
 
-                try (var stmt = DAOUtils.prepareWithKeys(connection, Queries.INSERT_SUBSCRIPTION_BONUS_CREDIT, Statement.RETURN_GENERATED_KEYS, username, subscriptionPlanCode, autoRenew)) {
+                try (var stmt = DAOUtils.prepareWithKeys(connection, Queries.INSERT_SUBSCRIPTION_BONUS_CREDIT, 
+                                                        Statement.RETURN_GENERATED_KEYS, username, 
+                                                        subscriptionPlanCode, autoRenew)) {
                     stmt.executeUpdate();
 
                     try (var rs = stmt.getGeneratedKeys()) {
                         if (rs.next()) {
                             subscriptionCode = rs.getInt(1);
                         } else {
-                            throw new DAOException("User already has an active subscription.");
+                            throw new DAOException(ERR_ACTIVE_SUBSCRIPTION);
                         }
                     }
-                    
                 }
 
                 //5. Registrazione la transazione a costo zero
@@ -600,10 +641,11 @@ public final class Subscription {
 
         /**
          * OP 4.2
-         * Renew monthly subscription with credit bonus
-         * @param connection
-         * @param username
-         * @param subscriptionCode
+         * Renew monthly subscription with credit bonus.
+         * 
+         * @param connection       the active database connection.
+         * @param username         the username of the user renewing the subscription.
+         * @param subscriptionCode the code of the subscription to renew.
          */
         public static void renewWithBonus(final Connection connection, final String username, final int subscriptionCode) {
             boolean autoCommit = true;
@@ -620,7 +662,8 @@ public final class Subscription {
                 }
 
                 //2.Verifica che la sottoscrizione sia attiva e mensile
-                try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_MONTHLY_SUBSCRIPTION, subscriptionCode, username);
+                try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_MONTHLY_SUBSCRIPTION, 
+                                                subscriptionCode, username);
                      var rs = stmt.executeQuery()) {
                     if (!rs.next()) {
                         throw new DAOException("Subscription not found, not active, or not a monthly plan.");
@@ -628,11 +671,12 @@ public final class Subscription {
                 }
 
                 //3. Rinnova la sottoscrizione
-                try (var stmt = DAOUtils.prepare(connection, Queries.EXTEND_SUBSCRIPTION_BONUS_CREDIT, subscriptionCode, username)) {
-                    int rowsAffected = stmt.executeUpdate();
+                try (var stmt = DAOUtils.prepare(connection, Queries.EXTEND_SUBSCRIPTION_BONUS_CREDIT, 
+                                                subscriptionCode, username)) {
+                    final int rowsAffected = stmt.executeUpdate();
                     if (rowsAffected == 0) {
                         throw new DAOException("Failed to renew subscription.");
-                    }                    
+                    }
                 }
 
                 //4. Registrazione la transazione a costo zero

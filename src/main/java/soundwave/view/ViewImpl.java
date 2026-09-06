@@ -14,6 +14,8 @@ import javax.swing.SwingUtilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
+import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.data.Plan;
 import soundwave.data.User;
 
@@ -82,6 +84,8 @@ public final class ViewImpl extends JFrame implements View {
     public void setController(final Controller controller) {
         this.controller = controller;
 
+        initUserPanelListeners();
+
         this.roleSelectionPanel.addUtenteListener(e -> {
             final String username = JOptionPane.showInputDialog(
                 this, 
@@ -100,8 +104,10 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final List<Artist> artists = this.controller.getAlbumArtists();
                 final List<Artist> authors = this.controller.getPodcastAuthors();
+                final List<Podcast> podcasts = this.controller.getPodcasts();
                 this.adminPanel.setAlbumArtists(artists);
                 this.adminPanel.setPodcastAuthors(authors);
+                this.adminPanel.setPodcasts(podcasts);
             }
         });
         
@@ -118,7 +124,6 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-
         // --- Inserimento Promozione (OP 6) ---
         this.adminPanel.addSavePromotionListener(e -> {
             if (this.controller != null) {
@@ -132,9 +137,15 @@ public final class ViewImpl extends JFrame implements View {
                 final String requiredMonths = this.adminPanel.getRequiredMonths();
                 final String planCodes = this.adminPanel.getPromoPlanCodes();
 
-                this.controller.adminClickedSavePromotion(
-                    code, name, description, startDate, endDate, discountType, discountValue, requiredMonths, planCodes
+                final boolean success = this.controller.adminClickedSavePromotion(
+                    code, name, description, startDate, endDate, discountType, discountValue, 
+                    requiredMonths, planCodes
                 );
+
+                if (success) {
+                    showSuccess("Promozione inserita con successo!");
+                    this.adminPanel.clearAllForms();
+                }
             }
         });
 
@@ -171,7 +182,7 @@ public final class ViewImpl extends JFrame implements View {
 
                     if (this.controller != null) {
                         this.adminPanel.setPodcastAuthors(this.controller.getPodcastAuthors());
-                        this.adminPanel.setAlbumArtists(this.controller.getAlbumArtists()); // Aggiorna anche la tendina album
+                        this.adminPanel.setAlbumArtists(this.controller.getAlbumArtists());
                     }
                 }
             }
@@ -230,6 +241,11 @@ public final class ViewImpl extends JFrame implements View {
                 if (success) {
                     showSuccess("Podcast inserito con successo!");
                     this.adminPanel.clearAllForms();
+
+                    if (this.controller != null) {
+                        final List<Podcast> updatedPodcasts = this.controller.getPodcasts();
+                        this.adminPanel.setPodcasts(updatedPodcasts);
+                    }
                 }
             }
         });
@@ -293,23 +309,35 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        this.adminPanel.addFetchStatsListener(e -> {
+        this.adminPanel.addFetchGlobalAlbumsListener(e -> {
+            if (this.controller != null) {
+                this.controller.adminRequestedGlobalAlbums(); 
+            }
+        });
+
+        this.adminPanel.addFetchYearlyStatsListener(e -> {
             if (this.controller != null) {
                 int year = CURRENT_YEAR;
                 try {
-                    if (!this.adminPanel.getStatsYear().isBlank()) {
-                        year = Integer.parseInt(this.adminPanel.getStatsYear());
+                    final Object rawYear = this.adminPanel.getStatsYear();
+                    if (rawYear instanceof Integer) {
+                        year = (Integer) rawYear;
+                    } else if (rawYear instanceof String && !((String) rawYear).isBlank()) {
+                        year = Integer.parseInt((String) rawYear);
+                    } else if (rawYear != null) {
+                        year = Integer.parseInt(rawYear.toString());
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid stats year format", ex);
                     JOptionPane.showMessageDialog(this, "Reference year must be a valid number.", 
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
-                this.controller.adminRequestedGlobalStats(year);
+                this.controller.adminRequestedYearlyStats(year);
             }
         });
-      
+
         initUserPanelListeners();
     }
 
@@ -325,16 +353,41 @@ public final class ViewImpl extends JFrame implements View {
 
     @Override
     public void openUserPanel(final String username) {
-        mainPanel.remove(this.userPanel);
-        this.userPanel = new UserPanel(username);
-        mainPanel.add(this.userPanel, USER_CARD);
+        this.userPanel.setCurrentUsername(username);
 
-        // Riattiva tutti i listener sul nuovo pannello utente
-        initUserPanelListeners();
+        if (this.controller != null) {
+            final List<Playlist> playlists = this.controller.getUserPlaylists(username);
+            this.userPanel.setUserPlaylists(playlists);
+
+            final var likedTracks = this.controller.getUserLikedTracks(username);
+            final List<String> formattedTracks = likedTracks.stream()
+                .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
+                .toList();
+            this.userPanel.setLikedTracks(formattedTracks);
+
+            final List<String> followedArtists = this.controller.getFollowedArtists(username);
+            this.userPanel.setFollowedArtists(followedArtists);
+        }
 
         showPanel(USER_CARD);
-        mainPanel.revalidate();
-        mainPanel.repaint();
+    }
+
+    /**
+     * Aggiorna le liste dei brani preferiti e degli artisti seguiti nel pannello utente.
+     * 
+     * @param username l'utente corrente.
+     */
+    public void refreshUserData(final String username) {
+        if (this.controller != null) {
+            final var likedTracks = this.controller.getUserLikedTracks(username);
+            final List<String> formattedTracks = likedTracks.stream()
+                .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
+                .toList();
+            this.userPanel.setLikedTracks(formattedTracks);
+
+            final List<String> followedArtists = this.controller.getFollowedArtists(username);
+            this.userPanel.setFollowedArtists(followedArtists);
+        }
     }
 
     @Override
@@ -351,6 +404,21 @@ public final class ViewImpl extends JFrame implements View {
             });
         }
         this.adminPanel.setUsersTableData(rows);
+    }
+
+    @Override
+    public void showPersonalStats(final String statsText) {
+        this.userPanel.setPersonalStatsOutput(statsText);
+    }
+
+    @Override
+    public void showGlobalAlbumsStats(final String statsText) {
+        this.adminPanel.setGlobalAlbumsOutputText(statsText);
+    }
+
+    @Override
+    public void showYearlyStats(final String statsText) {
+        this.adminPanel.setYearlyStatsOutputText(statsText);
     }
 
     @Override
@@ -415,6 +483,11 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
+    public void setPodcasts(final List<Podcast> podcasts) {
+        this.adminPanel.setPodcasts(podcasts);
+    }
+
+    @Override
     public void showError(final String message) {
         JOptionPane.showMessageDialog(this, message, "Errore", JOptionPane.ERROR_MESSAGE);
     }
@@ -443,28 +516,20 @@ public final class ViewImpl extends JFrame implements View {
         return this.roleSelectionPanel;
     }
 
-    /**
-     * Gets the user panel.
-     *
-     * @return the user panel.
-     */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
     )
+    @Override 
     public UserPanel getUserPanel() {
         return userPanel;
     }
 
-    /**
-     * Gets the admin panel.
-     *
-     * @return the admin panel.
-     */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
     )
+    @Override 
     public AdminPanel getAdminPanel() {
         return adminPanel;
     }
@@ -480,60 +545,84 @@ public final class ViewImpl extends JFrame implements View {
                 final boolean isCollaborative = this.userPanel.isPlaylistCollaborative();
                 final String currentUsername = this.userPanel.getCurrentUsername();
 
-                this.controller.userClickedCreatePlaylist(currentUsername, playlistName, visibility, isCollaborative);
+                final boolean success = this.controller.userClickedCreatePlaylist(
+                    currentUsername, playlistName, visibility, isCollaborative
+                );
+
+                if (success) {
+                    this.userPanel.clearAllForms();
+                }
             }
         });
 
         this.userPanel.addAddTrackListener(e -> {
             if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
-                int playlistCode = 0;
-                int trackCode = 0;
 
+                final Playlist selectedPlaylist = this.userPanel.getSelectedUserPlaylist();
+                if (selectedPlaylist == null) {
+                    showError("Seleziona una playlist dalla lista.");
+                    return;
+                }
+                final int playlistCode = selectedPlaylist.getPlaylistCode();
+
+                int trackCode = 0;
                 try {
-                    if (!this.userPanel.getAddTrackPlaylistCode().isBlank()) {
-                        playlistCode = Integer.parseInt(this.userPanel.getAddTrackPlaylistCode());
-                    }
                     if (!this.userPanel.getAddTrackCode().isBlank()) {
                         trackCode = Integer.parseInt(this.userPanel.getAddTrackCode());
                     }
                 } catch (final NumberFormatException ex) {
-                    LOGGER.log(Level.SEVERE, "Invalid playlist code or track code format", ex);
-                    JOptionPane.showMessageDialog(this, "Playlist code and track code must be valid numbers.", 
+                    LOGGER.log(Level.SEVERE, "Invalid track code format", ex);
+                    JOptionPane.showMessageDialog(this, "Track code must be a valid number.", 
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                this.controller.userClickedAddTrackToPlaylist(currentUsername, playlistCode, trackCode);
+                final boolean success = this.controller.userClickedAddTrackToPlaylist(
+                    currentUsername, playlistCode, trackCode
+                );
+
+                if (success) {
+                    this.userPanel.clearAllForms();
+                }
             }
         });
 
         this.userPanel.addRemoveTrackListener(e -> {
             if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
-                int playlistCode = 0;
-                int trackCode = 0;
 
+                final Playlist selectedPlaylist = this.userPanel.getSelectedRemovePlaylist();
+                if (selectedPlaylist == null) {
+                    showError("Seleziona una playlist dalla lista.");
+                    return;
+                }
+                final int playlistCode = selectedPlaylist.getPlaylistCode();
+
+                int trackCode = 0;
                 try {
-                    if (!this.userPanel.getRemoveTrackPlaylistCode().isBlank()) {
-                        playlistCode = Integer.parseInt(this.userPanel.getRemoveTrackPlaylistCode());
-                    }
                     if (!this.userPanel.getRemoveTrackCode().isBlank()) {
                         trackCode = Integer.parseInt(this.userPanel.getRemoveTrackCode());
                     }
                 } catch (final NumberFormatException ex) {
-                    LOGGER.log(Level.SEVERE, "Invalid playlist code or track code format", ex);
-                    JOptionPane.showMessageDialog(this, "Playlist code and track code must be valid numbers.", 
+                    LOGGER.log(Level.SEVERE, "Invalid track code format", ex);
+                    JOptionPane.showMessageDialog(this, "Track code must be a valid number.", 
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                this.controller.userClickedRemoveTrackFromPlaylist(currentUsername, playlistCode, trackCode);
+                final boolean success = this.controller.userClickedRemoveTrackFromPlaylist(
+                    currentUsername, playlistCode, trackCode
+                );
+
+                if (success) {
+                    this.userPanel.clearAllForms();
+                }
             }
         });
-    
+
         this.userPanel.addActivateSubscriptionListener(e -> {
-            if (this.controller !=  null) {
+            if (this.controller != null) {
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 this.controller.userRequestedSubscriptionPlans(currentUsername);
             }
@@ -552,6 +641,29 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.userRequestedRedeemBonus(currentUsername);
             }
         });
-    
+
+        this.userPanel.addFetchPersonalStatsListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                int year = CURRENT_YEAR;
+                try {
+                    final Object rawYear = this.userPanel.getStatsYear();
+                    if (rawYear instanceof Integer) {
+                        year = (Integer) rawYear;
+                    } else if (rawYear instanceof String && !((String) rawYear).isBlank()) {
+                        year = Integer.parseInt((String) rawYear);
+                    } else if (rawYear != null) {
+                        year = Integer.parseInt(rawYear.toString());
+                    }
+                } catch (final NumberFormatException ex) {
+                    LOGGER.log(Level.SEVERE, "Invalid personal stats year format", ex);
+                    JOptionPane.showMessageDialog(this, "L'anno di riferimento deve essere un numero valido.", 
+                                                FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                this.controller.userRequestedPersonalStats(currentUsername, year);
+            }
+        });
     }
 }

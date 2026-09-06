@@ -5,6 +5,7 @@ import java.util.List;
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
 import soundwave.data.Plan;
+import soundwave.data.Podcast;
 import soundwave.data.User;
 
 /**
@@ -46,6 +47,13 @@ public interface View {
     void setPodcastAuthors(List<Artist> authors);
 
     /**
+     * Sets the list of podcasts available in the admin panel.
+     *
+     * @param podcasts the list of podcasts.
+     */
+    void setPodcasts(List<Podcast> podcasts);
+
+    /**
      * Shows the specified panel by its card name.
      *
      * @param panelName the identifier of the panel to show.
@@ -60,18 +68,33 @@ public interface View {
     void showUsers(List<User> users);
 
     /**
-     * Show the dialog for activate subscription
-     * @param username the username of user
-     * @param plans the list of plans disponible
+     * Show the dialog for activate subscription.
+     * 
+     * @param username the username of user.
+     * @param plans the list of plans disponible.
      */
     void showActivateSubsriptionDialog(String username, List<Plan> plans);
 
     /**
-     * Displays the formatted global statistics report.
-     * 
-     * @param statsText the formatted statistics string.
+     * Displays the personal yearly listening statistics for a user.
+     *
+     * @param statsText the formatted string containing the personal statistics.
      */
-    void showGlobalStats(String statsText);
+    void showPersonalStats(String statsText);
+
+    /**
+     * Shows the global albums above average in the admin panel.
+     * 
+     * @param statsText the text to display.
+     */
+    void showGlobalAlbumsStats(String statsText);
+
+    /**
+     * Shows the yearly statistics in the admin panel.
+     * 
+     * @param statsText the text to display.
+     */
+    void showYearlyStats(String statsText);
 
     /**
      * Displays an error message dialog to the user.
@@ -95,6 +118,18 @@ public interface View {
     void showSuccessAndCloseDialog(String message);
 
     void showRedeemBonusDialog(String username, List<Plan> plans, int bonusCredits);
+    /**
+     * Gets the user panel.
+     * 
+     * @return the UserPanel instance.
+     */
+    UserPanel getUserPanel();
 
+    /**
+     * Gets the admin panel.
+     * 
+     * @return the AdminPanel instance.
+     */
+    AdminPanel getAdminPanel();
     void showRegisterDialog();
 }

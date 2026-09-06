@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.sql.Statement;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -15,31 +14,31 @@ import java.util.logging.Level;
  */
 public final class Promotion {
 
-    private final String promotioncode;
+    private final String promotionCode;
     private final String name;
     private final String description;
     private final LocalDate beginDate;
     private final LocalDate endDate;
     private final String discountType; // Type of promotion, e.g., "percentage" or "value"
-    private final double discountValue; // Value of the discount, either as a percentage or a fixed amount
-    private final Integer requiredMonths; // Optional field for the month when the promotion was requested
+    private final double discountValue; 
+    private final Integer requiredMonths;
     private static final Logger log = Logger.getLogger(Promotion.class.getName());
 
 
     /**
      * Creates a new Promotion instance.
      * 
-     * @param promotioncode the unique code of the promotion
-     * @param name          the name of the promotion
-     * @param description   the description of the promotion
-     * @param beginDate     the start date of the promotion
-     * @param endDate       the end date of the promotion
-     * @param discountType  the type of discount (e.g., "percentage" or "value")
-     * @param discountValue the value of the discount
-     * @param requiredMonths optional field for the month when the promotion was requested
+     * @param promotionCode the unique code of the promotion.
+     * @param name          the name of the promotion.
+     * @param description   the description of the promotion.
+     * @param beginDate     the start date of the promotion.
+     * @param endDate       the end date of the promotion.
+     * @param discountType  the type of discount.
+     * @param discountValue the value of the discount.
+     * @param requiredMonths optional field for the required months.
      */
     public Promotion(
-            final String promotioncode,
+            final String promotionCode,
             final String name,
             final String description,
             final LocalDate beginDate,
@@ -48,13 +47,13 @@ public final class Promotion {
             final double discountValue,
             final Integer requiredMonths
     ) {
-        this.promotioncode = Objects.requireNonNull(promotioncode, "Il codice promozione è obbligatorio.");
+        this.promotionCode = Objects.requireNonNull(promotionCode, "Promotion code cannot be null");
         this.name = Objects.requireNonNull(name, "Name cannot be null");
         this.description = Objects.requireNonNull(description, "Description cannot be null");
         this.beginDate = Objects.requireNonNull(beginDate, "Begin date cannot be null");
         this.endDate = Objects.requireNonNull(endDate, "End date cannot be null");
         this.discountType = Objects.requireNonNull(discountType, "Discount type cannot be null");
-        this.discountValue = Objects.requireNonNull(discountValue, "Discount value cannot be null");
+        this.discountValue = discountValue;
         this.requiredMonths = requiredMonths;
     }
 
@@ -64,7 +63,7 @@ public final class Promotion {
      * @return the promotion code
      */
     public String getPromotionCode() {
-        return promotioncode;
+        return promotionCode;
     }
 
     /**
@@ -122,7 +121,7 @@ public final class Promotion {
     }
 
     /**
-     * Returns the optional field for the month when the promotion was requested.
+     * Returns the optional field for the required months.
      *
      * @return the required months
      */
@@ -137,8 +136,8 @@ public final class Promotion {
      */
     public boolean isActive() {
         final var currentDate = LocalDate.now();
-        return (currentDate.isEqual(beginDate) || currentDate.isAfter(beginDate)) &&
-               (currentDate.isEqual(endDate) || currentDate.isBefore(endDate));
+        return (currentDate.isEqual(beginDate) || currentDate.isAfter(beginDate)) 
+                && (currentDate.isEqual(endDate) || currentDate.isBefore(endDate));
     }
 
     @Override
@@ -148,9 +147,10 @@ public final class Promotion {
         } else if (other == null || !(other instanceof Promotion)) {
             return false;
         } 
-        
+
         final var p = (Promotion) other;
-        return p.promotioncode == this.promotioncode && Double.compare(p.discountValue, this.discountValue) == 0
+        return Double.compare(p.discountValue, this.discountValue) == 0
+                && Objects.equals(p.promotionCode, this.promotionCode)
                 && Objects.equals(p.name, this.name)
                 && Objects.equals(p.description, this.description)
                 && Objects.equals(p.beginDate, this.beginDate)
@@ -161,7 +161,8 @@ public final class Promotion {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.promotioncode, this.name, this.description, this.beginDate, this.endDate, this.discountType, this.discountValue, this.requiredMonths);
+        return Objects.hash(this.promotionCode, this.name, this.description, this.beginDate, 
+                            this.endDate, this.discountType, this.discountValue, this.requiredMonths);
     }
 
     @Override
@@ -169,7 +170,7 @@ public final class Promotion {
         return Printer.stringify(
             "Promotion",
             List.of(
-                Printer.field("promotioncode", this.promotioncode),
+                Printer.field("promotionCode", this.promotionCode),
                 Printer.field("name", this.name),
                 Printer.field("description", this.description),
                 Printer.field("beginDate", this.beginDate),
@@ -186,23 +187,36 @@ public final class Promotion {
      */
     public static final class DAO {
 
-        private DAO() {}
+        private DAO() { }
 
         /**
          * Inserts a new promotion into the database and associates it with the specified subscription plans.
          *
-         * @param connection            the database connection
-         * @param code
-         * @param name                  the name of the promotion
-         * @param description           the description of the promotion
-         * @param beginDate             the start date of the promotion
-         * @param endDate               the end date of the promotion
-         * @param discountType          the type of discount (e.g., "percentage" or "value")
-         * @param discountValue         the value of the discount
-         * @param requiredMonths        optional field for the month when the promotion was requested
-         * @param subscriptionPlanCodes list of subscription plan codes to associate with the promotion
+         * @param connection            the database connection.
+         * @param code                  the unique string code of the promotion.
+         * @param name                  the name of the promotion.
+         * @param description           the description of the promotion.
+         * @param beginDate             the start date of the promotion.
+         * @param endDate               the end date of the promotion.
+         * @param discountType          the type of discount (e.g., "Percentuale" or "Fisso").
+         * @param discountValue         the value of the discount.
+         * @param requiredMonths        optional field for the required months.
+         * @param subscriptionPlanCodes list of subscription plan codes to associate with the promotion.
+         * 
+         * @return                      an integer indicating success (1).
          */
-        public static void insertPromotion(final Connection connection, final String code, final String name, final String description, final LocalDate beginDate, final LocalDate endDate, final String discountType, final double discountValue, final Integer requiredMonths, final List<Integer> subscriptionPlanCodes) {
+        public static int insertPromotion(
+                final Connection connection, 
+                final String code, 
+                final String name, 
+                final String description, 
+                final LocalDate beginDate, 
+                final LocalDate endDate, 
+                final String discountType, 
+                final double discountValue, 
+                final Integer requiredMonths, 
+                final List<Integer> subscriptionPlanCodes
+        ) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
@@ -213,10 +227,10 @@ public final class Promotion {
                     statement.executeUpdate();
                 }
 
-                //2. Insert the promotion-plan associations
-                if(subscriptionPlanCodes != null && !subscriptionPlanCodes.isEmpty()) {
+                // 2. Insert the promotion-plan associations
+                if (subscriptionPlanCodes != null && !subscriptionPlanCodes.isEmpty()) {
                     try (var statement = connection.prepareStatement(Queries.INSERT_PROMOTIONAL_VALIDITY)) {
-                        for (int planCode : subscriptionPlanCodes) {
+                        for (final int planCode : subscriptionPlanCodes) {
                             statement.setString(1, code);
                             statement.setInt(2, planCode);
                             statement.addBatch();
@@ -224,7 +238,9 @@ public final class Promotion {
                         statement.executeBatch();
                     }
                 }
+
                 connection.commit();
+                return 1;
             } catch (final SQLException e) {
                 try {
                     connection.rollback();
@@ -242,4 +258,3 @@ public final class Promotion {
         }
     }
 }
-

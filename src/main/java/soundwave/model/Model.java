@@ -191,6 +191,15 @@ public interface Model {
     List<LikeBrani> getLikedTracks(String username);
 
     /**
+     * Retrieves the list of artists followed by a specific user.
+     * 
+     * @param username the username of the user.
+     * 
+     * @return a list of strings representing the followed artists.
+     */
+    List<String> getFollowedArtists(String username);
+
+    /**
      * Adds a like to a track for a specific user.
      *
      * @param username the username.

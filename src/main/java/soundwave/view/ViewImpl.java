@@ -352,9 +352,30 @@ public final class ViewImpl extends JFrame implements View {
                 .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
                 .toList();
             this.userPanel.setLikedTracks(formattedTracks);
+
+            final List<String> followedArtists = this.controller.getFollowedArtists(username);
+            this.userPanel.setFollowedArtists(followedArtists);
         }
 
         showPanel(USER_CARD);
+    }
+
+    /**
+     * Aggiorna le liste dei brani preferiti e degli artisti seguiti nel pannello utente.
+     * 
+     * @param username l'utente corrente.
+     */
+    public void refreshUserData(final String username) {
+        if (this.controller != null) {
+            final var likedTracks = this.controller.getUserLikedTracks(username);
+            final List<String> formattedTracks = likedTracks.stream()
+                .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
+                .toList();
+            this.userPanel.setLikedTracks(formattedTracks);
+
+            final List<String> followedArtists = this.controller.getFollowedArtists(username);
+            this.userPanel.setFollowedArtists(followedArtists);
+        }
     }
 
     @Override

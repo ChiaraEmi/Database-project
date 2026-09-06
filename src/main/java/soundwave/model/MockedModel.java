@@ -224,6 +224,11 @@ public final class MockedModel implements Model {
     }
 
     @Override
+    public List<String> getFollowedArtists(final String username) {
+        return List.of("The Weeknd", "Dua Lipa", "Harry Styles");
+    }
+
+    @Override
     public void likeTrack(final String username, final int trackCode) {
         // Simulazione in memoria dell'aggiunta del like
     }
@@ -233,6 +238,8 @@ public final class MockedModel implements Model {
         // Simulazione in memoria della rimozione del like
         return true;
     }
+
+    @Override 
     public List<Plan> getSubscriptioPlans() {
         return List.of(
             new Plan(1, "Mensile Standard", 1, 9.99),

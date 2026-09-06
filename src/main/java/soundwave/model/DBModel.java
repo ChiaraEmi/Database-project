@@ -143,6 +143,20 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<String> getFollowedArtists(final String username) {
+        final List<String> artists = new ArrayList<>();
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_FOLLOWED_ARTISTS_BY_USER, username);
+             var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                artists.add(rs.getString("NomeDArte"));
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        return artists;
+    }
+
+    @Override
     public void likeTrack(final String username, final int trackCode) {
         LikeBrani.DAO.likeTrack(this.connection, username, trackCode);
     }

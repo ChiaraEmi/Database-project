@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -73,6 +74,8 @@ public final class UserPanel extends JPanel {
     private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
     private final DefaultListModel<String> likedTracksListModel = new DefaultListModel<>();
     private final JList<String> likedTracksList = new JList<>(this.likedTracksListModel);
+    private final DefaultListModel<String> followedArtistsListModel = new DefaultListModel<>();
+    private final JList<String> followedArtistsList = new JList<>(this.followedArtistsListModel);
     private final JComboBox<String> comboVisibility = new JComboBox<>(new String[]{"Privata", "Pubblica"});
     private final JCheckBox chkCollaborative = new JCheckBox("Collaborativa");
     private final JButton btnCreatePlaylist = new JButton("Crea Nuova Playlist");
@@ -219,16 +222,26 @@ public final class UserPanel extends JPanel {
         final JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
+        // Pannello di sinistra diviso tra Brani Preferiti e Artisti Seguiti
+        final JPanel leftContainer = new JPanel(new GridLayout(2, 1, 0, 10));
+        
         final JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBorder(BorderFactory.createTitledBorder("I tuoi Brani Preferiti"));
-
         this.likedTracksList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        final JScrollPane scrollPane = new JScrollPane(this.likedTracksList);
-        scrollPane.setPreferredSize(new Dimension(PREFERRED_SCROLL_PANE_WIDTH, 0));
-        leftPanel.add(scrollPane, BorderLayout.CENTER);
+        leftPanel.add(new JScrollPane(this.likedTracksList), BorderLayout.CENTER);
+        leftContainer.add(leftPanel);
 
-        panel.add(leftPanel, BorderLayout.WEST);
+        final JPanel artistsPanel = new JPanel(new BorderLayout());
+        artistsPanel.setBorder(BorderFactory.createTitledBorder("Artisti Seguiti"));
+        this.followedArtistsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        artistsPanel.add(new JScrollPane(this.followedArtistsList), BorderLayout.CENTER);
+        leftContainer.add(artistsPanel);
 
+        final JScrollPane leftScrollPane = new JScrollPane(leftContainer);
+        leftScrollPane.setPreferredSize(new Dimension(PREFERRED_SCROLL_PANE_WIDTH, 0));
+        panel.add(leftScrollPane, BorderLayout.WEST);
+
+        // Pannello di destra con i controlli esistenti
         final JPanel rightControlsPanel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
@@ -559,6 +572,18 @@ public final class UserPanel extends JPanel {
         this.likedTracksListModel.clear();
         for (final String track : likedTracks) {
             this.likedTracksListModel.addElement(track);
+        }
+    }
+
+    /**
+     * Sets the list of followed artists strings to display in the UI.
+     * 
+     * @param followedArtists the list of formatted artist names.
+     */
+    public void setFollowedArtists(final List<String> followedArtists) {
+        this.followedArtistsListModel.clear();
+        for (final String artist : followedArtists) {
+            this.followedArtistsListModel.addElement(artist);
         }
     }
 

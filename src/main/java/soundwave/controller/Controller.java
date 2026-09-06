@@ -165,6 +165,14 @@ public interface Controller {
     List<LikeBrani> getUserLikedTracks(String username);
 
     /**
+     * Returns the list of artists followed by the user.
+     * 
+     * @param username the username.
+     * @return the list of followed artist names.
+     */
+    List<String> getFollowedArtists(String username);
+
+    /**
      * Handles the request to add a like to a track for a specific user.
      *
      * @param username the user performing the action.

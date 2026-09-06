@@ -439,6 +439,16 @@ public final class Queries {
         AND CodiceBrano = ?
         """;
 
+    // --- ARTISTI SEGUITI DALL'UTENTE ---
+    public static final String SELECT_FOLLOWED_ARTISTS_BY_USER = 
+        """
+        SELECT a.CodiceArtista, a.NomeDArte
+        FROM Follow f
+        JOIN Artisti a ON f.CodiceArtista = a.CodiceArtista
+        WHERE f.Username = ?
+        ORDER BY a.NomeDArte ASC
+        """;
+    
     // --- BRANI PREFERITI (LIKE) ---
     public static final String SELECT_LIKED_TRACKS_BY_USER = 
         """

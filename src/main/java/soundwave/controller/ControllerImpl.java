@@ -488,6 +488,24 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
+    public List<String> getFollowedArtists(final String username) {
+        if (username == null || username.isBlank()) {
+            final String errorMessage = "Username non valido per il caricamento degli artisti seguiti.";
+            LOGGER.log(Level.WARNING, errorMessage);
+            this.view.showError(errorMessage);
+            return List.of();
+        }
+
+        try {
+            return this.model.getFollowedArtists(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load followed artists for user: " + username, e);
+            this.view.showError("Errore durante il caricamento degli artisti seguiti.");
+            return List.of();
+        }
+    }
+
+    @Override
     public boolean userClickedLikeTrack(final String username, final int trackCode) {
         if (username == null || username.isBlank() || trackCode <= 0) {
             final String errorMessage = "Parametri non validi per aggiungere il like al brano.";

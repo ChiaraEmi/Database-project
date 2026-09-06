@@ -267,5 +267,32 @@ public final class MockedModel implements Model {
         return "INV_" + username.toUpperCase();
     }
 
+    @Override
+    public void renewSubscriptionNow(final String username, final int subscriptionCode) {
+        System.out.println("[MOCK] Rinnovo manuale per: " + username + " - Sub #" + subscriptionCode);
+    }
+
+    @Override
+    public void toggleAutoRenew(final String username, final int subscriptionCode, 
+                            final boolean enabled) {
+        System.out.println("[MOCK] Rinnovo " + (enabled ? "attivato" : "disattivato") + 
+                        " per: " + username + " - Sub #" + subscriptionCode);
+    }
+
+    @Override
+    public boolean getAutoRenewStatus(final String username, final int subscriptionCode) {
+        // Simula: per mario88 ritorna true, per altri false
+        if ("mario88".equals(username)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int[] processAutoRenewals() {
+        System.out.println("[MOCK] Processo rinnovo automatico eseguito");
+        return new int[]{1, 0, 0};  // mock: 1 rinnovata, 0 fallite, 0 scadute
+    }
+
 
 }

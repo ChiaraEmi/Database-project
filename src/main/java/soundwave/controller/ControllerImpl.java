@@ -405,6 +405,57 @@ public final class ControllerImpl implements Controller {
 
 
     @Override
+    public void renewSubscriptionNow(final String username, final int subscriptionCode) {
+        try {
+            this.model.renewSubscriptionNow(username, subscriptionCode);
+            this.view.showSuccess("Sottoscrizione rinnovata con successo!");
+        } catch (final DAOException e) {
+            this.view.showError("Impossibile rinnovare: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void toggleAutoRenew(final String username, final int subscriptionCode, 
+                            final boolean enabled) {
+        try {
+            this.model.toggleAutoRenew(username, subscriptionCode, enabled);
+            this.view.showSuccess(enabled ? "Rinnovo automatico attivato!" : 
+                                        "Rinnovo automatico disattivato!");
+        } catch (final DAOException e) {
+            this.view.showError("Impossibile modificare il rinnovo: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean getAutoRenewStatus(final String username, final int subscriptionCode) {
+        try {
+            return this.model.getAutoRenewStatus(username, subscriptionCode);
+        } catch (final DAOException e) {
+            this.view.showError("Errore: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public int[] adminRunAutoRenewal() {
+        try {
+            int[] results = this.model.processAutoRenewals();
+            this.view.showSuccess("Rinnovo automatico completato!\n" +
+                                "Rinnovate: " + results[0] + "\n" +
+                                "Fallite: " + results[1] + "\n" +
+                                "Scadute: " + results[2]);
+            return results;
+        } catch (final DAOException e) {
+            this.view.showError("Errore durante il rinnovo automatico: " + e.getMessage());
+            e.printStackTrace();
+            return new int[]{0, 0, 0};
+        }
+    }
+
+
+    @Override
     public boolean userGeneratedListeningEvent(final String username, final int contentCode, 
                                                final String device, final int eventDuration) {
 

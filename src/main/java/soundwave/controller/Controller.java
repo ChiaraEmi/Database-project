@@ -130,6 +130,15 @@ public interface Controller {
     void userRegistered(String username, String name, String surname, String email, 
                     String password, LocalDate birthDate, String country);
 
+    void renewSubscriptionNow(String username, int subscriptionCode);
+
+    void toggleAutoRenew(String username, int subscriptionCode, boolean enabled);
+
+    boolean getAutoRenewStatus(String username, int subscriptionCode);
+
+    int[] adminRunAutoRenewal();
+
+
     /**
      * Handles the request to generate a listening event.
      *

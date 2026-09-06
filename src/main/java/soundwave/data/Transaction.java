@@ -211,12 +211,11 @@ public final class Transaction {
          * @param subscriptionCode
          * @param paymentMethod
          * @param status
-         * @param subscriptionPlanCode
          * @return
          */
         public static int insertRenewal(final Connection connection, final int subscriptionCode, final String paymentMethod, final String status) {
             try (
-                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_RENEWAL_TRANSACTION, Statement.RETURN_GENERATED_KEYS, subscriptionCode, paymentMethod, status)
+                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_RENEWAL_TRANSACTION, Statement.RETURN_GENERATED_KEYS, paymentMethod, status, subscriptionCode)
             ) {
                 statement.executeUpdate();
                 try (var resultSet = statement.getGeneratedKeys()) {

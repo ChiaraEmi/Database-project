@@ -3,6 +3,8 @@ package soundwave.view;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -16,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -106,6 +109,9 @@ public final class AdminPanel extends JPanel {
         new Integer[]{2026, 2025, 2024});
     private final JButton btnFetchGlobalStats = new JButton("Carica Statistiche");
     private final JTextArea txtStatsOutput = new JTextArea(10, 30);
+
+    // Bottone per eseguire il rinnovo automatico (OP custom)
+    private final JButton btnRunAutoRenewal = new JButton("Esegui Rinnovo Automatico");
 
     private final JButton btnBack = new JButton("Disconnetti / Cambia Ruolo");
 
@@ -395,6 +401,25 @@ public final class AdminPanel extends JPanel {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         topPanel.add(this.btnFetchGlobalStats, gbc);
+
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(15, INSET_GAP, INSET_GAP, INSET_GAP);
+        
+        // Aggiungi un separatore visivo
+        topPanel.add(new JSeparator(), gbc);
+        
+        gbc.gridy = 3;
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        
+        this.btnRunAutoRenewal.setPreferredSize(new Dimension(BUTTON_WIDTH + 40, BUTTON_HEIGHT));
+        this.btnRunAutoRenewal.setBackground(new Color(0, 120, 215));
+        this.btnRunAutoRenewal.setForeground(Color.WHITE);
+        this.btnRunAutoRenewal.setFont(this.btnRunAutoRenewal.getFont().deriveFont(Font.BOLD));
+        topPanel.add(this.btnRunAutoRenewal, gbc);
+
+
 
         panel.add(topPanel, BorderLayout.NORTH);
 
@@ -838,5 +863,14 @@ public final class AdminPanel extends JPanel {
         for (final JTextComponent component : textComponents) {
             component.setText("");
         }
+    }
+
+    /**
+     * Adds an action listener to the run auto renewal button (OP 3.1).
+     * 
+     * @param listener the action listener
+     */
+    public void addRunAutoRenewalListener(final ActionListener listener) {
+        this.btnRunAutoRenewal.addActionListener(listener);
     }
 }

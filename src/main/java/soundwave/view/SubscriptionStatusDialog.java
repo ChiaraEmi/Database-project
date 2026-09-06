@@ -1,6 +1,7 @@
 package soundwave.view;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -29,6 +30,8 @@ public class SubscriptionStatusDialog extends JDialog {
     private final JButton btnClose;
     private final String username;
 
+    private Consumer<Integer> onRenew;
+    private Consumer<Integer> onToggleAutoRenew;
     private Runnable onRefresh;
 
     public SubscriptionStatusDialog(final JFrame parent, final String username) {
@@ -96,7 +99,7 @@ public class SubscriptionStatusDialog extends JDialog {
             BorderFactory.createEmptyBorder(12, 15, 12, 15)
         ));
         blockPanel.setBackground(Color.WHITE);
-        blockPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        blockPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
         // --- Intestazione ---
         JPanel headerPanel = new JPanel(new BorderLayout());
@@ -133,7 +136,7 @@ public class SubscriptionStatusDialog extends JDialog {
         detailsPanel.add(createLabel("Fine:"));
         detailsPanel.add(createValueLabel(endDate));
         detailsPanel.add(createLabel("Rinnovo Automatico:"));
-        detailsPanel.add(createValueLabel(autoRenew ? "Attivo" : "Disattivato"));
+        detailsPanel.add(createValueLabel(autoRenew ? "Attiva" : "Disattivata"));
 
         if (promoCode != null && !promoCode.isEmpty()) {
             detailsPanel.add(createLabel("Promozione:"));
@@ -165,6 +168,53 @@ public class SubscriptionStatusDialog extends JDialog {
             lblNoTrans.setFont(new Font("Segoe UI", Font.ITALIC, 12));
             lblNoTrans.setForeground(new Color(150, 150, 150));
             blockPanel.add(lblNoTrans);
+        }
+
+        if ("Attiva".equals(status)) {
+            JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+            actionPanel.setBackground(Color.WHITE);
+
+            JButton btnRenew = new JButton("Rinnova Ora");
+            btnRenew.setBackground(new Color(0, 120, 215));
+            btnRenew.setForeground(Color.WHITE);
+            btnRenew.setFont(btnRenew.getFont().deriveFont(Font.BOLD));
+            
+            btnRenew.addActionListener(e -> {
+                int choice = JOptionPane.showConfirmDialog(
+                    this,
+                    "Vuoi rinnovare la sottoscrizione #" + subCode + "?",
+                    "Conferma Rinnovo",
+                    JOptionPane.YES_NO_OPTION
+                );
+                if (choice == JOptionPane.YES_OPTION && onRenew != null) {
+                    onRenew.accept(subCode);
+                }
+            });
+            actionPanel.add(btnRenew);
+
+            String toggleText = autoRenew ? "Disattiva Rinnovo" : "Attiva Rinnovo";
+            JButton btnToggle = new JButton(toggleText);
+            btnToggle.setBackground(autoRenew ? new Color(200, 50, 50) : new Color(0, 150, 0));
+            btnToggle.setForeground(Color.WHITE);
+            btnToggle.setFont(btnToggle.getFont().deriveFont(Font.BOLD));
+            btnToggle.addActionListener(e -> {
+                String action = autoRenew ? "disattivare" : "attivare";
+                int choice = JOptionPane.showConfirmDialog(
+                    this,
+                    "Vuoi " + action + " il rinnovo automatico?",
+                    "Conferma " + action,
+                    JOptionPane.YES_NO_OPTION
+                );
+                if (choice == JOptionPane.YES_OPTION && onToggleAutoRenew != null) {
+                    onToggleAutoRenew.accept(subCode);
+                }
+            });
+            
+            actionPanel.add(btnToggle);
+            blockPanel.add(actionPanel);
+
+        } else {
+            System.out.println(" Sottoscrizione NON ATTIVA! Status = '" + status + "'");
         }
 
         // Aggiungi il blocco al pannello principale
@@ -200,6 +250,14 @@ public class SubscriptionStatusDialog extends JDialog {
         this.contentPanel.repaint();
         // Scrolla in alto
         this.scrollPane.getVerticalScrollBar().setValue(0);
+    }
+
+    public void setOnRenew(Consumer<Integer> onRenew) {
+        this.onRenew = onRenew;
+    }
+
+    public void setOnToggleAutoRenew(Consumer<Integer> onToggleAutoRenew) {
+        this.onToggleAutoRenew = onToggleAutoRenew;
     }
 
     public void setOnRefresh(Runnable onRefresh) {

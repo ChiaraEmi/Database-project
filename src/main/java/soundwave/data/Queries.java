@@ -131,6 +131,18 @@ public final class Queries {
     // --- OP 3: RINNOVO AUTOMATICO E ANNULAMENTO DELLA SOTTOSCRIZIONE ---
     
     // ---  3.1: RINNOVO AUTOMATICO ---
+
+    public static final String FIND_AUTO_RENEWALS = 
+        """
+        SELECT S.CodiceSottoscrizione, S.CodiceAbbonamento, S.Username, A.Durata
+        FROM Sottoscrizioni S
+        JOIN Abbonamenti A ON A.CodiceAbbonamento = S.CodiceAbbonamento
+        WHERE S.Stato = 'Attiva' 
+        AND S.RinnovoAutomatico = TRUE
+        AND S.DataFine = CURRENT_DATE
+        """;
+
+
     public static final String CHECK_SUBSCRIPTION_RENEWAL = 
         """
         SELECT *
@@ -151,7 +163,7 @@ public final class Queries {
     public static final String INSERT_RENEWAL_TRANSACTION = 
         """
         INSERT INTO Transazioni (CodiceSottoscrizione, Importo, MetodoPagamento, Stato)
-        SELECT ?, A.Costo, ?, ?
+        SELECT S.CodiceSottoscrizione, A.Costo, ?, ?
         FROM Sottoscrizioni S 
         JOIN Abbonamenti A ON  A.CodiceAbbonamento = S.CodiceAbbonamento
         WHERE S.CodiceSottoscrizione = ?
@@ -165,11 +177,32 @@ public final class Queries {
         WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
         """;
 
+    public static final String ENABLE_RENEWAL = 
+        """
+        UPDATE Sottoscrizioni
+        SET RinnovoAutomatico = TRUE
+        WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
+        """;
+
     public static final String EXPIRE_SUBSCRIPTION = 
         """
         UPDATE Sottoscrizioni
-        SET Stato = 'Scaduta'
-        WHERE CodiceSottoscrizione = ? AND DataFine < CURRENT_DATE
+        SET Stato = 'Scaduta', RinnovoAutomatico = FALSE
+        WHERE CodiceSottoscrizione = ?
+        """;
+
+    public static final String EXPIRE_EXPIRED_SUBSCRIPTIONS = 
+        """
+        UPDATE Sottoscrizioni
+        SET Stato = 'Scaduta', RinnovoAutomatico = FALSE
+        WHERE Stato = 'Attiva' AND DataFine < CURRENT_DATE
+        """;
+
+    public static final String CHECK_AUTO_RENEW_STATUS = 
+        """
+        SELECT RinnovoAutomatico
+        FROM Sottoscrizioni
+        WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
         """;
 
 

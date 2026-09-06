@@ -46,7 +46,13 @@ public interface Model {
     void insertPromotion( String code, String name, String description, LocalDate startDate, LocalDate endDate, String discountType, 
                                     double discountValue, Integer requiredMonths, List<Integer> planCodes);
 
-    
+    void renewSubscriptionNow(String username, int subscriptionCode);
+
+    void toggleAutoRenew(String username, int subscriptionCode, boolean enabled);
+
+    boolean getAutoRenewStatus(String username, int subscriptionCode);
+
+    int[] processAutoRenewals();
 
     /**
      * Inserts a new artist into the database.

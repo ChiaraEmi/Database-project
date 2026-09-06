@@ -234,6 +234,12 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
+        this.adminPanel.addRunAutoRenewalListener(e -> {
+            if (this.controller != null ) {
+                this.controller.adminRunAutoRenewal();
+            }
+        });
+
         this.adminPanel.addSaveEpisodeListener(e -> {
             if (this.controller != null) {
                 int podcastCode = 0;

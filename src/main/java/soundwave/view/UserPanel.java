@@ -566,6 +566,21 @@ public final class UserPanel extends JPanel {
             (JFrame) SwingUtilities.getWindowAncestor(this), 
             username
         );
+
+        this.statusDialog.setOnRenew(subscriptionCode -> {
+            System.out.println("OnRenew chiamato per: " + subscriptionCode); 
+            if (this.controller != null) {
+                this.controller.renewSubscriptionNow(username, subscriptionCode);
+            }
+        });
+
+        this.statusDialog.setOnToggleAutoRenew(subscriptionCode -> {
+            System.out.println("OnToggleAutoRenew chiamato per: " + subscriptionCode); 
+            if (this.controller != null) {
+                boolean currentState = this.controller.getAutoRenewStatus(username, subscriptionCode);
+                this.controller.toggleAutoRenew(username, subscriptionCode, !currentState);
+            }
+        });
         
         // Carica i dati
         loadSubscriptionData(username);

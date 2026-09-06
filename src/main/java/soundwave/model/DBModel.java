@@ -4,6 +4,7 @@ import soundwave.data.Podcast;
 import soundwave.data.Promotion;
 import soundwave.data.Queries;
 import soundwave.data.Subscription;
+import soundwave.data.Transaction;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.data.Playlist;
@@ -68,6 +69,114 @@ public final class DBModel implements Model {
         Promotion.DAO.insertPromotion(connection, code, name, description, startDate, endDate, 
                                              discountType, discountValue, requiredMonths, planCodes);
     }
+
+    @Override
+    public void renewSubscriptionNow(final String username, final int subscriptionCode) {
+        // Verifica che la sottoscrizione sia attiva
+        try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
+            var rs = stmt.executeQuery()) {
+            if (!rs.next()) {
+                throw new DAOException("Nessuna sottoscrizione attiva trovata.");
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        
+        // Simula pagamento (per ora sempre successo)
+        // In futuro si può integrare con un sistema di pagamento reale
+        boolean paymentSuccess = true;
+        Subscription.DAO.renew(connection, subscriptionCode, "Carta di Credito", paymentSuccess);
+    }
+
+    @Override
+    public void toggleAutoRenew(final String username, final int subscriptionCode, 
+                            final boolean enabled) {
+        // Sceglie la query giusta in base al valore enabled
+        String query = enabled ? Queries.ENABLE_RENEWAL : Queries.CANCEL_RENEWAL;
+        try (var stmt = DAOUtils.prepare(connection, query, subscriptionCode)) {
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new DAOException("Sottoscrizione non trovata o non attiva.");
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public boolean getAutoRenewStatus(final String username, final int subscriptionCode) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_AUTO_RENEW_STATUS, subscriptionCode);
+            var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getBoolean("RinnovoAutomatico");
+            }
+            throw new DAOException("Sottoscrizione non trovata.");
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    public int[] processAutoRenewals() {
+        int renewed = 0;
+        int failed = 0;
+        int expired = 0;
+
+        try {
+            // 1. Trova le sottoscrizioni da rinnovare
+            try (var stmt = connection.createStatement();
+                var rs = stmt.executeQuery(Queries.FIND_AUTO_RENEWALS)) {
+                
+                while (rs.next()) {
+                    int subCode = rs.getInt("CodiceSottoscrizione");
+                    String username = rs.getString("Username");
+
+                    System.out.println("Rinnovo automatico per sub #" + subCode + 
+                                    " (" + username );
+
+                    // 2. Simula il pagamento (90% di successo per test)
+                    boolean paymentSuccess = Math.random() < 0.0;
+
+                    Subscription.DAO.renew(connection, subCode, username, paymentSuccess);
+                    
+                    if (paymentSuccess) {
+                        renewed++;
+                        System.out.println("Rinnovo automatico completato per sub #" + subCode);
+                    } else {
+                        failed++;
+                        System.out.println("Rinnovo automatico FALLITO per sub #" + subCode);
+                        //3. Se fallisce, scade immediatamente la sottoscrizione
+                        try (var expireStmt = DAOUtils.prepare(connection, Queries.EXPIRE_SUBSCRIPTION, subCode)) {
+                            expireStmt.executeUpdate();
+                        }
+                        System.out.println("Sottoscrizione #" + subCode + " portata a Scaduta");
+                    }
+                }
+                
+            }
+            
+            // 4. Marca come scadute le altre sottoscrizioni senza rinnovo
+            try (var stmt = connection.createStatement()) {
+                expired = stmt.executeUpdate(Queries.EXPIRE_EXPIRED_SUBSCRIPTIONS);
+            }
+            
+            System.out.println("completata: " + renewed + " rinnovate, " + failed + " fallite, " + expired + " scadute");
+            
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        
+        return new int[]{renewed, failed, expired};
+
+
+
+
+    }
+
+
+
+
+
+
 
     @Override
     public int insertArtist(final String stageName, final String name, final String surname, 

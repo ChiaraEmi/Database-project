@@ -36,19 +36,15 @@ public final class ControllerImpl implements Controller {
                                        final String birthDateStr, final String provenanceCountry, 
                                        final String biography, final int startYear, final String artistType) {
         try {
-            // Converte la stringa in LocalDate (assumendo il formato standard YYYY-MM-DD)
             final java.time.LocalDate birthDate = birthDateStr == null || birthDateStr.isBlank() 
                 ? null 
                 : java.time.LocalDate.parse(birthDateStr);
 
             this.model.insertArtist(stageName, name, surname, birthDate, provenanceCountry, biography, startYear, artistType);
-            // this.view.showSuccess("Artista inserito con successo!");
         } catch (final java.time.format.DateTimeParseException e) {
-            // Gestione errore formato data non valido
-            // this.view.showError("Formato data non valido. Usa YYYY-MM-DD.");
+            e.printStackTrace();
         } catch (final DAOException e) {
-            // Gestione dell'errore di inserimento database
-            // this.view.showError("Impossibile salvare l'artista.");
+            e.printStackTrace();
         }
     }
 
@@ -56,15 +52,9 @@ public final class ControllerImpl implements Controller {
     public void adminClickedSaveAlbumWithSongs(final int artistCode, final String title, final String releaseDate, 
                                                final String recordCompany, final String rawSongsText) {
         try {
-            // Qui viene chiamato il metodo di parsing per convertire il testo grezzo
             final java.util.List<soundwave.data.SongInput> songs = parseSongsInput(rawSongsText);
-
-            // Invia tutto al Model per la transazione sul database
             this.model.insertAlbumWithSongs(artistCode, title, releaseDate, recordCompany, songs);
-            
-            // this.view.showSuccess("Album e brani salvati con successo!");
         } catch (final DAOException e) {
-            // this.view.showError("Impossibile registrare l'album.");
             e.printStackTrace(); 
         }
     }
@@ -73,14 +63,9 @@ public final class ControllerImpl implements Controller {
     public void adminClickedSavePodcast(final int artistCode, final String name, 
                                         final String description, final String category) {
         try {
-            // Eventuale stato di caricamento nella view
-            // this.view.loadingPodcast();
             this.model.insertPodcast(artistCode, name, description, category);
-            // Notifica la view del successo (es. torna alla home o mostra un messaggio)
-            // this.view.showSuccess("Podcast creato con successo!");
         } catch (final DAOException e) {
-            // Notifica la view del fallimento passando i dati per un eventuale retry
-            // this.view.failedToSavePodcast(artistCode, name, description, category);
+            e.printStackTrace();
         }
     }
 
@@ -90,9 +75,8 @@ public final class ControllerImpl implements Controller {
                                         final int episodeNumber) {
         try {
             this.model.insertEpisode(podcastCode, title, duration, description, episodeNumber);
-            // this.view.showSuccess("Episodio aggiunto con successo!");
         } catch (final DAOException e) {
-            // this.view.failedToSaveEpisode(podcastCode, title, duration, description, episodeNumber);
+            e.printStackTrace();
         }
     }
 
@@ -102,8 +86,7 @@ public final class ControllerImpl implements Controller {
         try {
             this.model.insertListeningEvent(username, contentCode, device, eventDuration);
         } catch (final DAOException e) {
-            // Gestione dell'errore di tracciamento ascolto
-            // this.view.showError("Impossibile registrare l'evento di ascolto.");
+            e.printStackTrace();
         }
     }
 
@@ -112,9 +95,8 @@ public final class ControllerImpl implements Controller {
                                          final String visibility, final boolean isCollaborative) {
         try {
             this.model.insertPlaylist(username, playlistName, visibility, isCollaborative);
-            // this.view.showSuccess("Playlist creata con successo!");
         } catch (final DAOException e) {
-            // this.view.failedToCreatePlaylist(username, playlistName, visibility, isCollaborative);
+            e.printStackTrace();
         }
     }
 
@@ -122,37 +104,29 @@ public final class ControllerImpl implements Controller {
     public void userClickedAddTrackToPlaylist(final int playlistCode, final int trackCode) {
         try {
             this.model.addTrackToPlaylist(playlistCode, trackCode);
-            // this.view.showSuccess("Brano aggiunto alla playlist!");
         } catch (final DAOException e) {
-            // this.view.failedToAddTrackToPlaylist(playlistCode, trackCode);
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Handles the request to load and view the list of system users.
-     */
     @Override
     public void adminClickedLoadUsers() {
         try {
             final java.util.List<soundwave.data.User> users = this.model.loadUsers();
-            // Passa la lista alla view per mostrarla nella dashboard
             this.view.showUsers(users);
         } catch (final Exception e) {
-            // Gestione dell'errore
-            // this.view.showError("Impossibile caricare la lista degli utenti.");
+            e.printStackTrace();
         }
     }
 
     @Override
     public void adminRequestedGlobalStats(final int year) {
         try {
-            // Interroga il Model per ottenere le metriche della OP 22
             final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
             final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
             final java.util.List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
             final java.util.List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
 
-            // Compone il report testuale ordinato per la dashboard
             final StringBuilder sb = new StringBuilder();
             sb.append("=== Artista più ascoltato (Anno ").append(year).append(") ===\n")
               .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato").append("\n\n");
@@ -179,62 +153,53 @@ public final class ControllerImpl implements Controller {
                 sb.append("Nessun album trovato.\n");
             }
 
-            // Passa il risultato pronto alla View
             this.view.showGlobalStats(sb.toString());
 
         } catch (final DAOException e) {
-            // Gestione centralizzata dell'errore (es. messaggio di errore nella view)
-            // this.view.showError("Impossibile caricare le statistiche globali.");
+            e.printStackTrace();
         }
     }
+
     @Override
     public void userClickedFilterSongsByGenre(final String genre) {
-    try {
-        final java.util.List<String> songs = this.model.getSongsByGenre(genre);
-        this.view.showFilteredSongs(songs);
-    } catch (final DAOException e) {
-        e.printStackTrace(); 
+        try {
+            final java.util.List<String> songs = this.model.getSongsByGenre(genre);
+            this.view.showFilteredSongs(songs);
+        } catch (final DAOException e) {
+            e.printStackTrace(); 
+        }
     }
-}
 
     @Override
     public void userClickedAddLike(final String username, final int contentCode) {
-        System.out.println("Pulsante cliccato!");
         try {
             this.model.addLike(username, contentCode);
-            // this.view.showSuccess("Brano aggiunto ai preferiti!");
         } catch (final DAOException e) {
-            // this.view.showError("Impossibile aggiungere il like.");
+            e.printStackTrace();
         }
     }
 
     @Override
     public void userClickedSearchArtists(final String query) {
         try {
-            // Chiama il Model che a sua volta userà il DAO per la ricerca parziale
             final java.util.List<soundwave.data.Artist> artists = this.model.getArtistsByPartialName(query);
-            // Passa la lista alla View affinché popoli la JComboBox nel pannello utente
             this.view.showArtistSearchResults(artists);
         } catch (final DAOException e) {
             e.printStackTrace();
-        // this.view.showError("Impossibile cercare gli artisti.");
+        }
     }
-}
 
     @Override
     public void userClickedViewArtistProfile(final int artistCode) {
        try {
-        // Chiamiamo il model passando l'ID numerico
-        final soundwave.data.Artist artist = this.model.getArtistByCode(artistCode); 
-        if (artist != null) {
-            this.view.showArtistProfile(artist);
-        } else {
-            System.out.println("Artista non trovato nel database per il codice: " + artistCode);
+            final soundwave.data.Artist artist = this.model.getArtistByCode(artistCode); 
+            if (artist != null) {
+                this.view.showArtistProfile(artist);
+            }
+        } catch (final DAOException e) {
+            e.printStackTrace();
         }
-    } catch (final DAOException e) {
-        e.printStackTrace();
     }
-}
 
     @Override
     public void userRequestedLikedSongs(final String username) {
@@ -242,29 +207,80 @@ public final class ControllerImpl implements Controller {
             final java.util.List<String> likedSongs = this.model.getLikedSongs(username);
             this.view.showLikedSongs(likedSongs);
         } catch (final DAOException e) {
-            // this.view.showError("Impossibile caricare i brani preferiti.");
+            e.printStackTrace();
         }
     }
 
     @Override
     public void userClickedRemoveLike(final String username, final int contentCode) {
-         System.out.println("Pulsante cliccato!");
         try {
             this.model.removeLike(username, contentCode);
-            // Dopo aver rimosso il like, aggiorniamo subito la vista ricaricando la lista dei preferiti
             userRequestedLikedSongs(username);
         } catch (final DAOException e) {
-            System.out.println("Pulsante cliccato!");
-            // this.view.showError("Impossibile rimuovere il like.");
+            e.printStackTrace();
+        }
+    }
+
+    /* --- Nuovi metodi implementati per risolvere gli errori --- */
+
+    @Override
+    public void userClickedFollowArtist(final int artistCode) {
+        try {
+            // Utilizziamo un utente di default o corrente (es. "user")
+            this.model.followArtist("user", artistCode);
+        } catch (final DAOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void userClickedSearchAlbums(final String query) {
+        try {
+            final java.util.List<soundwave.data.Album> albums = this.model.getAlbumsByPartialTitle(query);
+            this.view.showAlbumSearchResults(albums);
+        } catch (final DAOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void userClickedViewAlbum(final int albumCode) {
+        try {
+            final soundwave.data.Album.DAO.AlbumWithSongs albumInfo = this.model.getAlbumWithSongs(albumCode);
+            if (albumInfo != null) {
+                this.view.showAlbumDetails(albumInfo);
+            }
+        } catch (final DAOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void userClickedViewAlbumReviews(final int albumCode) {
+        try {
+            final java.util.List<String> reviews = this.model.getAlbumReviews(albumCode);
+            this.view.showAlbumReviews(reviews);
+        } catch (final DAOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void userClickedToggleReview(final int albumCode) {
+        try {
+            final Object[] reviewData = this.view.showReviewInputDialog();
+            if (reviewData != null) {
+                final int rating = (Integer) reviewData[0];
+                final String comment = (String) reviewData[1];
+                this.model.insertOrUpdateReview("user", albumCode, rating, comment);
+            }
+        } catch (final DAOException e) {
+            e.printStackTrace();
         }
     }
 
     /**
      * Helper method to parse raw text from the text area into a list of SongInput objects.
-     * Expected format per line: Title, DurationInSeconds, TrackNumber, Description, ArtistCodeForSong, Genre1;Genre2
-     *
-     * @param rawText the raw string retrieved from the songs text area
-     * @return a list of parsed SongInput items
      */
     private java.util.List<soundwave.data.SongInput> parseSongsInput(final String rawText) {
         final java.util.List<soundwave.data.SongInput> songList = new java.util.ArrayList<>();
@@ -282,11 +298,8 @@ public final class ControllerImpl implements Controller {
                     final int trackNumber = Integer.parseInt(parts[2].trim());
                     final String description = parts[3].trim();
                     
-                    // Se l'artista del brano coincide con quello dell'album, puoi usare l'artistCode dell'album
-                    // oppure estrarlo dal testo se specificato. Qui usiamo un valore di default o un parametro.
                     final int artistCodeForSong = parts.length > 4 ? Integer.parseInt(parts[4].trim()) : 0;
 
-                    // Gestione dei generi separati da punto e virgola (es. "Pop;Rock")
                     final java.util.List<String> genres;
                     if (parts.length > 5 && !parts[5].isBlank()) {
                         genres = java.util.Arrays.asList(parts[5].trim().split(";"));

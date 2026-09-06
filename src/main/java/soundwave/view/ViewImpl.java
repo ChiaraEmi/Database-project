@@ -3,11 +3,15 @@ package soundwave.view;
 import java.awt.CardLayout;
 import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import soundwave.controller.Controller;
+import soundwave.data.Album;
 import soundwave.data.Artist;
 
 /**
@@ -161,7 +165,7 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        // --- Rimuovi Like / Toggle Like dalla Libreria (OP 14) ---
+        // --- Rimuovi Like dalla Libreria (OP 14) ---
         this.userPanel.addToggleLikeListener(e -> {
             if (this.controller != null) {
                 final String selectedSong = this.userPanel.getSelectedLibrarySong();
@@ -174,7 +178,6 @@ public final class ViewImpl extends JFrame implements View {
         this.userPanel.addSearchArtistListener(e -> {
             if (this.controller != null) {
                 final String artistName = this.userPanel.getArtistSearchQuery();
-                // Chiama il metodo del controller che interroga il model e popola la tendina
                 this.controller.userClickedSearchArtists(artistName); 
             }
         });
@@ -184,8 +187,18 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final Artist selectedArtist = this.userPanel.getSelectedArtist();
                 if (selectedArtist != null) {
-                this.controller.userClickedViewArtistProfile(selectedArtist.getArtistCode());
-                 }
+                    this.controller.userClickedViewArtistProfile(selectedArtist.getArtistCode());
+                }
+            }
+        });
+
+        // --- Segui Artista (Esplora) ---
+        this.userPanel.addFollowArtistListener(e -> {
+            if (this.controller != null) {
+                final Artist selectedArtist = this.userPanel.getSelectedArtist();
+                if (selectedArtist != null) {
+                    this.controller.userClickedFollowArtist(selectedArtist.getArtistCode());
+                }
             }
         });
 
@@ -194,6 +207,41 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final String genre = this.userPanel.getSelectedGenre();
                 this.controller.userClickedFilterSongsByGenre(genre);
+            }
+        });
+
+        // --- Album & Recensioni ---
+        this.userPanel.addSearchAlbumListener(e -> {
+            if (this.controller != null) {
+                final String query = this.userPanel.getAlbumSearchQuery();
+                this.controller.userClickedSearchAlbums(query);
+            }
+        });
+
+        this.userPanel.addViewAlbumListener(e -> {
+            if (this.controller != null) {
+                final Album selectedAlbum = this.userPanel.getSelectedAlbum();
+                if (selectedAlbum != null) {
+                    this.controller.userClickedViewAlbum(selectedAlbum.getAlbumCode());
+                }
+            }
+        });
+
+        this.userPanel.addSearchAlbumReviewsListener(e -> {
+            if (this.controller != null) {
+                final Album selectedAlbum = this.userPanel.getSelectedAlbum();
+                if (selectedAlbum != null) {
+                    this.controller.userClickedViewAlbumReviews(selectedAlbum.getAlbumCode());
+                }
+            }
+        });
+
+        this.userPanel.addToggleRecensioneListener(e -> {
+            if (this.controller != null) {
+                final Album selectedAlbum = this.userPanel.getSelectedAlbum();
+                if (selectedAlbum != null) {
+                    this.controller.userClickedToggleReview(selectedAlbum.getAlbumCode());
+                }
             }
         });
 
@@ -208,7 +256,7 @@ public final class ViewImpl extends JFrame implements View {
                 } catch (final NumberFormatException ex) {
                     // Gestione formato anno non valido
                 }
-                
+                this.adminPanel.setStatsOutputText(""); // Pulizia o chiamata controller
                 this.controller.adminRequestedGlobalStats(year);
             }
         });
@@ -254,22 +302,96 @@ public final class ViewImpl extends JFrame implements View {
 
     @Override
     public void showArtistSearchResults(final java.util.List<Artist> artists) {
-        // Chiama il metodo corrispondente dentro UserPanel che popola la JComboBox
         this.userPanel.setArtistSearchResults(artists);
     }
 
     @Override
     public void showArtistProfile(final soundwave.data.Artist artist) {
-        String details = "Nome d'arte: " + artist.getStageName() + 
-                     "\nPaese: " + artist.getCountry() + 
-                     "\nAnno inizio: " + artist.getStartYear() + 
-                     "\nBiografia: " + artist.getBiography();
-        // 2. Mostra il popup
-    JOptionPane.showMessageDialog(this, details, "Profilo Artista", JOptionPane.INFORMATION_MESSAGE);
-    
-    // 3. Abilita il pulsante come conseguenza del profilo trovato!
-    // (Usa il nome esatto della variabile del tuo bottone "Segui")
-         this.userPanel.btnFollowArtist.setEnabled(true);
+        final String details = "Nome d'arte: " + artist.getStageName() + 
+                               "\nPaese: " + artist.getCountry() + 
+                               "\nAnno inizio: " + artist.getStartYear() + 
+                               "\nBiografia: " + artist.getBiography();
+        JOptionPane.showMessageDialog(this, details, "Profilo Artista", JOptionPane.INFORMATION_MESSAGE);
+        this.userPanel.setFollowButtonEnabled(true);
+    }
+
+    /* --- Implementazione dei metodi View per Album e Recensioni --- */
+
+    @Override
+    public void showAlbumSearchResults(final List<Album> albums) {
+        this.userPanel.setAlbumSearchResults(albums);
+    }
+
+    @Override
+    public void showAlbumDetails(final Album.DAO.AlbumWithSongs albumInfo) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Album: ").append(albumInfo.getAlbum().getTitle()).append("\n");
+        sb.append("Artista: ").append(albumInfo.getArtistName()).append("\n");
+        sb.append("Anno: ").append(albumInfo.getAlbum().getReleaseDate()).append("\n");
+        sb.append("Casa Discografica: ").append(albumInfo.getAlbum().getRecordCompany()).append("\n");
+        sb.append("Media Voti: ").append(albumInfo.getAlbum().getAverageRating()).append("\n");
+        sb.append("Durata Totale: ").append(albumInfo.getAlbum().getTotalDuration()).append("s\n\n");
+        sb.append("--- TRACKLIST ---\n");
+        
+        for (final Album.DAO.AlbumSong song : albumInfo.getSongs()) {
+            sb.append(song.getTrackNumber()).append(". ")
+              .append(song.getTitle())
+              .append(" (").append(song.getDurationSeconds()).append("s)\n");
+        }
+
+        JOptionPane.showMessageDialog(
+            this,
+            sb.toString(),
+            "Dettagli Album",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    @Override
+    public void showAlbumReviews(final List<String> reviews) {
+        if (reviews.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Non ci sono recensioni per questo album.",
+                "Recensioni Album",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+
+        final javax.swing.JList<String> reviewList = new javax.swing.JList<>(reviews.toArray(new String[0]));
+        final JScrollPane scrollPane = new JScrollPane(reviewList);
+        scrollPane.setPreferredSize(new java.awt.Dimension(400, 200));
+
+        JOptionPane.showMessageDialog(
+            this,
+            scrollPane,
+            "Recensioni dell'Album",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    @Override
+    public Object[] showReviewInputDialog() {
+        final JComboBox<Integer> comboRating = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
+        final JTextField txtComment = new JTextField(20);
+
+        final Object[] message = {
+            "Voto (da 1 a 5):", comboRating,
+            "Commento:", txtComment
+        };
+
+        final int option = JOptionPane.showConfirmDialog(
+            this,
+            message,
+            "Aggiungi / Modifica Recensione",
+            JOptionPane.OK_CANCEL_OPTION
+        );
+
+        if (option == JOptionPane.OK_OPTION) {
+            return new Object[]{ comboRating.getSelectedItem(), txtComment.getText() };
+        }
+        return null;
     }
 
     /**

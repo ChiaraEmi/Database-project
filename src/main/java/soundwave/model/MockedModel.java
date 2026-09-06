@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import soundwave.data.Album;
+import soundwave.data.Album.DAO.AlbumWithSongs;
 import soundwave.data.Artist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
@@ -122,5 +124,35 @@ public final class MockedModel implements Model {
     public Artist getArtistByCode(int artistCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getArtistByCode'");
+    }
+
+    @Override
+    public List<Album> getAlbumsByPartialTitle(String query) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAlbumsByPartialTitle'");
+    }
+
+    @Override
+    public AlbumWithSongs getAlbumWithSongs(int albumCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAlbumWithSongs'");
+    }
+
+    @Override
+    public List<String> getAlbumReviews(int albumCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAlbumReviews'");
+    }
+
+    @Override
+    public void insertOrUpdateReview(String username, int albumCode, int rating, String comment) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'insertOrUpdateReview'");
+    }
+
+    @Override
+    public void followArtist(String string, int artistCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'followArtist'");
     }
 }

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
 
+import soundwave.data.Album;
 import soundwave.data.Artist;
 import soundwave.data.SongInput;
 import soundwave.data.User;
@@ -45,7 +46,7 @@ public interface Model {
      *
      * @param artistCode the code of the main artist/band of the album.
      * @param title the title of the album.
-     * @param releaseYear the release year.
+     * @param releaseDate the release date.
      * @param recordCompany the record company name.
      * @param songs the list of song inputs containing details for each track.
      * @return the generated album code.
@@ -142,7 +143,7 @@ public interface Model {
      */
     List<String> getAlbumsAboveGlobalAverage();
 
-   /**
+    /**
      * Removes a like from a content for a specific user.
      *
      * @param username the username of the user
@@ -159,12 +160,12 @@ public interface Model {
     List<String> getLikedSongs(String username);
 
     /**
-     * Retrieves an artist profile by their stage name.
+     * Retrieves an artist profile by their code.
      *
      * @param artistCode the distinctive code of the artist
      * @return the {@link Artist} object if found, or null otherwise
      */
-    public Artist getArtistByCode(final int artistCode);
+    Artist getArtistByCode(int artistCode);
 
     /**
      * Adds a like to a content for a specific user.
@@ -189,4 +190,40 @@ public interface Model {
      * @return a list of matching {@link Artist} objects
      */
     List<Artist> getArtistsByPartialName(String query);
+
+    /**
+     * Retrieves a list of albums whose titles match a partial query string.
+     *
+     * @param query the partial title query
+     * @return a list of matching {@link Album} objects
+     */
+    List<Album> getAlbumsByPartialTitle(String query);
+
+    /**
+     * Retrieves an album along with its complete tracklist and details.
+     *
+     * @param albumCode the code of the album
+     * @return an object containing the album and its songs structure
+     */
+    Album.DAO.AlbumWithSongs getAlbumWithSongs(int albumCode);
+
+    /**
+     * Retrieves the list of reviews associated with a specific album.
+     *
+     * @param albumCode the code of the album
+     * @return a list of strings representing the album reviews
+     */
+    List<String> getAlbumReviews(int albumCode);
+
+    /**
+     * Inserts a new review or updates an existing one for an album by a user.
+     *
+     * @param username the username of the reviewer
+     * @param albumCode the code of the album
+     * @param rating the numeric rating score
+     * @param comment the textual comment of the review
+     */
+    void insertOrUpdateReview(String username, int albumCode, int rating, String comment);
+
+    void followArtist(String string, int artistCode);
 }

@@ -3,6 +3,7 @@ package soundwave.view;
 import java.util.List;
 
 import soundwave.controller.Controller;
+import soundwave.data.Album;
 import soundwave.data.Artist;
 
 /**
@@ -37,11 +38,6 @@ public interface View {
     void showUsers(java.util.List<soundwave.data.User> users);
 
     /**
-     * Displays the formatted global statistics report.
-     * 
-     * @param statsText the formatted statistics string
-     */
-  /**
      * Displays the global statistics on the admin panel.
      *
      * @param statsText the formatted string containing global statistics
@@ -75,4 +71,34 @@ public interface View {
      * @param songs the list of strings representing the filtered songs
      */
     void showFilteredSongs(List<String> songs);
+
+    /* --- Nuovi metodi per Album e Recensioni --- */
+
+    /**
+     * Populates the UI with the album search results in a dropdown combo box.
+     *
+     * @param albums the list of albums found matching the search query
+     */
+    void showAlbumSearchResults(List<Album> albums);
+
+    /**
+     * Displays the complete details of an album, including its artist and tracklist.
+     *
+     * @param albumInfo the container with album data, artist name, and songs
+     */
+    void showAlbumDetails(Album.DAO.AlbumWithSongs albumInfo);
+
+    /**
+     * Displays the list of reviews for a specific album.
+     *
+     * @param reviews the list of formatted review strings
+     */
+    void showAlbumReviews(List<String> reviews);
+
+    /**
+     * Shows an input dialog to let the user insert or update a review.
+     *
+     * @return an object array with the rating and comment, or null if cancelled
+     */
+    Object[] showReviewInputDialog();
 }

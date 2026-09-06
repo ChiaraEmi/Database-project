@@ -9,9 +9,12 @@ import soundwave.data.Artist;
 import soundwave.data.DAOException;
 import soundwave.data.Episode;
 import soundwave.data.ListeningEvent;
+import soundwave.data.Review;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -131,12 +134,45 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public List<Artist> getArtistsByPartialName(String query) {
+    public List<Artist> getArtistsByPartialName(final String query) {
         return soundwave.data.Artist.DAO.getByPartialStageName(this.connection, query);
     }
 
-   @Override
+    @Override
     public Artist getArtistByCode(final int artistCode) throws DAOException {
         return Artist.DAO.getByCode(this.connection, artistCode);
+    }
+
+    /* --- Implementazione dei nuovi metodi richiesti dall'interfaccia Model --- */
+
+    @Override
+    public List<Album> getAlbumsByPartialTitle(final String query) {
+        return Album.DAO.getByPartialTitle(this.connection, query);
+    }
+
+    @Override
+    public Album.DAO.AlbumWithSongs getAlbumWithSongs(final int albumCode) {
+        return Album.DAO.getAlbumWithSongs(this.connection, albumCode);
+    }
+
+    @Override
+    public List<String> getAlbumReviews(final int albumCode) {
+        final List<Review> reviews = Review.DAO.getReviewsForAlbum(this.connection, albumCode);
+        final List<String> reviewStrings = new ArrayList<>();
+        for (final Review r : reviews) {
+            reviewStrings.add("Utente: " + r.getUsername() + " - Voto: " + r.getRating() + " - Commento: " + r.getComment());
+        }
+        return reviewStrings;
+    }
+
+    @Override
+    public void insertOrUpdateReview(final String username, final int albumCode, final int rating, final String comment) {
+        Review.DAO.insertOrUpdate(this.connection, username, albumCode, rating, comment);
+    }
+
+    @Override
+    public void followArtist(String string, int artistCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'followArtist'");
     }
 }

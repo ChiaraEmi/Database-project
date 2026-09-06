@@ -139,5 +139,40 @@ public interface Controller {
      */
     void userClickedSearchArtists(final String query);
 
+    /**
+     * Handles the request to follow a specific artist.
+     *
+     * @param artistCode the code of the artist to follow.
+     */
+    void userClickedFollowArtist(int artistCode);
+
+    /**
+     * Searches for albums matching a query string.
+     *
+     * @param query the search query text.
+     */
+    void userClickedSearchAlbums(String query);
+
+    /**
+     * Handles the request to view complete album details and tracklist.
+     *
+     * @param albumCode the code of the album to view.
+     */
+    void userClickedViewAlbum(int albumCode);
+
+    /**
+     * Handles the request to view reviews for a specific album.
+     *
+     * @param albumCode the code of the album.
+     */
+    void userClickedViewAlbumReviews(int albumCode);
+
+    /**
+     * Handles the request to add or modify a review for an album.
+     *
+     * @param albumCode the code of the album.
+     */
+    void userClickedToggleReview(int albumCode);
+
 }
 

@@ -23,7 +23,7 @@ public final class Main {
      * @throws SQLException if a database access error occurs.
      */
     public static void main(final String[] args) throws SQLException {
-        final var connection = DAOUtils.localMySQLConnection("soundwave", "root", "Dolphin26*");
+        final var connection = DAOUtils.localMySQLConnection("soundwave", "root", "Laureata2027!");
         final var model = Model.fromConnection(connection);
         //final Model model = new MockedModel();
         

@@ -17,6 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import soundwave.data.Album;
 import soundwave.data.Artist;
 
 /**
@@ -51,10 +52,14 @@ public final class UserPanel extends JPanel {
     final JButton btnFollowArtist = new JButton("Segui Artista");
 
     // --- Tab 3: Album & Recensioni ---
-    private final JTextField txtAlbumName = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtAlbumSearchQuery = new JTextField(FIELD_COLUMNS);
+    private final JButton btnSearchAlbum = new JButton("Cerca Album");
+    private final JComboBox<Album> comboAlbumResults = new JComboBox<>();
     private final JButton btnViewAlbum = new JButton("Visualizza Album");
     private final JButton btnSearchAlbumReviews = new JButton("Visualizza Recensioni dell'Album");
     private final JButton btnToggleRecensione = new JButton("Aggiungi / Modifica Recensione");
+
+    // --- Tab 4: Libreria & Playlist ---
 
     // --- Tab 4: Libreria & Playlist ---
     private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
@@ -258,7 +263,7 @@ public final class UserPanel extends JPanel {
     }
 
     /**
-     * Creates the tab for reviews (OP 16,17)
+     * Creates the tab for reviews (OP 16,17,18)
      */
     private JPanel createAlbumTab() {
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -266,32 +271,56 @@ public final class UserPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Sezione Inserimento / Ricerca Album
+        // Sezione Ricerca Album
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 1;
-        panel.add(new JLabel("Nome Album:"), gbc);
+        panel.add(new JLabel("Cerca Album:"), gbc);
         
         gbc.gridx = 1;
-        panel.add(this.txtAlbumName, gbc);
+        panel.add(this.txtAlbumSearchQuery, gbc);
 
-        // Pulsante Visualizza Album
+        // Pulsante Cerca Album
         gbc.gridx = 0;
         gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        panel.add(this.btnSearchAlbum, gbc);
+
+        // Tendina Risultati Album
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        this.comboAlbumResults.setPreferredSize(new Dimension(220, 25));
+        panel.add(this.comboAlbumResults, gbc);
+
+        // Pulsante Visualizza Album
+        this.btnViewAlbum.setEnabled(false);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         panel.add(this.btnViewAlbum, gbc);
 
         // Pulsante Visualizza Recensioni dell'Album
+        this.btnSearchAlbumReviews.setEnabled(false);
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         panel.add(this.btnSearchAlbumReviews, gbc);
 
         // Pulsante Aggiungi / Modifica Recensione
+        this.btnToggleRecensione.setEnabled(false);
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 5;
         gbc.gridwidth = 2;
         panel.add(this.btnToggleRecensione, gbc);
+
+        // Ascoltatore tendina album per abilitare i pulsanti operativi
+        this.comboAlbumResults.addActionListener(e -> {
+            final boolean hasSelected = this.comboAlbumResults.getSelectedItem() != null;
+            this.btnViewAlbum.setEnabled(hasSelected);
+            this.btnSearchAlbumReviews.setEnabled(hasSelected);
+            this.btnToggleRecensione.setEnabled(hasSelected);
+        });
 
         return panel;
     }
@@ -323,15 +352,19 @@ public final class UserPanel extends JPanel {
     }
 
     public String getArtistSearchQuery() {
-    return this.txtArtistSearchQuery.getText();
+        return this.txtArtistSearchQuery.getText();
     }
 
     public Artist getSelectedArtist() {
-    return (Artist) this.comboArtistResults.getSelectedItem();
+        return (Artist) this.comboArtistResults.getSelectedItem();
     }
 
-    public String getAlbumName() {
-        return this.txtAlbumName.getText();
+    public String getAlbumSearchQuery() {
+        return this.txtAlbumSearchQuery.getText();
+    }
+
+    public Album getSelectedAlbum() {
+        return (Album) this.comboAlbumResults.getSelectedItem();
     }
 
     public String getPlaylistName() {
@@ -342,12 +375,14 @@ public final class UserPanel extends JPanel {
         return this.librarySongsList.getSelectedValue();
     }
 
+    /* --- Setter per popolare la vista --- */
+
     public void setExploreSongs(final java.util.List<String> songs) {
         this.exploreSongsModel.clear();
         for (final String song : songs) {
             this.exploreSongsModel.addElement(song);
         }
-        this.btnAddLikeFromExplore.setEnabled(false); // Disabilita finché non si seleziona un nuovo elemento
+        this.btnAddLikeFromExplore.setEnabled(false);
     }
 
     public void setLikedSongs(final java.util.List<String> songs) {
@@ -355,7 +390,7 @@ public final class UserPanel extends JPanel {
         for (final String song : songs) {
             this.librarySongsModel.addElement(song);
         }
-        this.btnToggleLike.setEnabled(false); // Disabilita finché non si seleziona un elemento
+        this.btnToggleLike.setEnabled(false);
     }
 
     public void setArtistSearchResults(final java.util.List<Artist> artists) {
@@ -364,12 +399,20 @@ public final class UserPanel extends JPanel {
             this.comboArtistResults.addItem(a);
         }
     }
+
+    public void setAlbumSearchResults(final java.util.List<Album> albums) {
+        this.comboAlbumResults.removeAllItems();
+        for (final Album a : albums) {
+            this.comboAlbumResults.addItem(a);
+        }
+    }
+
     public void setPersonalStatsOutput(final String text) {
         this.txtStatsOutput.setText(text);
     }
 
     public void setFollowButtonEnabled(final boolean enabled) {
-        this.btnFollowArtist.setEnabled(enabled); // Abilita o disabilita il pulsante di follow dopo la ricerca dell'artista.
+        this.btnFollowArtist.setEnabled(enabled);
     }
 
     /* --- Metodi per registrare gli Listener --- */
@@ -399,19 +442,26 @@ public final class UserPanel extends JPanel {
     }
 
     public void addViewArtistProfileListener(final ActionListener listener) {
-    this.btnViewArtistProfile.addActionListener(listener);
+        this.btnViewArtistProfile.addActionListener(listener);
     }
 
     public void addFollowArtistListener(final ActionListener listener) {
         this.btnFollowArtist.addActionListener(listener);
     }
-    //RECENSIONI
+
+    // --- Listener Album & Recensioni ---
+    public void addSearchAlbumListener(final ActionListener listener) {
+        this.btnSearchAlbum.addActionListener(listener);
+    }
+
     public void addViewAlbumListener(final ActionListener listener) {
         this.btnViewAlbum.addActionListener(listener);
     }
+
     public void addSearchAlbumReviewsListener(final ActionListener listener) {
         this.btnSearchAlbumReviews.addActionListener(listener);
     }
+
     public void addToggleRecensioneListener(final ActionListener listener) {
         this.btnToggleRecensione.addActionListener(listener);
     }

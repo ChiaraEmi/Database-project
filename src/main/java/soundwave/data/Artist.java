@@ -4,8 +4,11 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import soundwave.data.Album.DAO.AlbumWithSongs;
 
 /**
  * Represents an Artist entity.
@@ -203,6 +206,7 @@ public final class Artist {
             }
             return null;
         }
+        
 
         /**
          * Retrieves a list of artists matching a partial stage name (per popolare la tendina).
@@ -225,5 +229,32 @@ public final class Artist {
             }
             return artists;
         }
+        /**
+         * Retrieves a list of albums matching a partial name using Queries.SELECT_ALBUMS_BY_NAME.
+         */
+        public static List<Album> getByPartialTitle(final Connection connection, final String query) {
+            final List<Album> albums = new ArrayList<>();
+            final String searchPattern = "%" + (query != null ? query : "") + "%";
+
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_BY_NAME, searchPattern);
+                 var resultSet = statement.executeQuery()) {
+                
+                while (resultSet.next()) {
+                    albums.add(new Album(
+                        resultSet.getInt("CodiceAlbum"),
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString("TitoloAlbum"),
+                        resultSet.getString("AnnoPubblicazione"),
+                        resultSet.getString("CasaDiscografica"),
+                        resultSet.getDouble("MediaVoti"),
+                        resultSet.getInt("DurataTotale")
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return albums;
+        }
+
     }
 }

@@ -135,5 +135,16 @@ public final class Review {
             }
             return reviews;
         }
+
+        /**
+         * Inserts or updates a review in the database (OP 16).
+         */
+        public static void insertOrUpdate(final Connection connection, final String username, final int albumCode, final int rating, final String comment) {
+            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, albumCode, rating, comment)) {
+                statement.executeUpdate();
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+        }
     }
 }

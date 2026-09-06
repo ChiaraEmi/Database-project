@@ -168,8 +168,12 @@ public final class Queries {
     //--- OP 16 - Pubblicazione/modifica recensione per un album ---
     public static final String UPSERT_REVIEW = 
         """
-        INSERT INTO Recensioni(Username,CodiceAlbum, Voto, Commento*, DataRecensione)
+        INSERT INTO Recensioni(Username,CodiceAlbum, Voto, Commento, DataRecensione)
         VALUES(?,?,?,?,?)
+        ON DUPLICATE KEY UPDATE 
+        Voto = VALUES(Voto),
+        Commento = VALUES(Commento),
+        DataRecensione = VALUES(DataRecensione)
         """;
     //--- OP 17 - Visualizzazione delle recensioni di un album ---
     public static final String SELECT_REVIEWS_FOR_ALBUM = 
@@ -178,6 +182,14 @@ public final class Queries {
         FROM Recensioni
         WHERE CodiceAlbum = ?
         """;
+    public static final String SELECT_ALBUMS_BY_NAME = 
+        """
+        SELECT A.*
+        FROM Album A
+        JOIN Artisti Art ON A.CodiceArtista = Art.CodiceArtista
+        WHERE A.TitoloAlbum LIKE ?
+        ORDER BY A.TitoloAlbum ASC
+    """;
     //--- OP 18 Visualizzazione della scheda dettagliata di un Album
     public static final String ALBUM_INFO =
         """

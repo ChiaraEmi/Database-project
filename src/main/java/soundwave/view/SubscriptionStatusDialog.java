@@ -294,52 +294,6 @@ public final class SubscriptionStatusDialog extends JDialog {
             System.out.println(" Sottoscrizione NON ATTIVA! Status = '" + status + "'");
         }
 
-        if ("Attiva".equals(status)) {
-            JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, FLOW_LAYOUT_GAP, ACTION_PANEL_GAP));
-            actionPanel.setBackground(Color.WHITE);
-
-            JButton btnRenew = new JButton("Rinnova Ora");
-            btnRenew.setBackground(new Color(COLOR_GREEN, COLOR_BLUE, COLOR_BLUE_DARK));
-            btnRenew.setForeground(Color.WHITE);
-            btnRenew.setFont(btnRenew.getFont().deriveFont(FONT_STYLE_BOLD));
-            
-            btnRenew.addActionListener(e -> {
-                int choice = JOptionPane.showConfirmDialog(
-                    this,
-                    "Vuoi rinnovare la sottoscrizione #" + subCode + "?",
-                    "Conferma Rinnovo",
-                    JOptionPane.YES_NO_OPTION
-                );
-                if (choice == JOptionPane.YES_OPTION && onRenew != null) {
-                    onRenew.accept(subCode);
-                }
-            });
-            actionPanel.add(btnRenew);
-
-            String toggleText = autoRenew ? "Disattiva Rinnovo" : "Attiva Rinnovo";
-            JButton btnToggle = new JButton(toggleText);
-            btnToggle.setBackground(autoRenew ? new Color(COLOR_RED, COLOR_DARK_GRAY, COLOR_DARK_GRAY) : new Color(COLOR_GREEN, COLOR_YELLOW, COLOR_GREEN));
-            btnToggle.setForeground(Color.WHITE);
-            btnToggle.setFont(btnToggle.getFont().deriveFont(FONT_STYLE_BOLD));
-            btnToggle.addActionListener(e -> {
-                String action = autoRenew ? "disattivare" : "attivare";
-                int choice = JOptionPane.showConfirmDialog(
-                    this,
-                    "Vuoi " + action + " il rinnovo automatico?",
-                    "Conferma " + action,
-                    JOptionPane.YES_NO_OPTION
-                );
-                if (choice == JOptionPane.YES_OPTION && onToggleAutoRenew != null) {
-                    onToggleAutoRenew.accept(subCode);
-                }
-            });
-            
-            actionPanel.add(btnToggle);
-            blockPanel.add(actionPanel);
-
-        } else {
-            System.out.println(" Sottoscrizione NON ATTIVA! Status = '" + status + "'");
-        }
 
         // Add the block to the main content panel
         this.contentPanel.add(blockPanel);

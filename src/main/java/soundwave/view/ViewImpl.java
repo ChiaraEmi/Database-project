@@ -338,7 +338,6 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
-        initUserPanelListeners();
     }
 
     @Override

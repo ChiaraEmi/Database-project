@@ -5,6 +5,7 @@ import java.util.List;
 import soundwave.data.Artist;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 
 /**
  * Defines the controller interface for the application.
@@ -64,6 +65,13 @@ public interface Controller {
      * @return a list of podcast authors.
      */
     List<Artist> getPodcastAuthors();
+
+    /**
+     * Retrieves the list of all podcasts.
+     *
+     * @return a list of podcasts.
+     */
+    List<Podcast> getPodcasts();
 
     /**
      * Handles the request to insert a new podcast.

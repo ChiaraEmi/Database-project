@@ -3,6 +3,7 @@ package soundwave.controller;
 import soundwave.data.Artist;
 import soundwave.data.DAOException;
 import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 import soundwave.data.LikeBrani;
@@ -153,6 +154,17 @@ public final class ControllerImpl implements Controller {
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to load podcast authors", e);
             this.view.showError("Errore durante il caricamento degli autori di podcast.");
+            return List.of();
+        }
+    }
+
+    @Override
+    public List<Podcast> getPodcasts() {
+        try {
+            return this.model.getPodcasts();
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load podcasts", e);
+            this.view.showError("Errore durante il caricamento dei podcast.");
             return List.of();
         }
     }

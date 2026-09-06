@@ -7,6 +7,7 @@ import java.util.List;
 import soundwave.data.Artist;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
@@ -85,6 +86,13 @@ public interface Model {
      * @return the auto-generated code of the inserted podcast
      */
     int insertPodcast(int artistCode, String name, String description, String category);
+
+    /**
+     * Retrieves all available podcasts in the system.
+     *
+     * @return a list of all podcasts.
+     */
+    List<Podcast> getPodcasts();
 
     /**
      * Checks whether the specified artist is authorized as a podcast author.

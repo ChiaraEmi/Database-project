@@ -129,6 +129,7 @@ public final class Podcast {
          * @param name the name of the podcast.
          * @param description the description of the podcast.
          * @param category the category of the podcast.
+         * 
          * @return the auto-generated key of the inserted podcast.
          */
         public static int insert(final Connection connection, final int artistCode, final String name, 
@@ -152,6 +153,34 @@ public final class Podcast {
                 throw new DAOException(e);
             }
             throw new DAOException("Unable to retrieve generated key for Podcast.");
+        }
+
+        /**
+         * Retrieves all podcasts from the database.
+         *
+         * @param connection the database connection.
+         * 
+         * @return a list of all podcasts.
+         */
+        public static List<Podcast> selectAll(final Connection connection) {
+            final List<Podcast> podcasts = new java.util.ArrayList<>();
+            try (
+                var statement = connection.prepareStatement(Queries.SELECT_ALL_PODCASTS);
+                var resultSet = statement.executeQuery();
+            ) {
+                while (resultSet.next()) {
+                    podcasts.add(new Podcast(
+                        resultSet.getInt("CodicePodcast"),
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString("NomePodcast"),
+                        resultSet.getString("DescrizionePodcast"),
+                        resultSet.getString("Categoria")
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return podcasts;
         }
     }
 }

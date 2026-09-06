@@ -89,6 +89,11 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<Podcast> getPodcasts() {
+        return Podcast.DAO.selectAll(this.connection);
+    }
+
+    @Override
     public int insertEpisode(final int podcastCode, final String title, final int duration, 
                            final String description, final int episodeNumber) {
         return Episode.DAO.insert(connection, podcastCode, title, duration, description, episodeNumber);

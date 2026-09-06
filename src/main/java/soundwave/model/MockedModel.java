@@ -11,6 +11,7 @@ import java.util.Set;
 import soundwave.data.Artist;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
@@ -32,6 +33,7 @@ public final class MockedModel implements Model {
     private final Set<Integer> musicArtistIds;
     private final Set<Integer> podcastAuthorIds;
     private final Map<Integer, String> albums;
+    private final List<Podcast> podcasts;
 
     /**
      * Constructs a new MockedModel with initial test data.
@@ -43,6 +45,7 @@ public final class MockedModel implements Model {
         this.musicArtistIds = new HashSet<>();
         this.podcastAuthorIds = new HashSet<>();
         this.albums = new HashMap<>();
+        this.podcasts = new ArrayList<>();
 
         this.users.add(
             new User("mario88", "Mario", "Rossi", "mario@email.com", "pass123", 
@@ -122,6 +125,11 @@ public final class MockedModel implements Model {
     }
 
     @Override
+    public List<Podcast> getPodcasts() {
+        return List.copyOf(this.podcasts);
+    }
+
+    @Override
     public int insertPodcast(final int artistCode, final String name, final String description, final String category) {
         this.savedPodcasts.add(name);
         return this.savedPodcasts.size(); 
@@ -174,8 +182,9 @@ public final class MockedModel implements Model {
     /**
      * Checks whether the specified artist is authorized as a podcast author.
      *
-     * @param artistCode the unique code of the artist to check
-     * @return true if the artist exists and is a podcast author, false otherwise
+     * @param artistCode the unique code of the artist to check.
+     * 
+     * @return true if the artist exists and is a podcast author, false otherwise.
      */
     @Override
     public boolean isPodcastAuthor(final int artistCode) {

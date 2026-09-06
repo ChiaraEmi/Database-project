@@ -26,6 +26,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 
 import soundwave.data.Artist;
+import soundwave.data.Podcast;
 
 /**
  * Panel representing the main dashboard for the Administrator, organized in tabs with input forms.
@@ -71,6 +72,7 @@ public final class AdminPanel extends JPanel {
     private final JButton btnSavePodcast = new JButton("Salva Podcast");
 
     // --- Campi di testo per Inserimento Episodio (OP 10) ---
+    private final JComboBox<Podcast> comboEpisodePodcast = new JComboBox<>();
     private final JTextField txtEpisodePodcastCode = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeTitle = new JTextField(FIELD_COLUMNS);
     private final JTextField txtEpisodeDuration = new JTextField(FIELD_COLUMNS);
@@ -167,9 +169,9 @@ public final class AdminPanel extends JPanel {
 
         addFormField(panel, gbc, row, "Nome d'arte:", this.txtStageName);
         row++;
-        addFormField(panel, gbc, row, "Nome reale:", this.txtRealName);
+        addFormField(panel, gbc, row, "Nome:", this.txtRealName);
         row++;
-        addFormField(panel, gbc, row, "Cognome reale:", this.txtRealSurname);
+        addFormField(panel, gbc, row, "Cognome:", this.txtRealSurname);
         row++;
         addFormField(panel, gbc, row, "Data di nascita (YYYY-MM-DD):", this.txtBirthDate);
         row++;
@@ -267,7 +269,7 @@ public final class AdminPanel extends JPanel {
         addSectionHeader(panel, gbc, row, "Creazione Nuovo Podcast");
         row++;
 
-        addFormComboField(panel, gbc, row, "Autore Podcast (Artista):", this.comboPodcastArtist);
+        addFormComboField(panel, gbc, row, "Autore Podcast:", this.comboPodcastArtist);
         row++;
         addFormField(panel, gbc, row, "Nome Podcast:", this.txtPodcastName);
         row++;
@@ -291,11 +293,27 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.WEST;
 
+        // Renderizzatore per mostrare il nome del podcast nel menu a tendina
+        this.comboEpisodePodcast.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Component getListCellRendererComponent(
+                    final JList<?> list, final Object value, final int index,
+                    final boolean isSelected, final boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Podcast) {
+                    setText(((Podcast) value).getName()); // Modifica con il metodo corretto del nome podcast
+                }
+                return this;
+            }
+        });
+
         int row = 0;
         addSectionHeader(panel, gbc, row, "Aggiungi Episodio al Podcast");
         row++;
 
-        addFormField(panel, gbc, row, "Codice Podcast:", this.txtEpisodePodcastCode);
+        addFormComboField(panel, gbc, row, "Podcast:", this.comboEpisodePodcast); // <-- Usiamo la combo
         row++;
         addFormField(panel, gbc, row, "Titolo Episodio:", this.txtEpisodeTitle);
         row++;
@@ -648,12 +666,13 @@ public final class AdminPanel extends JPanel {
     }
 
     /**
-     * Gets the episode's podcast code.
+     * Gets the selected podcast code for the episode.
      * 
-     * @return the podcast code.
+     * @return the podcast code as a String, or an empty string if none selected.
      */
     public String getEpisodePodcastCode() {
-        return this.txtEpisodePodcastCode.getText();
+        final Podcast selectedPodcast = (Podcast) this.comboEpisodePodcast.getSelectedItem();
+        return selectedPodcast != null ? String.valueOf(selectedPodcast.getPodcastCode()) : "";
     }
 
     /**
@@ -740,6 +759,18 @@ public final class AdminPanel extends JPanel {
         this.comboPodcastArtist.removeAllItems();
         for (final Artist artist : authors) {
             this.comboPodcastArtist.addItem(artist);
+        }
+    }
+
+    /**
+     * Sets the available podcasts in the dropdown menu.
+     * 
+     * @param podcasts the list of podcasts.
+     */
+    public void setPodcasts(final List<Podcast> podcasts) {
+        this.comboEpisodePodcast.removeAllItems();
+        for (final Podcast podcast : podcasts) {
+            this.comboEpisodePodcast.addItem(podcast);
         }
     }
 

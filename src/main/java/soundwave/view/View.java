@@ -4,6 +4,7 @@ import java.util.List;
 
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
+import soundwave.data.Podcast;
 import soundwave.data.User;
 
 /**
@@ -43,6 +44,13 @@ public interface View {
      * @param authors the list of artist objects authorized as podcast authors.
      */
     void setPodcastAuthors(List<Artist> authors);
+
+    /**
+     * Sets the list of podcasts available in the admin panel.
+     *
+     * @param podcasts the list of podcasts.
+     */
+    void setPodcasts(List<Podcast> podcasts);
 
     /**
      * Shows the specified panel by its card name.

@@ -14,6 +14,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
 import soundwave.data.Playlist;
+import soundwave.data.Podcast;
 import soundwave.data.User;
 
 /**
@@ -101,8 +102,10 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final List<Artist> artists = this.controller.getAlbumArtists();
                 final List<Artist> authors = this.controller.getPodcastAuthors();
+                final List<Podcast> podcasts = this.controller.getPodcasts();
                 this.adminPanel.setAlbumArtists(artists);
                 this.adminPanel.setPodcastAuthors(authors);
+                this.adminPanel.setPodcasts(podcasts);
             }
         });
         this.adminPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
@@ -205,6 +208,11 @@ public final class ViewImpl extends JFrame implements View {
                 if (success) {
                     showSuccess("Podcast inserito con successo!");
                     this.adminPanel.clearAllForms();
+
+                    if (this.controller != null) {
+                        final List<Podcast> updatedPodcasts = this.controller.getPodcasts();
+                        this.adminPanel.setPodcasts(updatedPodcasts);
+                    }
                 }
             }
         });
@@ -366,6 +374,11 @@ public final class ViewImpl extends JFrame implements View {
     @Override
     public void setPodcastAuthors(final List<Artist> authors) {
         this.adminPanel.setPodcastAuthors(authors);
+    }
+
+    @Override
+    public void setPodcasts(final List<Podcast> podcasts) {
+        this.adminPanel.setPodcasts(podcasts);
     }
 
     @Override

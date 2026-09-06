@@ -93,6 +93,13 @@ public final class Queries {
         """;
 
     // --- OP 10: INSERIMENTO EPISODIO ---
+    public static final String SELECT_ALL_PODCASTS = 
+        """
+        SELECT CodicePodcast, CodiceArtista, NomePodcast, DescrizionePodcast, Categoria 
+        FROM Podcast 
+        ORDER BY NomePodcast ASC
+        """;
+
     public static final String CHECK_PODCAST_EXISTS = 
         """
         SELECT CodicePodcast, NomePodcast FROM Podcast 

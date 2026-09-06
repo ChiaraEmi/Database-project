@@ -702,6 +702,182 @@ public final class ControllerImpl implements Controller {
         }
     }
 
+    @Override
+    public void adminRequestedGlobalStats(final int year) {
+        try {
+            final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
+            final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
+            final List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
+            final List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
+
+            final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
+            sb.append("=== Artista più ascoltato (Anno ").append(year).append(") ===")
+              .append(NEW_LINE)
+              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato")
+              .append(NEW_LINE).append(NEW_LINE);
+            
+            sb.append("=== Genere più ascoltato (Anno ").append(year).append(") ===")
+              .append(NEW_LINE)
+              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato")
+              .append(NEW_LINE).append(NEW_LINE);
+            
+            sb.append("=== Utenti sopra la media ascolti (Anno ").append(year).append(") ===")
+              .append(NEW_LINE);
+            if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
+                for (final String u : usersAboveAvg) {
+                    sb.append("• ").append(u).append(NEW_LINE);
+                }
+            } else {
+                sb.append("Nessun utente trovato.").append(NEW_LINE);
+            }
+            sb.append(NEW_LINE);
+
+            sb.append("=== Album sopra la media globale delle recensioni ===")
+              .append(NEW_LINE);
+            if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
+                for (final String a : albumsAboveAvg) {
+                    sb.append("• ").append(a).append(NEW_LINE);
+                }
+            } else {
+                sb.append("Nessun album trovato.").append(NEW_LINE);
+            }
+
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load global stats", e);
+            this.view.showError("Errore durante il caricamento delle statistiche globali.");
+        }
+    }
+
+    @Override
+    public void userClickedFilterSongsByGenre(final String genre) {
+        try {
+            final List<String> songs = this.model.getSongsByGenre(genre);
+            this.view.showFilteredSongs(songs);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to filter songs by genre", e);
+            this.view.showError("Errore durante il filtraggio dei brani per genere.");
+        }
+    }
+
+    @Override
+    public void userClickedAddLike(final String username, final int contentCode) {
+        try {
+            this.model.addLike(username, contentCode);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to add like", e);
+            this.view.showError("Errore durante l'aggiunta del like.");
+        }
+    }
+
+    @Override
+    public void userClickedSearchArtists(final String query) {
+        try {
+            final List<Artist> artists = this.model.getArtistsByPartialName(query);
+            this.view.showArtistSearchResults(artists);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to search artists", e);
+            this.view.showError("Errore durante la ricerca degli artisti.");
+        }
+    }
+
+    @Override
+    public void userClickedViewArtistProfile(final int artistCode) {
+        try {
+            final Artist artist = this.model.getArtistByCode(artistCode); 
+            if (artist != null) {
+                this.view.showArtistProfile(artist);
+            }
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to view artist profile", e);
+            this.view.showError("Errore durante il caricamento del profilo artista.");
+        }
+    }
+
+    @Override
+    public void userRequestedLikedSongs(final String username) {
+        try {
+            final List<String> likedSongs = this.model.getLikedSongs(username);
+            this.view.showLikedSongs(likedSongs);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load liked songs", e);
+            this.view.showError("Errore durante il caricamento dei brani preferiti.");
+        }
+    }
+
+    @Override
+    public void userClickedRemoveLike(final String username, final int contentCode) {
+        try {
+            this.model.removeLike(username, contentCode);
+            userRequestedLikedSongs(username);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to remove like", e);
+            this.view.showError("Errore durante la rimozione del like.");
+        }
+    }
+
+    @Override
+    public void userClickedFollowArtist(final int artistCode) {
+        try {
+            this.model.followArtist("user", artistCode);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to follow artist", e);
+            this.view.showError("Errore durante il follow dell'artista.");
+        }
+    }
+
+    @Override
+    public void userClickedSearchAlbums(final String query) {
+        try {
+            final List<soundwave.data.Album> albums = this.model.getAlbumsByPartialTitle(query);
+            this.view.showAlbumSearchResults(albums);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to search albums", e);
+            this.view.showError("Errore durante la ricerca degli album.");
+        }
+    }
+
+    @Override
+    public void userClickedViewAlbum(final int albumCode) {
+        try {
+            final soundwave.data.Album.DAO.AlbumWithSongs albumInfo = this.model.getAlbumWithSongs(albumCode);
+            if (albumInfo != null) {
+                this.view.showAlbumDetails(albumInfo);
+            }
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to view album details", e);
+            this.view.showError("Errore durante il caricamento dei dettagli dell'album.");
+        }
+    }
+
+    @Override
+    public void userClickedViewAlbumReviews(final int albumCode) {
+        try {
+            final List<String> reviews = this.model.getAlbumReviews(albumCode);
+            this.view.showAlbumReviews(reviews);
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load album reviews", e);
+            this.view.showError("Errore durante il caricamento delle recensioni.");
+        }
+    }
+
+    @Override
+    public void userClickedToggleReview(final int albumCode) {
+        try {
+            final Object[] reviewData = this.view.showReviewInputDialog();
+            if (reviewData != null) {
+                final int rating = (Integer) reviewData[0];
+                final String comment = (String) reviewData[1];
+                this.model.insertOrUpdateReview("user", albumCode, rating, comment);
+            }
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to toggle review", e);
+            this.view.showError("Errore durante il salvataggio della recensione.");
+        }
+    }
+
+    /**
+     * Helper method to parse raw text from the text area into a list of SongInput objects.
+     */
     private List<SongInput> parseSongsInput(final String rawText) {
         final List<SongInput> songList = new ArrayList<>();
         if (rawText == null || rawText.isBlank()) {
@@ -716,7 +892,7 @@ public final class ControllerImpl implements Controller {
                     final String songTitle = parts[0].trim();
                     final int duration = Integer.parseInt(parts[1].trim());
                     final int trackNumber = Integer.parseInt(parts[2].trim());
-                    final String description = parts[3].trim();
+                    final int description = Integer.parseInt(parts[3].trim()); // O descrizione a seconda del tuo tipo
 
                     final int artistCodeForSong = parts.length > ARTIST_CODE_INDEX
                         ? Integer.parseInt(parts[ARTIST_CODE_INDEX].trim())
@@ -732,7 +908,7 @@ public final class ControllerImpl implements Controller {
                     songList.add(new SongInput(
                         songTitle, 
                         duration, 
-                        description, 
+                        parts[3].trim(), 
                         trackNumber, 
                         artistCodeForSong, 
                         genres

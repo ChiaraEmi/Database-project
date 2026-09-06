@@ -3,8 +3,8 @@ package soundwave.model;
 import soundwave.data.Podcast;
 import soundwave.data.Promotion;
 import soundwave.data.Queries;
-import soundwave.data.Subscription;
 import soundwave.data.SongInput;
+import soundwave.data.Subscription;
 import soundwave.data.User;
 import soundwave.data.Playlist;
 import soundwave.data.Album;
@@ -12,11 +12,13 @@ import soundwave.data.Artist;
 import soundwave.data.DAOException;
 import soundwave.data.DAOUtils;
 import soundwave.data.Episode;
+import soundwave.data.Follow;
 import soundwave.data.Genre;
 import soundwave.data.InviteCode;
-import soundwave.data.ListeningEvent;
 import soundwave.data.LikeBrani;
+import soundwave.data.ListeningEvent;
 import soundwave.data.Plan;
+import soundwave.data.Review;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -370,4 +372,65 @@ public final class DBModel implements Model {
         return subscriptions;
     }
 
+    @Override
+    public void addLike(final String username, final int contentCode) {
+        soundwave.data.Like.DAO.addLike(this.connection, username, contentCode);
+    }
+
+    @Override
+    public List<String> getLikedSongs(final String username) {
+        return soundwave.data.Like.DAO.getLikedSongs(this.connection, username);
+    }
+
+    @Override
+    public List<String> getSongsByGenre(final String genre) {
+        return soundwave.data.Genre.DAO.getSongsByGenre(this.connection, genre);
+    }
+
+    @Override
+    public void removeLike(final String username, final int contentCode) {
+        soundwave.data.Like.DAO.removeLike(this.connection, username, contentCode);
+    }
+
+    @Override
+    public List<Artist> getArtistsByPartialName(final String query) {
+        return soundwave.data.Artist.DAO.getByPartialStageName(this.connection, query);
+    }
+
+    @Override
+    public Artist getArtistByCode(final int artistCode) throws DAOException {
+        return Artist.DAO.getByCode(this.connection, artistCode);
+    }
+
+    /* --- Implementazione dei nuovi metodi richiesti dall'interfaccia Model --- */
+
+    @Override
+    public List<Album> getAlbumsByPartialTitle(final String query) {
+        return Album.DAO.getByPartialTitle(this.connection, query);
+    }
+
+    @Override
+    public Album.DAO.AlbumWithSongs getAlbumWithSongs(final int albumCode) {
+        return Album.DAO.getAlbumWithSongs(this.connection, albumCode);
+    }
+
+    @Override
+    public List<String> getAlbumReviews(final int albumCode) {
+        final List<Review> reviews = Review.DAO.getReviewsForAlbum(this.connection, albumCode);
+        final List<String> reviewStrings = new ArrayList<>();
+        for (final Review r : reviews) {
+            reviewStrings.add("Utente: " + r.getUsername() + " - Voto: " + r.getRating() + " - Commento: " + r.getComment());
+        }
+        return reviewStrings;
+    }
+
+    @Override
+    public void insertOrUpdateReview(final String username, final int albumCode, final int rating, final String comment) {
+        Review.DAO.insertOrUpdate(this.connection, username, albumCode, rating, comment);
+    }
+
+    @Override
+    public void followArtist(final String username, final int artistCode) {
+        Follow.DAO.followArtist(this.connection, username, artistCode, java.time.LocalDate.now());
+    }
 }

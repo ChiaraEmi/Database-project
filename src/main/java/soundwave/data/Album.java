@@ -172,6 +172,15 @@ public final class Album {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
+                // 1. Verifica esistenza dell'artista
+                try (var checkStmt = DAOUtils.prepare(connection, Queries.CHECK_ARTIST_EXISTS, artistCode);
+                     var resultSet = checkStmt.executeQuery()) {
+                    if (!resultSet.next()) {
+                        throw new DAOException("Artist with ID " + artistCode + " does not exist.");
+                    }
+                }
+
+                // 2. Inserimento dell'Album
                 int albumCode = -1;
                 try (var statement = DAOUtils.prepareWithKeys(
                     connection,
@@ -190,6 +199,7 @@ public final class Album {
                     }
                 }
 
+                // 3. Inserimento dei brani correlati tramite Song.DAO.insert
                 for (final var songInput : songs) {
                     Song.DAO.insert(
                         connection,
@@ -204,6 +214,7 @@ public final class Album {
                     );
                 }
 
+                // 4. Aggiornamento della durata totale dell'album
                 try (var updateStmt = DAOUtils.prepare(connection, Queries.UPDATE_ALBUM_DURATION, albumCode, albumCode)) {
                     updateStmt.executeUpdate();
                 }
@@ -227,8 +238,151 @@ public final class Album {
                 } catch (final SQLException ignored) {
                     // Intentionally ignored
                 }
-
             }
+        }
+
+        /**
+         * Container class for complete album info, artist name, and its tracklist.
+         */
+        public static final class AlbumWithSongs {
+            private final Album album;
+            private final String artistName;
+            private final List<AlbumSong> songs;
+
+            public AlbumWithSongs(final Album album, final String artistName, final List<AlbumSong> songs) {
+                this.album = album;
+                this.artistName = artistName;
+                this.songs = songs;
+            }
+
+            public Album getAlbum() {
+                return album;
+            }
+
+            public String getArtistName() {
+                return artistName;
+            }
+
+            public List<AlbumSong> getSongs() {
+                return songs;
+            }
+        }
+
+        /**
+         * Represents a song entry in the album tracklist.
+         */
+        public static final class AlbumSong {
+            private final int trackNumber;
+            private final String title;
+            private final int durationSeconds;
+
+            public AlbumSong(final int trackNumber, final String title, final int durationSeconds) {
+                this.trackNumber = trackNumber;
+                this.title = title;
+                this.durationSeconds = durationSeconds;
+            }
+
+            public int getTrackNumber() {
+                return trackNumber;
+            }
+
+            public String getTitle() {
+                return title;
+            }
+
+            public int getDurationSeconds() {
+                return durationSeconds;
+            }
+        }
+
+        /**
+         * Retrieves album details, artist name, and tracklist using Queries.ALBUM_INFO.
+         *
+         * @param connection the database connection.
+         * @param albumCode the album code.
+         * @return an AlbumWithSongs object containing all album and track data.
+         */
+        public static AlbumWithSongs getAlbumInfo(final Connection connection, final int albumCode) {
+            Album album = null;
+            String artistName = "";
+            final List<AlbumSong> songs = new ArrayList<>();
+
+            try (var statement = DAOUtils.prepare(connection, Queries.ALBUM_INFO, albumCode);
+                 var resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    if (album == null) {
+                        album = new Album(
+                            resultSet.getInt("CodiceAlbum"),
+                            resultSet.getInt("CodiceArtista"),
+                            resultSet.getString("TitoloAlbum"),
+                            resultSet.getString("AnnoPubblicazione"),
+                            resultSet.getString("CasaDiscografica"),
+                            resultSet.getDouble("MediaVoti"),
+                            resultSet.getInt("DurataTotale")
+                        );
+                        artistName = resultSet.getString("NomeDArte");
+                    }
+                    songs.add(new AlbumSong(
+                        resultSet.getInt("NumeroTraccia"),
+                        resultSet.getString("TitoloBrano"),
+                        resultSet.getInt("DurataBranoSecondi")
+                    ));
+                }
+
+                if (album == null) {
+                    throw new DAOException("Album with code " + albumCode + " not found.");
+                }
+
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+
+            return new AlbumWithSongs(album, artistName, songs);
+        }
+
+        /**
+         * Retrieves a list of albums matching a partial name using Queries.SELECT_ALBUMS_BY_NAME.
+         */
+        public static List<Album> getByPartialTitle(final Connection connection, final String query) {
+            final List<Album> albums = new ArrayList<>();
+            final String searchPattern = "%" + (query != null ? query : "") + "%";
+
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_BY_NAME, searchPattern);
+                 var resultSet = statement.executeQuery()) {
+                
+                while (resultSet.next()) {
+                    albums.add(new Album(
+                        resultSet.getInt("CodiceAlbum"),
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString("TitoloAlbum"),
+                        resultSet.getString("AnnoPubblicazione"),
+                        resultSet.getString("CasaDiscografica"),
+                        resultSet.getDouble("MediaVoti"),
+                        resultSet.getInt("DurataTotale")
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return albums;
+        }
+        /**
+         * Alias for getAlbumInfo to match DBModel call.
+         */
+        public static AlbumWithSongs getAlbumWithSongs(final Connection connection, final int albumCode) {
+            return getAlbumInfo(connection, albumCode);
+        }
+
+        /**
+         * Retrieves reviews for an album formatted as strings for DBModel.
+         */
+        public static List<String> getAlbumReviews(final Connection connection, final int albumCode) {
+            final List<String> reviewStrings = new ArrayList<>();
+            for (final Review review : Review.DAO.getReviewsForAlbum(connection, albumCode)) {
+                reviewStrings.add("Utente: " + review.getUsername() + " - Voto: " + review.getRating() + " - Commento: " + review.getComment());
+            }
+            return reviewStrings;
         }
 
         /**

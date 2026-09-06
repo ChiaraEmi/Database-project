@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import soundwave.data.Album;
+import soundwave.data.Album.DAO.AlbumWithSongs;
 import soundwave.data.Artist;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
@@ -75,8 +77,10 @@ public final class MockedModel implements Model {
     }
 
     @Override
-    public void insertPromotion( final String  code, final String name, final String description, final LocalDate startDate, final LocalDate endDate, final String discountType, 
-                                 final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
+    public void insertPromotion( final String  code, final String name, final String description, 
+                                final LocalDate startDate, final LocalDate endDate, final String discountType, 
+                                final double discountValue, final Integer requiredMonths, 
+                                final List<Integer> planCodes) {
         System.out.println("[MOCK] Promotion inserted: " + name);
     }
 
@@ -315,4 +319,68 @@ public final class MockedModel implements Model {
         return "Pop";
     }
 
+    public void removeLike(String username, int contentCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removeLike'");
+    }
+
+    @Override
+    public List<String> getLikedSongs(String username) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLikedSongs'");
+    }
+
+    @Override
+    public void addLike(String username, int contentCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addLike'");
+    }
+
+    @Override
+    public List<String> getSongsByGenre(String genre) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSongsByGenre'");
+    }
+
+    @Override
+    public List<Artist> getArtistsByPartialName(String query) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getArtistsByPartialName'");
+    }
+
+    @Override
+    public Artist getArtistByCode(int artistCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getArtistByCode'");
+    }
+
+    @Override
+    public List<Album> getAlbumsByPartialTitle(String query) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAlbumsByPartialTitle'");
+    }
+
+    @Override
+    public AlbumWithSongs getAlbumWithSongs(int albumCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAlbumWithSongs'");
+    }
+
+    @Override
+    public List<String> getAlbumReviews(int albumCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAlbumReviews'");
+    }
+
+    @Override
+    public void insertOrUpdateReview(String username, int albumCode, int rating, String comment) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'insertOrUpdateReview'");
+    }
+
+    @Override
+    public void followArtist(String string, int artistCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'followArtist'");
+    }
 }

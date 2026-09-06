@@ -79,7 +79,7 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtEpisodeNumber = new JTextField(FIELD_COLUMNS);
     private final JButton btnSaveEpisode = new JButton("Salva Episodio");
 
-    // --- Campi di testo per Inserimento Promozione (OP 6) - Importati dal 1° blocco ---
+    // --- Campi di testo per Inserimento Promozione (OP 6) ---
     private final JTextField txtPromoCode = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPromoName = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPromoDescription = new JTextField(FIELD_COLUMNS);
@@ -90,6 +90,7 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtRequiredMonths = new JTextField(FIELD_COLUMNS);
     private final JTextField txtPromoPlanCodes = new JTextField(FIELD_COLUMNS);
     private final JButton btnSavePromotion = new JButton("Salva Promozione");
+
 
     // --- Area per Gestione Utenti (Sola Lettura) ---
     private final JButton btnFetchUsers = new JButton("Carica Utenti");
@@ -358,6 +359,7 @@ public final class AdminPanel extends JPanel {
         gbc.gridy = row++;
         panel.add(new JLabel("Tipo Sconto:"), gbc);
         gbc.gridx = 1;
+        
         panel.add(this.comboDiscountType, gbc);
 
         addFormField(panel, gbc, row++, "Valore Sconto:", this.txtDiscountValue);
@@ -521,13 +523,9 @@ public final class AdminPanel extends JPanel {
     }
 
     public String getEpisodeTitle() { return this.txtEpisodeTitle.getText(); }
-    public String getEpisodeDuration() { return this.txtEpisodeDuration.getText(); }
-    public String getEpisodeDescription() { return this.txtEpisodeDescription.getText(); }
-    public String getEpisodeNumber() { return this.txtEpisodeNumber.getText(); }
 
     // --- Getter Promozione aggiornati al 1° blocco ---
     public String getPromoCode() { return this.txtPromoCode.getText(); }
-    public String getPromoName() { return this.txtPromoName.getText(); }
     public String getPromoDescription() { return this.txtPromoDescription.getText(); }
     public String getPromoStartDate() { return this.txtPromoStartDate.getText(); }
     public String getPromoEndDate() { return this.txtPromoEndDate.getText(); }
@@ -536,10 +534,58 @@ public final class AdminPanel extends JPanel {
     public String getRequiredMonths() { return this.txtRequiredMonths.getText(); }
     public String getPromoPlanCodes() { return this.txtPromoPlanCodes.getText(); }
 
-    public Integer getStatsYear() {
-        return (Integer) this.comboStatsYear.getSelectedItem();
+
+    /**
+     * Gets the episode duration.
+     * 
+     * @return the episode duration.
+     */
+    public String getEpisodeDuration() {
+        return this.txtEpisodeDuration.getText();
     }
 
+    /**
+     * Gets the episode description.
+     * 
+     * @return the episode description.
+     */
+    public String getEpisodeDescription() {
+        return this.txtEpisodeDescription.getText();
+    }
+
+    /**
+     * Gets the episode number.
+     * 
+     * @return the episode number.
+     */
+    public String getEpisodeNumber() {
+        return this.txtEpisodeNumber.getText();
+    }
+
+    /**
+     * Gets the promotion name.
+     * 
+     * @return the promotion name.
+     */
+    public String getPromoName() {
+        return this.txtPromoName.getText();
+    }
+
+    /**
+     * Gets the statistics year from the dropdown menu.
+     * 
+     * @return the statistics year as a String.
+     */
+    public String getStatsYear() {
+        final Integer selectedYear = (Integer) this.comboStatsYear.getSelectedItem();
+        return selectedYear != null ? selectedYear.toString() : "";
+    }
+
+    /**
+     * Sets the available artists for albums in the dropdown menu.
+     * 
+     * @param artists the list of artist objects eligible for albums.
+     */
     public void setAlbumArtists(final List<Artist> artists) {
         this.comboAlbumArtist.removeAllItems();
         for (final Artist artist : artists) {
@@ -568,6 +614,7 @@ public final class AdminPanel extends JPanel {
     public void setYearlyStatsOutputText(final String text) {
         this.txtYearlyStatsOutput.setText(text);
     }
+    
 
     public void setUsersTableData(final List<Object[]> usersData) {
         this.usersTableModel.setRowCount(0);
@@ -623,10 +670,9 @@ public final class AdminPanel extends JPanel {
             // Episode Form
             this.txtEpisodeTitle, 
             this.txtEpisodeDuration, this.txtEpisodeDescription, this.txtEpisodeNumber,
-            // Promotion Form (Aggiornato)
-            this.txtPromoCode, this.txtPromoName, this.txtPromoDescription, 
-            this.txtPromoStartDate, this.txtPromoEndDate, this.txtDiscountValue, 
-            this.txtRequiredMonths, this.txtPromoPlanCodes
+            // Promotion Form
+            this.txtPromoName, this.txtPromoDescription, this.txtPromoStartDate, txtPromoEndDate, this.txtDiscountValue,
+            this.txtRequiredMonths, this.txtPromoPlanCodes,
         };
 
         for (final JTextComponent component : textComponents) {

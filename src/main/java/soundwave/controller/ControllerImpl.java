@@ -163,7 +163,7 @@ public final class ControllerImpl implements Controller {
     // ==========================================
     // AUTENTICAZIONE E GESTIONE ARTISTI/CONTENUTI
     // ==========================================
-
+    
     @Override
     public boolean userLoggedIn(final String username) {
         if (username == null || username.isBlank()) {

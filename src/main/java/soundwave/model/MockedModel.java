@@ -12,6 +12,7 @@ import soundwave.data.Artist;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
+import soundwave.data.Plan;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
@@ -71,6 +72,12 @@ public final class MockedModel implements Model {
             }
         }
         return null;
+    }
+
+    @Override
+    public void insertPromotion( final String  code, final String name, final String description, final LocalDate startDate, final LocalDate endDate, final String discountType, 
+                                 final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
+        System.out.println("[MOCK] Promotion inserted: " + name);
     }
 
     @Override
@@ -226,4 +233,48 @@ public final class MockedModel implements Model {
         // Simulazione in memoria della rimozione del like
         return true;
     }
+    public List<Plan> getSubscriptioPlans() {
+        return List.of(
+            new Plan(1, "Mensile Standard", 1, 9.99),
+            new Plan(2, "Mensile Premium", 1, 14.99),
+            new Plan(3, "Annuale Standard", 12, 89.99),
+            new Plan(4, "Annuale Premium", 12, 129.99)
+        );
+    }
+
+    @Override
+    public int activateSubscription(final String username, final int planCode,final String paymentMethod, 
+                                    final String promoCode, final String inviteCode, final boolean autoRenew) {
+        System.out.println("[MOCK] Sottoscrizione attivata per: " + username);
+        System.out.println("[MOCK] Piano: " + planCode);
+        System.out.println("[MOCK] Metodo: " + paymentMethod);
+        return 1;
+    }
+
+    @Override
+    public boolean verifyInviteCode(final String inviteCode) {
+        return inviteCode.startsWith("INV_") || inviteCode.startsWith("SW-");
+    }
+
+    @Override
+    public Object[] verifyPromotionCode(final String promoCode, final int planCode) {
+        List<String> validCodes = List.of("PROMO20", "WELCOME", "BLACKFRI", "STUDENT");
+    
+        if (promoCode != null && validCodes.contains(promoCode.toUpperCase())) {
+            return new Object[]{true, 20.0, "Percentuale", 89.99};
+        }
+        return new Object[]{false, 0.0, null, 0.0};
+    }
+
+    @Override
+    public List<Object[]> getSubscriptionData(final String username) {
+        List<String> trans1 = List.of("2026-01-01 10:00:00 | €71.99 | Completata");
+        List<String> trans2 = List.of("2026-02-01 12:15:00 | €4.99 | Completata");
+        
+        return List.of(
+            new Object[]{1, "Annuale Premium", "2026-01-01", "2027-01-01", "Attiva", true, "-", "INV_MARIO", trans1},
+            new Object[]{2, "Mensile Standard", "2026-02-01", "2026-03-01", "Scaduta", false, "PROMO20", "-", trans2}
+        );
+    }
+
 }

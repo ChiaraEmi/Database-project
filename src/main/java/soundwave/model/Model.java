@@ -8,6 +8,7 @@ import soundwave.data.Artist;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
+import soundwave.data.Plan;
 import soundwave.data.SongInput;
 import soundwave.data.User;
 
@@ -33,6 +34,22 @@ public interface Model {
      * @return the User object if found, or null otherwise.
      */
     User findUser(String username);
+
+    /**
+     * Insert a new promotion into the database (OP 6)
+     * @param name
+     * @param description
+     * @param startDate
+     * @param endDate
+     * @param discountType
+     * @param discountValue
+     * @param requiredMonths
+     * @param planCodes
+     */
+    void insertPromotion( String code, String name, String description, LocalDate startDate, LocalDate endDate, String discountType, 
+                                    double discountValue, Integer requiredMonths, List<Integer> planCodes);
+
+    
 
     /**
      * Inserts a new artist into the database.
@@ -230,4 +247,33 @@ public interface Model {
      * @return a list of strings representing the top albums
      */
     List<String> getAlbumsAboveGlobalAverage();
+
+
+    /**
+     * Recupera tutti i piani di abbonamento disponibili.
+     *
+     * @return lista di piani
+     */
+    List<Plan> getSubscriptioPlans();
+
+    /**
+     * Activate subscription
+     * @param username
+     * @param plancode
+     * @param paymentMethod
+     * @param promoCode
+     * @param inviteCode
+     * @param autoRenenw
+     * @return code subscription created
+     */
+    int activateSubscription(String username, int plancode, String paymentMethod, String promoCode, String inviteCode, boolean autoRenenw);
+
+    boolean verifyInviteCode(String inviteCode);
+    Object[] verifyPromotionCode(String promoCode, int planCode);
+    /**
+     * Retrieve subscription data in a structured format
+     * @param username
+     * @return [subCode, planType, startDate, endDate, status, autoRenew, promoCode, inviteCode, transactionsList]
+     */
+    List<Object[]> getSubscriptionData(String username);
 }

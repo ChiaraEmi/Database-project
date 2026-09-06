@@ -1,5 +1,6 @@
 package soundwave.data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.sql.Connection;
@@ -120,5 +121,31 @@ public final class Plan {
                 throw new DAOException(e);
             }
         }
+
+        public static List<Plan> listAll(final Connection connection) {
+            Objects.requireNonNull(connection, "Connection cannot be null");
+            final List<Plan> plans = new ArrayList<>();
+            final String query =  """
+                                    SELECT CodiceAbbonamento, TipoAbbonamento, Durata, Costo
+                                    FROM Abbonamenti
+                                    ORDER BY Durata, Costo
+                                  """;
+            
+            try (var stmt = connection.createStatement();
+                 var rs = stmt.executeQuery(query)) {
+                while (rs.next()) {
+                    plans.add(new Plan(
+                        rs.getInt("CodiceAbbonamento"),
+                        rs.getString("TipoAbbonamento"),
+                        rs.getInt("Durata"),
+                        rs.getDouble("Costo")
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return plans;
+        }
+
     }
 }

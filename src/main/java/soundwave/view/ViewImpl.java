@@ -15,6 +15,7 @@ import soundwave.controller.Controller;
 import soundwave.data.Artist;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
+import soundwave.data.Plan;
 import soundwave.data.User;
 
 /**
@@ -137,6 +138,7 @@ public final class ViewImpl extends JFrame implements View {
             }
         });
 
+        // --- Inserimento Artista (OP 7) ---
         this.adminPanel.addSaveArtistListener(e -> {
             if (this.controller != null) {
                 final String stageName = this.adminPanel.getArtistStageName();
@@ -318,6 +320,8 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.adminRequestedYearlyStats(year);
             }
         });
+      
+        initUserPanelListeners();
     }
 
     @Override
@@ -375,6 +379,15 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
+    public void showActivateSubsriptionDialog(final String username, final List<Plan> plans) {
+        this.userPanel.showActivateSubscriptionDialog(username, plans, data -> {
+            if (this.controller != null) {
+                this.controller.userActivateSubscription(username, data);
+            }
+        });
+    }
+
+    @Override
     public void setAlbumArtists(final List<Artist> artists) {
         this.adminPanel.setAlbumArtists(artists);
     }
@@ -399,6 +412,17 @@ public final class ViewImpl extends JFrame implements View {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    @Override 
+    public void showSuccessAndCloseDialog(final String message) {
+        JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
+        this.userPanel.closeActivateSubscriptionDialog();
+    }
+
+    /**
+     * Gets the role selection panel.
+     *
+     * @return the role selection panel.
+     */
     @SuppressFBWarnings(
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
@@ -426,6 +450,7 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     private void initUserPanelListeners() {
+        this.userPanel.setController(this.controller);
         this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
 
         this.userPanel.addCreatePlaylistListener(e -> {
@@ -510,5 +535,20 @@ public final class ViewImpl extends JFrame implements View {
                 }
             }
         });
+    
+        this.userPanel.addActivateSubscriptionListener(e -> {
+            if (this.controller !=  null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                this.controller.userRequestedSubscriptionPlans(currentUsername);
+            }
+        });
+
+        this.userPanel.addViewSubscriptionStatusListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                this.userPanel.showSubscriptionStatusDialog(currentUsername);
+            }
+        });
+    
     }
 }

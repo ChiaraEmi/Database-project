@@ -247,9 +247,9 @@ public final class Queries {
     // --- OP 6: INSERIMENTO DI UNA NUOVA CAMPAGNA PROMOZIONALE ---
     public static final String INSERT_PROMOTIONAL_CAMPAIGN = 
         """
-        INSERT INTO Promozioni (Nome, Descrizione, DataInizioPromo, DataFinePromo, TipoSconto, 
-        ValoreSconto, MesiRichiesti)
-        VALUES ( ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Promozioni (CodicePromozione, Nome, Descrizione, DataInizioPromo, DataFinePromo, 
+        TipoSconto, ValoreSconto, MesiRichiesti)
+        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
     public static final String INSERT_PROMOTIONAL_VALIDITY = 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
+import soundwave.data.Plan;
 import soundwave.data.Podcast;
 import soundwave.data.User;
 
@@ -67,6 +68,14 @@ public interface View {
     void showUsers(List<User> users);
 
     /**
+     * Show the dialog for activate subscription.
+     * 
+     * @param username the username of user.
+     * @param plans the list of plans disponible.
+     */
+    void showActivateSubsriptionDialog(String username, List<Plan> plans);
+
+    /**
      * Shows the global albums above average in the admin panel.
      * 
      * @param statsText the text to display.
@@ -93,6 +102,13 @@ public interface View {
      * @param message the esuccess message to display.
      */
     void showSuccess(String message);
+
+    /**
+     * Displays a success message dialog to the user.
+     * 
+     * @param message the esuccess message to display.
+     */
+    void showSuccessAndCloseDialog(String message);
 
     /**
      * Gets the user panel.

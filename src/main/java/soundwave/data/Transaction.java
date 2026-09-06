@@ -20,14 +20,16 @@ public final class Transaction {
 
     /**
      * Creates a new Transaction instance.
-     * @param transactionCode
-     * @param subscriptionCode
-     * @param date
-     * @param amount
-     * @param paymentMethod
-     * @param status
+     * 
+     * @param transactionCode  the unique code identifying the transaction.
+     * @param subscriptionCode the code of the associated subscription.
+     * @param date             the date and time when the transaction occurred.
+     * @param amount           the monetary amount of the transaction.
+     * @param paymentMethod    the method used for the payment.
+     * @param status           the current status of the transaction.
      */
-    public Transaction(final int transactionCode, final int subscriptionCode, final LocalDateTime date, final double amount, final String paymentMethod, final String status) {
+    public Transaction(final int transactionCode, final int subscriptionCode, final LocalDateTime date, 
+                        final double amount, final String paymentMethod, final String status) {
         this.transactionCode = Objects.requireNonNull(transactionCode, "Transaction code cannot be null");
         this.subscriptionCode = Objects.requireNonNull(subscriptionCode, "Subscription code cannot be null");
         this.date = Objects.requireNonNull(date, "Date cannot be null");
@@ -38,6 +40,7 @@ public final class Transaction {
 
     /**
      * Gets the unique code of the transaction.
+     * 
      * @return the transaction code.
      */
     public int getTransactionCode() {
@@ -46,6 +49,7 @@ public final class Transaction {
 
     /**
      * Gets the code of the associated subscription.
+     * 
      * @return the subscription code.
      */
     public int getSubscriptionCode() {
@@ -54,6 +58,7 @@ public final class Transaction {
 
     /**
      * Gets the date and time of the transaction.
+     * 
      * @return the transaction date and time.
      */
     public LocalDateTime getDate() {
@@ -62,6 +67,7 @@ public final class Transaction {
 
     /**
      * Gets the amount of the transaction.
+     * 
      * @return the transaction amount.
      */
     public double getAmount() {
@@ -70,6 +76,7 @@ public final class Transaction {
 
     /**
      * Gets the payment method used for the transaction.
+     * 
      * @return the payment method.
      */
     public String getPaymentMethod() {
@@ -78,6 +85,7 @@ public final class Transaction {
 
     /**
      * Gets the status of the transaction.
+     * 
      * @return the transaction status.
      */
     public String getStatus() {
@@ -88,7 +96,8 @@ public final class Transaction {
     public boolean equals(final Object other) {
         if (this == other) {
             return true;
-        } else if (other == null || !(other instanceof Transaction)) {
+        }
+        if (!(other instanceof Transaction)) {
             return false;
         }
         final var t = (Transaction) other;
@@ -120,29 +129,38 @@ public final class Transaction {
         );
     }
 
+    /**
+     * A static inner class for database access operations related to Transaction.
+     */
     public static final class DAO {
-        private DAO() {}
+        private static final String FAILED_INSERT_MSG = "Failed to insert transaction";
+
+        private DAO() { }
 
         /**
-         * OP 2.1
+         * OP 2.1.
          * Inserts a new standard transaction into the database.
          *
          * @param connection the database connection.
          * @param subscriptionCode the code of the associated subscription.
          * @param paymentMethod the payment method used for the transaction.
          * @param subscriptionPlanCode the code of the subscription plan.
+         * 
          * @return the generated transaction code.
          */
-        public static int insertStandard(final Connection connection, final int subscriptionCode, final String paymentMethod, final int subscriptionPlanCode) {
+        public static int insertStandard(final Connection connection, final int subscriptionCode, 
+                                        final String paymentMethod, final int subscriptionPlanCode) {
             try (
-                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_STANDARD, Statement.RETURN_GENERATED_KEYS, subscriptionCode, paymentMethod, subscriptionPlanCode)
+                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_STANDARD, 
+                                                        Statement.RETURN_GENERATED_KEYS, subscriptionCode, 
+                                                        paymentMethod, subscriptionPlanCode)
             ) {
                 statement.executeUpdate();
                 try (var resultSet = statement.getGeneratedKeys()) {
                     if (resultSet.next()) {
                         return resultSet.getInt(1);
                     } else {
-                        throw new DAOException("Failed to insert transaction");
+                        throw new DAOException(FAILED_INSERT_MSG);
                     }
                 }
             } catch (final SQLException e) {
@@ -151,25 +169,29 @@ public final class Transaction {
         }
 
         /**
-         * OP 2.2
+         * OP 2.2.
          * Inserts a new promotional transaction into the database.
          *
          * @param connection the database connection.
          * @param subscriptionCode the code of the associated subscription.
          * @param amount the amount of the transaction.
          * @param paymentMethod the payment method used for the transaction.
+         * 
          * @return the generated transaction code.
          */
-        public static int insertWithPromotion(final Connection connection, final int subscriptionCode, final double amount, final String paymentMethod) {
+        public static int insertWithPromotion(final Connection connection, final int subscriptionCode, 
+                                             final double amount, final String paymentMethod) {
             try (
-                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_PROMOTIONAL, Statement.RETURN_GENERATED_KEYS, subscriptionCode, amount, paymentMethod)
+                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_PROMOTIONAL, 
+                                                         Statement.RETURN_GENERATED_KEYS, subscriptionCode, 
+                                                         amount, paymentMethod)
             ) {
                 statement.executeUpdate();
                 try (var resultSet = statement.getGeneratedKeys()) {
                     if (resultSet.next()) {
                         return resultSet.getInt(1);
                     } else {
-                        throw new DAOException("Failed to insert transaction");
+                        throw new DAOException(FAILED_INSERT_MSG);
                     }
                 }
             } catch (final SQLException e) {
@@ -178,25 +200,29 @@ public final class Transaction {
         }
 
         /**
-         * OP 2.3
+         * OP 2.3.
          * Inserts a new transaction with an invite into the database.
          *
          * @param connection the database connection.
          * @param subscriptionCode the code of the associated subscription.
          * @param paymentMethod the payment method used for the transaction.
          * @param subscriptionPlanCode the code of the subscription plan.
+         * 
          * @return the generated transaction code.
          */
-        public static int insertWithInvite(final Connection connection, final int subscriptionCode, final String paymentMethod, final int subscriptionPlanCode) {
+        public static int insertWithInvite(final Connection connection, final int subscriptionCode, 
+                                            final String paymentMethod, final int subscriptionPlanCode) {
             try (
-                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_INVITE, Statement.RETURN_GENERATED_KEYS, subscriptionCode, paymentMethod, subscriptionPlanCode)
+                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_INVITE, 
+                                                        Statement.RETURN_GENERATED_KEYS, subscriptionCode, 
+                                                        paymentMethod, subscriptionPlanCode)
             ) {
                 statement.executeUpdate();
                 try (var resultSet = statement.getGeneratedKeys()) {
                     if (resultSet.next()) {
                         return resultSet.getInt(1);
                     } else {
-                        throw new DAOException("Failed to insert transaction");
+                        throw new DAOException(FAILED_INSERT_MSG);
                     }
                 }
             } catch (final SQLException e) {
@@ -205,25 +231,29 @@ public final class Transaction {
         }
 
         /**
-         * OP 3
+         * OP 3.
          * Inserts a new renewal transaction into the database.
-         * @param connection
-         * @param subscriptionCode
-         * @param paymentMethod
-         * @param status
-         * @param subscriptionPlanCode
-         * @return
+         * 
+         * @param connection       the active database connection.
+         * @param subscriptionCode the code of the subscription being renewed.
+         * @param paymentMethod    the payment method used for the transaction.
+         * @param status           the status of the transaction.
+         * 
+         * @return the generated unique ID (primary key) of the new renewal transaction.
          */
-        public static int insertRenewal(final Connection connection, final int subscriptionCode, final String paymentMethod, final String status) {
+        public static int insertRenewal(final Connection connection, final int subscriptionCode, 
+                                        final String paymentMethod, final String status) {
             try (
-                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_RENEWAL_TRANSACTION, Statement.RETURN_GENERATED_KEYS, subscriptionCode, paymentMethod, status)
+                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_RENEWAL_TRANSACTION, 
+                                                        Statement.RETURN_GENERATED_KEYS, subscriptionCode, 
+                                                        paymentMethod, status)
             ) {
                 statement.executeUpdate();
                 try (var resultSet = statement.getGeneratedKeys()) {
                     if (resultSet.next()) {
                         return resultSet.getInt(1);
                     } else {
-                        throw new DAOException("Failed to insert transaction");
+                        throw new DAOException(FAILED_INSERT_MSG);
                     }
                 }
             } catch (final SQLException e) {
@@ -241,14 +271,15 @@ public final class Transaction {
          */
         public static int insertBonusCredit(final Connection connection, final int subscriptionCode) {
             try (
-                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_BONUS_CREDIT, Statement.RETURN_GENERATED_KEYS, subscriptionCode)
+                var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_BONUS_CREDIT, 
+                                                            Statement.RETURN_GENERATED_KEYS, subscriptionCode)
             ) {
                 statement.executeUpdate();
                 try (var resultSet = statement.getGeneratedKeys()) {
                     if (resultSet.next()) {
                         return resultSet.getInt(1);
                     } else {
-                        throw new DAOException("Failed to insert transaction");
+                        throw new DAOException(FAILED_INSERT_MSG);
                     }
                 }
             } catch (final SQLException e) {
@@ -256,5 +287,4 @@ public final class Transaction {
             }
         }
     }
-
 }

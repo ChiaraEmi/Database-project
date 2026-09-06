@@ -1,5 +1,36 @@
 USE soundwave;
 
+-- Disattiva i controlli delle chiavi esterne per evitare errori di vincolo
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Svuota le tabelle partendo da quelle dipendenti (figlie)
+TRUNCATE TABLE EventiAscolto;
+TRUNCATE TABLE Transazioni;
+TRUNCATE TABLE Sottoscrizioni;
+TRUNCATE TABLE ValiditaPromozioni;
+TRUNCATE TABLE CodiciInvito;
+TRUNCATE TABLE Follow;
+TRUNCATE TABLE LikeBrani;
+TRUNCATE TABLE Recensioni;
+TRUNCATE TABLE Inclusioni;
+TRUNCATE TABLE Appartenenze;
+TRUNCATE TABLE Cantare;
+TRUNCATE TABLE Collaborazioni;
+TRUNCATE TABLE Playlist;
+TRUNCATE TABLE Brani;
+TRUNCATE TABLE Album;
+TRUNCATE TABLE Episodi;
+TRUNCATE TABLE Podcast;
+TRUNCATE TABLE Contenuti;
+TRUNCATE TABLE Promozioni;
+TRUNCATE TABLE Abbonamenti;
+TRUNCATE TABLE Generi;
+TRUNCATE TABLE Artisti;
+TRUNCATE TABLE Utenti;
+
+-- Riattiva i controlli delle chiavi esterne
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- 1. UTENTI
 INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
 ('mario88', 'Mario', 'Rossi', 'mario.rossi@email.com', 'hash_pass1', '1998-05-12', 'Italia', 10),

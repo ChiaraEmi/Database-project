@@ -44,8 +44,10 @@ public final class Queries {
 
     public static final String INSERT_SUBSCRIPTION_STANDARD = 
         """
-        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
-        SELECT ?, A.CodiceAbbonamento, NULL, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attiva', ?
+        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, 
+        DataInizio, DataFine, Stato, RinnovoAutomatico) 
+        SELECT ?, A.CodiceAbbonamento, NULL, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 
+                'Attiva', ?
         FROM Abbonamenti A
         WHERE A.CodiceAbbonamento= ?;
         """;
@@ -57,13 +59,13 @@ public final class Queries {
         FROM Abbonamenti A
         WHERE A.CodiceAbbonamento= ?;
         """;
-    
+
     // --- 2.2: ATTIVAZIONE DI UNA SOTTOSCRIZIONE CON CODICE PROMOZIONALE ---
     public static final String CHECK_PROMOTION_VALIDITY = 
         """
         SELECT P.CodicePromozione, P.TipoSconto, P.ValoreSconto, P.MesiRichiesti, A.Costo, A.Durata
-        FROM Promozioni P 
-        JOIN ValiditaPromozioni V ON V.CodicePromozione = P.CodicePromozione  
+        FROM Promozioni P
+        JOIN ValiditaPromozioni V ON V.CodicePromozione = P.CodicePromozione
         JOIN Abbonamenti A ON A.CodiceAbbonamento = V.CodiceAbbonamento
         WHERE P.CodicePromozione=? 
         AND A.CodiceAbbonamento=? 
@@ -73,8 +75,10 @@ public final class Queries {
 
     public static final String INSERT_SUBSCRIPTION_PROMOTIONAL = 
         """
-        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
-        SELECT ?, A.CodiceAbbonamento, P.CodicePromozione, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attivo', ?
+        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, 
+        DataInizio, DataFine, Stato, RinnovoAutomatico) 
+        SELECT ?, A.CodiceAbbonamento, P.CodicePromozione, NULL, CURRENT_DATE, 
+                CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attivo', ?
         FROM Abbonamenti A
         JOIN ValiditaPromozioni V ON  V.CodiceAbbonamento = A.CodiceAbbonamento 
         JOIN Promozioni P ON P.CodicePromozione = V.CodicePromozione
@@ -106,8 +110,10 @@ public final class Queries {
 
     public static final String INSERT_SUBSCRIPTION_INVITE = 
         """
-        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
-        SELECT ?, A.CodiceAbbonamento, NULL, CI.Codice, CURRENT_DATE, CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attivo', ?
+        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, 
+        DataFine, Stato, RinnovoAutomatico) 
+        SELECT ?, A.CodiceAbbonamento, NULL, CI.Codice, CURRENT_DATE, 
+                CURRENT_DATE + INTERVAL A.Durata MONTH, 'Attivo', ?
         FROM CodiciInvito CI JOIN Abbonamenti A 
         WHERE CI.Codice=? 
         AND A.CodiceAbbonamento=?;
@@ -129,7 +135,7 @@ public final class Queries {
         """;
 
     // --- OP 3: RINNOVO AUTOMATICO E ANNULAMENTO DELLA SOTTOSCRIZIONE ---
-    
+
     // ---  3.1: RINNOVO AUTOMATICO ---
     public static final String CHECK_SUBSCRIPTION_RENEWAL = 
         """
@@ -147,7 +153,7 @@ public final class Queries {
         ) MONTH
         WHERE CodiceSottoscrizione = ?;
         """;
-       
+
     public static final String INSERT_RENEWAL_TRANSACTION = 
         """
         INSERT INTO Transazioni (CodiceSottoscrizione, Importo, MetodoPagamento, Stato)
@@ -172,7 +178,6 @@ public final class Queries {
         WHERE CodiceSottoscrizione = ? AND DataFine < CURRENT_DATE
         """;
 
-
     // --- OP 4: RISCATTO CON CREDITI BONUS ---
     public static final String CHECK_BONUS_CREDIT = 
         """
@@ -180,7 +185,7 @@ public final class Queries {
         FROM Utenti
         WHERE Username= ? AND CreditoBonus >= 2
         """;
-    
+
     public static final String CHECK_MONTHLY_SUBSCRIPTION = 
         """
         SELECT CodiceAbbonamento, Durata
@@ -198,7 +203,8 @@ public final class Queries {
     // ---  4.1: RISCATTO PER NUOVA SOTTOSCRIZIONE ---
     public static final String INSERT_SUBSCRIPTION_BONUS_CREDIT = 
         """
-        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) 
+        INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, 
+                                    DataInizio, DataFine, Stato, RinnovoAutomatico) 
         VALUES (?, ?, NULL, NULL, CURRENT_DATE, CURRENT_DATE + INTERVAL 1 MONTH, 'Attiva', ?);
         """;
 
@@ -227,9 +233,10 @@ public final class Queries {
     // --- OP 5: VISUALIZZIONE SOTTOSCRIZIONI E TRANSAZIONI DI UN UTENTE ---
     public static final String SELECT_SUBSCRIPTIONS_WITH_TRANSACTIONS =
         """
-        SELECT S.CodiceSottoscrizione, A.TipoAbbonamento AS TipoAbbonamento, S.DataInizio, S.DataFine, S.Stato AS StatoSottoscrizione, 
-                S.CodicePromozione, S.CodiceInvito, S.RinnovoAutomatico, T.CodiceTransazione, T.Data AS DataTransazione, T.Importo, 
-                T.MetodoPagamento, T.Stato AS StatoTransazione
+        SELECT S.CodiceSottoscrizione, A.TipoAbbonamento AS TipoAbbonamento, S.DataInizio, S.DataFine, 
+                S.Stato AS StatoSottoscrizione, S.CodicePromozione, S.CodiceInvito, S.RinnovoAutomatico, 
+                T.CodiceTransazione, T.Data AS DataTransazione, T.Importo, T.MetodoPagamento, 
+                T.Stato AS StatoTransazione
         FROM Sottoscrizioni S
         JOIN Abbonamenti A ON  A.CodiceAbbonamento = S.CodiceAbbonamento 
         LEFT JOIN Transazioni T ON S.CodiceSottoscrizione = T.CodiceSottoscrizione
@@ -240,7 +247,8 @@ public final class Queries {
     // --- OP 6: INSERIMENTO DI UNA NUOVA CAMPAGNA PROMOZIONALE ---
     public static final String INSERT_PROMOTIONAL_CAMPAIGN = 
         """
-        INSERT INTO Promozioni (Nome, Descrizione, DataInizioPromo, DataFinePromo, TipoSconto, ValoreSconto, MesiRichiesti)
+        INSERT INTO Promozioni (Nome, Descrizione, DataInizioPromo, DataFinePromo, TipoSconto, 
+        ValoreSconto, MesiRichiesti)
         VALUES ( ?, ?, ?, ?, ?, ?, ?)
         """;
 
@@ -253,7 +261,8 @@ public final class Queries {
     // --- OP 7: INSERIMENTO ARTISTA ---
     public static final String INSERT_ARTIST = 
         """
-        INSERT INTO Artisti (NomeDArte, Nome, Cognome, DataNascita, PaeseProvenienza, Biografia, AnnoInizioAttivita, TipoArtista)
+        INSERT INTO Artisti (NomeDArte, Nome, Cognome, DataNascita, PaeseProvenienza, Biografia, 
+        AnnoInizioAttivita, TipoArtista)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """;
 

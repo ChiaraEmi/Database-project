@@ -50,7 +50,7 @@ public final class Promotion {
         this.beginDate = Objects.requireNonNull(beginDate, "Begin date cannot be null");
         this.endDate = Objects.requireNonNull(endDate, "End date cannot be null");
         this.discountType = Objects.requireNonNull(discountType, "Discount type cannot be null");
-        this.discountValue = Objects.requireNonNull(discountValue, "Discount value cannot be null");
+        this.discountValue = discountValue;
         this.requiredMonths = requiredMonths;
     }
 
@@ -133,18 +133,19 @@ public final class Promotion {
      */
     public boolean isActive() {
         final var currentDate = LocalDate.now();
-        return (currentDate.isEqual(beginDate) || currentDate.isAfter(beginDate)) &&
-               (currentDate.isEqual(endDate) || currentDate.isBefore(endDate));
+        return (currentDate.isEqual(beginDate) || currentDate.isAfter(beginDate)) 
+                && (currentDate.isEqual(endDate) || currentDate.isBefore(endDate));
     }
 
     @Override
     public boolean equals(final Object other) {
         if (other == this) {
             return true;
-        } else if (other == null || !(other instanceof Promotion)) {
+        } 
+        if (!(other instanceof Promotion)) {
             return false;
         } 
-        
+
         final var p = (Promotion) other;
         return p.promotioncode == this.promotioncode && Double.compare(p.discountValue, this.discountValue) == 0
                 && Objects.equals(p.name, this.name)
@@ -157,7 +158,8 @@ public final class Promotion {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.promotioncode, this.name, this.description, this.beginDate, this.endDate, this.discountType, this.discountValue, this.requiredMonths);
+        return Objects.hash(this.promotioncode, this.name, this.description, this.beginDate, 
+                            this.endDate, this.discountType, this.discountValue, this.requiredMonths);
     }
 
     @Override
@@ -182,7 +184,7 @@ public final class Promotion {
      */
     public static final class DAO {
 
-        private DAO() {}
+        private DAO() { }
 
         /**
          * Inserts a new promotion into the database and associates it with the specified subscription plans.
@@ -196,17 +198,25 @@ public final class Promotion {
          * @param discountValue         the value of the discount
          * @param requiredMonths        optional field for the month when the promotion was requested
          * @param subscriptionPlanCodes list of subscription plan codes to associate with the promotion
+         * 
          * @return the generated promotion code
          */
-        public static int insertPromotion(final Connection connection, final String name, final String description, final LocalDate beginDate, final LocalDate endDate, final String discountType, final double discountValue, final Integer requiredMonths, final List<Integer> subscriptionPlanCodes) {
+        public static int insertPromotion(final Connection connection, final String name, 
+                                          final String description, final LocalDate beginDate, 
+                                          final LocalDate endDate, final String discountType, 
+                                          final double discountValue, final Integer requiredMonths, 
+                                          final List<Integer> subscriptionPlanCodes) {
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
-            
-                //1. Insert the promotion and get the generated promotion code  
-                int promotionCode;
-                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN,Statement.RETURN_GENERATED_KEYS, name, description, Date.valueOf(beginDate), Date.valueOf(endDate), discountType, discountValue, requiredMonths)) {
+
+                //1. Insert the promotion and get the generated promotion code
+                final int promotionCode;
+                try (var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN,
+                                                            Statement.RETURN_GENERATED_KEYS, name, description, 
+                                                            Date.valueOf(beginDate), Date.valueOf(endDate), discountType, 
+                                                            discountValue, requiredMonths)) {
                     statement.executeUpdate();
 
                     try (var generatedKeys = statement.getGeneratedKeys()) {
@@ -219,9 +229,9 @@ public final class Promotion {
                 }
 
                 //2. Insert the promotion-plan associations
-                if(subscriptionPlanCodes != null && !subscriptionPlanCodes.isEmpty()) {
+                if (subscriptionPlanCodes != null && !subscriptionPlanCodes.isEmpty()) {
                     try (var statement = connection.prepareStatement(Queries.INSERT_PROMOTIONAL_VALIDITY)) {
-                        for (int planCode : subscriptionPlanCodes) {
+                        for (final int planCode : subscriptionPlanCodes) {
                             statement.setInt(1, promotionCode);
                             statement.setInt(2, planCode);
                             statement.addBatch();
@@ -242,10 +252,9 @@ public final class Promotion {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    Thread.currentThread().interrupt();
                 }
             }
         }
     }
 }
-

@@ -3,10 +3,10 @@ package soundwave.data;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.sql.Connection;
-
 
 /**
  * Represents an invite code entity within the Soundwave system.
@@ -19,9 +19,9 @@ public final class InviteCode {
     /**
      * Creates a new InviteCode instance.
      * 
-     * @param code           the unique invite code
-     * @param generationDate the date when the invite code was generated
-     * @param username       the username of the user who generated the invite code
+     * @param code           the unique invite code.
+     * @param generationDate the date when the invite code was generated.
+     * @param username       the username of the user who generated the invite code.
      */
     public InviteCode(final String code, final LocalDate generationDate, final String username) {
         this.code = Objects.requireNonNull(code, "Code cannot be null");
@@ -60,7 +60,8 @@ public final class InviteCode {
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
-        } else if (o == null || !(o instanceof InviteCode)) {
+        } 
+        if (!(o instanceof InviteCode)) {
             return false;
         } 
 
@@ -89,16 +90,18 @@ public final class InviteCode {
      * A static inner class for database access operations related to InviteCode.
      */
     public static final class DAO {
-        private DAO() {}
+        private DAO() { }
 
         /**
          * OP1
          * Generates a new invite code for the specified username and inserts it into the database.
          * 
-         * @param connection the database connection
-         * @param username   the username for which to generate the invite code
-         * @return the generated invite code
-         * @throws DAOException if a database access error occurs
+         * @param connection the database connection.
+         * @param username   the username for which to generate the invite code.
+         * 
+         * @return the generated invite code.
+         * 
+         * @throws DAOException if a database access error occurs.
          */
         public static String generate(final Connection connection, final String username) {
             final var code = generateCode(username);
@@ -115,9 +118,11 @@ public final class InviteCode {
         /**
          * OP 2.3
          * Finds an invite code in the database by its code value.
-         * @param connection
-         * @param code
-         * @return
+         * 
+         * @param connection the database connection.
+         * @param code the code value.
+         * 
+         * @return an Optional containing the InviteCode if found.
          */
         public static Optional<InviteCode> findByCode(final Connection connection, final String code) {
             try (
@@ -127,7 +132,10 @@ public final class InviteCode {
                 if (resultSet.next()) {
                     final var sqlDate = resultSet.getDate("DataGenerazione");
                     final var username = resultSet.getString("Username");
-                    return Optional.of(new InviteCode(code, sqlDate != null ? sqlDate.toLocalDate() : null, username));
+                    if (sqlDate == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(new InviteCode(code, sqlDate.toLocalDate(), username));
                 } 
             } catch (final SQLException e) {
                 throw new DAOException(e);
@@ -137,10 +145,13 @@ public final class InviteCode {
 
         /**
          * Checks if an invite code exists in the database.
-         * @param connection the database connection
-         * @param code the invite code to check
-         * @return true if the invite code exists, false otherwise
-         * @throws DAOException if a database access error occurs
+         * 
+         * @param connection the database connection.
+         * @param code the invite code to check.
+         * 
+         * @return true if the invite code exists, false otherwise.
+         * 
+         * @throws DAOException if a database access error occurs.
          */
         public static boolean exists(final Connection connection, final String code) {
             return findByCode(connection, code).isPresent();
@@ -149,9 +160,10 @@ public final class InviteCode {
         /**
          * Retrieves the username of the user who generated a specific invite code.
          * 
-         * @param connection the database connection
-         * @param code       the invite code to look up
-         * @return an Optional containing the username if found, or empty if not found
+         * @param connection the database connection.
+         * @param code       the invite code to look up.
+         * 
+         * @return an Optional containing the username if found, or empty if not found.
          */
         public static Optional<String> getOwnerUsername(final Connection connection, final String code) {
             return findByCode(connection, code).map(InviteCode::getUsername);
@@ -160,30 +172,28 @@ public final class InviteCode {
         /**
          * Validates if the provided invite code is associated with the specified username.
          * 
-         * @param connection      the database connection
-         * @param code            the invite code to validate
-         * @param currentUsername the username to check against the invite code's owner
-         * @return true if the invite code is valid for the given username, false otherwise
+         * @param connection      the database connection.
+         * @param code            the invite code to validate.
+         * @param currentUsername the username to check against the invite code's owner.
+         * 
+         * @return true if the invite code is valid for the given username, false otherwise.
          */
         public static boolean isValidForUse(final Connection connection, final String code, final String currentUsername) {
-            var inviteCode = findByCode(connection, code);
-            if (inviteCode.isEmpty()) {
-                return false;
-            }
-            return !inviteCode.get().getUsername().equals(currentUsername);
+            final var inviteCode = findByCode(connection, code);
+            return inviteCode.isPresent() && !inviteCode.get().getUsername().equals(currentUsername);
         }
 
         /**
          * Generates a unique invite code based on the username and current timestamp.
          * 
-         * @param username the username for which to generate the invite code
-         * @return a unique invite code
+         * @param username the username for which to generate the invite code.
+         * 
+         * @return a unique invite code.
          */
         private static String generateCode(final String username) {
             final var timestamp = System.currentTimeMillis();
             final var hash = Integer.toHexString((username + timestamp).hashCode());
-            return "SW" + hash.toUpperCase().substring(0, Math.min(8, hash.length()));
+            return "SW" + hash.toUpperCase(Locale.ROOT).substring(0, Math.min(8, hash.length()));
         }
     }
-
 }

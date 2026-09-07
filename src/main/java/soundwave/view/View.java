@@ -3,12 +3,12 @@ package soundwave.view;
 import java.util.List;
 
 import soundwave.controller.Controller;
-import soundwave.data.Artist;
+import soundwave.data.Album;
 import soundwave.data.Content;
+import soundwave.data.Artist;
 import soundwave.data.Plan;
 import soundwave.data.Podcast;
 import soundwave.data.User;
-import soundwave.data.Album;
 
 /**
  * Represents a view architectural component of the application.
@@ -28,6 +28,9 @@ public interface View {
     void start();
 
     /**
+     * Shows the specified panel by its card name.
+     *
+     * @param panelName the identifier of the panel to show
      * Opens and displays the user panel for the specified user.
      * 
      * @param username the username of the logged-in user.
@@ -46,7 +49,7 @@ public interface View {
      * 
      * @param authors the list of artist objects authorized as podcast authors.
      */
-    void setPodcastAuthors(List<Artist> authors);
+    void setPodcastAuthors(List<Artist> artists);
 
     /**
      * Sets the list of podcasts available in the admin panel.
@@ -70,77 +73,11 @@ public interface View {
     void showUsers(List<User> users);
 
     /**
-     * Show the dialog for activate subscription.
-     * 
-     * @param username the username of user.
-     * @param plans the list of plans disponible.
-     */
-    void showActivateSubsriptionDialog(String username, List<Plan> plans);
-
-    /**
-     * Displays the personal yearly listening statistics for a user.
+     * Displays the global statistics on the admin panel.
      *
-     * @param statsText the formatted string containing the personal statistics.
+     * @param statsText the formatted string containing global statistics
      */
-    void showPersonalStats(String statsText);
-
-    /**
-     * Shows the global albums above average in the admin panel.
-     * 
-     * @param statsText the text to display.
-     */
-    void showGlobalAlbumsStats(String statsText);
-
-    /**
-     * Shows the yearly statistics in the admin panel.
-     * 
-     * @param statsText the text to display.
-     */
-    void showYearlyStats(String statsText);
-
-    /**
-     * Displays an error message dialog to the user.
-     * 
-     * @param message the error message to display.
-     */
-    void showError(String message);
-
-    /**
-     * Displays a success message dialog to the user.
-     * 
-     * @param message the esuccess message to display.
-     */
-    void showSuccess(String message);
-
-    /**
-     * Displays a success message dialog to the user.
-     * 
-     * @param message the esuccess message to display.
-     */
-    void showSuccessAndCloseDialog(String message);
-
-    /**
-     * Show the dialog when the user uses credit bonus for renew or activate subscription
-     * 
-     * @param username the user
-     * @param plans the list of plans disponible
-     * @param bonusCredits the number of credit bonus of user
-     */
-    void showRedeemBonusDialog(String username, List<Plan> plans, int bonusCredits);
-    
-    /**
-     * Gets the user panel.
-     * 
-     * @return the UserPanel instance.
-     */
-    UserPanel getUserPanel();
-
-    /**
-     * Gets the admin panel.
-     * 
-     * @return the AdminPanel instance.
-     */
-    AdminPanel getAdminPanel();
+    void showGlobalStats(String statsText);
 
     /**
      * Displays the list of liked songs in the user's library view.
@@ -200,10 +137,91 @@ public interface View {
      */
     Object[] showReviewInputDialog();
 
+    /* --- Nuovi metodi per Sottoscrizioni e Statistiche (Chiara-view) --- */
+
+    /**
+     * Show the dialog for activate subscription.
+     * 
+     * @param username the username of user.
+     * @param plans the list of plans disponible.
+     */
+    void showActivateSubsriptionDialog(String username, List<Plan> plans);
+
+    /**
+     * Displays the personal yearly listening statistics for a user.
+     *
+     * @param statsText the formatted string containing the personal statistics.
+     */
+    void showPersonalStats(String statsText);
+
+    /**
+     * Shows the global albums above average in the admin panel.
+     * 
+     * @param statsText the text to display.
+     */
+    void showGlobalAlbumsStats(String statsText);
+
+    /**
+     * Shows the yearly statistics in the admin panel.
+     * 
+     * @param statsText the text to display.
+     */
+    void showYearlyStats(String statsText);
+
+    /**
+     * Displays an error message dialog to the user.
+     * 
+     * @param message the error message to display.
+     */
+    void showError(String message);
+
+    /**
+     * Displays a success message dialog to the user.
+     * 
+     * @param message the success message to display.
+     */
+    void showSuccess(String message);
+
+    /**
+     * Displays a success message dialog to the user and closes the dialog.
+     * 
+     * @param message the success message to display.
+     */
+    void showSuccessAndCloseDialog(String message);
+
+    /**
+     * Gets the user panel.
+     * 
+     * @return the UserPanel instance.
+     */
+    UserPanel getUserPanel();
+
+    /**
+     * Gets the admin panel.
+     * 
+     * @return the AdminPanel instance.
+     */
+    AdminPanel getAdminPanel();
+
+    void showContentSearchResults(List<Content> contents);
+
     /* 
      * Show the dialog for register new user
      */
     void showRegisterDialog();
 
-    void showContentSearchResults(List<Content> contents);
+    /* 
+     * refresh user data
+     */
+    void refreshUserData(String username);
+
+     /**
+     * Show the dialog when the user uses credit bonus for renew or activate subscription
+     * 
+     * @param username the user
+     * @param plans the list of plans disponible
+     * @param bonusCredits the number of credit bonus of user
+     */
+    void showRedeemBonusDialog(String username, List<Plan> plans, int bonusCredits);
+    
 }

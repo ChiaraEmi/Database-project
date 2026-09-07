@@ -442,4 +442,10 @@ public final class MockedModel implements Model {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'searchContents'");
     }
+
+    @Override
+    public void unfollowArtist(String loggedInUsername, int artistCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'unfollowArtist'");
+    }
 }

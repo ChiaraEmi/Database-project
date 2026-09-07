@@ -100,8 +100,9 @@ public final class Genre {
                 var resultSet = statement.executeQuery()) {
             
                 while (resultSet.next()) {
-                    songs.add("Brano: " + resultSet.getString("Titolo") + 
-                              " (Durata: " + resultSet.getInt("Durata") + "s)");
+                    final int songCode = resultSet.getInt("CodiceBrano"); 
+                    songs.add("[" + songCode + "] Brano: " + resultSet.getString("Titolo") + 
+                    " (Durata: " + resultSet.getInt("Durata") + "s)");
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);

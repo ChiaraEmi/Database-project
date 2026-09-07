@@ -154,7 +154,7 @@ public final class Album {
         private DAO() { }
 
         /**
-         * Inserts a new album and its associated songs into the database.
+         * Inserts a new album and its associated songs into the database within a transaction (OP 8).
          *
          * @param connection the database connection.
          * @param artistCode the artist code.
@@ -395,17 +395,17 @@ public final class Album {
             final List<String> albums = new ArrayList<>();
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING);
                  var resultSet = statement.executeQuery()) {
-
+                
                 while (resultSet.next()) {
-                    albums.add("Album: " + resultSet.getString("TitoloAlbum") 
-                                + " - Media Voti: " + resultSet.getDouble("MediaVoti"));
+                    albums.add("Album: " + resultSet.getString("TitoloAlbum") + 
+                               " - Media Voti: " + resultSet.getDouble("MediaVoti"));
                 }
-
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
-
             return albums;
         }
+
+        
     }
 }

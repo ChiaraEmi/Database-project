@@ -355,10 +355,17 @@ public final class ViewImpl extends JFrame implements View {
 
         // --- Rimuovi Like dalla Libreria (OP 14) ---
         this.userPanel.addToggleLikeListener(e -> {
-            if (this.controller != null) {
+           if (this.controller != null) {
                 final String selectedSong = this.userPanel.getSelectedLibrarySong();
-                int contentCode = parseContentCode(selectedSong);
-                this.controller.userClickedRemoveLike("user", contentCode);
+                System.out.println("DEBUG - Stringa selezionata: " + selectedSong);
+        
+                final int contentCode = parseContentCode(selectedSong);
+                System.out.println("DEBUG - ContentCode estratto: " + contentCode);
+        
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                System.out.println("DEBUG - Username: " + currentUsername);
+        
+                this.controller.userClickedRemoveLike(currentUsername, contentCode);
             }
         });
 
@@ -388,6 +395,17 @@ public final class ViewImpl extends JFrame implements View {
                     this.controller.userClickedFollowArtist(selectedArtist.getArtistCode());
                 }
             }
+        });
+
+        this.userPanel.addUnfollowArtistListener(e -> {
+            if (this.controller != null) {
+            final int artistCode = this.userPanel.getSelectedArtistCode();
+            if (artistCode != -1) {
+                this.controller.userClickedUnfollowArtist(artistCode);
+            } else {
+                this.showError("Seleziona un artista dalla lista degli artisti seguiti.");
+            }
+        }
         });
 
         // --- Filtra brani per genere (OP 20) ---
@@ -610,6 +628,7 @@ public final class ViewImpl extends JFrame implements View {
     public void showContentSearchResults(final List<Content> contents) {
         this.userPanel.setContentSearchResults(contents);
     }
+
 
     /**
      * Gets the role selection panel.
@@ -916,6 +935,15 @@ public final class ViewImpl extends JFrame implements View {
     private int parseContentCode(final String songString) {
         if (songString != null && !songString.isBlank()) {
             try {
+                // Se la stringa è nel formato "[id] Titolo", estrae il numero tra le parentesi
+                if (songString.contains("[") && songString.contains("]")) {
+                    final String idPart = songString.substring(
+                        songString.indexOf('[') + 1, 
+                        songString.indexOf(']')
+                    ).trim();
+                    return Integer.parseInt(idPart);
+                }
+                // Fallback per formati con trattino o due punti
                 final String idPart = songString.split("[-:]")[0].trim();
                 return Integer.parseInt(idPart);
             } catch (final Exception ex) {
@@ -923,5 +951,10 @@ public final class ViewImpl extends JFrame implements View {
             }
         }
         return 1;
+    }
+    @Override
+    public void showGlobalStats(String statsText) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'showGlobalStats'");
     }
 }

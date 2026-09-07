@@ -3,6 +3,7 @@ package soundwave.view;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -76,7 +77,7 @@ public final class UserPanel extends JPanel {
     private final JButton btnViewSubscriptionStatus = new JButton("Stato e Storico Transazioni");
 
     // --- Tab 2: Esplora Catalogo ---
-    private final JComboBox<String> comboGenre = new JComboBox<>(new String[]{"Rock", "Pop", "Jazz", "Classica", "Hip Hop"});
+    private final JComboBox<String> comboGenre = new JComboBox<>(new String[]{"Pop","Rock","Jazz","Classica","Indie","Hip-Hop","R&B","Elettronica","Rap"});
     private final JButton btnFilterByGenre = new JButton("Filtra Brani per Genere");
     private final javax.swing.DefaultListModel<String> exploreSongsModel = new javax.swing.DefaultListModel<>();
     private final javax.swing.JList<String> exploreSongsList = new javax.swing.JList<>(this.exploreSongsModel);
@@ -104,7 +105,7 @@ public final class UserPanel extends JPanel {
     private final JButton btnToggleRecensione = new JButton("Aggiungi / Modifica Recensione");
 
     // --- Tab 4: Libreria & Playlist ---
-    private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
+   private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
     private final DefaultListModel<String> likedTracksListModel = new DefaultListModel<>();
     private final JList<String> likedTracksList = new JList<>(this.likedTracksListModel);
     private final DefaultListModel<String> followedArtistsListModel = new DefaultListModel<>();
@@ -112,9 +113,8 @@ public final class UserPanel extends JPanel {
     private final JComboBox<String> comboVisibility = new JComboBox<>(new String[]{"Privata", "Pubblica"});
     private final JCheckBox chkCollaborative = new JCheckBox("Collaborativa");
     private final JButton btnCreatePlaylist = new JButton("Crea Nuova Playlist");
-    private final JButton btnToggleLike = new JButton("Aggiungi / Rimuovi Like");
-    private final javax.swing.DefaultListModel<String> librarySongsModel = new javax.swing.DefaultListModel<>();
-    private final javax.swing.JList<String> librarySongsList = new javax.swing.JList<>(this.librarySongsModel);
+    private final JButton btnToggleLike = new JButton("Rimuovi Like");
+    private final JButton btnUnfollowArtist = new JButton("Unfollow");
 
     // Campi per Aggiunta Brano in Playlist (Tendina 1)
     private final JComboBox<Playlist> comboUserPlaylists = new JComboBox<>();
@@ -324,51 +324,62 @@ public final class UserPanel extends JPanel {
      */
     private JPanel createLibraryTab() {
         final JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
+    panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
-        // Pannello di sinistra diviso tra Brani Preferiti e Artisti Seguiti
-        final JPanel leftContainer = new JPanel(new GridLayout(2, 1, 0, 10));
+    // Pannello di sinistra diviso tra Brani Preferiti e Artisti Seguiti
+    final JPanel leftContainer = new JPanel(new GridLayout(2, 1, 0, 10));
+    
+    // --- 1. Sezione Brani Preferiti con pulsante Rimuovi Like (btnToggleLike) ---
+    final JPanel leftPanel = new JPanel(new BorderLayout(0, 5));
+    leftPanel.setBorder(BorderFactory.createTitledBorder("I tuoi Brani Preferiti"));
+    this.likedTracksList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    leftPanel.add(new JScrollPane(this.likedTracksList), BorderLayout.CENTER);
+    
+    final JPanel likeButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    likeButtonPanel.add(this.btnToggleLike);
+    leftPanel.add(likeButtonPanel, BorderLayout.SOUTH);
+    
+    leftContainer.add(leftPanel);
 
-        final JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setBorder(BorderFactory.createTitledBorder("I tuoi Brani Preferiti"));
-        this.likedTracksList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        leftPanel.add(new JScrollPane(this.likedTracksList), BorderLayout.CENTER);
-        leftContainer.add(leftPanel);
+    // --- 2. Sezione Artisti Seguiti con il nuovo pulsante Togli Follow (btnUnfollowArtist) ---
+    final JPanel artistsPanel = new JPanel(new BorderLayout(0, 5));
+    artistsPanel.setBorder(BorderFactory.createTitledBorder("Artisti Seguiti"));
+    this.followedArtistsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    artistsPanel.add(new JScrollPane(this.followedArtistsList), BorderLayout.CENTER);
+    
+    final JPanel artistButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    artistButtonPanel.add(this.btnUnfollowArtist);
+    artistsPanel.add(artistButtonPanel, BorderLayout.SOUTH);
+    
+    leftContainer.add(artistsPanel);
 
-        final JPanel artistsPanel = new JPanel(new BorderLayout());
-        artistsPanel.setBorder(BorderFactory.createTitledBorder("Artisti Seguiti"));
-        this.followedArtistsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        artistsPanel.add(new JScrollPane(this.followedArtistsList), BorderLayout.CENTER);
-        leftContainer.add(artistsPanel);
+    final JScrollPane leftScrollPane = new JScrollPane(leftContainer);
+    leftScrollPane.setPreferredSize(new Dimension(PREFERRED_SCROLL_PANE_WIDTH, 0));
+    panel.add(leftScrollPane, BorderLayout.WEST);
 
-        final JScrollPane leftScrollPane = new JScrollPane(leftContainer);
-        leftScrollPane.setPreferredSize(new Dimension(PREFERRED_SCROLL_PANE_WIDTH, 0));
-        panel.add(leftScrollPane, BorderLayout.WEST);
+    // Pannello di destra con i controlli rimanenti (es. Gestione Playlist, Gestione Brani)
+    final JPanel rightControlsPanel = new JPanel(new GridBagLayout());
+    final GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+    gbc.anchor = GridBagConstraints.NORTHWEST;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
 
-        // Pannello di destra con i controlli esistenti
-        final JPanel rightControlsPanel = new JPanel(new GridBagLayout());
-        final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    rightControlsPanel.add(createPlaylistManagementSubPanel(), gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        rightControlsPanel.add(createPlaylistManagementSubPanel(), gbc);
+    gbc.gridy++;
+    rightControlsPanel.add(createTrackManagementSubPanel(), gbc);
 
-        gbc.gridy++;
-        rightControlsPanel.add(createTrackManagementSubPanel(), gbc);
+    gbc.gridy++;
+    gbc.weighty = 1.0; 
+    rightControlsPanel.add(new JPanel(), gbc);
 
-        gbc.gridy++;
-        gbc.weighty = 1.0;
-        rightControlsPanel.add(new JPanel(), gbc);
+    panel.add(rightControlsPanel, BorderLayout.CENTER);
 
-        panel.add(rightControlsPanel, BorderLayout.CENTER);
-
-        return panel;
+    return panel;
     }
-
     /**
      * Sub-panel for playlist creation and general actions.
      *
@@ -737,7 +748,21 @@ public final class UserPanel extends JPanel {
     }
 
     public String getSelectedLibrarySong() {
-        return this.librarySongsList.getSelectedValue();
+       return this.likedTracksList.getSelectedValue();
+
+    }
+    public int getSelectedArtistCode(){
+    final String selected = this.followedArtistsList.getSelectedValue();
+    if (selected != null && selected.contains("[")) {
+        final int start = selected.indexOf('[') + 1;
+        final int end = selected.indexOf(']');
+        try {
+            return Integer.parseInt(selected.substring(start, end));
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+    return -1;
     }
 
     public String getContentSearchQuery() {
@@ -775,6 +800,14 @@ public final class UserPanel extends JPanel {
         this.btnPlayContent.addActionListener(listener);
     }
 
+    public void addRemoveLikeListener(final ActionListener listener) {
+    this.btnToggleLike.addActionListener(listener);
+    }
+
+    public void addUnfollowArtistListener(final ActionListener listener) {
+    this.btnUnfollowArtist.addActionListener(listener);
+}
+
     /* --- Setter per popolare la vista --- */
 
     public void setExploreSongs(final java.util.List<String> songs) {
@@ -785,13 +818,13 @@ public final class UserPanel extends JPanel {
         this.btnAddLikeFromExplore.setEnabled(false);
     }
 
-    public void setLikedSongs(final java.util.List<String> songs) {
-        this.librarySongsModel.clear();
-        for (final String song : songs) {
-            this.librarySongsModel.addElement(song);
-        }
-        this.btnToggleLike.setEnabled(false);
+   public void setLikedSongs(final java.util.List<String> songs) {
+    this.likedTracksListModel.clear();
+    for (final String song : songs) {
+        this.likedTracksListModel.addElement(song);
     }
+    this.btnToggleLike.setEnabled(!songs.isEmpty());
+}
 
     public void setArtistSearchResults(final java.util.List<Artist> artists) {
         this.comboArtistResults.removeAllItems();

@@ -574,6 +574,11 @@ public final class DBModel implements Model {
         Follow.DAO.followArtist(this.connection, username, artistCode, java.time.LocalDate.now());
     }
 
+    @Override
+    public void unfollowArtist(final String username, final int artistCode) {
+        Follow.DAO.unfollowArtist(this.connection, username, artistCode, java.time.LocalDate.now());
+    }
+    
     @Override 
     public int getBonusCredits(final String username) {
         return User.DAO.getBonusCredit(this.connection, username);

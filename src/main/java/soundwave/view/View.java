@@ -3,12 +3,12 @@ package soundwave.view;
 import java.util.List;
 
 import soundwave.controller.Controller;
-import soundwave.data.Artist;
+import soundwave.data.Album;
 import soundwave.data.Content;
+import soundwave.data.Artist;
 import soundwave.data.Plan;
 import soundwave.data.Podcast;
 import soundwave.data.User;
-import soundwave.data.Album;
 
 /**
  * Represents a view architectural component of the application.
@@ -28,6 +28,9 @@ public interface View {
     void start();
 
     /**
+     * Shows the specified panel by its card name.
+     *
+     * @param panelName the identifier of the panel to show
      * Opens and displays the user panel for the specified user.
      *
      * @param username the username of the logged-in user.
@@ -46,7 +49,7 @@ public interface View {
      *
      * @param authors the list of artist objects authorized as podcast authors.
      */
-    void setPodcastAuthors(List<Artist> authors);
+    void setPodcastAuthors(List<Artist> artists);
 
     /**
      * Sets the list of podcasts available in the admin panel.
@@ -70,6 +73,9 @@ public interface View {
     void showUsers(List<User> users);
 
     /**
+     * Displays the global statistics on the admin panel.
+     *
+     * @param statsText the formatted string containing global statistics
      * Show the dialog for activate subscription.
      *
      * @param username the username of user.
@@ -200,10 +206,17 @@ public interface View {
      */
     Object[] showReviewInputDialog();
 
-    /* 
+    void showContentSearchResults(List<Content> contents);
+
+    /*
      * Show the dialog for register new user.
      */
     void showRegisterDialog();
 
-    void showContentSearchResults(List<Content> contents);
+    /*
+     * refresh user data
+     */
+    void refreshUserData(String username);
+
+    void showGlobalStats(String statsText);
 }

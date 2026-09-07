@@ -129,7 +129,10 @@ public final class Podcast {
          * @param name the name of the podcast.
          * @param description the description of the podcast.
          * @param category the category of the podcast.
+<<<<<<< HEAD
+=======
          * 
+>>>>>>> origin/feature/chiara-view
          * @return the auto-generated key of the inserted podcast.
          */
         public static int insert(final Connection connection, final int artistCode, final String name, 

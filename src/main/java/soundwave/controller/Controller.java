@@ -416,6 +416,13 @@ public interface Controller {
     void userClickedFollowArtist(int artistCode);
 
     /**
+     * Handles the request to unfollow a specific artist.
+     * 
+     * @param artistCode the code of the artist to unfollow.
+     */
+    void userClickedUnfollowArtist(int artistCode);
+
+    /**
      * Searches for albums matching a query string.
      *
      * @param query the search query text.

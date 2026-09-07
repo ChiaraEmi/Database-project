@@ -34,6 +34,7 @@ public final class Follow {
            try (var statement = DAOUtils.prepare(connection, Queries.INSERT_FOLLOW, username, artistCode, java.sql.Date.valueOf(startDate), null)) {
                 statement.executeUpdate();
             } catch (final SQLException e) {
+                e.printStackTrace();
                 throw new DAOException(e);
             }
         }

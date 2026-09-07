@@ -353,6 +353,11 @@ public interface Model {
      */
     List<String> getAlbumsAboveGlobalAverage();
 
+    /**
+     * 
+     * @param string
+     * @param artistCode
+     */
     void followArtist(String string, int artistCode);
 
     /**
@@ -487,6 +492,13 @@ public interface Model {
     void insertOrUpdateReview(String username, int albumCode, int rating, String comment);
 
     /**
+     * 
+     * @param loggedInUsername
+     * @param artistCode
+     */
+    void unfollowArtist(String loggedInUsername, int artistCode);
+    
+    /**
      * Retrieves the current bonus credit balance for a user.
      * 
      * @param username the username of the user
@@ -518,5 +530,7 @@ public interface Model {
      */
     String registerUser(String username, String name, String surname, String email, 
                         String password, LocalDate birthDate, String country);
+
+    
 
 }

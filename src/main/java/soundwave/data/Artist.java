@@ -12,6 +12,7 @@ import java.util.Objects;
  * Represents an Artist entity.
  */
 public final class Artist {
+
     private static final String NOME_ARTE_LITERAL = "NomeDArte";
 
     private final int artistCode;
@@ -38,8 +39,8 @@ public final class Artist {
      * @param artistType the type of artist.
      */
     public Artist(final int artistCode, final String stageName, final String name, final String surname, 
-                    final LocalDate birthDate, final String country, final String biography, 
-                    final int startYear, final String artistType) {
+                  final LocalDate birthDate, final String country, final String biography, 
+                  final int startYear, final String artistType) {
         this.artistCode = artistCode;
         this.stageName = stageName == null ? "" : stageName;
         this.name = name;
@@ -58,87 +59,41 @@ public final class Artist {
      * @param stageName the stage name.
      */
     public Artist(final int artistCode, final String stageName) {
-        this(artistCode, stageName, null, null, null, "", null,
-             0, "Autore Podcast");
+        this(artistCode, stageName, null, null, null, "", null, 0, "Autore Podcast");
     }
 
-    /**
-     * Gets the artist code.
-     *
-     * @return the artist code.
-     */
     public int getArtistCode() {
         return artistCode;
     }
 
-    /**
-     * Gets the stage name.
-     *
-     * @return the stage name.
-     */
     public String getStageName() {
         return stageName;
     }
 
-    /**
-     * Gets the real name.
-     *
-     * @return the name.
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Gets the surname.
-     *
-     * @return the surname.
-     */
     public String getSurname() {
         return surname;
     }
 
-    /**
-     * Gets the birth date.
-     *
-     * @return the birth date.
-     */
     public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    /**
-     * Gets the country of origin.
-     *
-     * @return the country.
-     */
     public String getCountry() {
         return country;
     }
 
-    /**
-     * Gets the biography.
-     *
-     * @return the biography.
-     */
     public String getBiography() {
         return biography;
     }
 
-    /**
-     * Gets the start year of activity.
-     *
-     * @return the start year.
-     */
     public int getStartYear() {
         return startYear;
     }
 
-    /**
-     * Gets the type of artist.
-     *
-     * @return the artist type.
-     */
     public String getArtistType() {
         return artistType;
     }
@@ -171,22 +126,12 @@ public final class Artist {
                             this.birthDate, this.country, this.biography, this.startYear, this.artistType);
     }
 
+    /**
+     * Restituisce direttamente il nome d'arte affinché la JComboBox lo mostri correttamente nelle tendine.
+     */
     @Override
     public String toString() {
-        return Printer.stringify(
-            "Artist",
-            List.of(
-                Printer.field("artistCode", this.artistCode),
-                Printer.field("stageName", this.stageName),
-                Printer.field("name", this.name),
-                Printer.field("surname", this.surname),
-                Printer.field("birthDate", this.birthDate),
-                Printer.field("country", this.country),
-                Printer.field("biography", this.biography),
-                Printer.field("startYear", this.startYear),
-                Printer.field("artistType", this.artistType)
-            )
-        );
+        return this.stageName != null ? this.stageName : "";
     }
 
     /**
@@ -198,17 +143,6 @@ public final class Artist {
 
         /**
          * Inserts a new artist into the database (OP 7).
-         *
-         * @param connection the database connection.
-         * @param stageName the stage name of the artist.
-         * @param name the real name.
-         * @param surname the surname.
-         * @param birthDate the birth date.
-         * @param country the country of origin.
-         * @param biography the biography.
-         * @param startYear the start year of activity.
-         * @param artistType the type of artist.
-         * @return the auto-generated key of the inserted artist.
          */
         public static int insert(final Connection connection, final String stageName, final String name,
                                 final String surname, final LocalDate birthDate, final String country,
@@ -238,12 +172,6 @@ public final class Artist {
 
         /**
          * Retrieves all artists eligible to publish albums.
-         *
-         * @param connection the database connection.
-         * 
-         * @return a list of eligible artists.
-         * 
-         * @throws DAOException if a database access error occurs.
          */
         public static List<Artist> getAlbumArtists(final Connection connection) {
             final List<Artist> artists = new ArrayList<>();
@@ -265,12 +193,6 @@ public final class Artist {
 
         /**
          * Retrieves all artists authorized as podcast authors.
-         *
-         * @param connection the database connection.
-         * 
-         * @return a list of artists who are podcast authors.
-         * 
-         * @throws DAOException if a database access error occurs.
          */
         public static List<Artist> getPodcastAuthors(final Connection connection) {
             final List<Artist> authors = new ArrayList<>();
@@ -292,13 +214,6 @@ public final class Artist {
 
         /**
          * Checks whether the specified artist is authorized as a podcast author.
-         *
-         * @param connection the database connection.
-         * @param artistCode the unique code of the artist to check.
-         * 
-         * @return true if the artist exists and is a podcast author, false otherwise.
-         * 
-         * @throws DAOException if a database access error occurs.
          */
         public static boolean isPodcastAuthor(final Connection connection, final int artistCode) {
             try (var statement = DAOUtils.prepare(connection, Queries.CHECK_IS_PODCAST_AUTHOR, artistCode);
@@ -311,34 +226,23 @@ public final class Artist {
 
         /**
          * Retrieves the most played artist in a specific year.
-         *
-         * @param connection the database connection.
-         * @param year the year to check.
-         * 
-         * @return a string representation of the most played artist.
          */
         public static String getMostPlayedArtist(final Connection connection, final int year) {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_MOST_PLAYED_ARTIST, year);
                 var resultSet = statement.executeQuery()) {
-
+                
                 if (resultSet.next()) {
-                    return "Artista: " + resultSet.getString(NOME_ARTE_LITERAL)
-                            + " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
+                    return "Artista: " + resultSet.getString(NOME_ARTE_LITERAL) + 
+                        " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
                 }
-
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
-
             return "Nessun artista trovato per quest'anno.";
         }
-
+    
         /**
-         * Retrieves an artist's profile by their unique code.
-         *
-         * @param connection the database connection.
-         * @param artistCode the artist code.
-         * @return the Artist object if found, null otherwise.
+         * Retrieves an artist's profile by their exact code.
          */
         public static Artist getByCode(final Connection connection, final int artistCode) {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ARTIST_BY_CODE, artistCode);
@@ -347,7 +251,7 @@ public final class Artist {
                 if (resultSet.next()) {
                     return new Artist(
                         resultSet.getInt("CodiceArtista"),
-                        resultSet.getString(NOME_ARTE_LITERAL),
+                        resultSet.getString("NomeDArte"),
                         resultSet.getString("Nome"),
                         resultSet.getString("Cognome"),
                         resultSet.getDate("DataNascita") != null ? resultSet.getDate("DataNascita").toLocalDate() : null,
@@ -358,17 +262,14 @@ public final class Artist {
                     );
                 }
             } catch (final SQLException e) {
+                e.printStackTrace();
                 throw new DAOException(e);
             }
             return null;
         }
 
         /**
-         * Retrieves a list of artists matching a partial stage name (for search dropdowns).
-         *
-         * @param connection the database connection.
-         * @param query the partial query string.
-         * @return a list of matching artists.
+         * Retrieves a list of artists matching a partial stage name.
          */
         public static List<Artist> getByPartialStageName(final Connection connection, final String query) {
             final List<Artist> artists = new ArrayList<>();
@@ -380,7 +281,7 @@ public final class Artist {
                 while (resultSet.next()) {
                     artists.add(new Artist(
                         resultSet.getInt("CodiceArtista"),
-                        resultSet.getString(NOME_ARTE_LITERAL)
+                        resultSet.getString("NomeDArte")
                     ));
                 }
             } catch (final SQLException e) {
@@ -390,11 +291,7 @@ public final class Artist {
         }
 
         /**
-         * Retrieves a list of albums matching a partial name using Queries.SELECT_ALBUMS_BY_NAME.
-         *
-         * @param connection the database connection.
-         * @param query the search query.
-         * @return a list of matching albums.
+         * Retrieves a list of albums matching a partial name.
          */
         public static List<Album> getByPartialTitle(final Connection connection, final String query) {
             final List<Album> albums = new ArrayList<>();

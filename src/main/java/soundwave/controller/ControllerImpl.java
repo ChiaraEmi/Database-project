@@ -980,6 +980,26 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
+public void userClickedUnfollowArtist(final int artistCode) {
+    if (this.loggedInUsername == null || this.loggedInUsername.isBlank()) {
+        this.view.showError("Devi effettuare il login.");
+        return;
+    }
+    try {
+        // 1. Esegue l'unfollow sul Model
+        this.model.unfollowArtist(this.loggedInUsername, artistCode);
+        this.view.showSuccess("Hai smesso di seguire l'artista!");
+
+        // 2. Aggiorna tutta la grafica usando il metodo che avevi già scritto!
+        this.view.refreshUserData(this.loggedInUsername);
+
+    } catch (final DAOException e) {
+        LOGGER.log(Level.SEVERE, "Failed to unfollow artist", e);
+        this.view.showError("Errore durante l'unfollow dell'artista.");
+    }
+}
+
+    @Override
     public void userClickedSearchAlbums(final String query) {
         try {
             final List<soundwave.data.Album> albums = this.model.getAlbumsByPartialTitle(query);

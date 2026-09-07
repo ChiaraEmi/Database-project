@@ -13,6 +13,7 @@ import java.util.logging.Level;
  * Represents a promotion entity within the Soundwave system.
  */
 public final class Promotion {
+    private static final Logger LOG = Logger.getLogger(Promotion.class.getName());
 
     private final String promotionCode;
     private final String name;
@@ -22,8 +23,6 @@ public final class Promotion {
     private final String discountType; // Type of promotion, e.g., "percentage" or "value"
     private final double discountValue; 
     private final Integer requiredMonths;
-    private static final Logger log = Logger.getLogger(Promotion.class.getName());
-
 
     /**
      * Creates a new Promotion instance.
@@ -221,9 +220,13 @@ public final class Promotion {
             try {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
-            
+
                 //2. Insert promotion
-                try (var statement = DAOUtils.prepare(connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN, code, name, description, Date.valueOf(beginDate), Date.valueOf(endDate), discountType, discountValue, requiredMonths)) {
+                try (var statement = DAOUtils.prepare(
+                                                    connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN, 
+                                                    code, name, description, Date.valueOf(beginDate), 
+                                                    Date.valueOf(endDate), discountType, discountValue, 
+                                                    requiredMonths)) {
                     statement.executeUpdate();
                 }
 
@@ -252,7 +255,7 @@ public final class Promotion {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    log.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
+                    LOG.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
                 }
             }
         }

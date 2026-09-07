@@ -17,6 +17,10 @@ import java.util.logging.Level;
 public final class User {
 
     private static final String FIELD_USERNAME = "Username";
+    private static final String USERNAME_NULL_ERROR = "Username cannot be null";
+    private static final String CONNECTION_NULL_ERROR = "Connection cannot be null";
+    private static final String BONUS_CREDIT_COLUMN = "CreditoBonus";
+    private static final Logger LOG = Logger.getLogger(Subscription.class.getName());
 
     private final String username;
     private final String name;
@@ -26,9 +30,6 @@ public final class User {
     private final LocalDate birthDate;
     private final String country;
     private final int bonusCredit;
-
-    private static final Logger log = Logger.getLogger(Subscription.class.getName());
-
 
     /**
      * Creates a new User instance.
@@ -52,7 +53,7 @@ public final class User {
             final String country,
             final int bonusCredit
     ) {
-        this.username = Objects.requireNonNull(username, "Username cannot be null");
+        this.username = Objects.requireNonNull(username, USERNAME_NULL_ERROR);
         this.name = Objects.requireNonNull(name, "Name cannot be null");
         this.surname = Objects.requireNonNull(surname, "Surname cannot be null");
         this.email = Objects.requireNonNull(email, "Email cannot be null");
@@ -245,7 +246,7 @@ public final class User {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    log.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
+                    LOG.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
                 }
             }
         }
@@ -267,16 +268,23 @@ public final class User {
             }
         }
 
+        /**
+         * Retrieve the bonus credit balance for a specified user.
+         * 
+         * @param connection the database connection
+         * @param username the username of the specified user
+         * @return the current bonus credit balance of the specified user
+         */
         public static int getBonusCredit(final Connection connection, final String username) {
-            Objects.requireNonNull(connection, "Connection cannot be null");
-            Objects.requireNonNull(username, "Username cannot be null");
+            Objects.requireNonNull(connection, CONNECTION_NULL_ERROR);
+            Objects.requireNonNull(username, USERNAME_NULL_ERROR);
             final String query = "SELECT CreditoBonus FROM Utenti WHERE Username = ?";
 
             try (var statement = connection.prepareStatement(query)) {
                  statement.setString(1, username);
                 try (var resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
-                        return resultSet.getInt("CreditoBonus");
+                        return resultSet.getInt(BONUS_CREDIT_COLUMN);
                     }
                     throw new DAOException("User not found: " + username);
                 }
@@ -284,7 +292,6 @@ public final class User {
                 throw new DAOException(e);
             }
         }
-
 
         /**
          * Retrieves a list of all users from the database.
@@ -294,7 +301,7 @@ public final class User {
          * @throws SQLException if a database error occurs.
          */
         public static List<User> list(final Connection connection) throws SQLException {
-            Objects.requireNonNull(connection, "Connection cannot be null");
+            Objects.requireNonNull(connection, CONNECTION_NULL_ERROR);
             final var users = new ArrayList<User>();
             final String query = "SELECT " + FIELD_USERNAME 
                                      + ", Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus FROM Utenti";
@@ -312,7 +319,7 @@ public final class User {
                         resultSet.getString("Password"),
                         localDate,
                         resultSet.getString("Paese"),
-                        resultSet.getInt("CreditoBonus")
+                        resultSet.getInt(BONUS_CREDIT_COLUMN)
                     ));
                 }
             }
@@ -330,8 +337,8 @@ public final class User {
          * @throws SQLException if a database error occurs.
          */
         public static Optional<User> find(final Connection connection, final String username) throws SQLException {
-            Objects.requireNonNull(connection, "Connection cannot be null");
-            Objects.requireNonNull(username, "Username cannot be null");
+            Objects.requireNonNull(connection, CONNECTION_NULL_ERROR);
+            Objects.requireNonNull(username, USERNAME_NULL_ERROR);
             final String query = "SELECT " + FIELD_USERNAME 
                 + ", Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus "
                 + "FROM Utenti WHERE " + FIELD_USERNAME + " = ?";
@@ -350,7 +357,7 @@ public final class User {
                             resultSet.getString("Password"),
                             localDate,
                             resultSet.getString("Paese"),
-                            resultSet.getInt("CreditoBonus")
+                            resultSet.getInt(BONUS_CREDIT_COLUMN)
                         ));
                     }
                 }

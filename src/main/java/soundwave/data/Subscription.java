@@ -17,6 +17,8 @@ public final class Subscription {
 
     private static final String ERR_ACTIVE_SUBSCRIPTION = "User already has an active subscription";
     private static final String ERR_NO_ID_OBTAINED = "Inserting subscription failed, no ID obtained.";
+    private static final Logger LOG = Logger.getLogger(Subscription.class.getName());
+    private static final String RESET_AUTOCOMMIT_ERROR = "Failed to reset auto-commit to ";
 
     private final int code;
     private final String username;
@@ -27,8 +29,6 @@ public final class Subscription {
     private final LocalDate endDate;
     private final String status;
     private final boolean autoRenew;
-    private static final Logger LOG = Logger.getLogger(Subscription.class.getName());
-    private static final String RESET_AUTOCOMMIT_ERROR = "Failed to reset auto-commit to ";
 
     /**
      * Constructs a new Subscription instance.
@@ -513,7 +513,7 @@ public final class Subscription {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    LOG.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
+                    LOG.log(Level.SEVERE, RESET_AUTOCOMMIT_ERROR + autoCommit, e);
                 }
             }
         }
@@ -634,7 +634,7 @@ public final class Subscription {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    LOG.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
+                    LOG.log(Level.SEVERE, RESET_AUTOCOMMIT_ERROR + autoCommit, e);
                 }
             }
         }

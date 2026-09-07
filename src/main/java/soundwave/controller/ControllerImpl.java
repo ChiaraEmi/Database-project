@@ -14,6 +14,7 @@ import soundwave.view.RedeemBonusDialog;
 import soundwave.view.View;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +37,7 @@ public final class ControllerImpl implements Controller {
 
     private static final String NEW_LINE = "\n";
     private static final String SECTION_CLOSE_SUFFIX = ") ===";
+    private static final String BULLET_POINT = "• ";
     private static final int INITIAL_BUILDER_CAPACITY = 512;
 
     private final Model model;
@@ -48,7 +50,7 @@ public final class ControllerImpl implements Controller {
      * @param view the application view.
      */
     @SuppressFBWarnings(
-        value = "EI_EXPOSE_REP2", 
+        value = "EI_EXPOSE_REP2",
         justification = "Model and View are managed externally as architectural references."
     )
     public ControllerImpl(final Model model, final View view) {
@@ -63,32 +65,32 @@ public final class ControllerImpl implements Controller {
     // ==========================================
 
     @Override
-    public boolean adminClickedSavePromotion(final String code, final String name, final String description, 
-                                            final String startDate, final String endDate, final String discountType, 
+    public boolean adminClickedSavePromotion(final String code, final String name, final String description,
+                                            final String startDate, final String endDate, final String discountType,
                                             final String discountValueStr, final String rqrMonths, final String planCodesStr) {
         try {
 
-            if (code == null || code.trim().isEmpty()) {
+            if (code == null || code.isBlank()) {
                 this.view.showError("Il codice promozione è obbligatorio.");
                 return false;
             }
-            if (name == null || name.trim().isEmpty()) {
+            if (name == null || name.isBlank()) {
                 this.view.showError("Il nome della promozione è obbligatorio.");
                 return false;
             }
-            if (startDate == null || startDate.trim().isEmpty()) {
+            if (startDate == null || startDate.isBlank()) {
                 this.view.showError("La data inizio è obbligatoria.");
                 return false;
             }
-            if (endDate == null || endDate.trim().isEmpty()) {
+            if (endDate == null || endDate.isBlank()) {
                 this.view.showError("La data fine è obbligatoria.");
                 return false;
             }
-            if (discountValueStr == null || discountValueStr.trim().isEmpty()) {
+            if (discountValueStr == null || discountValueStr.isBlank()) {
                 this.view.showError("Il valore dello sconto è obbligatorio.");
                 return false;
             }
-            if (planCodesStr == null || planCodesStr.trim().isEmpty()) {
+            if (planCodesStr == null || planCodesStr.isBlank()) {
                 this.view.showError("Devi specificare almeno un piano di abbonamento.");
                 return false;
             }
@@ -117,26 +119,18 @@ public final class ControllerImpl implements Controller {
                 return false;
             }
 
-            this.model.insertPromotion(code, name, description, start, end, discountType, 
+            this.model.insertPromotion(code, name, description, start, end, discountType,
                                         discountValue, requiredMonths, planCodes);
             this.view.showSuccess("Promozione creata con successo");
             return true;
 
-        } catch (final java.time.format.DateTimeParseException e) {
-            LOGGER.log(Level.WARNING, "Invalid date format for promotion", e);
-            this.view.showError("Formato data non valido. Usa YYYY-MM-DD.");
-            return false;
-        } catch (final NumberFormatException e) {
-            LOGGER.log(Level.WARNING, "Invalid number format for promotion", e);
-            this.view.showError("Valore numerico non valido. Controlla sconto, mesi richiesti e codici piani.");
-            return false; // <-- AGGIUNTO per coerenza
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to save promotion", e);
             this.view.showError("Impossibile salvare la promozione nel database.");
-            return false; 
-        } catch (final Exception e) {
-            LOGGER.log(Level.SEVERE, "Unexpected error saving promotion", e);
-            this.view.showError("Errore imprevisto: " + e.getMessage());
+            return false;
+        } catch (final NumberFormatException | DateTimeParseException e) {
+            LOGGER.log(Level.WARNING, "Invalid input format for promotion", e);
+            this.view.showError("Formato dati non valido. Controlla i campi inseriti.");
             return false;
         }
     }
@@ -155,7 +149,7 @@ public final class ControllerImpl implements Controller {
     @Override
     public void userActivateSubscription(final String username, final ActivateSubscriptionDialog.SubscriptionData data) {
         try {
-            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod, 
+            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod,
                                                                         data.promoCode, data.inviteCode, data.autoRenew);
             this.view.showSuccessAndCloseDialog("Sottoscrizione attivata con successo! Codice: " + subscriptionCode);
         } catch (final DAOException e) {
@@ -183,7 +177,7 @@ public final class ControllerImpl implements Controller {
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to verify promotion code", e);
             callback.accept(new Object[]{false, 0, null, 0});
-        } 
+        }
     }
 
     @Override
@@ -211,7 +205,7 @@ public final class ControllerImpl implements Controller {
         }
 
         try {
-            final User user = this.model.findUser(username); 
+            final User user = this.model.findUser(username);
 
             if (user != null) {
                 LOGGER.log(Level.INFO, "User successfully logged in: {0}", username);
@@ -231,8 +225,8 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public boolean adminClickedSaveArtist(final String stageName, final String name, final String surname, 
-                                          final String birthDateStr, final String provenanceCountry, 
+    public boolean adminClickedSaveArtist(final String stageName, final String name, final String surname,
+                                          final String birthDateStr, final String provenanceCountry,
                                           final String biography, final int startYear, final String artistType) {
 
         if (stageName == null || stageName.isBlank() || provenanceCountry == null || provenanceCountry.isBlank()
@@ -246,7 +240,7 @@ public final class ControllerImpl implements Controller {
         try {
             final String realName = (name == null || name.isBlank()) ? null : name;
             final String realSurname = (surname == null || surname.isBlank()) ? null : surname;
-            final LocalDate birthDate = birthDateStr == null || birthDateStr.isBlank() 
+            final LocalDate birthDate = birthDateStr == null || birthDateStr.isBlank()
                 ? null : LocalDate.parse(birthDateStr);
             final String bio = (biography == null || biography.isBlank()) ? null : biography;
 
@@ -254,7 +248,7 @@ public final class ControllerImpl implements Controller {
                                     bio, startYear, artistType);
 
             return true;
-        } catch (final java.time.format.DateTimeParseException | DAOException e) {
+        } catch (final DateTimeParseException | DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to save artist", e);
             this.view.showError("Errore durante il salvataggio dell'artista nel database.");
             return false;
@@ -262,7 +256,7 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public boolean adminClickedSaveAlbumWithSongs(final int artistCode, final String title, final String releaseDate, 
+    public boolean adminClickedSaveAlbumWithSongs(final int artistCode, final String title, final String releaseDate,
                                                   final String recordCompany, final String rawSongsText) {
 
         if (artistCode <= 0 || title == null || title.isBlank() || releaseDate == null || releaseDate.isBlank()
@@ -318,7 +312,7 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public boolean adminClickedSavePodcast(final int artistCode, final String name, 
+    public boolean adminClickedSavePodcast(final int artistCode, final String name,
                                          final String description, final String category) {
 
         if (artistCode <= 0 || name == null || name.isBlank() || category == null || category.isBlank()) {
@@ -347,8 +341,8 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public boolean adminClickedSaveEpisode(final int podcastCode, final String title, 
-                                         final int duration, final String description, 
+    public boolean adminClickedSaveEpisode(final int podcastCode, final String title,
+                                         final int duration, final String description,
                                          final int episodeNumber) {
 
         if (podcastCode <= 0 || title == null || title.isBlank() || duration <= 0 || episodeNumber <= 0) {
@@ -374,16 +368,16 @@ public final class ControllerImpl implements Controller {
         try {
             // 1. Recupera i piani disponibili
             final List<Plan> plans = this.model.getSubscriptioPlans();
-            
+
             // 2. Recupera i crediti bonus dell'utente
             final int bonusCredits = this.model.getBonusCredits(username);
-            
+
             // 3. Mostra il Dialog
             this.view.showRedeemBonusDialog(username, plans, bonusCredits);
-            
+
         } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load data for bonus redemption: " + username, e);
             this.view.showError("Impossibile caricare i dati: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -391,38 +385,37 @@ public final class ControllerImpl implements Controller {
     public void userRedeemedBonus(final String username, final RedeemBonusDialog.RedeemData data) {
         try {
             final int subscriptionCode = this.model.redeemBonus(
-                username, 
-                data.planCode, 
+                username,
+                data.planCode,
                 data.autoRenew
             );
             this.view.showSuccess("Sottoscrizione riscattata con crediti bonus! Codice: " + subscriptionCode);
         } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to redeem bonus for user: " + username, e);
             this.view.showError("Impossibile riscattare: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     @Override
     public void userRegistered(final String username, final String name, final String surname,
-                            final String email, final String password, 
+                            final String email, final String password,
                             final LocalDate birthDate, final String country) {
         try {
             // Registra l'utente e genera il codice invito
-            String inviteCode = this.model.registerUser(username, name, surname, email, 
+            final String inviteCode = this.model.registerUser(username, name, surname, email,
                                                         password, birthDate, country);
-            
+
             // Mostra successo con il codice invito
-            this.view.showSuccess("Utente registrato con successo!\n" +
-                                "Username: " + username + "\n" +
-                                "Codice Invito: " + inviteCode + "\n\n" +
-                                "Ora puoi accedere con le tue credenziali.");
-            
+            this.view.showSuccess("Utente registrato con successo!" + NEW_LINE
+                                    + "Username: " + username + NEW_LINE
+                                    + "Codice Invito: " + inviteCode + NEW_LINE + NEW_LINE
+                                    + "Ora puoi accedere con le tue credenziali.");
+
         } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to register user: " + username, e);
             this.view.showError("Errore durante la registrazione: " + e.getMessage());
-            e.printStackTrace();
         }
     }
-
 
     @Override
     public void renewSubscriptionNow(final String username, final int subscriptionCode) {
@@ -430,21 +423,21 @@ public final class ControllerImpl implements Controller {
             this.model.renewSubscriptionNow(username, subscriptionCode);
             this.view.showSuccess("Sottoscrizione rinnovata con successo!");
         } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to renew subscription: " + subscriptionCode, e);
             this.view.showError("Impossibile rinnovare: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     @Override
-    public void toggleAutoRenew(final String username, final int subscriptionCode, 
+    public void toggleAutoRenew(final String username, final int subscriptionCode,
                             final boolean enabled) {
         try {
             this.model.toggleAutoRenew(username, subscriptionCode, enabled);
-            this.view.showSuccess(enabled ? "Rinnovo automatico attivato!" : 
-                                        "Rinnovo automatico disattivato!");
+            this.view.showSuccess(enabled ? "Rinnovo automatico attivato!"
+                                          : "Rinnovo automatico disattivato!");
         } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to toggle auto-renew for subscription: " + subscriptionCode, e);
             this.view.showError("Impossibile modificare il rinnovo: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -461,25 +454,24 @@ public final class ControllerImpl implements Controller {
     @Override
     public int[] adminRunAutoRenewal() {
         try {
-            int[] results = this.model.processAutoRenewals();
-            this.view.showSuccess("Rinnovo automatico completato!\n" +
-                                "Rinnovate: " + results[0] + "\n" +
-                                "Fallite: " + results[1] + "\n" +
-                                "Scadute: " + results[2]);
+            final int[] results = this.model.processAutoRenewals();
+            this.view.showSuccess("Rinnovo automatico completato!" + NEW_LINE
+                                  + "Rinnovate: " + results[0] + NEW_LINE
+                                  + "Fallite: " + results[1] + NEW_LINE
+                                  + "Scadute: " + results[2]);
             return results;
         } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to process auto-renewals", e);
             this.view.showError("Errore durante il rinnovo automatico: " + e.getMessage());
-            e.printStackTrace();
             return new int[]{0, 0, 0};
         }
     }
 
-
     @Override
-    public boolean userGeneratedListeningEvent(final String username, final int contentCode, 
+    public boolean userGeneratedListeningEvent(final String username, final int contentCode,
                                              final String device, final int eventDuration) {
 
-        if (username == null || username.isBlank() || contentCode <= 0 || device == null || device.isBlank() 
+        if (username == null || username.isBlank() || contentCode <= 0 || device == null || device.isBlank()
             || eventDuration <= 0) {
             final String errorMessage = "Compila tutti i campi obbligatori (Username, Codice Contenuto, Dispositivo e Durata).";
             LOGGER.log(Level.WARNING, errorMessage);
@@ -502,7 +494,7 @@ public final class ControllerImpl implements Controller {
     // ==========================================
 
     @Override
-    public boolean userClickedCreatePlaylist(final String username, final String playlistName, 
+    public boolean userClickedCreatePlaylist(final String username, final String playlistName,
                                         final String visibility, final boolean isCollaborative) {
         if (playlistName == null || playlistName.isBlank()) {
             final String errorMessage = "Inserisci un nome valido per la playlist.";
@@ -515,7 +507,7 @@ public final class ControllerImpl implements Controller {
             final int playlistId = this.model.insertPlaylist(username, playlistName.trim(), visibility, isCollaborative);
 
             if (playlistId > 0) {
-                LOGGER.log(Level.INFO, "Playlist ''{0}'' created successfully for user {1}", 
+                LOGGER.log(Level.INFO, "Playlist ''{0}'' created successfully for user {1}",
                             new Object[]{playlistName, username});
                 this.view.showSuccess("Playlist creata con successo!");
 
@@ -709,29 +701,30 @@ public final class ControllerImpl implements Controller {
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
             sb.append("=== Statistiche Personali (Anno ").append(year).append(SECTION_CLOSE_SUFFIX).append(NEW_LINE)
-              .append("• Ascolti totali: ").append(totalListens).append(NEW_LINE)
-              .append("• Tempo totale di ascolto: ").append(totalMinutes).append(" minuti (").append(totalSeconds).append(" secondi)").append(NEW_LINE)
-              .append("• Genere preferito: ").append(topGenre).append(NEW_LINE)
+              .append(BULLET_POINT).append(" Ascolti totali: ").append(totalListens).append(NEW_LINE)
+              .append(BULLET_POINT).append(" Tempo totale di ascolto: ").append(totalMinutes)
+              .append(" minuti (").append(totalSeconds).append(" secondi)").append(NEW_LINE)
+              .append(BULLET_POINT).append(" Genere preferito: ").append(topGenre).append(NEW_LINE)
               .append(NEW_LINE);
 
-            sb.append("=== I tuoi 5 brani più ascoltati ===").append(NEW_LINE);
+            sb.append("=== I tuoi 5 brani più ascoltati ===" + NEW_LINE);
             if (topTracks != null && !topTracks.isEmpty()) {
                 for (final Object[] track : topTracks) {
                     final String title = (String) track[1];
                     final int count = (int) track[2];
-                    sb.append("• ").append(title).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
+                    sb.append(BULLET_POINT).append(title).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
                 }
             } else {
-                sb.append("Nessun brano trovato per questo anno.").append(NEW_LINE);
+                sb.append("Nessun brano trovato per questo anno." + NEW_LINE);
             }
             sb.append(NEW_LINE);
 
-            sb.append("=== I tuoi 5 artisti più ascoltati ===").append(NEW_LINE);
+            sb.append("=== I tuoi 5 artisti più ascoltati ===" + NEW_LINE);
             if (topArtists != null && !topArtists.isEmpty()) {
                 for (final Object[] artist : topArtists) {
                     final String artistName = (String) artist[1];
                     final int count = (int) artist[2];
-                    sb.append("• ").append(artistName).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
+                    sb.append(BULLET_POINT).append(artistName).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
                 }
             } else {
                 sb.append("Nessun artista trovato per questo anno.").append(NEW_LINE);
@@ -767,7 +760,7 @@ public final class ControllerImpl implements Controller {
 
             if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
                 for (final String a : albumsAboveAvg) {
-                    sb.append("• ")
+                    sb.append(BULLET_POINT)
                       .append(a)
                       .append(NEW_LINE);
                 }
@@ -820,7 +813,7 @@ public final class ControllerImpl implements Controller {
 
             if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
                 for (final String u : usersAboveAvg) {
-                    sb.append("• ")
+                    sb.append(BULLET_POINT)
                       .append(u)
                       .append(NEW_LINE);
                 }
@@ -840,7 +833,7 @@ public final class ControllerImpl implements Controller {
     private List<SongInput> parseSongsInput(final String rawText) {
         final List<SongInput> songList = new ArrayList<>();
         if (rawText == null || rawText.isBlank()) {
-            return songList; 
+            return songList;
         }
 
         final String[] lines = rawText.split(NEW_LINE);
@@ -865,11 +858,11 @@ public final class ControllerImpl implements Controller {
                     }
 
                     songList.add(new SongInput(
-                        songTitle, 
-                        duration, 
-                        description, 
-                        trackNumber, 
-                        artistCodeForSong, 
+                        songTitle,
+                        duration,
+                        description,
+                        trackNumber,
+                        artistCodeForSong,
                         genres
                     ));
                 }

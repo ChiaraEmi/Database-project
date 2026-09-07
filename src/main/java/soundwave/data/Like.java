@@ -29,6 +29,7 @@ public final class Like {
          * @param songCode the code of the song
          */
         public static void addLike(final Connection connection, final String username, final int songCode) {
+            System.out.println("DEBUG - Username che sta tentando di mettere il like: '" + username + "'");
             try (var statement = DAOUtils.prepare(connection, Queries.INSERT_LIKE, username, songCode)) {
                 statement.executeUpdate();
             } catch (final SQLException e) {

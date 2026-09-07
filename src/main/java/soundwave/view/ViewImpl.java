@@ -347,7 +347,8 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 final String selectedSong = this.userPanel.getSelectedExploreSong();
                 int contentCode = parseContentCode(selectedSong);
-                this.controller.userClickedAddLike("user", contentCode);
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                this.controller.userClickedAddLike(currentUsername, contentCode);
             }
         });
 

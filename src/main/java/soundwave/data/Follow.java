@@ -31,7 +31,7 @@ public final class Follow {
          * @param startDate the start date of the follow
          */
         public static void followArtist(final Connection connection, final String username, final int artistCode, final LocalDate startDate) {
-            try (var statement = DAOUtils.prepare(connection, Queries.INSERT_FOLLOW, username, artistCode, java.sql.Date.valueOf(startDate))) {
+           try (var statement = DAOUtils.prepare(connection, Queries.INSERT_FOLLOW, username, artistCode, java.sql.Date.valueOf(startDate), null)) {
                 statement.executeUpdate();
             } catch (final SQLException e) {
                 throw new DAOException(e);

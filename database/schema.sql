@@ -187,22 +187,11 @@ CREATE TABLE IF NOT EXISTS Appartenenze (
 );
 
 CREATE TABLE IF NOT EXISTS Inclusioni (
-<<<<<<< HEAD
-<<<<<<< HEAD
-    CodicePlaylist INT NOT NULL,
-    CodiceBrano INT NOT NULL,
-    PRIMARY KEY (CodicePlaylist, CodiceBrano),
-    FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE,
-    FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE
-=======
-=======
->>>>>>> feature/sophy-sql-tables
     CodiceBrano INT NOT NULL,
     CodicePlaylist INT NOT NULL,
     PRIMARY KEY (CodiceBrano, CodicePlaylist),
     FOREIGN KEY (CodiceBrano) REFERENCES Brani(CodiceBrano) ON DELETE CASCADE,
     FOREIGN KEY (CodicePlaylist) REFERENCES Playlist(CodicePlaylist) ON DELETE CASCADE
->>>>>>> origin/feature/shuyi-sql-tables
 );
 
 CREATE TABLE IF NOT EXISTS LikeBrani (

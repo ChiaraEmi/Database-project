@@ -3,6 +3,7 @@ package soundwave.data;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.sql.Connection;
@@ -190,7 +191,7 @@ public final class InviteCode {
          * @return a unique invite code.
          */
         private static String generateCode(final String username) {
-            return "INV_" + username.toUpperCase();
+            return "INV_" + username.toUpperCase(Locale.ROOT);
         }
     }
 }

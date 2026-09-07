@@ -11,6 +11,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -98,11 +100,12 @@ public final class ActivateSubscriptionDialog extends JDialog {
     private final JButton btnApplyPromo;
     private final JButton btnVerifyInvite;
 
-    private final transient List<Plan> plans;
+    @SuppressFBWarnings("SE_TRANSIENT_FIELD_NOT_RESTORED")
+    private transient final List<Plan> plans;
     private final String username;
     private double currentPrice;
 
-    private Consumer<SubscriptionData> onActivateListener;
+    private transient Consumer<SubscriptionData> onActivateListener;
 
     private boolean promoCodeApplied;
     private boolean inviteCodeVerified;

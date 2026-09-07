@@ -1,5 +1,6 @@
 package soundwave.view;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -13,6 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -52,13 +55,14 @@ public final class RedeemBonusDialog extends JDialog {
     private final JButton btnRedeem;
     private final JButton btnCancel;
 
+    @SuppressFBWarnings("SE_BAD_FIELD")
     private final List<Plan> plans;
     private final String username;
     private final int bonusCredits;
     private boolean redeemed;
     private double currentPrice;
 
-    private Consumer<RedeemData> onRedeemListener;
+    private transient Consumer<RedeemData> onRedeemListener;
 
     /**
      * Constructs a new RedeemBonusDialog.
@@ -72,7 +76,7 @@ public final class RedeemBonusDialog extends JDialog {
                             final List<Plan> plans, final int bonusCredits) {
         super(parent, "Riscatto con Crediti Bonus", true);
         this.username = username;
-        this.plans = plans;
+        this.plans = new ArrayList<>(plans);
         this.bonusCredits = bonusCredits;
 
         setLayout(new BorderLayout(10, 10));

@@ -14,6 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Color;
@@ -93,9 +95,9 @@ public final class SubscriptionStatusDialog extends JDialog {
     private final JButton btnClose;
     private final String username;
 
-    private Consumer<Integer> onRenew;
-    private Consumer<Integer> onToggleAutoRenew;
-    private Runnable onRefresh;
+    private transient Consumer<Integer> onRenew;
+    private transient Consumer<Integer> onToggleAutoRenew;
+    private transient Runnable onRefresh;
 
     /**
      * Constructs a new SubscriptionStatusDialog.
@@ -159,6 +161,7 @@ public final class SubscriptionStatusDialog extends JDialog {
      * @param inviteCode   the invite code used, if any.
      * @param transactions the list of transaction records associated with this subscription.
      */
+    @SuppressFBWarnings("DB_DUPLICATE_BRANCHES")
     public void addSubscriptionBlock(
             final int subCode,
             final String planType,

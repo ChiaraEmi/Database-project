@@ -100,7 +100,7 @@ public final class ControllerImpl implements Controller {
             final double discountValue = Double.parseDouble(discountValueStr);
             final Integer requiredMonths = (rqrMonths == null || rqrMonths.isBlank()) ? null : Integer.parseInt(rqrMonths);
             final List<Integer> planCodes = new ArrayList<>();
-            if (planCodesStr != null && !planCodesStr.isBlank()) {
+            if (!planCodesStr.isBlank()) {
                 for (final String codePlan : planCodesStr.split(",")) {
                     planCodes.add(Integer.parseInt(codePlan.trim()));
                 }

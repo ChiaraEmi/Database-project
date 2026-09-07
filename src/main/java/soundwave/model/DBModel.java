@@ -92,10 +92,37 @@ public final class DBModel implements Model {
 
     @Override
     public void toggleAutoRenew(final String username, final int subscriptionCode,
-                            final boolean enabled) {
-        // Sceglie la query giusta in base al valore enabled
-        final String query = enabled ? Queries.ENABLE_RENEWAL : Queries.CANCEL_RENEWAL;
-        try (var stmt = DAOUtils.prepare(connection, query, subscriptionCode)) {
+                                final boolean enabled) {
+        if (enabled) {
+            enableAutoRenew(subscriptionCode);
+        } else {
+            disableAutoRenew(subscriptionCode);
+        }
+    }
+
+    /**
+     * Enable automatic renewal.
+     * 
+     * @param subscriptionCode the code of subscription to enable
+     */
+    private void enableAutoRenew(final int subscriptionCode) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.ENABLE_RENEWAL, subscriptionCode)) {
+            final int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new DAOException("Sottoscrizione non trovata o non attiva.");
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    /**
+     * Disable automatic renewal.
+     * 
+     * @param subscriptionCode the code of subscription to disable
+     */
+    private void disableAutoRenew(final int subscriptionCode) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.CANCEL_RENEWAL, subscriptionCode)) {
             final int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
                 throw new DAOException("Sottoscrizione non trovata o non attiva.");

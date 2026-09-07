@@ -37,6 +37,7 @@ public final class RoleSelectionPanel extends JPanel {
     private static final int BUTTON_HEIGHT = 40;
     private static final int VERTICAL_SPACING = 20;
 
+    private final JButton btnRegister;
     private final JButton btnUtente;
     private final JButton btnAdmin;
 
@@ -85,6 +86,10 @@ public final class RoleSelectionPanel extends JPanel {
         gbc.gridy = 2;
         centerPanel.add(this.btnAdmin, gbc);
 
+        this.btnRegister = createStyledButton("Registra Nuovo Utente", false);
+        gbc.gridy = 3;
+        centerPanel.add(this.btnRegister, gbc);
+
         this.add(centerPanel, BorderLayout.CENTER);
     }
 
@@ -129,5 +134,14 @@ public final class RoleSelectionPanel extends JPanel {
      */
     public void addAdminListener(final ActionListener listener) {
         this.btnAdmin.addActionListener(listener);
+    }
+
+    /**
+     * Adds an action listener to the register button.
+     *
+     * @param listener the action listener to add.
+     */
+    public void addRegisterListener(final ActionListener listener) {
+        this.btnRegister.addActionListener(listener);
     }
 }

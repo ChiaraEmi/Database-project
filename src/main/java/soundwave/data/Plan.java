@@ -122,6 +122,13 @@ public final class Plan {
             }
         }
 
+        /**
+         * Retrieves all subscription plans from the database.
+         * 
+         * @param connection the database connection
+         * @return a list of Plan objects representing all available subscription plans.
+         *          return an empty list if no plans are found
+         */
         public static List<Plan> listAll(final Connection connection) {
             Objects.requireNonNull(connection, "Connection cannot be null");
             final List<Plan> plans = new ArrayList<>();

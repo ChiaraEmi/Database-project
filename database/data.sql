@@ -318,3 +318,9 @@ INSERT INTO EventiAscolto (Username, CodiceContenuto, DataOra, Dispositivo, Dura
 ('luca_t', 13, '2026-05-01 10:00:00', 'Desktop Windows', 185),
 ('martina_r', 14, '2026-05-02 15:00:00', 'Smartphone Android', 210),
 ('luca_t', 15, '2026-05-03 18:30:00', 'iPhone', 220);
+
+
+-- test per rinnovo automatico
+INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, DataInizio, DataFine, Stato, RinnovoAutomatico) 
+VALUES ('luca_t', 1, DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH), DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), 'Attiva', FALSE);
+

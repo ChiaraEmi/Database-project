@@ -54,6 +54,14 @@ public interface Model {
     void insertPromotion(String code, String name, String description, LocalDate startDate, LocalDate endDate, String discountType, 
                             double discountValue, Integer requiredMonths, List<Integer> planCodes);
 
+    void renewSubscriptionNow(String username, int subscriptionCode);
+
+    void toggleAutoRenew(String username, int subscriptionCode, boolean enabled);
+
+    boolean getAutoRenewStatus(String username, int subscriptionCode);
+
+    int[] processAutoRenewals();
+
     /**
      * Inserts a new artist into the database.
      *
@@ -310,6 +318,8 @@ public interface Model {
      */
     List<String> getAlbumsAboveGlobalAverage();
 
+    void followArtist(String string, int artistCode);
+
     /**
      * Recupera tutti i piani di abbonamento disponibili.
      *
@@ -441,5 +451,10 @@ public interface Model {
      */
     void insertOrUpdateReview(String username, int albumCode, int rating, String comment);
 
-    void followArtist(String string, int artistCode);
+    int getBonusCredits(String username);
+    int redeemBonus(String username, int planCode, boolean autoRenew);
+
+    String registerUser(String username, String name, String surname, String email, 
+                        String password, LocalDate birthDate, String country);
+
 }

@@ -6,11 +6,14 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Represents a promotion entity within the Soundwave system.
  */
 public final class Promotion {
+    private static final Logger LOG = Logger.getLogger(Promotion.class.getName());
 
     private final String promotionCode;
     private final String name;
@@ -218,20 +221,12 @@ public final class Promotion {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
-                // 1. Insert the promotion
-                try (var statement = connection.prepareStatement(Queries.INSERT_PROMOTIONAL_CAMPAIGN)) {
-                    statement.setString(1, code);
-                    statement.setString(2, name);
-                    statement.setString(3, description);
-                    statement.setDate(4, Date.valueOf(beginDate));
-                    statement.setDate(5, Date.valueOf(endDate));
-                    statement.setString(6, discountType);
-                    statement.setDouble(7, discountValue);
-                    if (requiredMonths != null) {
-                        statement.setInt(8, requiredMonths);
-                    } else {
-                        statement.setNull(8, java.sql.Types.INTEGER);
-                    }
+                //2. Insert promotion
+                try (var statement = DAOUtils.prepare(
+                                                    connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN, 
+                                                    code, name, description, Date.valueOf(beginDate), 
+                                                    Date.valueOf(endDate), discountType, discountValue, 
+                                                    requiredMonths)) {
                     statement.executeUpdate();
                 }
 
@@ -260,7 +255,7 @@ public final class Promotion {
                 try {
                     connection.setAutoCommit(autoCommit);
                 } catch (final SQLException e) {
-                    throw new DAOException(e);
+                    LOG.log(Level.SEVERE, "Failed to reset auto-commit to " + autoCommit, e);
                 }
             }
         }

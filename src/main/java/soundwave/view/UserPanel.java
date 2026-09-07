@@ -1029,6 +1029,22 @@ public final class UserPanel extends JPanel {
             username
         );
 
+        this.statusDialog.setOnRenew(subscriptionCode -> {
+            System.out.println("OnRenew chiamato per: " + subscriptionCode); 
+            if (this.controller != null) {
+                this.controller.renewSubscriptionNow(username, subscriptionCode);
+            }
+        });
+
+        this.statusDialog.setOnToggleAutoRenew(subscriptionCode -> {
+            System.out.println("OnToggleAutoRenew chiamato per: " + subscriptionCode); 
+            if (this.controller != null) {
+                boolean currentState = this.controller.getAutoRenewStatus(username, subscriptionCode);
+                this.controller.toggleAutoRenew(username, subscriptionCode, !currentState);
+            }
+        });
+        
+        // Carica i dati
         loadSubscriptionData(username);
 
         this.statusDialog.setOnRefresh(() -> {
@@ -1085,4 +1101,21 @@ public final class UserPanel extends JPanel {
             }
         }
     }
+
+    public void showRedeemBonusDialog(final String username, final List<Plan> plans, 
+                                  final int bonusCredits,
+                                  final Consumer<RedeemBonusDialog.RedeemData> onRedeem) {
+        
+        final JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        final RedeemBonusDialog dialog = new RedeemBonusDialog(parent, username, plans, bonusCredits);
+        
+        dialog.addRedeemListener(onRedeem);
+        dialog.addCancelListener(() -> {
+            System.out.println("[DEBUG] Riscatto annullato");
+        });
+        
+        dialog.setVisible(true);
+    }
+
+
 }

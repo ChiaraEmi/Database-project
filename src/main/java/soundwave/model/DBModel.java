@@ -74,6 +74,114 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public void renewSubscriptionNow(final String username, final int subscriptionCode) {
+        // Verifica che la sottoscrizione sia attiva
+        try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
+            var rs = stmt.executeQuery()) {
+            if (!rs.next()) {
+                throw new DAOException("Nessuna sottoscrizione attiva trovata.");
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        
+        // Simula pagamento (per ora sempre successo)
+        // In futuro si può integrare con un sistema di pagamento reale
+        boolean paymentSuccess = true;
+        Subscription.DAO.renew(connection, subscriptionCode, "Carta di Credito", paymentSuccess);
+    }
+
+    @Override
+    public void toggleAutoRenew(final String username, final int subscriptionCode, 
+                            final boolean enabled) {
+        // Sceglie la query giusta in base al valore enabled
+        String query = enabled ? Queries.ENABLE_RENEWAL : Queries.CANCEL_RENEWAL;
+        try (var stmt = DAOUtils.prepare(connection, query, subscriptionCode)) {
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new DAOException("Sottoscrizione non trovata o non attiva.");
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public boolean getAutoRenewStatus(final String username, final int subscriptionCode) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_AUTO_RENEW_STATUS, subscriptionCode);
+            var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getBoolean("RinnovoAutomatico");
+            }
+            throw new DAOException("Sottoscrizione non trovata.");
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    public int[] processAutoRenewals() {
+        int renewed = 0;
+        int failed = 0;
+        int expired = 0;
+
+        try {
+            // 1. Trova le sottoscrizioni da rinnovare
+            try (var stmt = connection.createStatement();
+                var rs = stmt.executeQuery(Queries.FIND_AUTO_RENEWALS)) {
+                
+                while (rs.next()) {
+                    int subCode = rs.getInt("CodiceSottoscrizione");
+                    String username = rs.getString("Username");
+
+                    System.out.println("Rinnovo automatico per sub #" + subCode + 
+                                    " (" + username );
+
+                    // 2. Simula il pagamento (90% di successo per test)
+                    boolean paymentSuccess = Math.random() < 0.0;
+
+                    Subscription.DAO.renew(connection, subCode, username, paymentSuccess);
+                    
+                    if (paymentSuccess) {
+                        renewed++;
+                        System.out.println("Rinnovo automatico completato per sub #" + subCode);
+                    } else {
+                        failed++;
+                        System.out.println("Rinnovo automatico FALLITO per sub #" + subCode);
+                        //3. Se fallisce, scade immediatamente la sottoscrizione
+                        try (var expireStmt = DAOUtils.prepare(connection, Queries.EXPIRE_SUBSCRIPTION, subCode)) {
+                            expireStmt.executeUpdate();
+                        }
+                        System.out.println("Sottoscrizione #" + subCode + " portata a Scaduta");
+                    }
+                }
+                
+            }
+            
+            // 4. Marca come scadute le altre sottoscrizioni senza rinnovo
+            try (var stmt = connection.createStatement()) {
+                expired = stmt.executeUpdate(Queries.EXPIRE_EXPIRED_SUBSCRIPTIONS);
+            }
+            
+            System.out.println("completata: " + renewed + " rinnovate, " + failed + " fallite, " + expired + " scadute");
+            
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+        
+        return new int[]{renewed, failed, expired};
+
+
+
+
+    }
+
+
+
+
+
+
+
+    @Override
     public int insertArtist(final String stageName, final String name, final String surname, 
                             final LocalDate birthDate, final String provenanceCountry, 
                             final String biography, final int startYear, final String artistType) {
@@ -432,5 +540,47 @@ public final class DBModel implements Model {
     @Override
     public void followArtist(final String username, final int artistCode) {
         Follow.DAO.followArtist(this.connection, username, artistCode, java.time.LocalDate.now());
+    }
+
+    @Override 
+    public int getBonusCredits(final String username) {
+        return User.DAO.getBonusCredit(this.connection, username);
+    }
+
+    @Override
+    public int redeemBonus(final String username, final int planCode, final boolean autoRenew) {
+        // Verifica che il piano sia mensile
+        if (!Plan.DAO.isMonthlyPlan(connection, planCode)) {
+            throw new DAOException("Il riscatto con crediti bonus è disponibile solo per piani mensili.");
+        }
+        
+        // Verifica crediti bonus
+        if (!User.DAO.hasEnoughBonusCredit(connection, username)) {
+            throw new DAOException("Crediti bonus insufficienti. Servono almeno 2 crediti.");
+        }
+        
+        // Se l'utente ha già una sottoscrizione attiva, rinnova
+        // Altrimenti crea una nuova sottoscrizione
+        try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
+            var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                // 4.2 - Rinnovo con crediti bonus
+                int subscriptionCode = rs.getInt("CodiceSottoscrizione");
+                Subscription.DAO.renewWithBonus(connection, username, subscriptionCode);
+                return subscriptionCode;
+            } else {
+                // 4.1 - Nuova sottoscrizione con crediti bonus
+                return Subscription.DAO.redeemBonusForNew(connection, username, planCode, autoRenew);
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public String registerUser(final String username, final String name, final String surname,
+                            final String email, final String password, 
+                            final LocalDate birthDate, final String country) {
+        return User.DAO.register(connection, username, name, surname, email, password, birthDate, country);
     }
 }

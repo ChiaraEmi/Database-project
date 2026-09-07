@@ -383,4 +383,56 @@ public final class MockedModel implements Model {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'followArtist'");
     }
+
+    @Override
+    public int getBonusCredits(final String username) {
+        if ("mario88".equals(username)) return 12;
+        if ("davide_99".equals(username)) return 15;
+        return 2; 
+    }
+
+    @Override
+    public int redeemBonus(final String username, final int planCode, final boolean autoRenew) {
+        System.out.println("[MOCK] Riscatto bonus per: " + username);
+        System.out.println("[MOCK] Piano: " + planCode);
+        System.out.println("[MOCK] AutoRenew: " + autoRenew);
+        return 999;
+    }
+
+    @Override
+    public String registerUser(final String username, final String name, final String surname,
+                            final String email, final String password, 
+                            final LocalDate birthDate, final String country) {
+        System.out.println("[MOCK] Utente registrato: " + username);
+        System.out.println("[MOCK] Email: " + email);
+        System.out.println("[MOCK] Codice invito generato: INV_" + username.toUpperCase());
+        return "INV_" + username.toUpperCase();
+    }
+
+    @Override
+    public void renewSubscriptionNow(final String username, final int subscriptionCode) {
+        System.out.println("[MOCK] Rinnovo manuale per: " + username + " - Sub #" + subscriptionCode);
+    }
+
+    @Override
+    public void toggleAutoRenew(final String username, final int subscriptionCode, 
+                            final boolean enabled) {
+        System.out.println("[MOCK] Rinnovo " + (enabled ? "attivato" : "disattivato") + 
+                        " per: " + username + " - Sub #" + subscriptionCode);
+    }
+
+    @Override
+    public boolean getAutoRenewStatus(final String username, final int subscriptionCode) {
+        // Simula: per mario88 ritorna true, per altri false
+        if ("mario88".equals(username)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int[] processAutoRenewals() {
+        System.out.println("[MOCK] Processo rinnovo automatico eseguito");
+        return new int[]{1, 0, 0};  // mock: 1 rinnovata, 0 fallite, 0 scadute
+    }
 }

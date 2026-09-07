@@ -27,6 +27,9 @@ import soundwave.data.Plan;
  * Dialog for activating a subscription.
  */
 public final class ActivateSubscriptionDialog extends JDialog {
+
+    private static final int FONT_STYLE_BOLD = Font.BOLD;
+    
     // --- Costanti per eliminare i magic number e le stringhe hardcoded ---
     private static final int DIALOG_WIDTH = 600;
     private static final int DIALOG_HEIGHT = 500;
@@ -126,6 +129,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
 
         // === Main Panel ===
         final JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(BORDER_PADDING, BORDER_PADDING, BORDER_PADDING, BORDER_PADDING));
         panel.setBorder(BorderFactory.createEmptyBorder(BORDER_PADDING, BORDER_PADDING, BORDER_PADDING, BORDER_PADDING));
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(GRID_INSET, GRID_INSET, GRID_INSET, GRID_INSET);
@@ -239,7 +243,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
         gbc.gridy = row;
         gbc.gridwidth = 3;
         this.lblTotal = new JLabel(TOTAL_LABEL_PREFIX + "0.00");
-        this.lblTotal.setFont(this.lblTotal.getFont().deriveFont(Font.BOLD, TOTAL_FONT_SIZE));
+        this.lblTotal.setFont(this.lblTotal.getFont().deriveFont(FONT_STYLE_BOLD, TOTAL_FONT_SIZE));
         this.lblTotal.setForeground(TOTAL_LABEL_COLOR);
         panel.add(this.lblTotal, gbc);
         gbc.gridwidth = 1;
@@ -251,7 +255,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
         this.btnActivate = new JButton(ACTIVATE_BTN_TEXT);
         this.btnActivate.setBackground(ACTIVATE_BTN_BG);
         this.btnActivate.setForeground(Color.WHITE);
-        this.btnActivate.setFont(this.btnActivate.getFont().deriveFont(Font.BOLD));
+        this.btnActivate.setFont(this.btnActivate.getFont().deriveFont(FONT_STYLE_BOLD));
         panel.add(this.btnActivate, gbc);
 
         add(panel, BorderLayout.CENTER);

@@ -1,5 +1,6 @@
 package soundwave.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -8,6 +9,7 @@ import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
 import soundwave.view.ActivateSubscriptionDialog;
+import soundwave.view.RedeemBonusDialog;
 
 /**
  * Defines the controller interface for the Soundwave application.
@@ -99,6 +101,78 @@ public interface Controller {
      * @return true if successfully saved, false otherwise.
      */
     boolean adminClickedSaveEpisode(int podcastCode, String title, int duration, String description, int episodeNumber);
+
+    /**
+     * Requests the redemption of bonus credits for a user
+     * This method is called when a user wats to redeem their bonus credit
+     * for a subscriptionn. The system will check if the user has sufficient
+     * credits and if they are eligible for redemption
+     * 
+     * @param username the username of the user requisting bonus redemption
+     */
+    void userRequestedRedeemBonus(String username);
+
+    /**
+     * Processes the redemption of bonus credits for a subscription
+     * 
+     * @param username the username of the user redeeming bonus credits
+     * @param data the redemption data containing plan information and other details
+     */
+    void userRedeemedBonus(String username, RedeemBonusDialog.RedeemData data);
+
+
+    /**
+     * Registers a new user in the Soundwave system
+     * 
+     * @param username the unique username for new account
+     * @param name the user's first name
+     * @param surname the user's last name
+     * @param email the user's email adress
+     * @param password the user's password
+     * @param birthDate the user's date of birth
+     * @param country the user's cuntry of residence
+     */
+    void userRegistered(String username, String name, String surname, String email, 
+                    String password, LocalDate birthDate, String country);
+
+    /**
+     * Renews a subscription for the specified user
+     * 
+     * @param username the username of the subscription owner
+     * @param subscriptionCode the unique code of the subscription to renew
+     */
+    void renewSubscriptionNow(String username, int subscriptionCode);
+
+    /**
+     * Toggles the auto-renewal setting for a user's subscription.
+     * This method enables or disables automatic renewal for the specified
+     * subscription. When enabled, the system will automatically attempt to
+     * renew the subscription when it expires.
+     * 
+     * @param username the username of the subscription owner
+     * @param subscriptionCode the unique code of the subscription to modify
+     * @param enabled true to enable auto-renewal, false to disable it
+     */
+    void toggleAutoRenew(String username, int subscriptionCode, boolean enabled);
+
+    /**
+     * Retrieves the current auto-renewal status of a subscription
+     * This method checks whether automatic renewal is enabled for the specified subscription.
+     * 
+     * @param username the username of the subscription owner
+     * @param subscriptionCode the unique code of the subscription to check
+     * @return true if auto-renewal is enabled, false otherwise
+     */
+    boolean getAutoRenewStatus(String username, int subscriptionCode);
+
+    /**
+     * Executes the automatic renewal process for all eligible subscriptions
+     * 
+     * @return an array of subscription codes that were successfully renewed, 
+     *          or an empty array if no subscriptions were renewed
+     */
+    int[] adminRunAutoRenewal();
+
 
     /**
      * Handles the request to generate a listening event.

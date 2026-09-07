@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -17,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -122,6 +124,9 @@ public final class AdminPanel extends JPanel {
     private final JTextArea txtGlobalAlbumsOutput = new JTextArea(6, 30);
     private final JTextArea txtYearlyStatsOutput = new JTextArea(8, 30);
 
+    // Bottone per eseguire il rinnovo automatico (OP custom)
+    private final JButton btnRunAutoRenewal = new JButton("Esegui Rinnovo Automatico");
+
     private final JButton btnBack = new JButton("Disconnetti / Cambia Ruolo");
 
     /**
@@ -147,6 +152,7 @@ public final class AdminPanel extends JPanel {
         mainTabbedPane.addTab("Nuovi Inserimenti", insertTabbedPane);
         mainTabbedPane.addTab("Statistiche Piattaforma", createStatsPanel());
         mainTabbedPane.addTab("Gestione Utenti", createUsersPanel());
+        mainTabbedPane.addTab("Rinnovi Automatici", createAutoRenewalPanel());
 
         this.add(mainTabbedPane, BorderLayout.CENTER);
 
@@ -454,6 +460,11 @@ public final class AdminPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
         topYearPanel.add(this.btnFetchYearlyStats, gbc);
 
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(15, INSET_GAP, INSET_GAP, INSET_GAP);
+        
         yearlyPanel.add(topYearPanel, BorderLayout.NORTH);
 
         this.txtYearlyStatsOutput.setEditable(false);
@@ -465,6 +476,66 @@ public final class AdminPanel extends JPanel {
 
         panel.add(containerPanel, BorderLayout.CENTER);
 
+        return panel;
+    }
+
+    /**
+     * Creates the panel for automatic renewal management.
+    * 
+    * @return the auto-renewal panel.
+     */
+    private JPanel createAutoRenewalPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        
+        int row = 0;
+
+        // Titolo
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        
+        final JLabel titleLabel = new JLabel("Gestione Rinnovi Automatici");
+        titleLabel.setFont(titleLabel.getFont().deriveFont(20f));
+        panel.add(titleLabel, gbc);
+        row++;
+
+        // Separatore
+        gbc.gridy = row;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(new JSeparator(), gbc);
+        row++;
+
+        // Istruzioni
+        gbc.gridy = row;
+        gbc.fill = GridBagConstraints.NONE;
+
+        final JLabel lblInfo = new JLabel(
+            "<html><center>Avvia il processo di rinnovo automatico<br>" +
+            "per tutte le sottoscrizioni in scadenza</center></html>"
+        );
+        lblInfo.setFont(lblInfo.getFont().deriveFont(16f));
+        panel.add(lblInfo, gbc);
+        
+        // Spazio
+        gbc.gridy = row;
+        panel.add(new JLabel(" "), gbc);
+        row++;
+
+        // Pulsante
+        gbc.gridy = row;
+        gbc.fill = GridBagConstraints.NONE;
+
+        this.btnRunAutoRenewal.setPreferredSize(new Dimension(300, 60));
+        this.btnRunAutoRenewal.setBackground(new Color(0, 120, 215));
+        this.btnRunAutoRenewal.setForeground(Color.WHITE);
+        this.btnRunAutoRenewal.setFont(this.btnRunAutoRenewal.getFont().deriveFont(16f));
+        panel.add(this.btnRunAutoRenewal, gbc);
+        
         return panel;
     }
 
@@ -982,5 +1053,14 @@ public final class AdminPanel extends JPanel {
         for (final JTextComponent component : textComponents) {
             component.setText("");
         }
+    }
+
+    /**
+     * Adds an action listener to the run auto renewal button (OP 3.1).
+     * 
+     * @param listener the action listener
+     */
+    public void addRunAutoRenewalListener(final ActionListener listener) {
+        this.btnRunAutoRenewal.addActionListener(listener);
     }
 }

@@ -119,6 +119,15 @@ public interface View {
     void showSuccessAndCloseDialog(String message);
 
     /**
+     * Show the dialog when the user uses credit bonus for renew or activate subscription
+     * 
+     * @param username the user
+     * @param plans the list of plans disponible
+     * @param bonusCredits the number of credit bonus of user
+     */
+    void showRedeemBonusDialog(String username, List<Plan> plans, int bonusCredits);
+    
+    /**
      * Gets the user panel.
      * 
      * @return the UserPanel instance.
@@ -189,4 +198,9 @@ public interface View {
      * @return an object array with the rating and comment, or null if cancelled
      */
     Object[] showReviewInputDialog();
+
+    /* 
+     * Show the dialog for register new user
+     */
+    void showRegisterDialog();
 }

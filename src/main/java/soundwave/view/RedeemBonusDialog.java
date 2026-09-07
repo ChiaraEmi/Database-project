@@ -23,7 +23,26 @@ import java.awt.Color;
 
 import soundwave.data.Plan;
 
-public class RedeemBonusDialog extends JDialog {
+/**
+ * Dialog for redeeming bonus credits to purchase a subscription.
+ * This dialog allows users to select a subscription plan and redeem
+ * their bonus credits. The dialog validates that the user has sufficient
+ * credits and that the selected plan is eligible for bonus redemption.
+ */
+public final class RedeemBonusDialog extends JDialog {
+    private static final int DIALOG_WIDTH = 450;
+    private static final int DIALOG_HEIGHT = 400;
+    private static final int INSET_GAP_15 = 15;
+    private static final int INSET_GAP_6 = 6;
+    private static final float FONT_SIZE_14 = 14f;
+    private static final float FONT_SIZE_12 = 12f;
+    private static final int BUTTON_WIDTH_200 = 200;
+    private static final int BUTTON_WIDTH_120 = 120;
+    private static final int BUTTON_COLOR_BLUE = 215;
+
+    private static final String[] PAYMENT_METHODS = {
+        "Crediti Bonus",
+    };
 
     private final JComboBox<String> comboPlans;
     private final JComboBox<String> comboPayment;
@@ -36,17 +55,18 @@ public class RedeemBonusDialog extends JDialog {
     private final List<Plan> plans;
     private final String username;
     private final int bonusCredits;
-    private boolean redeemed = false;
-    private double currentPrice = 0.0;
+    private boolean redeemed;
+    private double currentPrice;
 
-    private Consumer<RedeemData> onRedeem;
-
-    private static final String[] PAYMENT_METHODS = {
-        "Crediti Bonus"
-    };
+    private Consumer<RedeemData> onRedeemListener;
 
     /**
-     * Costruttore del Dialog.
+     * Constructs a new RedeemBonusDialog.
+     * 
+     * @param parent the parent frame
+     * @param username the username of the user
+     * @param plans the list of available subscription plans
+     * @param bonusCredits the user's current bonus credit balance
      */
     public RedeemBonusDialog(final JFrame parent, final String username, 
                             final List<Plan> plans, final int bonusCredits) {
@@ -56,13 +76,13 @@ public class RedeemBonusDialog extends JDialog {
         this.bonusCredits = bonusCredits;
 
         setLayout(new BorderLayout(10, 10));
-        setSize(450, 400);
+        setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
         setLocationRelativeTo(parent);
 
         final JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP_15, INSET_GAP_15, INSET_GAP_15, INSET_GAP_15));
         final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.insets = new Insets(INSET_GAP_6, INSET_GAP_6, INSET_GAP_6, INSET_GAP_6);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -73,7 +93,7 @@ public class RedeemBonusDialog extends JDialog {
         gbc.gridy = row++;
         gbc.gridwidth = 2;
         final JLabel lblUser = new JLabel("Utente: " + username);
-        lblUser.setFont(lblUser.getFont().deriveFont(Font.BOLD, 14f));
+        lblUser.setFont(lblUser.getFont().deriveFont(Font.BOLD, FONT_SIZE_14));
         panel.add(lblUser, gbc);
         gbc.gridwidth = 1;
 
@@ -82,11 +102,11 @@ public class RedeemBonusDialog extends JDialog {
         gbc.gridy = row++;
         gbc.gridwidth = 2;
         this.lblBonusCredits = new JLabel("Crediti Bonus disponibili: " + bonusCredits);
-        this.lblBonusCredits.setFont(this.lblBonusCredits.getFont().deriveFont(Font.BOLD, 14f));
+        this.lblBonusCredits.setFont(this.lblBonusCredits.getFont().deriveFont(Font.BOLD, FONT_SIZE_14));
         if (bonusCredits >= 2) {
-            this.lblBonusCredits.setForeground(new Color(0, 150, 0));
+            this.lblBonusCredits.setForeground(new Color(0, BUTTON_WIDTH_120, 0));
         } else {
-            this.lblBonusCredits.setForeground(new Color(200, 0, 0));
+            this.lblBonusCredits.setForeground(new Color(BUTTON_WIDTH_200, 0, 0));
         }
         panel.add(this.lblBonusCredits, gbc);
         gbc.gridwidth = 1;
@@ -153,7 +173,7 @@ public class RedeemBonusDialog extends JDialog {
         gbc.gridwidth = 3;
         this.lblTotal = new JLabel("Totale da pagare: €0.00 (con crediti bonus)");
         this.lblTotal.setFont(this.lblTotal.getFont().deriveFont(Font.BOLD, 16f));
-        this.lblTotal.setForeground(new Color(0, 120, 0));
+        this.lblTotal.setForeground(new Color(0, BUTTON_WIDTH_120, 0));
         panel.add(this.lblTotal, gbc);
         gbc.gridwidth = 1;
         row++;
@@ -168,7 +188,7 @@ public class RedeemBonusDialog extends JDialog {
 
         gbc.gridx = 2;
         this.btnRedeem = new JButton("Riscatta con Crediti Bonus");
-        this.btnRedeem.setBackground(new Color(0, 120, 215));
+        this.btnRedeem.setBackground(new Color(0, BUTTON_WIDTH_120, BUTTON_COLOR_BLUE));
         this.btnRedeem.setForeground(Color.WHITE);
         this.btnRedeem.setFont(this.btnRedeem.getFont().deriveFont(Font.BOLD));
         this.btnRedeem.setEnabled(bonusCredits >= 2);
@@ -181,16 +201,17 @@ public class RedeemBonusDialog extends JDialog {
     }
 
     private int addSectionHeader(final JPanel panel, final GridBagConstraints gbc, 
-                                 int row, final String title) {
-        gbc.gridx = 0;
-        gbc.gridy = row++;
-        gbc.gridwidth = 3;
+                                 final int row, final String title) {
+        int newrow = row;
+        final GridBagConstraints localGbc = (GridBagConstraints) gbc.clone();
+        localGbc.gridx = 0;
+        localGbc.gridy = newrow++;
+        localGbc.gridwidth = 3;
         final JLabel lblSection = new JLabel("──── " + title + " ────");
-        lblSection.setFont(lblSection.getFont().deriveFont(Font.BOLD, 12f));
+        lblSection.setFont(lblSection.getFont().deriveFont(Font.BOLD, FONT_SIZE_12));
         lblSection.setForeground(new Color(100, 100, 100));
-        panel.add(lblSection, gbc);
-        gbc.gridwidth = 1;
-        return row;
+        panel.add(lblSection, localGbc);
+        return newrow;
     }
 
     private void updateTotalPrice() {
@@ -211,21 +232,31 @@ public class RedeemBonusDialog extends JDialog {
         }
     }
 
+    /**
+     * Adds a listener to be called when the redeem button is clicked.
+     *
+     * @param onRedeem the listener to call on redeem
+     */
     public void addRedeemListener(final Consumer<RedeemData> onRedeem) {
-        this.onRedeem = onRedeem;
+        this.onRedeemListener = onRedeem;
         this.btnRedeem.addActionListener(e -> {
-            if (this.onRedeem != null) {
+            if (this.onRedeemListener != null) {
                 final RedeemData data = new RedeemData(
                     getSelectedPlanCode(),
                     isAutoRenew()
                 );
                 this.redeemed = true;
-                this.onRedeem.accept(data);
+                this.onRedeemListener.accept(data);
                 dispose();
             }
         });
     }
 
+    /**
+     * Adds a listener to be called when the cancel button is clicked.
+     *
+     * @param onCancel the listener to call on cancel
+     */
     public void addCancelListener(final Runnable onCancel) {
         this.btnCancel.addActionListener(e -> {
             if (onCancel != null) {
@@ -235,8 +266,20 @@ public class RedeemBonusDialog extends JDialog {
         });
     }
 
-    public String getUsername() { return username; }
+    /**
+     * Gets the username of the current user.
+     * 
+     * @return the username
+     */
+    public String getUsername() { 
+        return username; 
+    }
 
+    /**
+     * Gets the code of the selected subscription plan.
+     *
+     * @return the plan code, or 0 if no plan is selected
+     */
     public int getSelectedPlanCode() {
         final int selectedIndex = this.comboPlans.getSelectedIndex();
         if (selectedIndex < 0) {
@@ -254,25 +297,87 @@ public class RedeemBonusDialog extends JDialog {
         return -1;
     }
 
-    public boolean isAutoRenew() { return this.chkAutoRenew.isSelected(); }
-    public boolean isRedeemed() { return this.redeemed; }
-    public int getBonusCredits() { return this.bonusCredits; }
+    /**
+     * Checks if auto-renewal is enabled.
+     *
+     * @return true if auto-renewal is enabled
+     */
+    public boolean isAutoRenew() {
+        return this.chkAutoRenew.isSelected();
+    }
 
+    /**
+     * Checks if the bonus has been redeemed.
+     *
+     * @return true if redeemed
+     */
+    public boolean isRedeemed() { 
+        return this.redeemed; 
+    }
+
+    /**
+     * Gets the bonus credit balance.
+     *
+     * @return the bonus credits
+     */
+    public int getBonusCredits() { 
+        return this.bonusCredits; 
+    }
+
+    /**
+     * Shows an error message in the dialog.
+     *
+     * @param message the error message to display
+     */
     public void showError(final String message) {
         JOptionPane.showMessageDialog(this, message, "Errore", JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * Shows a success message in the dialog.
+     *
+     * @param message the success message to display
+     */
     public void showSuccess(final String message) {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Data class containing redemption details.
+     * This class is used to transfer redemption data from the dialog
+     * to the controller.
+     */
     public static final class RedeemData {
-        public final int planCode;
-        public final boolean autoRenew;
+        private final int planCode;
+        private final boolean autoRenew;
 
+        /**
+         * Constructs a new RedeemData instance.
+         *
+         * @param planCode the plan code.
+         * @param autoRenew true if auto-renewal is enabled, false otherwise.
+         */
         public RedeemData(final int planCode, final boolean autoRenew) {
             this.planCode = planCode;
             this.autoRenew = autoRenew;
+        }
+
+        /**
+         * Getter the code of plan selected.
+         * 
+         * @return code of plan selected
+         */
+        public int getPlanCode() { 
+            return planCode; 
+        }
+
+        /**
+         * Getter to know is enable automatic renewal.
+         * 
+         * @return true if is enabled, false otherwise
+         */
+        public boolean isAutoRenew() { 
+            return autoRenew; 
         }
     }
 

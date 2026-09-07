@@ -22,8 +22,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 
 /**
- * Dialog che mostra lo stato delle sottoscrizioni di un utente
- * Include dettagli della sottoscrizione, transazioni e pulsanti per azioni
+ * Displays subscription status for a user.
+ * This dialog shows detailed information about the user's subscriptions,
+ * including plan details, dates, status, auto-renewal status, and transaction
+ * history. It also provides actions for renewal and toggling auto-renewal.
  */
 public final class SubscriptionStatusDialog extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -185,7 +187,7 @@ public final class SubscriptionStatusDialog extends JDialog {
         final JLabel lblTitle = new JLabel("Sottoscrizione #" + subCode);
         lblTitle.setFont(new Font(FONT_FAMILY, FONT_STYLE_BOLD, FONT_SIZE_TITLE));
         headerPanel.add(lblTitle, BorderLayout.WEST);
-        
+
         // Status label with conditional coloring
         final JLabel lblStatus = new JLabel(status);
         lblStatus.setFont(new Font(FONT_FAMILY, FONT_STYLE_BOLD, FONT_SIZE_STATUS));
@@ -204,7 +206,8 @@ public final class SubscriptionStatusDialog extends JDialog {
         // --- Details ---
         final JPanel detailsPanel = new JPanel(new GridLayout(0, 2, GRID_GAP_H, GRID_GAP_V));
         detailsPanel.setBackground(Color.WHITE);
-        detailsPanel.setBorder(BorderFactory.createEmptyBorder(RIGID_AREA_HEIGHT_8, BORDER_EMPTY_SMALL, RIGID_AREA_HEIGHT_8, BORDER_EMPTY_SMALL));
+        detailsPanel.setBorder(BorderFactory.createEmptyBorder(RIGID_AREA_HEIGHT_8, BORDER_EMPTY_SMALL, 
+                                                                RIGID_AREA_HEIGHT_8, BORDER_EMPTY_SMALL));
 
         detailsPanel.add(createLabel("Piano:"));
         detailsPanel.add(createValueLabel(planType));
@@ -213,7 +216,7 @@ public final class SubscriptionStatusDialog extends JDialog {
         detailsPanel.add(createLabel("Fine:"));
         detailsPanel.add(createValueLabel(endDate));
         detailsPanel.add(createLabel("Rinnovo Automatico:"));
-        detailsPanel.add(createValueLabel(autoRenew ? "Attiva" : "Disattivata"));
+        detailsPanel.add(createValueLabel(autoRenew ? STATUS_ATTIVA : "Disattivata"));
 
         if (promoCode != null && !promoCode.isEmpty()) {
             detailsPanel.add(createLabel("Promozione:"));
@@ -247,17 +250,17 @@ public final class SubscriptionStatusDialog extends JDialog {
             blockPanel.add(lblNoTrans);
         }
 
-        if ("Attiva".equals(status)) {
-            JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, FLOW_LAYOUT_GAP, ACTION_PANEL_GAP));
+        if (STATUS_ATTIVA.equals(status)) {
+            final JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, FLOW_LAYOUT_GAP, ACTION_PANEL_GAP));
             actionPanel.setBackground(Color.WHITE);
 
-            JButton btnRenew = new JButton("Rinnova Ora");
+            final JButton btnRenew = new JButton("Rinnova Ora");
             btnRenew.setBackground(new Color(COLOR_GREEN, COLOR_BLUE, COLOR_BLUE_DARK));
             btnRenew.setForeground(Color.WHITE);
             btnRenew.setFont(btnRenew.getFont().deriveFont(FONT_STYLE_BOLD));
-            
+
             btnRenew.addActionListener(e -> {
-                int choice = JOptionPane.showConfirmDialog(
+                final int choice = JOptionPane.showConfirmDialog(
                     this,
                     "Vuoi rinnovare la sottoscrizione #" + subCode + "?",
                     "Conferma Rinnovo",
@@ -269,14 +272,15 @@ public final class SubscriptionStatusDialog extends JDialog {
             });
             actionPanel.add(btnRenew);
 
-            String toggleText = autoRenew ? "Disattiva Rinnovo" : "Attiva Rinnovo";
-            JButton btnToggle = new JButton(toggleText);
-            btnToggle.setBackground(autoRenew ? new Color(COLOR_RED, COLOR_DARK_GRAY, COLOR_DARK_GRAY) : new Color(COLOR_GREEN, COLOR_YELLOW, COLOR_GREEN));
+            final String toggleText = autoRenew ? "Disattiva Rinnovo" : "Attiva Rinnovo";
+            final JButton btnToggle = new JButton(toggleText);
+            btnToggle.setBackground(autoRenew ? new Color(COLOR_RED, COLOR_DARK_GRAY, COLOR_DARK_GRAY) 
+                                              : new Color(COLOR_GREEN, COLOR_YELLOW, COLOR_GREEN));
             btnToggle.setForeground(Color.WHITE);
             btnToggle.setFont(btnToggle.getFont().deriveFont(FONT_STYLE_BOLD));
             btnToggle.addActionListener(e -> {
-                String action = autoRenew ? "disattivare" : "attivare";
-                int choice = JOptionPane.showConfirmDialog(
+                final String action = autoRenew ? "disattivare" : "attivare";
+                final int choice = JOptionPane.showConfirmDialog(
                     this,
                     "Vuoi " + action + " il rinnovo automatico?",
                     "Conferma " + action,
@@ -286,14 +290,13 @@ public final class SubscriptionStatusDialog extends JDialog {
                     onToggleAutoRenew.accept(subCode);
                 }
             });
-            
+
             actionPanel.add(btnToggle);
             blockPanel.add(actionPanel);
 
         } else {
             System.out.println(" Sottoscrizione NON ATTIVA! Status = '" + status + "'");
         }
-
 
         // Add the block to the main content panel
         this.contentPanel.add(blockPanel);
@@ -302,9 +305,9 @@ public final class SubscriptionStatusDialog extends JDialog {
 
     /**
      * Creates a styled label for field keys.
-     * 
+     *
      * @param text the text to display.
-     * 
+     *
      * @return the configured JLabel.
      */
     private JLabel createLabel(final String text) {
@@ -316,9 +319,9 @@ public final class SubscriptionStatusDialog extends JDialog {
 
     /**
      * Creates a styled label for field values.
-     * 
+     *
      * @param text the text to display.
-     * 
+     *
      * @return the configured JLabel.
      */
     private JLabel createValueLabel(final String text) {
@@ -338,28 +341,23 @@ public final class SubscriptionStatusDialog extends JDialog {
     }
 
     /**
-     * Imposta il Consumer per l'azione di rinnovo manuale
-     * 
-     * @param onRenew il Consumer che riceve il codice della sottoscrizione
+     * Sets the Consumer for the manual renewal action.
+     *
+     * @param onRenew the Consumer that receives the subscription code
      */
-    public void setOnRenew(Consumer<Integer> onRenew) {
+    public void setOnRenew(final Consumer<Integer> onRenew) {
         this.onRenew = onRenew;
     }
 
     /**
-     * Imposta il Consumer per l'azione di attivazione/disattivazione del rinnovo
-     * 
-     * @param onToggleAutoRenew il Consumer che riceve il codice della sottoscrizione
+     * Sets the Consumer for the toggle auto-renew action.
+     *
+     * @param onToggleAutoRenew the Consumer that receives the subscription code
      */
-    public void setOnToggleAutoRenew(Consumer<Integer> onToggleAutoRenew) {
+    public void setOnToggleAutoRenew(final Consumer<Integer> onToggleAutoRenew) {
         this.onToggleAutoRenew = onToggleAutoRenew;
     }
 
-    /**
-     * Imposta il Runnable per l'azione di refresh
-     * 
-     * @param onRefresh il Runnable da eseguire al refresh
-     */
     /**
      * Sets the action to be performed when the refresh button is clicked.
      *

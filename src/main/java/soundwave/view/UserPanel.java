@@ -32,12 +32,18 @@ import soundwave.data.Playlist;
 import javax.swing.SwingUtilities;
 
 import soundwave.controller.Controller;
+import soundwave.data.DAOException;
 import soundwave.data.Plan;
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Panel representing the main user dashboard.
  */
 public final class UserPanel extends JPanel {
+
+    private static final Logger LOG = Logger.getLogger(UserPanel.class.getName());
 
     private static final long serialVersionUID = 1L;
     private static final float TITLE_FONT_SIZE = 22f;
@@ -50,6 +56,9 @@ public final class UserPanel extends JPanel {
     private static final int INSET_GAP = 6;
     private static final int PREFERRED_SCROLL_PANE_WIDTH = 280;
     private static final int INSET_TOP_LARGE = 12;
+    private static final int COLUMN_INDEX_5 = 5;
+    private static final int COLUMN_INDEX_6 = 6;
+    private static final int COLUMN_INDEX_7 = 7;
 
     private String currentUsername;
 
@@ -101,7 +110,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Builds a new UserPanel for the specified user.
-     * 
+     *
      * @param username the username of the logged-in user.
      */
     public UserPanel(final String username) {
@@ -139,7 +148,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Sets the application controller.
-     * 
+     *
      * @param controller the controller instance to set.
      */
     public void setController(final Controller controller) {
@@ -148,7 +157,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Creates the tab for subscription management.
-     * 
+     *
      * @return the subscription panel.
      */
     private JPanel createSubscriptionTab() {
@@ -177,7 +186,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Creates the tab for exploring catalog.
-     * 
+     *
      * @return the explore panel.
      */
     private JPanel createExploreTab() {
@@ -215,7 +224,7 @@ public final class UserPanel extends JPanel {
     /**
      * Creates the tab for personal library and playlists, showing liked tracks on the left
      * and management controls on the right.
-     * 
+     *
      * @return the library panel.
      */
     private JPanel createLibraryTab() {
@@ -224,7 +233,7 @@ public final class UserPanel extends JPanel {
 
         // Pannello di sinistra diviso tra Brani Preferiti e Artisti Seguiti
         final JPanel leftContainer = new JPanel(new GridLayout(2, 1, 0, 10));
-        
+
         final JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBorder(BorderFactory.createTitledBorder("I tuoi Brani Preferiti"));
         this.likedTracksList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -257,7 +266,7 @@ public final class UserPanel extends JPanel {
         rightControlsPanel.add(createTrackManagementSubPanel(), gbc);
 
         gbc.gridy++;
-        gbc.weighty = 1.0; 
+        gbc.weighty = 1.0;
         rightControlsPanel.add(new JPanel(), gbc);
 
         panel.add(rightControlsPanel, BorderLayout.CENTER);
@@ -267,7 +276,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Sub-panel for playlist creation and general actions.
-     * 
+     *
      * @return the playlist management sub-panel.
      */
     private JPanel createPlaylistManagementSubPanel() {
@@ -317,7 +326,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Sub-panel for adding and removing tracks.
-     * 
+     *
      * @return the track management sub-panel.
      */
     private JPanel createTrackManagementSubPanel() {
@@ -394,7 +403,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Creates the tab for personal listening statistics.
-     * 
+     *
      * @return the statistics panel.
      */
     private JPanel createStatsTab() {
@@ -409,7 +418,7 @@ public final class UserPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         topStatsPanel.add(new JLabel("Anno di riferimento:"), gbc);
-        
+
         gbc.gridx = 1;
         topStatsPanel.add(this.comboStatsYear, gbc);
 
@@ -429,7 +438,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Gets the current logged-in username.
-     * 
+     *
      * @return the username string.
      */
     public String getCurrentUsername() {
@@ -438,7 +447,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Gets the selected genre from the combo box.
-     * 
+     *
      * @return the selected genre string.
      */
     public String getSelectedGenre() {
@@ -447,7 +456,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Gets the artist name entered in the search field.
-     * 
+     *
      * @return the searched artist name string.
      */
     public String getSearchedArtist() {
@@ -456,7 +465,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Gets the playlist name entered in the text field.
-     * 
+     *
      * @return the playlist name string.
      */
     public String getPlaylistName() {
@@ -465,7 +474,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Gets the selected playlist visibility.
-     * 
+     *
      * @return the visibility string.
      */
     public String getPlaylistVisibility() {
@@ -474,7 +483,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Checks whether the playlist is marked as collaborative.
-     * 
+     *
      * @return true if collaborative, false otherwise.
      */
     public boolean isPlaylistCollaborative() {
@@ -483,7 +492,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Gets the selected playlist from the addition combo box.
-     * 
+     *
      * @return the selected Playlist object, or null if none.
      */
     public Playlist getSelectedUserPlaylist() {
@@ -492,25 +501,25 @@ public final class UserPanel extends JPanel {
 
     /**
      * Gets the selected playlist from the removal combo box.
-     * 
+     *
      * @return the selected Playlist object, or null if none.
      */
     public Playlist getSelectedRemovePlaylist() {
         return (Playlist) this.removeTrackPlaylistCombo.getSelectedItem();
     }
 
-    /** 
+    /**
      * Gets the track code for adding.
-     * 
+     *
      * @return the track code string.
      */
     public String getAddTrackCode() {
         return this.txtAddTrackCode.getText().trim();
     }
 
-    /** 
+    /**
      * Gets the track code for removing.
-     * 
+     *
      * @return the track code string.
      */
     public String getRemoveTrackCode() {
@@ -519,7 +528,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Gets the statistics year from the dropdown menu.
-     * 
+     *
      * @return the statistics year as a String.
      */
     public String getStatsYear() {
@@ -529,7 +538,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Sets the current username for this user panel and updates any relevant UI components.
-     * 
+     *
      * @param username the username to set.
      */
     public void setCurrentUsername(final String username) {
@@ -542,7 +551,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Sets the text of the personal stats output area.
-     * 
+     *
      * @param text the statistics text to display.
      */
     public void setPersonalStatsOutput(final String text) {
@@ -551,7 +560,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Sets the available user playlists in both combo boxes (addition and removal).
-     * 
+     *
      * @param playlists the list of playlists.
      */
     public void setUserPlaylists(final List<Playlist> playlists) {
@@ -565,7 +574,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Sets the list of liked tracks strings to display in the UI.
-     * 
+     *
      * @param likedTracks the list of formatted track strings.
      */
     public void setLikedTracks(final List<String> likedTracks) {
@@ -577,7 +586,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Sets the list of followed artists strings to display in the UI.
-     * 
+     *
      * @param followedArtists the list of formatted artist names.
      */
     public void setFollowedArtists(final List<String> followedArtists) {
@@ -589,7 +598,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the activate subscription button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addActivateSubscriptionListener(final ActionListener listener) {
@@ -598,7 +607,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the redeem bonus button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addRedeemBonusListener(final ActionListener listener) {
@@ -607,7 +616,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the view subscription status button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addViewSubscriptionStatusListener(final ActionListener listener) {
@@ -616,7 +625,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the filter by genre button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addFilterByGenreListener(final ActionListener listener) {
@@ -625,7 +634,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the search artist button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addSearchArtistListener(final ActionListener listener) {
@@ -634,7 +643,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the create playlist button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addCreatePlaylistListener(final ActionListener listener) {
@@ -643,7 +652,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the toggle like button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addToggleLikeListener(final ActionListener listener) {
@@ -652,7 +661,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the add track button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addAddTrackListener(final ActionListener listener) {
@@ -661,7 +670,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the remove track button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addRemoveTrackListener(final ActionListener listener) {
@@ -670,7 +679,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the fetch personal stats button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addFetchPersonalStatsListener(final ActionListener listener) {
@@ -679,7 +688,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Adds an action listener for the back button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addBackListener(final ActionListener listener) {
@@ -691,8 +700,8 @@ public final class UserPanel extends JPanel {
      */
     public void clearAllForms() {
         final JTextComponent[] textComponents = {
-            this.txtPlaylistName, 
-            this.txtAddTrackCode, 
+            this.txtPlaylistName,
+            this.txtAddTrackCode,
             this.txtRemoveTrackCode,
         };
 
@@ -703,7 +712,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Configures a combo box to display the playlist name and handles collaborative formatting.
-     * 
+     *
      * @param comboBox the JComboBox to configure.
      */
     private void setupPlaylistComboBox(final JComboBox<Playlist> comboBox) {
@@ -712,10 +721,10 @@ public final class UserPanel extends JPanel {
 
             @Override
             public Component getListCellRendererComponent(
-                    final JList<?> list, 
-                    final Object value, 
-                    final int index, 
-                    final boolean isSelected, 
+                    final JList<?> list,
+                    final Object value,
+                    final int index,
+                    final boolean isSelected,
                     final boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Playlist) {
@@ -734,12 +743,12 @@ public final class UserPanel extends JPanel {
 
     /**
      * Displays the activate subscription dialog with available plans and listeners.
-     * 
+     *
      * @param username the username.
      * @param plans the list of available plans.
      * @param onActivate the consumer action triggered upon activation.
      */
-    public void showActivateSubscriptionDialog(final String username, final List<Plan> plans, 
+    public void showActivateSubscriptionDialog(final String username, final List<Plan> plans,
                                                 final Consumer<ActivateSubscriptionDialog.SubscriptionData> onActivate) {
         final JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
 
@@ -764,7 +773,7 @@ public final class UserPanel extends JPanel {
                             discountedPrice = originalPrice * (1 - discountValue / 100.0);
                         } else if ("Fisso".equals(discountType)) {
                             discountedPrice = Math.max(0, originalPrice - discountValue);
-                        } 
+                        }
 
                         activedialog.updatePriceWithDiscount(discountedPrice);
                         activedialog.setPromoCodeApplied(true);
@@ -809,7 +818,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Displays the subscription status dialog for the specified user.
-     * 
+     *
      * @param username the username.
      */
     public void showSubscriptionStatusDialog(final String username) {
@@ -818,25 +827,25 @@ public final class UserPanel extends JPanel {
         }
 
         this.statusDialog = new SubscriptionStatusDialog(
-            (JFrame) SwingUtilities.getWindowAncestor(this), 
+            (JFrame) SwingUtilities.getWindowAncestor(this),
             username
         );
 
         this.statusDialog.setOnRenew(subscriptionCode -> {
-            System.out.println("OnRenew chiamato per: " + subscriptionCode); 
+            System.out.println("OnRenew chiamato per: " + subscriptionCode);
             if (this.controller != null) {
                 this.controller.renewSubscriptionNow(username, subscriptionCode);
             }
         });
 
         this.statusDialog.setOnToggleAutoRenew(subscriptionCode -> {
-            System.out.println("OnToggleAutoRenew chiamato per: " + subscriptionCode); 
+            System.out.println("OnToggleAutoRenew chiamato per: " + subscriptionCode);
             if (this.controller != null) {
-                boolean currentState = this.controller.getAutoRenewStatus(username, subscriptionCode);
+                final boolean currentState = this.controller.getAutoRenewStatus(username, subscriptionCode);
                 this.controller.toggleAutoRenew(username, subscriptionCode, !currentState);
             }
         });
-        
+
         // Carica i dati
         loadSubscriptionData(username);
 
@@ -850,7 +859,7 @@ public final class UserPanel extends JPanel {
 
     /**
      * Loads subscription data from the controller and populates the status dialog.
-     * 
+     *
      * @param username the username.
      */
     private void loadSubscriptionData(final String username) {
@@ -862,7 +871,7 @@ public final class UserPanel extends JPanel {
 
                     if (data.isEmpty()) {
                         this.statusDialog.addSubscriptionBlock(
-                            0, "Nessuna sottoscrizione trovata", "", 
+                            0, "Nessuna sottoscrizione trovata", "",
                             "", "", false, "", "", List.of()
                         );
                     } else {
@@ -872,11 +881,11 @@ public final class UserPanel extends JPanel {
                             final String startDate = (String) sub[2];
                             final String endDate = (String) sub[3];
                             final String status = (String) sub[4];
-                            final boolean autoRenew = (boolean) sub[5];
-                            final String promoCode = (String) sub[6];
-                            final String inviteCode = (String) sub[7];
+                            final boolean autoRenew = (boolean) sub[COLUMN_INDEX_5];
+                            final String promoCode = (String) sub[COLUMN_INDEX_6];
+                            final String inviteCode = (String) sub[COLUMN_INDEX_7];
                             @SuppressWarnings("unchecked")
-                            List<String> transactions = (List<String>) sub[8];
+                            final List<String> transactions = (List<String>) sub[8];
 
                             this.statusDialog.addSubscriptionBlock(
                                 subCode, planType, startDate, endDate, status,
@@ -886,29 +895,37 @@ public final class UserPanel extends JPanel {
                     }
                     this.statusDialog.refreshUI();
                 }
-            } catch (final Exception e) {
-                e.printStackTrace();
+            } catch (final DAOException | NumberFormatException e) {
+                LOG.log(Level.SEVERE, "Error processing data", e);
                 if (this.statusDialog != null) {
-                    this.statusDialog.showError("Errore durante il caricamento dei dati.");
+                    this.statusDialog.showError("Errore: " + e.getMessage());
+
                 }
             }
         }
     }
 
-    public void showRedeemBonusDialog(final String username, final List<Plan> plans, 
+    /**
+     * Show the redeem bonus dialog for the current user.
+     *
+     * @param username the username of user
+     * @param plans the list of plans
+     * @param bonusCredits the bonus credits balance
+     * @param onRedeem the detail information for redeem bonus credit
+     */
+    public void showRedeemBonusDialog(final String username, final List<Plan> plans,
                                   final int bonusCredits,
                                   final Consumer<RedeemBonusDialog.RedeemData> onRedeem) {
-        
+
         final JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         final RedeemBonusDialog dialog = new RedeemBonusDialog(parent, username, plans, bonusCredits);
-        
+
         dialog.addRedeemListener(onRedeem);
         dialog.addCancelListener(() -> {
             System.out.println("[DEBUG] Riscatto annullato");
         });
-        
+
         dialog.setVisible(true);
     }
-
 
 }

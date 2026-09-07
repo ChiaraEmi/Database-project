@@ -35,6 +35,13 @@ import soundwave.data.Podcast;
  */
 public final class AdminPanel extends JPanel {
 
+    private static final String DESCRIPTION_LABEL = "Descrizione:";
+    private static final int INSET_GAP_15 = 15;
+    private static final int BUTTON_WIDTH_LARGE = 300;
+    private static final int BUTTON_HEIGHT_LARGE = 60;
+    private static final int BUTTON_WIDTH_MEDIUM = 120;
+    private static final int BUTTON_COLOR_BLUE = 215;
+
     private static final long serialVersionUID = 1L;
     private static final float TITLE_FONT_SIZE = 20f;
     private static final float SECTION_FONT_SIZE = 15f;
@@ -63,7 +70,7 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtAlbumTitle = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumReleaseDate = new JTextField(FIELD_COLUMNS);
     private final JTextField txtAlbumLabel = new JTextField(FIELD_COLUMNS);
-    private final JTextArea txtAlbumSongsInput = new JTextArea(DEFAULT_SONGS_ROWS, 40); 
+    private final JTextArea txtAlbumSongsInput = new JTextArea(DEFAULT_SONGS_ROWS, 40);
     private final JButton btnSaveAlbum = new JButton("Salva Album");
 
     // --- Campi di testo per inserimento Podcast (OP 9) ---
@@ -93,7 +100,6 @@ public final class AdminPanel extends JPanel {
     private final JTextField txtPromoPlanCodes = new JTextField(FIELD_COLUMNS);
     private final JButton btnSavePromotion = new JButton("Salva Promozione");
 
-
     // --- Area per Gestione Utenti (Sola Lettura) ---
     private final JButton btnFetchUsers = new JButton("Carica Utenti");
     private final DefaultTableModel usersTableModel = new DefaultTableModel(
@@ -103,6 +109,7 @@ public final class AdminPanel extends JPanel {
             return false;
         }
     };
+
     private final JTable tableUsers = new JTable(usersTableModel);
 
     // --- Campi di testo per Statistiche Globali (OP 22) ---
@@ -153,7 +160,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Helper to wrap a form panel inside a scrollpane for safety on smaller screens.
-     * 
+     *
      * @param panel the panel to wrap.
      * @return the scroll pane containing the panel.
      */
@@ -166,7 +173,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Creates the form panel for registering a new artist.
-     * 
+     *
      * @return the artist form panel.
      */
     private JPanel createArtistFormPanel() {
@@ -202,7 +209,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Creates the form panel for inserting albums and songs.
-     * 
+     *
      * @return the album form panel.
      */
     private JPanel createAlbumFormPanel() {
@@ -267,7 +274,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Creates the form panel for creating a new podcast.
-     * 
+     *
      * @return the podcast form panel.
      */
     private JPanel createPodcastFormPanel() {
@@ -299,7 +306,7 @@ public final class AdminPanel extends JPanel {
         row++;
         addFormField(panel, gbc, row, "Nome Podcast:", this.txtPodcastName);
         row++;
-        addFormField(panel, gbc, row, "Descrizione:", this.txtPodcastDescription);
+        addFormField(panel, gbc, row, DESCRIPTION_LABEL, this.txtPodcastDescription);
         row++;
         addFormField(panel, gbc, row, "Categoria:", this.txtPodcastCategory);
         row++;
@@ -310,7 +317,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Creates the form panel for adding an episode to a podcast.
-     * 
+     *
      * @return the episode form panel.
      */
     private JPanel createEpisodeFormPanel() {
@@ -344,7 +351,7 @@ public final class AdminPanel extends JPanel {
         row++;
         addFormField(panel, gbc, row, "Durata (secondi):", this.txtEpisodeDuration);
         row++;
-        addFormField(panel, gbc, row, "Descrizione:", this.txtEpisodeDescription);
+        addFormField(panel, gbc, row, DESCRIPTION_LABEL, this.txtEpisodeDescription);
         row++;
         addFormField(panel, gbc, row, "Numero Episodio:", this.txtEpisodeNumber);
         row++;
@@ -355,7 +362,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Creates the form panel for managing promotions and discounts (Imported fields from block 1).
-     * 
+     *
      * @return the promotion form panel.
      */
     private JPanel createPromotionFormPanel() {
@@ -370,7 +377,7 @@ public final class AdminPanel extends JPanel {
 
         addFormField(panel, gbc, row++, "Codice Promozione:", this.txtPromoCode);
         addFormField(panel, gbc, row++, "Nome Promozione:", this.txtPromoName);
-        addFormField(panel, gbc, row++, "Descrizione:", this.txtPromoDescription);
+        addFormField(panel, gbc, row++, DESCRIPTION_LABEL, this.txtPromoDescription);
         addFormField(panel, gbc, row++, "Data Inizio (YYYY-MM-DD):", this.txtPromoStartDate);
         addFormField(panel, gbc, row++, "Data Fine (YYYY-MM-DD):", this.txtPromoEndDate);
 
@@ -378,20 +385,20 @@ public final class AdminPanel extends JPanel {
         gbc.gridy = row++;
         panel.add(new JLabel("Tipo Sconto:"), gbc);
         gbc.gridx = 1;
-        
+
         panel.add(this.comboDiscountType, gbc);
 
         addFormField(panel, gbc, row++, "Valore Sconto:", this.txtDiscountValue);
         addFormField(panel, gbc, row++, "Mesi Richiesti (opzionale):", this.txtRequiredMonths);
         addFormField(panel, gbc, row++, "Piani Abbonamento (codici separati da virgola):", this.txtPromoPlanCodes);
         addCenteredButton(panel, gbc, row, this.btnSavePromotion);
-        
+
         return panel;
     }
 
     /**
      * Creates the panel for user management.
-     * 
+     *
      * @return the users panel.
      */
     private JPanel createUsersPanel() {
@@ -409,7 +416,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Creates the panel for platform statistics.
-     * 
+     *
      * @return the statistics panel.
      */
     private JPanel createStatsPanel() {
@@ -452,8 +459,8 @@ public final class AdminPanel extends JPanel {
         gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(15, INSET_GAP, INSET_GAP, INSET_GAP);
-        
+        gbc.insets = new Insets(INSET_GAP_15, INSET_GAP_15, INSET_GAP_15, INSET_GAP_15);
+
         yearlyPanel.add(topYearPanel, BorderLayout.NORTH);
 
         this.txtYearlyStatsOutput.setEditable(false);
@@ -470,8 +477,8 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Creates the panel for automatic renewal management.
-    * 
-    * @return the auto-renewal panel.
+     *
+     * @return the auto-renewal panel.
      */
     private JPanel createAutoRenewalPanel() {
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -480,16 +487,16 @@ public final class AdminPanel extends JPanel {
         gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        
+
         int row = 0;
 
         // Titolo
         gbc.gridx = 0;
         gbc.gridy = row;
         gbc.gridwidth = 1;
-        
+
         final JLabel titleLabel = new JLabel("Gestione Rinnovi Automatici");
-        titleLabel.setFont(titleLabel.getFont().deriveFont(20f));
+        titleLabel.setFont(titleLabel.getFont().deriveFont(TITLE_FONT_SIZE));
         panel.add(titleLabel, gbc);
         row++;
 
@@ -504,12 +511,12 @@ public final class AdminPanel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
 
         final JLabel lblInfo = new JLabel(
-            "<html><center>Avvia il processo di rinnovo automatico<br>" +
-            "per tutte le sottoscrizioni in scadenza</center></html>"
+            "<html><center>Avvia il processo di rinnovo automatico<br>"
+            + "per tutte le sottoscrizioni in scadenza</center></html>"
         );
         lblInfo.setFont(lblInfo.getFont().deriveFont(16f));
         panel.add(lblInfo, gbc);
-        
+
         // Spazio
         gbc.gridy = row;
         panel.add(new JLabel(" "), gbc);
@@ -519,12 +526,12 @@ public final class AdminPanel extends JPanel {
         gbc.gridy = row;
         gbc.fill = GridBagConstraints.NONE;
 
-        this.btnRunAutoRenewal.setPreferredSize(new Dimension(300, 60));
-        this.btnRunAutoRenewal.setBackground(new Color(0, 120, 215));
+        this.btnRunAutoRenewal.setPreferredSize(new Dimension(BUTTON_WIDTH_LARGE, BUTTON_HEIGHT_LARGE));
+        this.btnRunAutoRenewal.setBackground(new Color(0, BUTTON_WIDTH_MEDIUM, BUTTON_COLOR_BLUE));
         this.btnRunAutoRenewal.setForeground(Color.WHITE);
         this.btnRunAutoRenewal.setFont(this.btnRunAutoRenewal.getFont().deriveFont(16f));
         panel.add(this.btnRunAutoRenewal, gbc);
-        
+
         return panel;
     }
 
@@ -538,7 +545,7 @@ public final class AdminPanel extends JPanel {
         gbc.gridwidth = 1;
     }
 
-    private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row, 
+    private void addFormField(final JPanel panel, final GridBagConstraints gbc, final int row,
                             final String labelText, final JTextField field) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -547,7 +554,7 @@ public final class AdminPanel extends JPanel {
         panel.add(field, gbc);
     }
 
-    private void addFormComboField(final JPanel panel, final GridBagConstraints gbc, final int row, 
+    private void addFormComboField(final JPanel panel, final GridBagConstraints gbc, final int row,
                             final String labelText, final JComboBox<?> comboBox) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -567,7 +574,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener to fetch global albums statistics.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addFetchGlobalAlbumsListener(final ActionListener listener) {
@@ -576,7 +583,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener to fetch yearly platform statistics.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addFetchYearlyStatsListener(final ActionListener listener) {
@@ -585,79 +592,79 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Gets the artist stage name.
-     * 
+     *
      * @return the artist stage name string.
      */
-    public String getArtistStageName() { 
-        return this.txtStageName.getText(); 
+    public String getArtistStageName() {
+        return this.txtStageName.getText();
     }
 
     /**
      * Gets the artist real name.
-     * 
+     *
      * @return the artist real name string.
      */
-    public String getArtistRealName() { 
-        return this.txtRealName.getText(); 
+    public String getArtistRealName() {
+        return this.txtRealName.getText();
     }
 
     /**
      * Gets the artist real surname.
-     * 
+     *
      * @return the artist real surname string.
      */
-    public String getArtistRealSurname() { 
-        return this.txtRealSurname.getText(); 
+    public String getArtistRealSurname() {
+        return this.txtRealSurname.getText();
     }
 
     /**
      * Gets the artist birth date.
-     * 
+     *
      * @return the artist birth date string.
      */
-    public String getArtistBirthDate() { 
-        return this.txtBirthDate.getText(); 
+    public String getArtistBirthDate() {
+        return this.txtBirthDate.getText();
     }
 
     /**
      * Gets the artist provenance country.
-     * 
+     *
      * @return the provenance country string.
      */
-    public String getArtistProvenanceCountry() { 
-        return this.txtProvenanceCountry.getText(); 
+    public String getArtistProvenanceCountry() {
+        return this.txtProvenanceCountry.getText();
     }
 
     /**
      * Gets the artist biography.
-     * 
+     *
      * @return the biography string.
      */
-    public String getArtistBiography() { 
-        return this.txtBiography.getText(); 
+    public String getArtistBiography() {
+        return this.txtBiography.getText();
     }
 
     /**
      * Gets the artist start year.
-     * 
+     *
      * @return the start year string.
      */
-    public String getArtistStartYear() { 
-        return this.txtStartYear.getText(); 
+    public String getArtistStartYear() {
+        return this.txtStartYear.getText();
     }
 
     /**
      * Gets the artist type.
-     * 
+     *
      * @return the artist type string.
      */
-    public String getArtistType() { 
-        return this.txtArtistType.getText(); 
+    public String getArtistType() {
+        return this.txtArtistType.getText();
     }
 
     /**
      * Gets the selected album artist code.
-     * 
+     *
      * @return the artist code as a string, or an empty string if none is selected.
      */
     public String getAlbumArtistCode() {
@@ -667,43 +674,43 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Gets the album title.
-     * 
+     *
      * @return the album title string.
      */
-    public String getAlbumTitle() { 
-        return this.txtAlbumTitle.getText(); 
+    public String getAlbumTitle() {
+        return this.txtAlbumTitle.getText();
     }
 
     /**
      * Gets the album release date.
-     * 
+     *
      * @return the release date string.
      */
-    public String getAlbumReleaseDate() { 
-        return this.txtAlbumReleaseDate.getText(); 
+    public String getAlbumReleaseDate() {
+        return this.txtAlbumReleaseDate.getText();
     }
 
     /**
      * Gets the album record label.
-     * 
+     *
      * @return the record label string.
      */
-    public String getAlbumLabel() { 
-        return this.txtAlbumLabel.getText(); 
+    public String getAlbumLabel() {
+        return this.txtAlbumLabel.getText();
     }
 
     /**
      * Gets the raw input string for album songs.
-     * 
+     *
      * @return the songs input string.
      */
-    public String getAlbumSongsInput() { 
-        return this.txtAlbumSongsInput.getText(); 
+    public String getAlbumSongsInput() {
+        return this.txtAlbumSongsInput.getText();
     }
 
     /**
      * Gets the selected podcast author code.
-     * 
+     *
      * @return the author code as a string, or an empty string if none is selected.
      */
     public String getPodcastArtistCode() {
@@ -713,34 +720,34 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Gets the podcast name.
-     * 
+     *
      * @return the podcast name string.
      */
-    public String getPodcastName() { 
-        return this.txtPodcastName.getText(); 
+    public String getPodcastName() {
+        return this.txtPodcastName.getText();
     }
 
     /**
      * Gets the podcast description.
-     * 
+     *
      * @return the description string.
      */
-    public String getPodcastDescription() { 
-        return this.txtPodcastDescription.getText(); 
+    public String getPodcastDescription() {
+        return this.txtPodcastDescription.getText();
     }
 
     /**
      * Gets the podcast category.
-     * 
+     *
      * @return the category string.
      */
-    public String getPodcastCategory() { 
-        return this.txtPodcastCategory.getText(); 
+    public String getPodcastCategory() {
+        return this.txtPodcastCategory.getText();
     }
 
     /**
      * Gets the selected episode podcast code.
-     * 
+     *
      * @return the podcast code as a string, or an empty string if none is selected.
      */
     public String getEpisodePodcastCode() {
@@ -750,90 +757,89 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Gets the episode title.
-     * 
+     *
      * @return the episode title string.
      */
-    public String getEpisodeTitle() { 
-        return this.txtEpisodeTitle.getText(); 
+    public String getEpisodeTitle() {
+        return this.txtEpisodeTitle.getText();
     }
 
     // --- Getter Promozione aggiornati al 1° blocco ---
     /**
      * Gets the promotion code.
-     * 
+     *
      * @return the promo code string.
      */
-    public String getPromoCode() { 
-        return this.txtPromoCode.getText(); 
+    public String getPromoCode() {
+        return this.txtPromoCode.getText();
     }
 
     /**
      * Gets the promotion description.
-     * 
+     *
      * @return the promo description string.
      */
-    public String getPromoDescription() { 
-        return this.txtPromoDescription.getText(); 
+    public String getPromoDescription() {
+        return this.txtPromoDescription.getText();
     }
 
     /**
      * Gets the promotion start date.
-     * 
+     *
      * @return the start date string.
      */
-    public String getPromoStartDate() { 
-        return this.txtPromoStartDate.getText(); 
+    public String getPromoStartDate() {
+        return this.txtPromoStartDate.getText();
     }
 
     /**
      * Gets the promotion end date.
-     * 
+     *
      * @return the end date string.
      */
-    public String getPromoEndDate() { 
-        return this.txtPromoEndDate.getText(); 
+    public String getPromoEndDate() {
+        return this.txtPromoEndDate.getText();
     }
 
     /**
      * Gets the discount type.
-     * 
+     *
      * @return the discount type string.
      */
-    public String getDiscountType() { 
-        return (String) this.comboDiscountType.getSelectedItem(); 
+    public String getDiscountType() {
+        return (String) this.comboDiscountType.getSelectedItem();
     }
 
     /**
      * Gets the discount value.
-     * 
+     *
      * @return the discount value string.
      */
-    public String getDiscountValue() { 
-        return this.txtDiscountValue.getText(); 
+    public String getDiscountValue() {
+        return this.txtDiscountValue.getText();
     }
 
     /**
      * Gets the required months for the promotion.
-     * 
+     *
      * @return the required months string.
      */
-    public String getRequiredMonths() { 
-        return this.txtRequiredMonths.getText(); 
+    public String getRequiredMonths() {
+        return this.txtRequiredMonths.getText();
     }
 
     /**
      * Gets the promotion plan codes.
-     * 
+     *
      * @return the plan codes string.
      */
-    public String getPromoPlanCodes() { 
-        return this.txtPromoPlanCodes.getText(); 
+    public String getPromoPlanCodes() {
+        return this.txtPromoPlanCodes.getText();
     }
-
 
     /**
      * Gets the episode duration.
-     * 
+     *
      * @return the episode duration.
      */
     public String getEpisodeDuration() {
@@ -842,7 +848,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Gets the episode description.
-     * 
+     *
      * @return the episode description.
      */
     public String getEpisodeDescription() {
@@ -851,7 +857,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Gets the episode number.
-     * 
+     *
      * @return the episode number.
      */
     public String getEpisodeNumber() {
@@ -860,7 +866,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Gets the promotion name.
-     * 
+     *
      * @return the promotion name.
      */
     public String getPromoName() {
@@ -869,7 +875,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Gets the statistics year from the dropdown menu.
-     * 
+     *
      * @return the statistics year as a String.
      */
     public String getStatsYear() {
@@ -879,7 +885,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Sets the available artists for albums in the dropdown menu.
-     * 
+     *
      * @param artists the list of artist objects eligible for albums.
      */
     public void setAlbumArtists(final List<Artist> artists) {
@@ -891,7 +897,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Sets the available podcast authors in the dropdown menu.
-     * 
+     *
      * @param authors the list of artist objects authorized as podcast authors.
      */
     public void setPodcastAuthors(final List<Artist> authors) {
@@ -903,7 +909,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Sets the available podcasts in the dropdown menu.
-     * 
+     *
      * @param podcasts the list of podcast objects.
      */
     public void setPodcasts(final List<Podcast> podcasts) {
@@ -915,7 +921,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Sets the text for global albums statistics output.
-     * 
+     *
      * @param text the text to display.
      */
     public void setGlobalAlbumsOutputText(final String text) {
@@ -924,16 +930,16 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Sets the text for yearly statistics output.
-     * 
+     *
      * @param text the text to display.
      */
     public void setYearlyStatsOutputText(final String text) {
         this.txtYearlyStatsOutput.setText(text);
-    }    
+    }
 
     /**
      * Populates the users management table with data.
-     * 
+     *
      * @param usersData the list of object arrays containing user information.
      */
     public void setUsersTableData(final List<Object[]> usersData) {
@@ -945,7 +951,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener for saving an artist.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addSaveArtistListener(final ActionListener listener) {
@@ -954,7 +960,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener for saving an album.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addSaveAlbumListener(final ActionListener listener) {
@@ -963,7 +969,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener for saving a podcast.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addSavePodcastListener(final ActionListener listener) {
@@ -972,7 +978,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener for saving an episode.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addSaveEpisodeListener(final ActionListener listener) {
@@ -981,7 +987,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener for saving a promotion.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addSavePromotionListener(final ActionListener listener) {
@@ -990,7 +996,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener for fetching statistics.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addFetchStatsListener(final ActionListener listener) {
@@ -999,7 +1005,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener for the back button.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addBackListener(final ActionListener listener) {
@@ -1008,7 +1014,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener for fetching users.
-     * 
+     *
      * @param listener the action listener to add.
      */
     public void addFetchUsersListener(final ActionListener listener) {
@@ -1021,20 +1027,20 @@ public final class AdminPanel extends JPanel {
     public void clearAllForms() {
         final JTextComponent[] textComponents = {
             // Artist Form
-            this.txtStageName, this.txtRealName, this.txtRealSurname, 
-            this.txtBirthDate, this.txtProvenanceCountry, this.txtBiography, 
+            this.txtStageName, this.txtRealName, this.txtRealSurname,
+            this.txtBirthDate, this.txtProvenanceCountry, this.txtBiography,
             this.txtStartYear, this.txtArtistType,
             // Album & Songs Form
-            this.txtAlbumTitle, this.txtAlbumReleaseDate, 
+            this.txtAlbumTitle, this.txtAlbumReleaseDate,
             this.txtAlbumLabel, this.txtAlbumSongsInput,
             // Podcast Form
-            this.txtPodcastName, 
+            this.txtPodcastName,
             this.txtPodcastDescription, this.txtPodcastCategory,
             // Episode Form
-            this.txtEpisodeTitle, 
+            this.txtEpisodeTitle,
             this.txtEpisodeDuration, this.txtEpisodeDescription, this.txtEpisodeNumber,
             // Promotion Form
-            this.txtPromoCode, this.txtPromoName, this.txtPromoDescription, 
+            this.txtPromoCode, this.txtPromoName, this.txtPromoDescription,
             this.txtPromoStartDate, txtPromoEndDate, this.txtDiscountValue,
             this.txtRequiredMonths, this.txtPromoPlanCodes,
         };
@@ -1046,7 +1052,7 @@ public final class AdminPanel extends JPanel {
 
     /**
      * Adds an action listener to the run auto renewal button (OP 3.1).
-     * 
+     *
      * @param listener the action listener
      */
     public void addRunAutoRenewalListener(final ActionListener listener) {

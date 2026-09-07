@@ -149,8 +149,8 @@ public final class ControllerImpl implements Controller {
     @Override
     public void userActivateSubscription(final String username, final ActivateSubscriptionDialog.SubscriptionData data) {
         try {
-            final int subscriptionCode = this.model.activateSubscription(username, data.planCode, data.paymentMethod,
-                                                                        data.promoCode, data.inviteCode, data.autoRenew);
+            final int subscriptionCode = this.model.activateSubscription(username, data.getPlanCode(), data.getPaymentMethod(),
+                                                                        data.getPromoCode(), data.getInviteCode(), data.isAutoRenew());
             this.view.showSuccessAndCloseDialog("Sottoscrizione attivata con successo! Codice: " + subscriptionCode);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to activate subscription", e);
@@ -386,8 +386,8 @@ public final class ControllerImpl implements Controller {
         try {
             final int subscriptionCode = this.model.redeemBonus(
                 username,
-                data.planCode,
-                data.autoRenew
+                data.getPlanCode(),
+                data.isAutoRenew()
             );
             this.view.showSuccess("Sottoscrizione riscattata con crediti bonus! Codice: " + subscriptionCode);
         } catch (final DAOException e) {

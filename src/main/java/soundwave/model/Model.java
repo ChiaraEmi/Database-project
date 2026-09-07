@@ -50,15 +50,41 @@ public interface Model {
      * @param requiredMonths the minimum required months for the plan (optional).
      * @param planCodes the list of eligible subscription plan codes.
      */
-    void insertPromotion(String code, String name, String description, LocalDate startDate, LocalDate endDate, String discountType, 
-                            double discountValue, Integer requiredMonths, List<Integer> planCodes);
+    void insertPromotion(String code, String name, String description, LocalDate startDate, 
+                        LocalDate endDate, String discountType, double discountValue, 
+                        Integer requiredMonths, List<Integer> planCodes);
 
+    /**
+     * Immediately renews an active subscription for a user.
+     * 
+     * @param username the username of the subscription owner
+     * @param subscriptionCode the unique code of the subscription to renew
+     */
     void renewSubscriptionNow(String username, int subscriptionCode);
 
+    /**
+     * Enables or disables automatic renewal for a user's subscription.
+     * 
+     * @param username the username of the subscription owner
+     * @param subscriptionCode the unique code of the subscription to modify
+     * @param enabled true to enable, false otherwise
+     */
     void toggleAutoRenew(String username, int subscriptionCode, boolean enabled);
 
+    /**
+     * Retrieves the current automatic renewal status of a subscription.
+     * 
+     * @param username the username of the subscription owner
+     * @param subscriptionCode the unique code of the subscription to check
+     * @return true if automatic renewal is enabled, false otherwise
+     */
     boolean getAutoRenewStatus(String username, int subscriptionCode);
 
+    /**
+     * Processes automatic renewals for all eligible subscriptions.
+     * 
+     * @return an array containing three integers: number of renewed, number of failed, number of expired
+     */
     int[] processAutoRenewals();
 
     /**
@@ -367,12 +393,37 @@ public interface Model {
      */
     List<Object[]> getSubscriptionData(String username);
 
+    /**
+     * Retrieves the current bonus credit balance for a user.
+     * 
+     * @param username the username of the user
+     * @return the total number of bonus credits available for the user
+     */
     int getBonusCredits(String username);
+
+    /**
+     * Redeems bonus credits to activate or renew a subscription.
+     * 
+     * @param username the username of the user redeeming bonus credits
+     * @param planCode the unique code of the subscription plan to redeem
+     * @param autoRenew whether to enable automatic renewal for the new subscription
+     * @return the unique code of the newly created or renewed subscription
+     */
     int redeemBonus(String username, int planCode, boolean autoRenew);
 
+    /**
+     * Registers a new user in the Soundwave system.
+     * 
+     * @param username the unique username for the new account
+     * @param name the user's first name
+     * @param surname the user's last name
+     * @param email the user's email address
+     * @param password the user's password
+     * @param birthDate the user's date of birth
+     * @param country the user's country of residence
+     * @return the generated invite code for the newly registered user
+     */
     String registerUser(String username, String name, String surname, String email, 
                         String password, LocalDate birthDate, String country);
-
-
 
 }

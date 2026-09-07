@@ -29,23 +29,24 @@ import soundwave.data.Plan;
 public final class ActivateSubscriptionDialog extends JDialog {
 
     private static final int FONT_STYLE_BOLD = Font.BOLD;
-    
+
     // --- Costanti per eliminare i magic number e le stringhe hardcoded ---
     private static final int DIALOG_WIDTH = 600;
     private static final int DIALOG_HEIGHT = 500;
-    
+
     private static final int BORDER_PADDING = 15;
     private static final int GRID_INSET = 6;
-    
+
     private static final int TEXT_FIELD_COLUMNS = 30;
-    
+
     private static final float USER_FONT_SIZE = 14f;
     private static final float SECTION_FONT_SIZE = 12f;
     private static final float TOTAL_FONT_SIZE = 16f;
-    
+    private static final String PRICE_FORMAT = "%.2f";
+
     private static final double INITIAL_PRICE = 0.0;
     private static final int INVALID_PLAN_CODE = -1;
-    
+
     private static final Color TOTAL_LABEL_COLOR = new Color(0, 120, 0);
     private static final Color SECTION_LABEL_COLOR = new Color(100, 100, 100);
     private static final Color ACTIVATE_BTN_BG = new Color(0, 120, 215);
@@ -66,19 +67,26 @@ public final class ActivateSubscriptionDialog extends JDialog {
     private static final String SUMMARY_SECTION_TITLE = "Riepilogo";
     private static final String TOTAL_LABEL_PREFIX = "Totale da pagare: €";
     private static final String ACTIVATE_BTN_TEXT = "Attiva Sottoscrizione";
-    
+
     private static final String PROMO_WARNING_TITLE = "Promozione non applicata";
-    private static final String PROMO_WARNING_MSG = 
-        "Hai inserito un codice promozionale ma non l'hai applicato.\n" +
-        "Vuoi applicarlo prima di attivare?";
-        
+    private static final String PROMO_WARNING_MSG =
+        "Hai inserito un codice promozionale ma non l'hai applicato.\n"
+        + "Vuoi applicarlo prima di attivare?";
+
     private static final String INVITE_WARNING_TITLE = "Invito non verificato";
-    private static final String INVITE_WARNING_MSG = 
-        "Hai inserito un codice invito ma non l'hai verificato.\n" +
-        "Vuoi verificarlo prima di attivare?";
-        
+    private static final String INVITE_WARNING_MSG =
+        "Hai inserito un codice invito ma non l'hai verificato.\n"
+         + "Vuoi verificarlo prima di attivare?";
+
     private static final String ERROR_DIALOG_TITLE = "Errore";
     private static final String SUCCESS_DIALOG_TITLE = "Successo";
+
+    private static final String[] PAYMENT_METHODS = {
+            "Carta di Credito",
+            "Carta di Debito",
+            "PayPal",
+            "Bonifico Bancario",
+        };
 
     private final JComboBox<String> comboPlans;
     private final JComboBox<String> comboPayment;
@@ -94,17 +102,10 @@ public final class ActivateSubscriptionDialog extends JDialog {
     private final String username;
     private double currentPrice;
 
-    private static final String[] PAYMENT_METHODS = {
-        "Carta di Credito",
-        "Carta di Debito",
-        "PayPal",
-        "Bonifico Bancario"
-    };
+    private Consumer<SubscriptionData> onActivateListener;
 
-    private Consumer<SubscriptionData> onActivate;
-
-    private boolean promoCodeApplied = false;
-    private boolean inviteCodeVerified = false;
+    private boolean promoCodeApplied;
+    private boolean inviteCodeVerified;
 
     /**
      * Constructs a new ActivateSubscriptionDialog.
@@ -156,8 +157,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
 
         this.comboPlans = new JComboBox<>();
         for (final Plan plan : this.plans) {
-            this.comboPlans.addItem(plan.getTypePlan() + " (" + plan.getDurationMonths() 
-                                    + " mesi) - €" + String.format("%.2f", plan.getPrice()));
+            this.comboPlans.addItem(plan.getTypePlan() + " (" + plan.getDurationMonths()
+                                    + " mesi) - €" + String.format(PRICE_FORMAT, plan.getPrice()));
         }
         gbc.gridx = 1;
         gbc.gridwidth = 2;
@@ -193,13 +194,13 @@ public final class ActivateSubscriptionDialog extends JDialog {
 
         this.txtPromoCode = new JTextField(TEXT_FIELD_COLUMNS);
         gbc.gridx = 1;
-        gbc.weightx = 1.0;          
+        gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(this.txtPromoCode, gbc);
 
         this.btnApplyPromo = new JButton(APPLY_BTN_TEXT);
         gbc.gridx = 2;
-        gbc.weightx = 0.0;         
+        gbc.weightx = 0.0;
         gbc.fill = GridBagConstraints.NONE;
         panel.add(this.btnApplyPromo, gbc);
 
@@ -213,7 +214,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
 
         this.txtInviteCode = new JTextField(TEXT_FIELD_COLUMNS);
         gbc.gridx = 1;
-        gbc.weightx = 1.0;          
+        gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(this.txtInviteCode, gbc);
 
@@ -274,19 +275,20 @@ public final class ActivateSubscriptionDialog extends JDialog {
      * @param gbc the grid bag constraints.
      * @param row the current row index.
      * @param title the title of the section.
-     * 
+     *
      * @return the updated row index.
      */
-    private int addSectionHeader(final JPanel panel, final GridBagConstraints gbc, int row, final String title) {
-        gbc.gridx = 0;
-        gbc.gridy = row++;
-        gbc.gridwidth = 3;
+    private int addSectionHeader(final JPanel panel, final GridBagConstraints gbc, final int row, final String title) {
+        int newrow = row;
+        final GridBagConstraints localGbc = (GridBagConstraints) gbc.clone();
+        localGbc.gridx = 0;
+        localGbc.gridy = newrow++;
+        localGbc.gridwidth = 3;
         final JLabel lblSection = new JLabel("──── " + title + " ────");
         lblSection.setFont(lblSection.getFont().deriveFont(Font.BOLD, SECTION_FONT_SIZE));
         lblSection.setForeground(SECTION_LABEL_COLOR);
-        panel.add(lblSection, gbc);
-        gbc.gridwidth = 1;
-        return row;
+        panel.add(lblSection, localGbc);
+        return newrow;
     }
 
     /**
@@ -297,7 +299,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
         if (selectedIndex >= 0 && selectedIndex < this.plans.size()) {
             final Plan plan = this.plans.get(selectedIndex);
             this.currentPrice = plan.getPrice();
-            this.lblTotal.setText(TOTAL_LABEL_PREFIX + String.format("%.2f", this.currentPrice));
+            this.lblTotal.setText(TOTAL_LABEL_PREFIX + String.format(PRICE_FORMAT, this.currentPrice));
         }
     }
 
@@ -308,7 +310,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
      */
     public void updatePriceWithDiscount(final double discountedPrice) {
         this.currentPrice = discountedPrice;
-        this.lblTotal.setText(TOTAL_LABEL_PREFIX + String.format("%.2f", this.currentPrice));
+        this.lblTotal.setText(TOTAL_LABEL_PREFIX + String.format(PRICE_FORMAT, this.currentPrice));
     }
 
     /**
@@ -317,7 +319,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
      * @param onActivate the consumer action triggered upon activation.
      */
     public void addActivateListener(final Consumer<SubscriptionData> onActivate) {
-        this.onActivate = onActivate;
+        this.onActivateListener = onActivate;
         this.btnActivate.addActionListener(e -> {
             final String promoCode = getPromoCode();
             final String inviteCode = getInviteCode();
@@ -334,7 +336,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
                     return;
                 }
             }
-            
+
             if (!inviteCode.isEmpty() && !this.inviteCodeVerified) {
                 final int choice = JOptionPane.showConfirmDialog(
                     this,
@@ -348,7 +350,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
                 }
             }
 
-            if (this.onActivate != null) {
+            if (this.onActivateListener != null) {
                 final SubscriptionData data = new SubscriptionData(
                     getSelectedPlanCode(),
                     getPaymentMethod(),
@@ -356,7 +358,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
                     getInviteCode(),
                     isAutoRenew()
                 );
-                this.onActivate.accept(data);
+                this.onActivateListener.accept(data);
             }
         });
     }
@@ -410,10 +412,10 @@ public final class ActivateSubscriptionDialog extends JDialog {
      *
      * @return the username string.
      */
-    public String getUsername() { 
-        return this.username; 
+    public String getUsername() {
+        return this.username;
     }
-    
+
     /**
      * Returns the code of the currently selected plan.
      *
@@ -439,8 +441,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
      *
      * @return the payment method string.
      */
-    public String getPaymentMethod() { 
-        return (String) this.comboPayment.getSelectedItem(); 
+    public String getPaymentMethod() {
+        return (String) this.comboPayment.getSelectedItem();
     }
 
     /**
@@ -448,8 +450,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
      *
      * @return the promo code string.
      */
-    public String getPromoCode() { 
-        return this.txtPromoCode.getText().trim(); 
+    public String getPromoCode() {
+        return this.txtPromoCode.getText().trim();
     }
 
     /**
@@ -457,8 +459,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
      *
      * @return the invite code string.
      */
-    public String getInviteCode() { 
-        return this.txtInviteCode.getText().trim(); 
+    public String getInviteCode() {
+        return this.txtInviteCode.getText().trim();
     }
 
     /**
@@ -466,8 +468,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
      *
      * @return true if auto-renewal is enabled, false otherwise.
      */
-    public boolean isAutoRenew() { 
-        return this.chkAutoRenew.isSelected(); 
+    public boolean isAutoRenew() {
+        return this.chkAutoRenew.isSelected();
     }
 
     /**
@@ -475,37 +477,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
      *
      * @return the current price value.
      */
-    public double getCurrentPrice() { 
-        return this.currentPrice; 
-    }
-
-    /**
-     * Data holder container for subscription activation details.
-     */
-    public static final class SubscriptionData {
-        public final int planCode;
-        public final String paymentMethod;
-        public final String promoCode;
-        public final String inviteCode;
-        public final boolean autoRenew;
-
-        /**
-         * Constructs a new SubscriptionData instance.
-         *
-         * @param planCode the plan code.
-         * @param paymentMethod the selected payment method.
-         * @param promoCode the promotional code used.
-         * @param inviteCode the invite code used.
-         * @param autoRenew true if auto-renewal is enabled, false otherwise.
-         */
-        public SubscriptionData(final int planCode, final String paymentMethod, final String promoCode, 
-                                final String inviteCode, final boolean autoRenew) {
-            this.planCode = planCode;
-            this.paymentMethod = paymentMethod;
-            this.promoCode = promoCode;
-            this.inviteCode = inviteCode;
-            this.autoRenew = autoRenew;
-        }
+    public double getCurrentPrice() {
+        return this.currentPrice;
     }
 
     /**
@@ -532,4 +505,80 @@ public final class ActivateSubscriptionDialog extends JDialog {
     public void closeDialog() {
         dispose();
     }
+
+    /**
+     * Data holder container for subscription activation details.
+     */
+    public static final class SubscriptionData {
+        private final int planCode;
+        private final String paymentMethod;
+        private final String promoCode;
+        private final String inviteCode;
+        private final boolean autoRenew;
+
+        /**
+         * Constructs a new SubscriptionData instance.
+         *
+         * @param planCode the plan code.
+         * @param paymentMethod the selected payment method.
+         * @param promoCode the promotional code used.
+         * @param inviteCode the invite code used.
+         * @param autoRenew true if auto-renewal is enabled, false otherwise.
+         */
+        public SubscriptionData(final int planCode, final String paymentMethod, final String promoCode,
+                                final String inviteCode, final boolean autoRenew) {
+            this.planCode = planCode;
+            this.paymentMethod = paymentMethod;
+            this.promoCode = promoCode;
+            this.inviteCode = inviteCode;
+            this.autoRenew = autoRenew;
+        }
+
+        /**
+         * Gets the plan code.
+         *
+         * @return the plan code
+         */
+        public int getPlanCode() {
+            return planCode;
+        }
+
+        /**
+         * Gets the payment method.
+         *
+         * @return the payment method
+         */
+        public String getPaymentMethod() {
+            return paymentMethod;
+        }
+
+        /**
+         * Gets the promotion code.
+         *
+         * @return the promotion code (may be null)
+         */
+        public String getPromoCode() {
+            return promoCode;
+        }
+
+        /**
+         * Gets the invite code.
+         *
+         * @return the invite code (may be null)
+         */
+        public String getInviteCode() {
+            return inviteCode;
+        }
+
+        /**
+         * Checks if auto-renewal is enabled.
+         *
+         * @return true if auto-renewal is enabled
+         */
+        public boolean isAutoRenew() {
+            return autoRenew;
+        }
+
+    }
+
 }

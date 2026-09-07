@@ -88,9 +88,9 @@ public final class ViewImpl extends JFrame implements View {
 
         this.roleSelectionPanel.addUtenteListener(e -> {
             final String username = JOptionPane.showInputDialog(
-                this, 
-                "Inserisci il tuo username:", 
-                "Login Utente", 
+                this,
+                "Inserisci il tuo username:",
+                "Login Utente",
                 JOptionPane.QUESTION_MESSAGE
             );
 
@@ -110,11 +110,11 @@ public final class ViewImpl extends JFrame implements View {
                 this.adminPanel.setPodcasts(podcasts);
             }
         });
-        
+
         this.roleSelectionPanel.addRegisterListener(e -> {
             this.showRegisterDialog();
-        });      
-        
+        });
+
         this.adminPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
         this.userPanel.addBackListener(e -> showPanel(ROLE_SELECTION_CARD));
 
@@ -138,7 +138,7 @@ public final class ViewImpl extends JFrame implements View {
                 final String planCodes = this.adminPanel.getPromoPlanCodes();
 
                 final boolean success = this.controller.adminClickedSavePromotion(
-                    code, name, description, startDate, endDate, discountType, discountValue, 
+                    code, name, description, startDate, endDate, discountType, discountValue,
                     requiredMonths, planCodes
                 );
 
@@ -167,7 +167,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid artist start year format", ex);
-                    JOptionPane.showMessageDialog(this, "Please enter a valid start year (e.g., 2020).", 
+                    JOptionPane.showMessageDialog(this, "Please enter a valid start year (e.g., 2020).",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -197,7 +197,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid album artist code format", ex);
-                    JOptionPane.showMessageDialog(this, "Artist code must be a valid number.", 
+                    JOptionPane.showMessageDialog(this, "Artist code must be a valid number.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -227,7 +227,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid podcast artist code format", ex);
-                    JOptionPane.showMessageDialog(this, "Podcast artist code must be a valid number.", 
+                    JOptionPane.showMessageDialog(this, "Podcast artist code must be a valid number.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -251,7 +251,7 @@ public final class ViewImpl extends JFrame implements View {
         });
 
         this.adminPanel.addRunAutoRenewalListener(e -> {
-            if (this.controller != null ) {
+            if (this.controller != null) {
                 this.controller.adminRunAutoRenewal();
             }
         });
@@ -265,7 +265,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid episode podcast code format", ex);
-                    JOptionPane.showMessageDialog(this, "Podcast code must be a valid number.", 
+                    JOptionPane.showMessageDialog(this, "Podcast code must be a valid number.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -279,7 +279,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid episode duration format", ex);
-                    JOptionPane.showMessageDialog(this, "Duration in seconds must be a valid number.", 
+                    JOptionPane.showMessageDialog(this, "Duration in seconds must be a valid number.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -293,7 +293,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid episode number format", ex);
-                    JOptionPane.showMessageDialog(this, "Episode number must be a valid integer.", 
+                    JOptionPane.showMessageDialog(this, "Episode number must be a valid integer.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -311,7 +311,7 @@ public final class ViewImpl extends JFrame implements View {
 
         this.adminPanel.addFetchGlobalAlbumsListener(e -> {
             if (this.controller != null) {
-                this.controller.adminRequestedGlobalAlbums(); 
+                this.controller.adminRequestedGlobalAlbums();
             }
         });
 
@@ -329,7 +329,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid stats year format", ex);
-                    JOptionPane.showMessageDialog(this, "Reference year must be a valid number.", 
+                    JOptionPane.showMessageDialog(this, "Reference year must be a valid number.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -373,7 +373,7 @@ public final class ViewImpl extends JFrame implements View {
 
     /**
      * Aggiorna le liste dei brani preferiti e degli artisti seguiti nel pannello utente.
-     * 
+     *
      * @param username l'utente corrente.
      */
     public void refreshUserData(final String username) {
@@ -430,7 +430,7 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
-    public void showRedeemBonusDialog(final String username, final List<Plan> plans, 
+    public void showRedeemBonusDialog(final String username, final List<Plan> plans,
                                     final int bonusCredits) {
         this.userPanel.showRedeemBonusDialog(username, plans, bonusCredits, data -> {
             if (this.controller != null) {
@@ -441,27 +441,27 @@ public final class ViewImpl extends JFrame implements View {
 
     @Override
     public void showRegisterDialog() {
-        RegisterDialog dialog = new RegisterDialog(this);
-        
+        final RegisterDialog dialog = new RegisterDialog(this);
+
         dialog.addRegisterListener(() -> {
             if (this.controller != null) {
-                String username = dialog.getUsername();
-                String name = dialog.getName();
-                String surname = dialog.getSurname();
-                String email = dialog.getEmail();
-                String password = dialog.getPassword();
-                LocalDate birthDate = dialog.getBirthDate();
-                String country = dialog.getCountry();
-                
+                final String username = dialog.getUsername();
+                final String name = dialog.getName();
+                final String surname = dialog.getSurname();
+                final String email = dialog.getEmail();
+                final String password = dialog.getPassword();
+                final LocalDate birthDate = dialog.getBirthDate();
+                final String country = dialog.getCountry();
+
                 // Chiama il controller per registrare
                 this.controller.userRegistered(username, name, surname, email, password, birthDate, country);
-                
+
                 // Chiudi il dialog solo dopo il successo
                 // Il successo verrà gestito dal controller
                 dialog.dispose();
             }
         });
-        
+
         dialog.setVisible(true);
     }
 
@@ -485,12 +485,12 @@ public final class ViewImpl extends JFrame implements View {
         JOptionPane.showMessageDialog(this, message, "Errore", JOptionPane.ERROR_MESSAGE);
     }
 
-    @Override 
+    @Override
     public void showSuccess(final String message) {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    @Override 
+    @Override
     public void showSuccessAndCloseDialog(final String message) {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
         this.userPanel.closeActivateSubscriptionDialog();
@@ -513,7 +513,7 @@ public final class ViewImpl extends JFrame implements View {
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
     )
-    @Override 
+    @Override
     public UserPanel getUserPanel() {
         return userPanel;
     }
@@ -522,7 +522,7 @@ public final class ViewImpl extends JFrame implements View {
         value = "EI_EXPOSE_REP",
         justification = "UI panels are stateful components managed as internal view references."
     )
-    @Override 
+    @Override
     public AdminPanel getAdminPanel() {
         return adminPanel;
     }
@@ -566,7 +566,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid track code format", ex);
-                    JOptionPane.showMessageDialog(this, "Track code must be a valid number.", 
+                    JOptionPane.showMessageDialog(this, "Track code must be a valid number.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -599,7 +599,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid track code format", ex);
-                    JOptionPane.showMessageDialog(this, "Track code must be a valid number.", 
+                    JOptionPane.showMessageDialog(this, "Track code must be a valid number.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -650,7 +650,7 @@ public final class ViewImpl extends JFrame implements View {
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid personal stats year format", ex);
-                    JOptionPane.showMessageDialog(this, "L'anno di riferimento deve essere un numero valido.", 
+                    JOptionPane.showMessageDialog(this, "L'anno di riferimento deve essere un numero valido.",
                                                 FORMAT_ERROR, JOptionPane.ERROR_MESSAGE);
                     return;
                 }

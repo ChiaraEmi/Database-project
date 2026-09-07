@@ -35,6 +35,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public final class DBModel implements Model {
 
+    private static final String SUBSCRIPTION_CODE_COLUMN = "CodiceSottoscrizione";
     private static final Logger LOGGER = Logger.getLogger(DBModel.class.getName());
 
     private final Connection connection;
@@ -45,7 +46,7 @@ public final class DBModel implements Model {
      * @param connection the active database connection.
      */
     @SuppressFBWarnings(
-        value = "EI_EXPOSE_REP2", 
+        value = "EI_EXPOSE_REP2",
         justification = "The database connection is managed externally and cannot be defensively copied."
     )
     public DBModel(final Connection connection) {
@@ -64,10 +65,10 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public void insertPromotion(final String code, final String name, final String description, 
-                                final LocalDate startDate, final LocalDate endDate, final String discountType, 
+    public void insertPromotion(final String code, final String name, final String description,
+                                final LocalDate startDate, final LocalDate endDate, final String discountType,
                                 final double discountValue, final Integer requiredMonths, final List<Integer> planCodes) {
-        Promotion.DAO.insertPromotion(connection, code, name, description, startDate, endDate, 
+        Promotion.DAO.insertPromotion(connection, code, name, description, startDate, endDate,
                                              discountType, discountValue, requiredMonths, planCodes);
     }
 
@@ -82,20 +83,20 @@ public final class DBModel implements Model {
         } catch (final SQLException e) {
             throw new DAOException(e);
         }
-        
+
         // Simula pagamento (per ora sempre successo)
         // In futuro si può integrare con un sistema di pagamento reale
-        boolean paymentSuccess = true;
+        final boolean paymentSuccess = true;
         Subscription.DAO.renew(connection, subscriptionCode, "Carta di Credito", paymentSuccess);
     }
 
     @Override
-    public void toggleAutoRenew(final String username, final int subscriptionCode, 
+    public void toggleAutoRenew(final String username, final int subscriptionCode,
                             final boolean enabled) {
         // Sceglie la query giusta in base al valore enabled
-        String query = enabled ? Queries.ENABLE_RENEWAL : Queries.CANCEL_RENEWAL;
+        final String query = enabled ? Queries.ENABLE_RENEWAL : Queries.CANCEL_RENEWAL;
         try (var stmt = DAOUtils.prepare(connection, query, subscriptionCode)) {
-            int rowsAffected = stmt.executeUpdate();
+            final int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
                 throw new DAOException("Sottoscrizione non trovata o non attiva.");
             }
@@ -117,6 +118,14 @@ public final class DBModel implements Model {
         }
     }
 
+    /**
+     * Processes automatic renewals for all eligible subscription.
+     * 
+     * @return an array containing three integers:
+     *         [0] = number of successfully renewed subscriptions,
+     *         [1] = number of failed renewals,
+     *         [2] = number of expired subscriptions
+     */
     public int[] processAutoRenewals() {
         int renewed = 0;
         int failed = 0;
@@ -126,19 +135,18 @@ public final class DBModel implements Model {
             // 1. Trova le sottoscrizioni da rinnovare
             try (var stmt = connection.createStatement();
                 var rs = stmt.executeQuery(Queries.FIND_AUTO_RENEWALS)) {
-                
-                while (rs.next()) {
-                    int subCode = rs.getInt("CodiceSottoscrizione");
-                    String username = rs.getString("Username");
 
-                    System.out.println("Rinnovo automatico per sub #" + subCode + 
-                                    " (" + username );
+                while (rs.next()) {
+                    final int subCode = rs.getInt(SUBSCRIPTION_CODE_COLUMN);
+                    final String username = rs.getString("Username");
+
+                    System.out.println("Rinnovo automatico per sub #" + subCode + " (" + username);
 
                     // 2. Simula il pagamento (90% di successo per test)
-                    boolean paymentSuccess = Math.random() < 0.0;
+                    final boolean paymentSuccess = Math.random() < 0.0;
 
                     Subscription.DAO.renew(connection, subCode, username, paymentSuccess);
-                    
+
                     if (paymentSuccess) {
                         renewed++;
                         System.out.println("Rinnovo automatico completato per sub #" + subCode);
@@ -152,38 +160,29 @@ public final class DBModel implements Model {
                         System.out.println("Sottoscrizione #" + subCode + " portata a Scaduta");
                     }
                 }
-                
+
             }
-            
+
             // 4. Marca come scadute le altre sottoscrizioni senza rinnovo
             try (var stmt = connection.createStatement()) {
                 expired = stmt.executeUpdate(Queries.EXPIRE_EXPIRED_SUBSCRIPTIONS);
             }
-            
+
             System.out.println("completata: " + renewed + " rinnovate, " + failed + " fallite, " + expired + " scadute");
-            
+
         } catch (final SQLException e) {
             throw new DAOException(e);
         }
-        
+
         return new int[]{renewed, failed, expired};
-
-
-
 
     }
 
-
-
-
-
-
-
     @Override
-    public int insertArtist(final String stageName, final String name, final String surname, 
-                            final LocalDate birthDate, final String provenanceCountry, 
+    public int insertArtist(final String stageName, final String name, final String surname,
+                            final LocalDate birthDate, final String provenanceCountry,
                             final String biography, final int startYear, final String artistType) {
-        return Artist.DAO.insert(this.connection, stageName, name, surname, birthDate, 
+        return Artist.DAO.insert(this.connection, stageName, name, surname, birthDate,
                                  provenanceCountry, biography, startYear, artistType);
     }
 
@@ -219,13 +218,13 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public int insertEpisode(final int podcastCode, final String title, final int duration, 
+    public int insertEpisode(final int podcastCode, final String title, final int duration,
                            final String description, final int episodeNumber) {
         return Episode.DAO.insert(connection, podcastCode, title, duration, description, episodeNumber);
     }
 
     @Override
-    public int insertPlaylist(final String username, final String playlistName, final String visibility, 
+    public int insertPlaylist(final String username, final String playlistName, final String visibility,
                                 final boolean isCollaborative) {
         return Playlist.DAO.insert(connection, username, playlistName, visibility, isCollaborative);
     }
@@ -313,7 +312,7 @@ public final class DBModel implements Model {
                 tracks.add(new Object[]{
                     rs.getInt("CodiceContenuto"),
                     rs.getString("Titolo"),
-                    rs.getInt("NumeroAscolti")
+                    rs.getInt("NumeroAscolti"),
                 });
             }
         } catch (final SQLException e) {
@@ -332,7 +331,7 @@ public final class DBModel implements Model {
                 artists.add(new Object[]{
                     rs.getInt("CodiceArtista"),
                     rs.getString("NomeDArte"),
-                    rs.getInt("NumeroAscolti")
+                    rs.getInt("NumeroAscolti"),
                 });
             }
         } catch (final SQLException e) {
@@ -380,19 +379,19 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public int activateSubscription(final String username, final int planCode, final String paymentMethod, 
+    public int activateSubscription(final String username, final int planCode, final String paymentMethod,
                                     final String promoCode, final String inviteCode, final boolean autoRenew) {
 
         if (planCode <= 0) {
             throw new DAOException("Piano di abbonamento non valido");
         }
-        
+
         //caso 1: attivazione con codice promozionale
         if (promoCode != null && !promoCode.trim().isEmpty()) {
             return Subscription.DAO.insertWithPromotion(connection, username, planCode,
                 promoCode.trim(), autoRenew, paymentMethod);
         }
-        //caso 2: attivazione con codice invito  
+        //caso 2: attivazione con codice invito
         if (inviteCode != null && !inviteCode.trim().isEmpty()) {
             return Subscription.DAO.insertWithInvite(connection, username, planCode, inviteCode.trim(), autoRenew, paymentMethod);
         }
@@ -424,26 +423,26 @@ public final class DBModel implements Model {
     @Override
     public List<Object[]> getSubscriptionData(final String username) {
         final List<Object[]> subscriptions = new ArrayList<>();
-        
+
         try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_SUBSCRIPTIONS_WITH_TRANSACTIONS, username);
             var rs = stmt.executeQuery()) {
-            
+
             int currentSub = -1; //corrente sottoscrizione
             List<String> transactions = new ArrayList<>();
             Object[] currentData = null;
-            
+
             while (rs.next()) {
-                final int subCode = rs.getInt("CodiceSottoscrizione");
-                
+                final int subCode = rs.getInt(SUBSCRIPTION_CODE_COLUMN);
+
                 if (currentSub != subCode) {
                     if (currentData != null) {
                         currentData[8] = new ArrayList<>(transactions);
                         subscriptions.add(currentData);
                     }
-                    
+
                     currentSub = subCode;
                     transactions = new ArrayList<>();
-                    
+
                     currentData = new Object[] {
                         subCode,
                         rs.getString("TipoAbbonamento"),
@@ -453,10 +452,10 @@ public final class DBModel implements Model {
                         rs.getBoolean("RinnovoAutomatico"),
                         rs.getString("CodicePromozione"),
                         rs.getString("CodiceInvito"),
-                        transactions
+                        transactions,
                     };
                 }
-                
+
                 if (rs.getObject("CodiceTransazione") != null) {
                     final String trans = String.format("%s | €%.2f | %s",
                         rs.getTimestamp("DataTransazione") != null ? rs.getTimestamp("DataTransazione").toString() : "-",
@@ -466,12 +465,12 @@ public final class DBModel implements Model {
                     transactions.add(trans);
                 }
             }
-            
+
             if (currentData != null) {
                 currentData[8] = new ArrayList<>(transactions);
                 subscriptions.add(currentData);
             }
-            
+
         } catch (final SQLException e) {
             throw new DAOException(e);
         }
@@ -489,19 +488,19 @@ public final class DBModel implements Model {
         if (!Plan.DAO.isMonthlyPlan(connection, planCode)) {
             throw new DAOException("Il riscatto con crediti bonus è disponibile solo per piani mensili.");
         }
-        
+
         // Verifica crediti bonus
         if (!User.DAO.hasEnoughBonusCredit(connection, username)) {
             throw new DAOException("Crediti bonus insufficienti. Servono almeno 2 crediti.");
         }
-        
+
         // Se l'utente ha già una sottoscrizione attiva, rinnova
         // Altrimenti crea una nuova sottoscrizione
         try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_ACTIVE_SUBSCRIPTION, username);
             var rs = stmt.executeQuery()) {
             if (rs.next()) {
                 // 4.2 - Rinnovo con crediti bonus
-                int subscriptionCode = rs.getInt("CodiceSottoscrizione");
+                final int subscriptionCode = rs.getInt(SUBSCRIPTION_CODE_COLUMN);
                 Subscription.DAO.renewWithBonus(connection, username, subscriptionCode);
                 return subscriptionCode;
             } else {
@@ -515,13 +514,8 @@ public final class DBModel implements Model {
 
     @Override
     public String registerUser(final String username, final String name, final String surname,
-                            final String email, final String password, 
+                            final String email, final String password,
                             final LocalDate birthDate, final String country) {
         return User.DAO.register(connection, username, name, surname, email, password, birthDate, country);
     }
-
-
-
-
-
 }

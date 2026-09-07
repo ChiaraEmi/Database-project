@@ -316,7 +316,7 @@ public final class Album {
                             resultSet.getInt("CodiceAlbum"),
                             resultSet.getInt("CodiceArtista"),
                             resultSet.getString("TitoloAlbum"),
-                            resultSet.getString("AnnoPubblicazione"),
+                            resultSet.getString("DataPubblicazione"),
                             resultSet.getString("CasaDiscografica"),
                             resultSet.getDouble("MediaVoti"),
                             resultSet.getInt("DurataTotale")
@@ -356,7 +356,7 @@ public final class Album {
                         resultSet.getInt("CodiceAlbum"),
                         resultSet.getInt("CodiceArtista"),
                         resultSet.getString("TitoloAlbum"),
-                        resultSet.getString("AnnoPubblicazione"),
+                        resultSet.getString("DataPubblicazione"),
                         resultSet.getString("CasaDiscografica"),
                         resultSet.getDouble("MediaVoti"),
                         resultSet.getInt("DurataTotale")

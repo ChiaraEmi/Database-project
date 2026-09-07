@@ -38,6 +38,7 @@ public final class ControllerImpl implements Controller {
 
     private final Model model;
     private final View view;
+    private String loggedInUsername;
 
     /**
      * Constructs a new ControllerImpl.
@@ -185,6 +186,7 @@ public final class ControllerImpl implements Controller {
             final User user = this.model.findUser(username); 
 
             if (user != null) {
+                this.loggedInUsername = username;
                 LOGGER.log(Level.INFO, "User successfully logged in: {0}", username);
                 this.view.openUserPanel(username);
                 return true;
@@ -817,8 +819,13 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public void userClickedFollowArtist(final int artistCode) {
+        if (this.loggedInUsername == null || this.loggedInUsername.isBlank()) {
+            this.view.showError("Devi effettuare il login per seguire un artista.");
+            return;
+        }
         try {
-            this.model.followArtist("user", artistCode);
+            this.model.followArtist(this.loggedInUsername, artistCode);
+            this.view.showSuccess("Artista seguito con successo!");
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to follow artist", e);
             this.view.showError("Errore durante il follow dell'artista.");
@@ -862,12 +869,17 @@ public final class ControllerImpl implements Controller {
 
     @Override
     public void userClickedToggleReview(final int albumCode) {
+        if (this.loggedInUsername == null || this.loggedInUsername.isBlank()) {
+            this.view.showError("Devi effettuare il login per recensire un album.");
+            return;
+        }
         try {
             final Object[] reviewData = this.view.showReviewInputDialog();
             if (reviewData != null) {
                 final int rating = (Integer) reviewData[0];
                 final String comment = (String) reviewData[1];
-                this.model.insertOrUpdateReview("user", albumCode, rating, comment);
+                this.model.insertOrUpdateReview(this.loggedInUsername, albumCode, rating, comment);
+                this.view.showSuccess("Recensione salvata con successo!");
             }
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to toggle review", e);

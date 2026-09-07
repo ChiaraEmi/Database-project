@@ -102,7 +102,7 @@ public final class Review {
          * @param comment the comment text.
          */
         public static void saveReview(final Connection connection, final String username, final int albumCode, final int rating, final String comment) {
-            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, albumCode, rating, comment)) {
+            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, albumCode, rating, comment, java.sql.Date.valueOf(java.time.LocalDate.now()))) {
                 statement.executeUpdate();
             } catch (final SQLException e) {
                 throw new DAOException(e);
@@ -140,7 +140,7 @@ public final class Review {
          * Inserts or updates a review in the database (OP 16).
          */
         public static void insertOrUpdate(final Connection connection, final String username, final int albumCode, final int rating, final String comment) {
-            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, albumCode, rating, comment)) {
+            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, albumCode, rating, comment, java.sql.Date.valueOf(java.time.LocalDate.now()))) {
                 statement.executeUpdate();
             } catch (final SQLException e) {
                 throw new DAOException(e);

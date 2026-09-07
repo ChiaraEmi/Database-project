@@ -78,6 +78,14 @@ public final class UserPanel extends JPanel {
     private final JButton btnViewArtistProfile= new JButton("Visualizza Profilo Artista");
     final JButton btnFollowArtist = new JButton("Segui Artista");
 
+    // --- Nuovi componenti per la ricerca contenuti in Esplora ---
+    private final JTextField txtContentSearchQuery = new JTextField(FIELD_COLUMNS);
+    private final JButton btnSearchContent = new JButton("Cerca Contenuto");
+    private final DefaultListModel<String> exploreContentResultsModel = new DefaultListModel<>();
+    private final JList<String> exploreContentResultsList = new JList<>(this.exploreContentResultsModel);
+    private final JButton btnPlayContent = new JButton("▶ Play");
+    private List<soundwave.data.Content> currentContents = new java.util.ArrayList<>();
+
     // --- Tab 3: Album & Recensioni ---
     private final JTextField txtAlbumSearchQuery = new JTextField(FIELD_COLUMNS);
     private final JButton btnSearchAlbum = new JButton("Cerca Album");
@@ -195,46 +203,91 @@ public final class UserPanel extends JPanel {
         return panel;
     }
 
-    /**
-     * Creates the tab for exploring catalog.
-     * 
-     * @return the explore panel.
-     */
     private JPanel createExploreTab() {
-        final JPanel panel = new JPanel(new GridBagLayout());
-        final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
-        gbc.anchor = GridBagConstraints.WEST;
+        // Pannello principale diviso in due parti (Sinistra e Destra)
+        final JPanel panel = new JPanel(new GridLayout(1, 2, 20, 0));
+        panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(new JLabel("Genere:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.comboGenre, gbc);
+        // --- COLONNA DI SINISTRA (Genere, Brani, Artisti) ---
+        final JPanel leftCol = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbcLeft = new GridBagConstraints();
+        gbcLeft.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbcLeft.anchor = GridBagConstraints.WEST;
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        panel.add(this.btnFilterByGenre, gbc);
+        gbcLeft.gridx = 0; gbcLeft.gridy = 0;
+        leftCol.add(new JLabel("Genere:"), gbcLeft);
+        gbcLeft.gridx = 1;
+        leftCol.add(this.comboGenre, gbcLeft);
 
-        // --- LISTA DEI BRANI FILTRATI (Posizionata sotto il filtro) ---
+        gbcLeft.gridx = 0; gbcLeft.gridy = 1; gbcLeft.gridwidth = 2;
+        leftCol.add(this.btnFilterByGenre, gbcLeft);
+
         this.exploreSongsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         final JScrollPane scrollPaneSongs = new JScrollPane(this.exploreSongsList);
-        scrollPaneSongs.setPreferredSize(new Dimension(300, 100)); // Dimensione della box con la lista
-        
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        panel.add(scrollPaneSongs, gbc);
+        scrollPaneSongs.setPreferredSize(new Dimension(250, 90));
+        gbcLeft.gridx = 0; gbcLeft.gridy = 2; gbcLeft.gridwidth = 2;
+        leftCol.add(scrollPaneSongs, gbcLeft);
 
-        // --- PULSANTE AGGIUNGI LIKE (Inizialmente disabilitato) ---
         this.btnAddLikeFromExplore.setEnabled(false);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        panel.add(this.btnAddLikeFromExplore, gbc);
+        gbcLeft.gridx = 0; gbcLeft.gridy = 3; gbcLeft.gridwidth = 2;
+        leftCol.add(this.btnAddLikeFromExplore, gbcLeft);
 
-        // Ascoltatore di selezione: abilita il pulsante solo se viene selezionata una riga della lista
+        // Sezione Artista
+        gbcLeft.gridwidth = 1;
+        gbcLeft.gridx = 0; gbcLeft.gridy = 4;
+        leftCol.add(new JLabel("Cerca Artista:"), gbcLeft);
+        gbcLeft.gridx = 1;
+        leftCol.add(this.txtArtistSearchQuery, gbcLeft);
+
+        gbcLeft.gridx = 0; gbcLeft.gridy = 5; gbcLeft.gridwidth = 2;
+        leftCol.add(this.btnSearchArtist, gbcLeft);
+
+        this.comboArtistResults.setPreferredSize(new Dimension(200, 25));
+        gbcLeft.gridx = 0; gbcLeft.gridy = 6; gbcLeft.gridwidth = 2;
+        leftCol.add(this.comboArtistResults, gbcLeft);
+
+        gbcLeft.gridx = 0; gbcLeft.gridy = 7; gbcLeft.gridwidth = 2;
+        leftCol.add(this.btnViewArtistProfile, gbcLeft);
+
+        this.btnFollowArtist.setEnabled(false);
+        gbcLeft.gridx = 0; gbcLeft.gridy = 8; gbcLeft.gridwidth = 2;
+        leftCol.add(this.btnFollowArtist, gbcLeft);
+
+
+        // --- COLONNA DI DESTRA (Ricerca Contenuti e Play) ---
+        final JPanel rightCol = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbcRight = new GridBagConstraints();
+        gbcRight.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbcRight.anchor = GridBagConstraints.WEST;
+
+        gbcRight.gridx = 0; gbcRight.gridy = 0;
+        rightCol.add(new JLabel("Cerca Contenuto:"), gbcRight);
+        
+        gbcRight.gridx = 1;
+        rightCol.add(this.txtContentSearchQuery, gbcRight);
+
+        gbcRight.gridx = 0; gbcRight.gridy = 1; gbcRight.gridwidth = 2;
+        rightCol.add(this.btnSearchContent, gbcRight);
+
+        this.exploreContentResultsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        final JScrollPane scrollPaneContentSearch = new JScrollPane(this.exploreContentResultsList);
+        scrollPaneContentSearch.setPreferredSize(new Dimension(280, 150));
+        
+        gbcRight.gridx = 0; gbcRight.gridy = 2; gbcRight.gridwidth = 2;
+        rightCol.add(scrollPaneContentSearch, gbcRight);
+
+        this.btnPlayContent.setEnabled(false);
+        gbcRight.gridx = 0; gbcRight.gridy = 3; gbcRight.gridwidth = 2;
+        rightCol.add(this.btnPlayContent, gbcRight);
+
+
+        // Listener per i componenti (rimangono identici)
+        this.exploreContentResultsList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                this.btnPlayContent.setEnabled(!this.exploreContentResultsList.isSelectionEmpty());
+            }
+        });
+
         this.exploreSongsList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 final boolean isSelected = !this.exploreSongsList.isSelectionEmpty();
@@ -242,42 +295,13 @@ public final class UserPanel extends JPanel {
             }
         });
 
-        // Sezione Profilo Artista
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        panel.add(new JLabel("Cerca Artista:"), gbc);
-        gbc.gridx = 1;
-        panel.add(this.txtArtistSearchQuery, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 2;
-        panel.add(this.btnSearchArtist, gbc); // Cerca e riempie la tendina sotto
-
-        // Tendina con i risultati della ricerca artisti
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        gbc.gridwidth = 2;
-        this.comboArtistResults.setPreferredSize(new Dimension(220, 25));
-        panel.add(this.comboArtistResults, gbc);
-
-        // Pulsante per visualizzare il profilo dell'artista selezionato nella tendina
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        gbc.gridwidth = 2;
-        panel.add(this.btnViewArtistProfile, gbc);
-
-        // Pulsante Segui Artista
-        this.btnFollowArtist.setEnabled(false);
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        gbc.gridwidth = 2;
-        panel.add(this.btnFollowArtist, gbc);
+        // Aggiungiamo le due colonne al pannello principale del tab
+        panel.add(leftCol);
+        panel.add(rightCol);
 
         return panel;
     }
-
+    
     /**
      * Creates the tab for personal library and playlists, showing liked tracks on the left
      * and management controls on the right.
@@ -691,6 +715,41 @@ public final class UserPanel extends JPanel {
 
     public String getSelectedLibrarySong() {
         return this.librarySongsList.getSelectedValue();
+    }
+
+    public String getContentSearchQuery() {
+        return this.txtContentSearchQuery.getText().trim();
+    }
+
+    public String getSelectedExploreContent() {
+        return this.exploreContentResultsList.getSelectedValue();
+    }
+
+    public int getSelectedContentDuration() {
+        final int selectedIndex = this.exploreContentResultsList.getSelectedIndex();
+        if (selectedIndex >= 0 && selectedIndex < this.currentContents.size()) {
+            // Sostituisci .getDuration() con il nome effettivo del metodo presente nella tua classe Content
+            return this.currentContents.get(selectedIndex).getDuration(); 
+        }
+        return 0; 
+    }
+
+    public void setContentSearchResults(final List<soundwave.data.Content> contents) {
+        this.currentContents = contents != null ? contents : new java.util.ArrayList<>();
+        
+        final List<String> displayItems = this.currentContents.stream()
+            .map(c -> c.getContentCode() + " - " + c.getTitle() + " [" + c.getContentType() + "]")
+            .toList();
+            
+        this.exploreContentResultsList.setListData(displayItems.toArray(new String[0]));
+    }
+
+    public void addSearchContentListener(final ActionListener listener) {
+        this.btnSearchContent.addActionListener(listener);
+    }
+
+    public void addPlayContentListener(final ActionListener listener) {
+        this.btnPlayContent.addActionListener(listener);
     }
 
     /* --- Setter per popolare la vista --- */

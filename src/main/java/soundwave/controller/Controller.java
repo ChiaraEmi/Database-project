@@ -173,6 +173,13 @@ public interface Controller {
      */
     int[] adminRunAutoRenewal();
 
+    /**
+     * Searches for contents matching the given query and updates the view.
+     * 
+     * @param query the partial title to search for.
+     */
+    void handleContentSearch(String query);
+
 
     /**
      * Handles the request to generate a listening event.

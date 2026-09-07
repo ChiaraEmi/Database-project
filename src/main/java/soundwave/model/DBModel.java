@@ -9,6 +9,7 @@ import soundwave.data.User;
 import soundwave.data.Playlist;
 import soundwave.data.Album;
 import soundwave.data.Artist;
+import soundwave.data.Content;
 import soundwave.data.DAOException;
 import soundwave.data.DAOUtils;
 import soundwave.data.Episode;
@@ -167,19 +168,9 @@ public final class DBModel implements Model {
         } catch (final SQLException e) {
             throw new DAOException(e);
         }
-        
+
         return new int[]{renewed, failed, expired};
-
-
-
-
     }
-
-
-
-
-
-
 
     @Override
     public int insertArtist(final String stageName, final String name, final String surname, 
@@ -274,6 +265,11 @@ public final class DBModel implements Model {
     @Override
     public boolean unlikeTrack(final String username, final int trackCode) {
         return LikeBrani.DAO.unlikeTrack(this.connection, username, trackCode);
+    }
+
+    @Override
+    public List<Content> searchContents(final String query) {
+        return Content.DAO.searchByTitle(this.connection, query);
     }
 
     @Override

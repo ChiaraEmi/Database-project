@@ -1,6 +1,7 @@
 package soundwave.controller;
 
 import soundwave.data.Artist;
+import soundwave.data.Content;
 import soundwave.data.DAOException;
 import soundwave.data.LikeBrani;
 import soundwave.data.Plan;
@@ -466,6 +467,24 @@ public final class ControllerImpl implements Controller {
             LOGGER.log(Level.SEVERE, "Failed to process auto-renewals", e);
             this.view.showError("Errore durante il rinnovo automatico: " + e.getMessage());
             return new int[]{0, 0, 0};
+        }
+    }
+
+    @Override 
+    public void handleContentSearch(final String query) {
+        if (query == null || query.trim().isEmpty()) {
+            this.view.showError("Inserisci un termine di ricerca valido.");
+            return;
+        }
+
+        try {
+            final List<Content> contents = this.model.searchContents(query.trim());
+            
+            this.view.showContentSearchResults(contents);
+            
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Errore durante la ricerca dei contenuti", e);
+            this.view.showError("Impossibile completare la ricerca: " + e.getMessage());
         }
     }
 

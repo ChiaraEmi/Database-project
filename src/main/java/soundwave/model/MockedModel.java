@@ -11,6 +11,7 @@ import java.util.Set;
 import soundwave.data.Album;
 import soundwave.data.Album.DAO.AlbumWithSongs;
 import soundwave.data.Artist;
+import soundwave.data.Content;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
@@ -434,5 +435,11 @@ public final class MockedModel implements Model {
     public int[] processAutoRenewals() {
         System.out.println("[MOCK] Processo rinnovo automatico eseguito");
         return new int[]{1, 0, 0};  // mock: 1 rinnovata, 0 fallite, 0 scadute
+    }
+
+    @Override
+    public List<Content> searchContents(String query) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'searchContents'");
     }
 }

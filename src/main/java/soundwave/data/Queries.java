@@ -411,6 +411,15 @@ public final class Queries {
         VALUES (?, ?, ?)
         """;
 
+     // --- RICERCA CONTENUTI PER TITOLO ---
+    public static final String SELECT_CONTENTS_BY_NAME = 
+        """
+        SELECT CodiceContenuto, Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto
+        FROM Contenuti 
+        WHERE Titolo LIKE ? 
+        ORDER BY Titolo ASC
+        """;
+
     // --- OP 11: GENERAZIONE EVENTO DI ASCOLTO ---
     public static final String CHECK_UTENTE_EXISTS = 
         """

@@ -14,6 +14,7 @@ import javax.swing.SwingUtilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
+import soundwave.data.Content;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
 import soundwave.data.Plan;
@@ -604,6 +605,11 @@ public final class ViewImpl extends JFrame implements View {
         this.userPanel.closeActivateSubscriptionDialog();
     }
 
+    @Override
+    public void showContentSearchResults(final List<Content> contents) {
+        this.userPanel.setContentSearchResults(contents);
+    }
+
     /**
      * Gets the role selection panel.
      *
@@ -764,6 +770,37 @@ public final class ViewImpl extends JFrame implements View {
                 }
 
                 this.controller.userRequestedPersonalStats(currentUsername, year);
+            }
+        });
+
+        // --- Cerca Contenuto (Esplora) ---
+        this.userPanel.addSearchContentListener(e -> {
+            if (this.controller != null) {
+                final String query = this.userPanel.getContentSearchQuery();
+                this.controller.handleContentSearch(query);
+            }
+        });
+
+        // --- Play / Registra Evento di Ascolto ---
+        this.userPanel.addPlayContentListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                final String selectedContent = this.userPanel.getSelectedExploreContent();
+                final int contentCode = parseContentCode(selectedContent);
+                
+                // Recupera la durata effettiva del contenuto selezionato tramite un metodo del tuo UserPanel
+                final int eventDuration = this.userPanel.getSelectedContentDuration();
+                
+                // Dispositivo (puoi lasciarlo fisso o prenderlo da un menu a tendina nella UI, es. getSelectedDevice())
+                final String device = "Desktop App"; 
+                
+                final boolean success = this.controller.userGeneratedListeningEvent(
+                    currentUsername, contentCode, device, eventDuration
+                );
+                
+                if (success) {
+                    showSuccess("Evento di ascolto registrato con successo!");
+                }
             }
         });
     }

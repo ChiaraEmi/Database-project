@@ -246,15 +246,20 @@ public final class DBModel implements Model {
     @Override
     public List<String> getFollowedArtists(final String username) {
         final List<String> artists = new ArrayList<>();
-        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_FOLLOWED_ARTISTS_BY_USER, username);
-             var rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                artists.add(rs.getString("NomeDArte"));
-            }
-        } catch (final SQLException e) {
-            throw new DAOException(e);
+    try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_FOLLOWED_ARTISTS_BY_USER, username);
+         var rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            // 1. Leggi sia il codice che il nome dal database
+            final int code = rs.getInt("CodiceArtista"); // <-- Verifica che il nome della colonna nel DB sia corretto
+            final String name = rs.getString("NomeDArte");
+            
+            // 2. Aggiungi la stringa formattata con il codice tra parentesi quadre
+            artists.add("[" + code + "] " + name);
         }
-        return artists;
+    } catch (final SQLException e) {
+        throw new DAOException(e);
+    }
+    return artists;
     }
 
     @Override
@@ -540,7 +545,7 @@ public final class DBModel implements Model {
 
     @Override
     public void unfollowArtist(final String username, final int artistCode) {
-        Follow.DAO.unfollowArtist(this.connection, username, artistCode, java.time.LocalDate.now());
+        Follow.DAO.unfollowArtist(this.connection, username, artistCode);
     }
     
     @Override 

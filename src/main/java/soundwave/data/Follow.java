@@ -47,11 +47,11 @@ public final class Follow {
          * @param artistCode the code of the artist
          * @param endDate the end date of the follow
          */
-        public static void unfollowArtist(final Connection connection, final String username, final int artistCode, final LocalDate endDate) {
-            try (var statement = DAOUtils.prepare(connection, Queries.UPDATE_UNFOLLOW, java.sql.Date.valueOf(endDate), username, artistCode)) {
-                statement.executeUpdate();
+        public static void unfollowArtist(final Connection connection, final String username, final int artistCode) {
+            try (var statement = DAOUtils.prepare(connection, Queries.UPDATE_UNFOLLOW, username, artistCode)) {
+            statement.executeUpdate();
             } catch (final SQLException e) {
-                throw new DAOException(e);
+            throw new DAOException(e);
             }
         }
     }

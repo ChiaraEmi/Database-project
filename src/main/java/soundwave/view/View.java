@@ -4,6 +4,7 @@ import java.util.List;
 
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
+import soundwave.data.Content;
 import soundwave.data.Plan;
 import soundwave.data.Podcast;
 import soundwave.data.User;
@@ -203,4 +204,6 @@ public interface View {
      * Show the dialog for register new user
      */
     void showRegisterDialog();
+
+    void showContentSearchResults(List<Content> contents);
 }

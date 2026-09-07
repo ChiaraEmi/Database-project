@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import soundwave.data.Artist;
+import soundwave.data.Content;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
@@ -225,6 +226,14 @@ public interface Model {
      * @return true if removed successfully, false otherwise.
      */
     boolean unlikeTrack(String username, int trackCode);
+
+    /**
+     * Searches for contents by a partial title match.
+     * 
+     * @param query the partial title to search for.
+     * @return a list of matching Content objects.
+     */
+    List<Content> searchContents(String query);
 
     /**
      * Records a listening event for a user.

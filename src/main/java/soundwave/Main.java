@@ -26,7 +26,7 @@ public final class Main {
     public static void main(final String[] args) throws SQLException {
         String dbPassword = System.getenv("DB_PASSWORD");
         if (dbPassword == null || dbPassword.isEmpty()) {
-            dbPassword = "Laureata2027!"; // Fallback for local testing
+            dbPassword = "MySQLRoot2026."; // Fallback for local testing
         }
 
         final var connection = DAOUtils.localMySQLConnection("soundwave", "root", dbPassword);

@@ -618,7 +618,7 @@ public final class UserPanel extends JPanel {
      * @return the searched artist name string.
      */
     public String getSearchedArtist() {
-        return this.txtArtistProfileName.getText();
+        return this.txtArtistSearchQuery.getText();
     }
 
     /**

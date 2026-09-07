@@ -197,7 +197,7 @@ public final class Artist {
         private DAO() { }
 
         /**
-         * Inserts a new artist into the database.
+         * Inserts a new artist into the database (OP 7).
          *
          * @param connection the database connection.
          * @param stageName the stage name of the artist.
@@ -331,6 +331,93 @@ public final class Artist {
             }
 
             return "Nessun artista trovato per quest'anno.";
+        }
+
+        /**
+         * Retrieves an artist's profile by their unique code.
+         *
+         * @param connection the database connection.
+         * @param artistCode the artist code.
+         * @return the Artist object if found, null otherwise.
+         */
+        public static Artist getByCode(final Connection connection, final int artistCode) {
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ARTIST_BY_CODE, artistCode);
+                 var resultSet = statement.executeQuery()) {
+        
+                if (resultSet.next()) {
+                    return new Artist(
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString(NOME_ARTE_LITERAL),
+                        resultSet.getString("Nome"),
+                        resultSet.getString("Cognome"),
+                        resultSet.getDate("DataNascita") != null ? resultSet.getDate("DataNascita").toLocalDate() : null,
+                        resultSet.getString("PaeseProvenienza"),
+                        resultSet.getString("Biografia"),
+                        resultSet.getInt("AnnoInizioAttivita"),
+                        resultSet.getString("TipoArtista")
+                    );
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return null;
+        }
+
+        /**
+         * Retrieves a list of artists matching a partial stage name (for search dropdowns).
+         *
+         * @param connection the database connection.
+         * @param query the partial query string.
+         * @return a list of matching artists.
+         */
+        public static List<Artist> getByPartialStageName(final Connection connection, final String query) {
+            final List<Artist> artists = new ArrayList<>();
+            final String searchPattern = "%" + (query != null ? query : "") + "%";
+    
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ARTISTS_BY_PARTIAL_NAME, searchPattern);
+                 var resultSet = statement.executeQuery()) {
+        
+                while (resultSet.next()) {
+                    artists.add(new Artist(
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString(NOME_ARTE_LITERAL)
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return artists;
+        }
+
+        /**
+         * Retrieves a list of albums matching a partial name using Queries.SELECT_ALBUMS_BY_NAME.
+         *
+         * @param connection the database connection.
+         * @param query the search query.
+         * @return a list of matching albums.
+         */
+        public static List<Album> getByPartialTitle(final Connection connection, final String query) {
+            final List<Album> albums = new ArrayList<>();
+            final String searchPattern = "%" + (query != null ? query : "") + "%";
+
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_BY_NAME, searchPattern);
+                 var resultSet = statement.executeQuery()) {
+                
+                while (resultSet.next()) {
+                    albums.add(new Album(
+                        resultSet.getInt("CodiceAlbum"),
+                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getString("TitoloAlbum"),
+                        resultSet.getString("AnnoPubblicazione"),
+                        resultSet.getString("CasaDiscografica"),
+                        resultSet.getDouble("MediaVoti"),
+                        resultSet.getInt("DurataTotale")
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return albums;
         }
     }
 }

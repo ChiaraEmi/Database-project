@@ -14,10 +14,16 @@ import javax.swing.SwingUtilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
+import soundwave.data.Content;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
 import soundwave.data.Plan;
 import soundwave.data.User;
+
+import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import soundwave.data.Album;
 
 /**
  * Implementation of the {@link View} interface.
@@ -159,7 +165,6 @@ public final class ViewImpl extends JFrame implements View {
                 final String country = this.adminPanel.getArtistProvenanceCountry();
                 final String biography = this.adminPanel.getArtistBiography();
                 final String artistType = this.adminPanel.getArtistType();
-
                 int startYear = 0;
                 try {
                     if (!this.adminPanel.getArtistStartYear().isBlank()) {
@@ -337,7 +342,112 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.adminRequestedYearlyStats(year);
             }
         });
+        
+        // --- Aggiungi Like da Esplora (OP 14) ---
+        this.userPanel.addExploreLikeListener(e -> {
+            if (this.controller != null) {
+                final String selectedSong = this.userPanel.getSelectedExploreSong();
+                int contentCode = parseContentCode(selectedSong);
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                this.controller.userClickedAddLike(currentUsername, contentCode);
+            }
+        });
 
+        // --- Rimuovi Like dalla Libreria (OP 14) ---
+        this.userPanel.addToggleLikeListener(e -> {
+            if (this.controller != null) {
+                final String selectedSong = this.userPanel.getSelectedLibrarySong();
+                int contentCode = parseContentCode(selectedSong);
+                this.controller.userClickedRemoveLike("user", contentCode);
+            }
+        });
+
+        // --- Cerca Artista (Esplora) ---
+        this.userPanel.addSearchArtistListener(e -> {
+            if (this.controller != null) {
+                final String artistName = this.userPanel.getArtistSearchQuery();
+                this.controller.userClickedSearchArtists(artistName); 
+            }
+        });
+
+        // --- Visualizza Profilo Artista ---
+        this.userPanel.addViewArtistProfileListener(e -> {
+            if (this.controller != null) {
+                final Artist selectedArtist = this.userPanel.getSelectedArtist();
+                if (selectedArtist != null) {
+                    this.controller.userClickedViewArtistProfile(selectedArtist.getArtistCode());
+                }
+            }
+        });
+
+        // --- Segui Artista (Esplora) ---
+        this.userPanel.addFollowArtistListener(e -> {
+            if (this.controller != null) {
+                final Artist selectedArtist = this.userPanel.getSelectedArtist();
+                if (selectedArtist != null) {
+                    this.controller.userClickedFollowArtist(selectedArtist.getArtistCode());
+                }
+            }
+        });
+
+        // --- Filtra brani per genere (OP 20) ---
+        this.userPanel.addFilterByGenreListener(e -> {
+            if (this.controller != null) {
+                final String genre = this.userPanel.getSelectedGenre();
+                this.controller.userClickedFilterSongsByGenre(genre);
+            }
+        });
+
+        // --- Album & Recensioni ---
+        this.userPanel.addSearchAlbumListener(e -> {
+            if (this.controller != null) {
+                final String query = this.userPanel.getAlbumSearchQuery();
+                this.controller.userClickedSearchAlbums(query);
+            }
+        });
+
+        this.userPanel.addViewAlbumListener(e -> {
+            if (this.controller != null) {
+                final Album selectedAlbum = this.userPanel.getSelectedAlbum();
+                if (selectedAlbum != null) {
+                    this.controller.userClickedViewAlbum(selectedAlbum.getAlbumCode());
+                }
+            }
+        });
+
+        this.userPanel.addSearchAlbumReviewsListener(e -> {
+            if (this.controller != null) {
+                final Album selectedAlbum = this.userPanel.getSelectedAlbum();
+                if (selectedAlbum != null) {
+                    this.controller.userClickedViewAlbumReviews(selectedAlbum.getAlbumCode());
+                }
+            }
+        });
+
+        this.userPanel.addToggleRecensioneListener(e -> {
+            if (this.controller != null) {
+                final Album selectedAlbum = this.userPanel.getSelectedAlbum();
+                if (selectedAlbum != null) {
+                    this.controller.userClickedToggleReview(selectedAlbum.getAlbumCode());
+                }
+            }
+        });
+
+        // --- Statistiche Globali (OP 22) ---
+        this.adminPanel.addFetchStatsListener(e -> {
+            if (this.controller != null) {
+                int year = 2026;
+                try {
+                    if (!this.adminPanel.getStatsYear().isBlank()) {
+                        year = Integer.parseInt(this.adminPanel.getStatsYear());
+                    }
+                } catch (final NumberFormatException ex) {
+                    // Gestione formato anno non valido
+                }
+
+                this.controller.adminRequestedGlobalStats(year);
+            }
+        });
     }
 
     @Override
@@ -494,6 +604,11 @@ public final class ViewImpl extends JFrame implements View {
     public void showSuccessAndCloseDialog(final String message) {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
         this.userPanel.closeActivateSubscriptionDialog();
+    }
+
+    @Override
+    public void showContentSearchResults(final List<Content> contents) {
+        this.userPanel.setContentSearchResults(contents);
     }
 
     /**
@@ -658,5 +773,155 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.userRequestedPersonalStats(currentUsername, year);
             }
         });
+
+        // --- Cerca Contenuto (Esplora) ---
+        this.userPanel.addSearchContentListener(e -> {
+            if (this.controller != null) {
+                final String query = this.userPanel.getContentSearchQuery();
+                this.controller.handleContentSearch(query);
+            }
+        });
+
+        // --- Play / Registra Evento di Ascolto ---
+        this.userPanel.addPlayContentListener(e -> {
+            if (this.controller != null) {
+                final String currentUsername = this.userPanel.getCurrentUsername();
+                final String selectedContent = this.userPanel.getSelectedExploreContent();
+                final int contentCode = parseContentCode(selectedContent);
+                
+                // Recupera la durata effettiva del contenuto selezionato tramite un metodo del tuo UserPanel
+                final int eventDuration = this.userPanel.getSelectedContentDuration();
+                
+                // Dispositivo (puoi lasciarlo fisso o prenderlo da un menu a tendina nella UI, es. getSelectedDevice())
+                final String device = "Desktop App"; 
+                
+                final boolean success = this.controller.userGeneratedListeningEvent(
+                    currentUsername, contentCode, device, eventDuration
+                );
+                
+                if (success) {
+                    showSuccess("Evento di ascolto registrato con successo!");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void showLikedSongs(final java.util.List<String> songs) {
+        this.userPanel.setLikedSongs(songs);
+    }
+
+    @Override
+    public void showFilteredSongs(final java.util.List<String> songs) {
+        this.userPanel.setExploreSongs(songs);
+    }
+
+    @Override
+    public void showArtistSearchResults(final java.util.List<Artist> artists) {
+        this.userPanel.setArtistSearchResults(artists);
+    }
+
+    @Override
+    public void showArtistProfile(final soundwave.data.Artist artist) {
+        final String details = "Nome d'arte: " + artist.getStageName() + 
+                               "\nPaese: " + artist.getCountry() + 
+                               "\nAnno inizio: " + artist.getStartYear() + 
+                               "\nBiografia: " + artist.getBiography();
+        JOptionPane.showMessageDialog(this, details, "Profilo Artista", JOptionPane.INFORMATION_MESSAGE);
+        this.userPanel.setFollowButtonEnabled(true);
+    }
+
+    /* --- Implementazione dei metodi View per Album e Recensioni --- */
+
+    @Override
+    public void showAlbumSearchResults(final List<Album> albums) {
+        this.userPanel.setAlbumSearchResults(albums);
+    }
+
+    @Override
+    public void showAlbumDetails(final Album.DAO.AlbumWithSongs albumInfo) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Album: ").append(albumInfo.getAlbum().getTitle()).append("\n");
+        sb.append("Artista: ").append(albumInfo.getArtistName()).append("\n");
+        sb.append("Anno: ").append(albumInfo.getAlbum().getReleaseDate()).append("\n");
+        sb.append("Casa Discografica: ").append(albumInfo.getAlbum().getRecordCompany()).append("\n");
+        sb.append("Media Voti: ").append(albumInfo.getAlbum().getAverageRating()).append("\n");
+        sb.append("Durata Totale: ").append(albumInfo.getAlbum().getTotalDuration()).append("s\n\n");
+        sb.append("--- TRACKLIST ---\n");
+        
+        for (final Album.DAO.AlbumSong song : albumInfo.getSongs()) {
+            sb.append(song.getTrackNumber()).append(". ")
+              .append(song.getTitle())
+              .append(" (").append(song.getDurationSeconds()).append("s)\n");
+        }
+
+        JOptionPane.showMessageDialog(
+            this,
+            sb.toString(),
+            "Dettagli Album",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    @Override
+    public void showAlbumReviews(final List<String> reviews) {
+        if (reviews.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Non ci sono recensioni per questo album.",
+                "Recensioni Album",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+
+        final javax.swing.JList<String> reviewList = new javax.swing.JList<>(reviews.toArray(new String[0]));
+        final JScrollPane scrollPane = new JScrollPane(reviewList);
+        scrollPane.setPreferredSize(new java.awt.Dimension(400, 200));
+
+        JOptionPane.showMessageDialog(
+            this,
+            scrollPane,
+            "Recensioni dell'Album",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    @Override
+    public Object[] showReviewInputDialog() {
+        final JComboBox<Integer> comboRating = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
+        final JTextField txtComment = new JTextField(20);
+
+        final Object[] message = {
+            "Voto (da 1 a 5):", comboRating,
+            "Commento:", txtComment
+        };
+
+        final int option = JOptionPane.showConfirmDialog(
+            this,
+            message,
+            "Aggiungi / Modifica Recensione",
+            JOptionPane.OK_CANCEL_OPTION
+        );
+
+        if (option == JOptionPane.OK_OPTION) {
+            return new Object[]{ comboRating.getSelectedItem(), txtComment.getText() };
+        }
+        return null;
+    }
+
+    /**
+     * Metodo di supporto per estrarre l'ID numerico (contentCode) dall'inizio della stringa del brano.
+     */
+    private int parseContentCode(final String songString) {
+        if (songString != null && !songString.isBlank()) {
+            try {
+                final String idPart = songString.split("[-:]")[0].trim();
+                return Integer.parseInt(idPart);
+            } catch (final Exception ex) {
+                // Fallback in caso di formato stringa differente
+            }
+        }
+        return 1;
     }
 }

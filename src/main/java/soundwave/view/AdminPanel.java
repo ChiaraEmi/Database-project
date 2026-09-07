@@ -29,6 +29,17 @@ import javax.swing.text.JTextComponent;
 
 import soundwave.data.Artist;
 import soundwave.data.Podcast;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 /**
  * Panel representing the main dashboard for the Administrator, organized in tabs with input forms.

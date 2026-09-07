@@ -364,6 +364,13 @@ public final class Queries {
         WHERE TipoArtista = 'Autore Podcast'
         ORDER BY NomeDArte ASC
         """;
+        
+    public static final String CHECK_ARTIST_EXISTS = 
+        """
+        SELECT CodiceArtista, NomeDArte 
+        FROM Artisti 
+        WHERE CodiceArtista = ?
+        """;
 
     public static final String INSERT_PODCAST = 
         """
@@ -402,6 +409,15 @@ public final class Queries {
         """
         INSERT INTO Episodi (CodiceEpisodio, CodicePodcast, NumeroEpisodio)
         VALUES (?, ?, ?)
+        """;
+
+     // --- RICERCA CONTENUTI PER TITOLO ---
+    public static final String SELECT_CONTENTS_BY_NAME = 
+        """
+        SELECT CodiceContenuto, Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto
+        FROM Contenuti 
+        WHERE Titolo LIKE ? 
+        ORDER BY Titolo ASC
         """;
 
     // --- OP 11: GENERAZIONE EVENTO DI ASCOLTO ---
@@ -458,6 +474,114 @@ public final class Queries {
         WHERE CodicePlaylist = ? AND CodiceBrano = ?
         """;
 
+    // --- OPS 14 Inserimento e Rimozione Like ---
+    public static final String INSERT_LIKE = 
+       """
+       INSERT INTO LikeBrani(Username, CodiceBrano)
+       VALUES (?,?)
+       """;
+    public static final String DELETE_LIKE =
+        """
+        DELETE FROM LikeBrani
+        WHERE Username= ?
+        AND CodiceBrano= ?
+        """;
+    public static final String SELECT_LIKED_SONGS = 
+        """
+        SELECT 
+            b.CodiceBrano,
+            b.Titolo
+        FROM Brani b
+        JOIN LikeBrani l ON b.CodiceBrano = l.CodiceBrano WHERE l.Username = ?    
+        """;
+    //--- OP 15 Inserimento e Rimozione FOLLOW --- 
+    public static final String INSERT_FOLLOW =
+        """
+        INSERT INTO Follow(Username, CodiceArtista, DataInizio, DataFine)
+        VALUES (?,?,?,?);
+        """;
+    public static final String UPDATE_UNFOLLOW =
+        """
+        DELETE FROM Follow(Username, CodiceArtista: Artisti, DataInizio, DataFine)
+        WHERE Username= ?
+        AND CodiceArtista=?
+        """;
+    //--- OP 16 - Pubblicazione/modifica recensione per un album ---
+    public static final String UPSERT_REVIEW = 
+        """
+        INSERT INTO Recensioni(Username,CodiceAlbum, Voto, Commento, DataRecensione)
+        VALUES(?,?,?,?,?)
+        ON DUPLICATE KEY UPDATE 
+        Voto = VALUES(Voto),
+        Commento = VALUES(Commento),
+        DataRecensione = VALUES(DataRecensione)
+        """;
+    //--- OP 17 - Visualizzazione delle recensioni di un album ---
+    public static final String SELECT_REVIEWS_FOR_ALBUM = 
+        """
+        SELECT *
+        FROM Recensioni
+        WHERE CodiceAlbum = ?
+        """;
+    public static final String SELECT_ALBUMS_BY_NAME = 
+        """
+        SELECT A.*
+        FROM Album A
+        JOIN Artisti Art ON A.CodiceArtista = Art.CodiceArtista
+        WHERE A.TitoloAlbum LIKE ?
+        ORDER BY A.TitoloAlbum ASC
+    """;
+    //--- OP 18 Visualizzazione della scheda dettagliata di un Album
+    public static final String ALBUM_INFO =
+        """
+         SELECT
+            C.Titolo AS TitoloBrano,
+            C.Durata AS DurataBranoSecondi,
+            B.NumeroTraccia,
+            Art.NomeDArte,
+            A.*
+        FROM Album A
+        JOIN Artisti Art ON A.CodiceArtista = Art.CodiceArtista
+        JOIN Brani B ON A.CodiceAlbum = B.CodiceAlbum
+        JOIN Contenuti C ON B.CodiceBrano = C.CodiceContenuto
+        WHERE A.CodiceAlbum= ?
+        ORDER BY B.NumeroTraccia ASC
+        """;
+    public static final String SELECT_ARTISTS_BY_PARTIAL_NAME =
+        """
+        SELECT CodiceArtista, NomeDArte 
+        FROM Artisti 
+        WHERE NomeDArte LIKE ? 
+        ORDER BY NomeDArte ASC
+        """;
+    //---OP 19 Visualizzazione del profilo di un artista---
+    public static final String SELECT_ARTIST_BY_CODE =
+        """
+        SELECT
+            Art.*,
+            (SELECT COUNT(*) FROM Follow F WHERE F.CodiceArtista = Art.CodiceArtista) AS Follower,
+            Alb.CodiceAlbum,
+            Alb.TitoloAlbum,
+            Alb.DataPubblicazione
+        FROM Artisti Art
+        LEFT JOIN Album Alb ON Art.CodiceArtista = Alb.CodiceArtista
+        WHERE Art.CodiceArtista = ?
+        ORDER BY Alb.DataPubblicazione DESC
+        """;
+    //--OP 20 Visualizzazione brani filtrati per genere--
+    public static final String SELECT_SONGS_BY_GENRE = 
+        """
+        SELECT 
+    	    C.CodiceContenuto,
+    	    C.Titolo,
+    	    C.Durata,
+    	    B.CodiceAlbum,
+    	    APP.NomeGenere
+        FROM Appartenenze APP
+        JOIN Brani B ON APP.CodiceBrano = B.CodiceBrano
+        JOIN Contenuti C ON B.CodiceBrano = C.CodiceContenuto
+        WHERE APP.NomeGenere = ?
+        """;
     public static final String ADD_BRANO_TO_PLAYLIST = 
         """
         INSERT INTO Inclusioni (CodicePlaylist, CodiceBrano)

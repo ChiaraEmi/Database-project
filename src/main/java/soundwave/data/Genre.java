@@ -2,6 +2,7 @@ package soundwave.data;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,6 +85,28 @@ public final class Genre {
                 throw new DAOException(e);
             }
             return "Nessun genere trovato per quest'anno.";
+        }
+
+        /**
+        * Retrieves all songs belonging to a specific genre.
+        *
+        * @param connection the database connection.
+        * @param genreName the name of the genre to filter by.
+        * @return a list of strings representing the matching songs.
+        */
+        public static List<String> getSongsByGenre(final Connection connection, final String genreName) {
+            final List<String> songs = new ArrayList<>();
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_SONGS_BY_GENRE, genreName);
+                var resultSet = statement.executeQuery()) {
+            
+                while (resultSet.next()) {
+                    songs.add("Brano: " + resultSet.getString("Titolo") + 
+                              " (Durata: " + resultSet.getInt("Durata") + "s)");
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return songs;
         }
     }
 }

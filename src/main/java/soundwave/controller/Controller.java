@@ -12,7 +12,7 @@ import soundwave.view.ActivateSubscriptionDialog;
 import soundwave.view.RedeemBonusDialog;
 
 /**
- * Defines the controller interface for the application.
+ * Defines the controller interface for the Soundwave application.
  */
 public interface Controller {
 
@@ -40,7 +40,7 @@ public interface Controller {
      * @return true if successfully saved, false otherwise.
      */
     boolean adminClickedSaveArtist(String stageName, String name, String surname, String birthDate, 
-                                String provenanceCountry, String biography, int startYear, String artistType);
+                                  String provenanceCountry, String biography, int startYear, String artistType);
 
     /**
      * Handles the request to insert a new album with its songs.
@@ -172,6 +172,13 @@ public interface Controller {
      *          or an empty array if no subscriptions were renewed
      */
     int[] adminRunAutoRenewal();
+
+    /**
+     * Searches for contents matching the given query and updates the view.
+     * 
+     * @param query the partial title to search for.
+     */
+    void handleContentSearch(String query);
 
 
     /**
@@ -349,4 +356,90 @@ public interface Controller {
      * @return a list of object arrays representing subscription details.
      */
     List<Object[]> getSubscriptionData(String username);
+
+    /**
+     * Handles the request to load and view global statistics.
+     * 
+     * @param year the reference year for annual statistics
+     */
+    void adminRequestedGlobalStats(int year);
+
+    /**
+     * Filters and shows songs by a specific genre.
+     *
+     * @param genre the genre to filter by.
+     */
+    void userClickedFilterSongsByGenre(String genre);
+
+    /**
+     * Adds a like to a content for a specific user.
+     *
+     * @param username the username.
+     * @param contentCode the code of the content to like.
+     */
+    void userClickedAddLike(String username, int contentCode);
+
+    /**
+     * Views the profile of an artist by their stage name.
+     *
+     * @param artistCode the artist distinctive code.
+     */
+    void userClickedViewArtistProfile(int artistCode);
+
+    /**
+     * Requests the list of liked songs for a user.
+     *
+     * @param username the username.
+     */
+    void userRequestedLikedSongs(String username);
+
+    /**
+     * Removes a like from a content for a specific user.
+     *
+     * @param username the username.
+     * @param contentCode the code of the content to unlike.
+     */
+    void userClickedRemoveLike(String username, int contentCode);
+
+    /**
+     * Searches for artists based on a partial query to populate the search dropdown.
+     *
+     * @param query the partial text entered by the user
+     */
+    void userClickedSearchArtists(String query);
+
+    /**
+     * Handles the request to follow a specific artist.
+     *
+     * @param artistCode the code of the artist to follow.
+     */
+    void userClickedFollowArtist(int artistCode);
+
+    /**
+     * Searches for albums matching a query string.
+     *
+     * @param query the search query text.
+     */
+    void userClickedSearchAlbums(String query);
+
+    /**
+     * Handles the request to view complete album details and tracklist.
+     *
+     * @param albumCode the code of the album to view.
+     */
+    void userClickedViewAlbum(int albumCode);
+
+    /**
+     * Handles the request to view reviews for a specific album.
+     *
+     * @param albumCode the code of the album.
+     */
+    void userClickedViewAlbumReviews(int albumCode);
+
+    /**
+     * Handles the request to add or modify a review for an album.
+     *
+     * @param albumCode the code of the album.
+     */
+    void userClickedToggleReview(int albumCode);
 }

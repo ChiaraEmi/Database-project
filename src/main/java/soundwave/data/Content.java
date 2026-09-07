@@ -188,5 +188,39 @@ public final class Content {
             }
             throw new DAOException("Unable to retrieve generated key for Content.");
         }
+
+        /**
+         * Searches for contents by a partial title match.
+         * 
+         * @param connection the database connection.
+         * @param partialTitle the partial title to search for.
+         * 
+         * @return a list of matching Content objects.
+         */
+        public static List<Content> searchByTitle(final Connection connection, final String partialTitle) {
+            final List<Content> results = new java.util.ArrayList<>();
+            try (
+                var statement = DAOUtils.prepare(
+                    connection, 
+                    Queries.SELECT_CONTENTS_BY_NAME, 
+                    "%" + partialTitle + "%"
+                );
+                var resultSet = statement.executeQuery()
+            ) {
+                while (resultSet.next()) {
+                    results.add(new Content(
+                        resultSet.getInt("CodiceContenuto"),
+                        resultSet.getString("Titolo"),
+                        resultSet.getInt("Durata"),
+                        resultSet.getString("Descrizione"),
+                        resultSet.getString("DataPubblicazione"),
+                        resultSet.getString("TipoContenuto")
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return results;
+        }
     }
 }

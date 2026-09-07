@@ -152,7 +152,6 @@ public final class Song {
                 } catch (final SQLException rollbackEx) {
                     e.addSuppressed(rollbackEx);
                 }
-
                 throw new DAOException(e);
             } finally {
                 try {

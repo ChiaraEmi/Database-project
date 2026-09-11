@@ -39,6 +39,7 @@ public final class ControllerImpl implements Controller {
     private static final String NEW_LINE = "\n";
     private static final String SECTION_CLOSE_SUFFIX = ") ===";
     private static final String BULLET_POINT = "• ";
+    private static final String NO_DATA = "Nessun dato";
     private static final int INITIAL_BUILDER_CAPACITY = 512;
 
     private final Model model;
@@ -151,8 +152,10 @@ public final class ControllerImpl implements Controller {
     @Override
     public void userActivateSubscription(final String username, final ActivateSubscriptionDialog.SubscriptionData data) {
         try {
-            final int subscriptionCode = this.model.activateSubscription(username, data.getPlanCode(), data.getPaymentMethod(),
-                                                                        data.getPromoCode(), data.getInviteCode(), data.isAutoRenew());
+            final int subscriptionCode = this.model.activateSubscription(username, data.getPlanCode(), 
+                                                                        data.getPaymentMethod(),
+                                                                        data.getPromoCode(), data.getInviteCode(), 
+                                                                        data.isAutoRenew());
             this.view.showSuccessAndCloseDialog("Sottoscrizione attivata con successo! Codice: " + subscriptionCode);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to activate subscription", e);
@@ -479,9 +482,9 @@ public final class ControllerImpl implements Controller {
 
         try {
             final List<Content> contents = this.model.searchContents(query.trim());
-            
+
             this.view.showContentSearchResults(contents);
-            
+
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Errore durante la ricerca dei contenuti", e);
             this.view.showError("Impossibile completare la ricerca: " + e.getMessage());
@@ -817,14 +820,14 @@ public final class ControllerImpl implements Controller {
               .append(year)
               .append(SECTION_CLOSE_SUFFIX)
               .append(NEW_LINE)
-              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato")
+              .append(mostPlayedArtist != null ? mostPlayedArtist : NO_DATA)
               .append(NEW_LINE)
               .append(NEW_LINE)
               .append("=== Genere più ascoltato (Anno ")
               .append(year)
               .append(SECTION_CLOSE_SUFFIX)
               .append(NEW_LINE)
-              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato")
+              .append(mostPlayedGenre != null ? mostPlayedGenre : NO_DATA)
               .append(NEW_LINE)
               .append(NEW_LINE)
               .append("=== Utenti sopra la media ascolti (Anno ")
@@ -860,21 +863,21 @@ public final class ControllerImpl implements Controller {
             final List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
-            sb.append("=== Artista più ascoltato (Anno ").append(year).append(") ===")
+            sb.append("=== Artista più ascoltato (Anno ").append(year).append(SECTION_CLOSE_SUFFIX)
               .append(NEW_LINE)
-              .append(mostPlayedArtist != null ? mostPlayedArtist : "Nessun dato")
+              .append(mostPlayedArtist != null ? mostPlayedArtist : NO_DATA)
               .append(NEW_LINE).append(NEW_LINE);
-            
-            sb.append("=== Genere più ascoltato (Anno ").append(year).append(") ===")
+
+            sb.append("=== Genere più ascoltato (Anno ").append(year).append(SECTION_CLOSE_SUFFIX)
               .append(NEW_LINE)
-              .append(mostPlayedGenre != null ? mostPlayedGenre : "Nessun dato")
+              .append(mostPlayedGenre != null ? mostPlayedGenre : NO_DATA)
               .append(NEW_LINE).append(NEW_LINE);
-            
-            sb.append("=== Utenti sopra la media ascolti (Anno ").append(year).append(") ===")
+
+            sb.append("=== Utenti sopra la media ascolti (Anno ").append(year).append(SECTION_CLOSE_SUFFIX)
               .append(NEW_LINE);
             if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
                 for (final String u : usersAboveAvg) {
-                    sb.append("• ").append(u).append(NEW_LINE);
+                    sb.append(BULLET_POINT).append(u).append(NEW_LINE);
                 }
             } else {
                 sb.append("Nessun utente trovato.").append(NEW_LINE);
@@ -885,7 +888,7 @@ public final class ControllerImpl implements Controller {
               .append(NEW_LINE);
             if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
                 for (final String a : albumsAboveAvg) {
-                    sb.append("• ").append(a).append(NEW_LINE);
+                    sb.append(BULLET_POINT).append(a).append(NEW_LINE);
                 }
             } else {
                 sb.append("Nessun album trovato.").append(NEW_LINE);
@@ -1056,6 +1059,10 @@ public void userClickedUnfollowArtist(final int artistCode) {
 
     /**
      * Helper method to parse raw text from the text area into a list of SongInput objects.
+     * 
+     * @param rawText the raw text input from the text area.
+     * 
+     * @return a list of parsed SongInput objects.
      */
     private List<SongInput> parseSongsInput(final String rawText) {
         final List<SongInput> songList = new ArrayList<>();

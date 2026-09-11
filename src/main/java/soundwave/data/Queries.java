@@ -22,7 +22,7 @@ public final class Queries {
 
     public static final String INSERT_USER = 
         """
-        INSERT INTO Utenti (Username, Email, Password, Nome, Cognome, DataNascita, Paese, CreditiBonus)
+        INSERT INTO Utenti (Username, Email, Password, Nome, Cognome, DataNascita, Paese, CreditoBonus)
         VALUES (?, ?, ?, ?, ?, ?, ?, 0)
         """;
 

@@ -10,6 +10,8 @@ import java.util.Objects;
  * Represents an Album entity.
  */
 public final class Album {
+    private static final String ALBUM_TITLE = "TitoloAlbum";
+    private static final String AVERAGE_RATING = "MediaVoti";
 
     private final int albumCode;
     private final int artistCode;
@@ -242,64 +244,11 @@ public final class Album {
         }
 
         /**
-         * Container class for complete album info, artist name, and its tracklist.
-         */
-        public static final class AlbumWithSongs {
-            private final Album album;
-            private final String artistName;
-            private final List<AlbumSong> songs;
-
-            public AlbumWithSongs(final Album album, final String artistName, final List<AlbumSong> songs) {
-                this.album = album;
-                this.artistName = artistName;
-                this.songs = songs;
-            }
-
-            public Album getAlbum() {
-                return album;
-            }
-
-            public String getArtistName() {
-                return artistName;
-            }
-
-            public List<AlbumSong> getSongs() {
-                return songs;
-            }
-        }
-
-        /**
-         * Represents a song entry in the album tracklist.
-         */
-        public static final class AlbumSong {
-            private final int trackNumber;
-            private final String title;
-            private final int durationSeconds;
-
-            public AlbumSong(final int trackNumber, final String title, final int durationSeconds) {
-                this.trackNumber = trackNumber;
-                this.title = title;
-                this.durationSeconds = durationSeconds;
-            }
-
-            public int getTrackNumber() {
-                return trackNumber;
-            }
-
-            public String getTitle() {
-                return title;
-            }
-
-            public int getDurationSeconds() {
-                return durationSeconds;
-            }
-        }
-
-        /**
          * Retrieves album details, artist name, and tracklist using Queries.ALBUM_INFO.
          *
          * @param connection the database connection.
          * @param albumCode the album code.
+         * 
          * @return an AlbumWithSongs object containing all album and track data.
          */
         public static AlbumWithSongs getAlbumInfo(final Connection connection, final int albumCode) {
@@ -315,10 +264,10 @@ public final class Album {
                         album = new Album(
                             resultSet.getInt("CodiceAlbum"),
                             resultSet.getInt("CodiceArtista"),
-                            resultSet.getString("TitoloAlbum"),
+                            resultSet.getString(ALBUM_TITLE),
                             resultSet.getString("DataPubblicazione"),
                             resultSet.getString("CasaDiscografica"),
-                            resultSet.getDouble("MediaVoti"),
+                            resultSet.getDouble(AVERAGE_RATING),
                             resultSet.getInt("DurataTotale")
                         );
                         artistName = resultSet.getString("NomeDArte");
@@ -343,6 +292,11 @@ public final class Album {
 
         /**
          * Retrieves a list of albums matching a partial name using Queries.SELECT_ALBUMS_BY_NAME.
+         *
+         * @param connection the database connection.
+         * @param query      the partial album title search query.
+         * 
+         * @return a list of matching Album objects.
          */
         public static List<Album> getByPartialTitle(final Connection connection, final String query) {
             final List<Album> albums = new ArrayList<>();
@@ -350,15 +304,15 @@ public final class Album {
 
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_BY_NAME, searchPattern);
                  var resultSet = statement.executeQuery()) {
-                
+
                 while (resultSet.next()) {
                     albums.add(new Album(
                         resultSet.getInt("CodiceAlbum"),
                         resultSet.getInt("CodiceArtista"),
-                        resultSet.getString("TitoloAlbum"),
+                        resultSet.getString(ALBUM_TITLE),
                         resultSet.getString("DataPubblicazione"),
                         resultSet.getString("CasaDiscografica"),
-                        resultSet.getDouble("MediaVoti"),
+                        resultSet.getDouble(AVERAGE_RATING),
                         resultSet.getInt("DurataTotale")
                     ));
                 }
@@ -367,8 +321,14 @@ public final class Album {
             }
             return albums;
         }
+
         /**
          * Alias for getAlbumInfo to match DBModel call.
+         *
+         * @param connection the database connection.
+         * @param albumCode  the album code.
+         * 
+         * @return an AlbumWithSongs object containing album info and tracklist.
          */
         public static AlbumWithSongs getAlbumWithSongs(final Connection connection, final int albumCode) {
             return getAlbumInfo(connection, albumCode);
@@ -376,11 +336,17 @@ public final class Album {
 
         /**
          * Retrieves reviews for an album formatted as strings for DBModel.
+         *
+         * @param connection the database connection.
+         * @param albumCode  the album code.
+         * 
+         * @return a list of formatted review strings.
          */
         public static List<String> getAlbumReviews(final Connection connection, final int albumCode) {
             final List<String> reviewStrings = new ArrayList<>();
             for (final Review review : Review.DAO.getReviewsForAlbum(connection, albumCode)) {
-                reviewStrings.add("Utente: " + review.getUsername() + " - Voto: " + review.getRating() + " - Commento: " + review.getComment());
+                reviewStrings.add("Utente: " + review.getUsername() + " - Voto: " + review.getRating() 
+                                    + " - Commento: " + review.getComment());
             }
             return reviewStrings;
         }
@@ -389,16 +355,17 @@ public final class Album {
          * Retrieves albums with a review average higher than the global average.
          *
          * @param connection the database connection.
+         * 
          * @return a list of strings representing the top albums.
          */
         public static List<String> getAlbumsAboveGlobalAverage(final Connection connection) {
             final List<String> albums = new ArrayList<>();
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING);
                  var resultSet = statement.executeQuery()) {
-                
+
                 while (resultSet.next()) {
-                    albums.add("Album: " + resultSet.getString("TitoloAlbum") + 
-                               " - Media Voti: " + resultSet.getDouble("MediaVoti"));
+                    albums.add("Album: " + resultSet.getString(ALBUM_TITLE) 
+                                + " - Media Voti: " + resultSet.getDouble(AVERAGE_RATING));
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);
@@ -406,6 +373,102 @@ public final class Album {
             return albums;
         }
 
-        
+        /**
+         * Container class for complete album info, artist name, and its tracklist.
+         */
+        public static final class AlbumWithSongs {
+            private final Album album;
+            private final String artistName;
+            private final List<AlbumSong> songs;
+
+            /**
+             * Constructs a new AlbumWithSongs container.
+             * 
+             * @param album      the album information.
+             * @param artistName the name of the artist.
+             * @param songs      the list of songs belonging to the album.
+             */
+            public AlbumWithSongs(final Album album, final String artistName, final List<AlbumSong> songs) {
+                this.album = album;
+                this.artistName = artistName;
+                this.songs = songs;
+            }
+
+            /**
+             * Returns the album information.
+             * 
+             * @return the album object.
+             */
+            public Album getAlbum() {
+                return album;
+            }
+
+            /**
+             * Returns the name of the artist.
+             * 
+             * @return the artist name.
+             */
+            public String getArtistName() {
+                return artistName;
+            }
+
+            /**
+             * Returns the tracklist of the album.
+             * 
+             * @return the list of album songs.
+             */
+            public List<AlbumSong> getSongs() {
+                return songs;
+            }
+        }
+
+        /**
+         * Represents a song entry in the album tracklist.
+         */
+        public static final class AlbumSong {
+            private final int trackNumber;
+            private final String title;
+            private final int durationSeconds;
+
+            /**
+             * Constructs a new AlbumSong entry.
+             * 
+             * @param trackNumber     the track number on the album.
+             * @param title           the title of the song.
+             * @param durationSeconds the duration of the song in seconds.
+             */
+            public AlbumSong(final int trackNumber, final String title, final int durationSeconds) {
+                this.trackNumber = trackNumber;
+                this.title = title;
+                this.durationSeconds = durationSeconds;
+            }
+
+            /**
+             * Returns the track number of the song.
+             * 
+             * @return the track number.
+             */
+            public int getTrackNumber() {
+                return trackNumber;
+            }
+
+            /**
+             * Returns the title of the song.
+             * 
+             * @return the song title.
+             */
+            public String getTitle() {
+                return title;
+            }
+
+            /**
+             * Returns the duration of the song in seconds.
+             * 
+             * @return the duration in seconds.
+             */
+            public int getDurationSeconds() {
+                return durationSeconds;
+            }
+        }
     }
 }

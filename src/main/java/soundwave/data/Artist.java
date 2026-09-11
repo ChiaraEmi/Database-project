@@ -14,6 +14,8 @@ import java.util.Objects;
 public final class Artist {
 
     private static final String NOME_ARTE_LITERAL = "NomeDArte";
+    private static final String ARTIST_CODE = "CodiceArtista";
+    private static final String PERCENT_SIGN = "%";
 
     private final int artistCode;
     private final String stageName;
@@ -181,7 +183,7 @@ public final class Artist {
             ) {
                 while (resultSet.next()) {
                     artists.add(new Artist(
-                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getInt(ARTIST_CODE),
                         resultSet.getString(NOME_ARTE_LITERAL)
                     ));
                 }
@@ -202,7 +204,7 @@ public final class Artist {
             ) {
                 while (resultSet.next()) {
                     authors.add(new Artist(
-                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getInt(ARTIST_CODE),
                         resultSet.getString(NOME_ARTE_LITERAL)
                     ));
                 }
@@ -230,28 +232,28 @@ public final class Artist {
         public static String getMostPlayedArtist(final Connection connection, final int year) {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_MOST_PLAYED_ARTIST, year);
                 var resultSet = statement.executeQuery()) {
-                
+
                 if (resultSet.next()) {
-                    return "Artista: " + resultSet.getString(NOME_ARTE_LITERAL) + 
-                        " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
+                    return "Artista: " + resultSet.getString(NOME_ARTE_LITERAL) 
+                            + " (Ascolti: " + resultSet.getInt("NumeroAscolti") + ")";
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
             return "Nessun artista trovato per quest'anno.";
         }
-    
+
         /**
          * Retrieves an artist's profile by their exact code.
          */
         public static Artist getByCode(final Connection connection, final int artistCode) {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ARTIST_BY_CODE, artistCode);
                  var resultSet = statement.executeQuery()) {
-        
+
                 if (resultSet.next()) {
                     return new Artist(
-                        resultSet.getInt("CodiceArtista"),
-                        resultSet.getString("NomeDArte"),
+                        resultSet.getInt(ARTIST_CODE),
+                        resultSet.getString(NOME_ARTE_LITERAL),
                         resultSet.getString("Nome"),
                         resultSet.getString("Cognome"),
                         resultSet.getDate("DataNascita") != null ? resultSet.getDate("DataNascita").toLocalDate() : null,
@@ -273,15 +275,15 @@ public final class Artist {
          */
         public static List<Artist> getByPartialStageName(final Connection connection, final String query) {
             final List<Artist> artists = new ArrayList<>();
-            final String searchPattern = "%" + (query != null ? query : "") + "%";
-    
+            final String searchPattern = PERCENT_SIGN + (query != null ? query : "") + PERCENT_SIGN;
+
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ARTISTS_BY_PARTIAL_NAME, searchPattern);
                  var resultSet = statement.executeQuery()) {
-        
+
                 while (resultSet.next()) {
                     artists.add(new Artist(
-                        resultSet.getInt("CodiceArtista"),
-                        resultSet.getString("NomeDArte")
+                        resultSet.getInt(ARTIST_CODE),
+                        resultSet.getString(NOME_ARTE_LITERAL)
                     ));
                 }
             } catch (final SQLException e) {
@@ -295,7 +297,7 @@ public final class Artist {
          */
         public static List<Album> getByPartialTitle(final Connection connection, final String query) {
             final List<Album> albums = new ArrayList<>();
-            final String searchPattern = "%" + (query != null ? query : "") + "%";
+            final String searchPattern = PERCENT_SIGN + (query != null ? query : "") + PERCENT_SIGN;
 
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALBUMS_BY_NAME, searchPattern);
                  var resultSet = statement.executeQuery()) {
@@ -303,7 +305,7 @@ public final class Artist {
                 while (resultSet.next()) {
                     albums.add(new Album(
                         resultSet.getInt("CodiceAlbum"),
-                        resultSet.getInt("CodiceArtista"),
+                        resultSet.getInt(ARTIST_CODE),
                         resultSet.getString("TitoloAlbum"),
                         resultSet.getString("AnnoPubblicazione"),
                         resultSet.getString("CasaDiscografica"),

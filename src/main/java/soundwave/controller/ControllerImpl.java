@@ -475,7 +475,7 @@ public final class ControllerImpl implements Controller {
 
     @Override 
     public void handleContentSearch(final String query) {
-        if (query == null || query.trim().isEmpty()) {
+        if (query == null || query.isBlank()) {
             this.view.showError("Inserisci un termine di ricerca valido.");
             return;
         }
@@ -731,24 +731,26 @@ public final class ControllerImpl implements Controller {
               .append(BULLET_POINT).append(" Genere preferito: ").append(topGenre).append(NEW_LINE)
               .append(NEW_LINE);
 
-            sb.append("=== I tuoi 5 brani più ascoltati ===" + NEW_LINE);
+            sb.append("=== I tuoi 5 brani più ascoltati ===").append(NEW_LINE);
             if (topTracks != null && !topTracks.isEmpty()) {
                 for (final Object[] track : topTracks) {
                     final String title = (String) track[1];
                     final int count = (int) track[2];
-                    sb.append(BULLET_POINT).append(title).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
+                    sb.append(BULLET_POINT).append(title).append(" (Ascolti: ")
+                      .append(count).append(")").append(NEW_LINE);
                 }
             } else {
-                sb.append("Nessun brano trovato per questo anno." + NEW_LINE);
+                sb.append("Nessun brano trovato per questo anno.").append(NEW_LINE);
             }
             sb.append(NEW_LINE);
 
-            sb.append("=== I tuoi 5 artisti più ascoltati ===" + NEW_LINE);
+            sb.append("=== I tuoi 5 artisti più ascoltati ===").append(NEW_LINE);
             if (topArtists != null && !topArtists.isEmpty()) {
                 for (final Object[] artist : topArtists) {
                     final String artistName = (String) artist[1];
                     final int count = (int) artist[2];
-                    sb.append(BULLET_POINT).append(artistName).append(" (Ascolti: ").append(count).append(")").append(NEW_LINE);
+                    sb.append(BULLET_POINT).append(artistName).append(" (Ascolti: ")
+                      .append(count).append(")").append(NEW_LINE);
                 }
             } else {
                 sb.append("Nessun artista trovato per questo anno.").append(NEW_LINE);

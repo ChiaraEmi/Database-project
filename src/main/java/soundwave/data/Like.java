@@ -38,12 +38,13 @@ public final class Like {
         }
 
         /**
-        * Returns the list of liked song titles for a specific user.
-        *
-        * @param connection the database connection
-        * @param username the username of the user
-        * @return a list containing the titles of the liked songs
-        */
+         * Returns the list of liked song titles for a specific user.
+         *
+         * @param connection the database connection.
+         * @param username the username of the user.
+         * 
+         * @return a list containing the titles of the liked songs.
+         */
         public static java.util.List<String> getLikedSongs(final Connection connection, final String username) {
             final java.util.List<String> likedSongs = new java.util.ArrayList<>();
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_LIKED_SONGS, username);

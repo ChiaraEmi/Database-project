@@ -88,21 +88,22 @@ public final class Genre {
         }
 
         /**
-        * Retrieves all songs belonging to a specific genre.
-        *
-        * @param connection the database connection.
-        * @param genreName the name of the genre to filter by.
-        * @return a list of strings representing the matching songs.
-        */
+         * Retrieves all songs belonging to a specific genre.
+         *
+         * @param connection the database connection.
+         * @param genreName the name of the genre to filter by.
+         * 
+         * @return a list of strings representing the matching songs.
+         */
         public static List<String> getSongsByGenre(final Connection connection, final String genreName) {
             final List<String> songs = new ArrayList<>();
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_SONGS_BY_GENRE, genreName);
                 var resultSet = statement.executeQuery()) {
-            
+
                 while (resultSet.next()) {
                     final int songCode = resultSet.getInt("CodiceBrano"); 
-                    songs.add("[" + songCode + "] Brano: " + resultSet.getString("Titolo") + 
-                    " (Durata: " + resultSet.getInt("Durata") + "s)");
+                    songs.add("[" + songCode + "] Brano: " + resultSet.getString("Titolo") 
+                    + " (Durata: " + resultSet.getInt("Durata") + "s)");
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);

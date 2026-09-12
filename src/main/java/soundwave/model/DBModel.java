@@ -288,7 +288,7 @@ public final class DBModel implements Model {
             // 1. Leggi sia il codice che il nome dal database
             final int code = rs.getInt("CodiceArtista"); // <-- Verifica che il nome della colonna nel DB sia corretto
             final String name = rs.getString("NomeDArte");
-            
+
             // 2. Aggiungi la stringa formattata con il codice tra parentesi quadre
             artists.add("[" + code + "] " + name);
         }
@@ -583,7 +583,7 @@ public final class DBModel implements Model {
     public void unfollowArtist(final String username, final int artistCode) {
         Follow.DAO.unfollowArtist(this.connection, username, artistCode);
     }
-    
+
     @Override 
     public int getBonusCredits(final String username) {
         return User.DAO.getBonusCredit(this.connection, username);

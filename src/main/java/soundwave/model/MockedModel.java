@@ -103,7 +103,7 @@ public final class MockedModel implements Model {
     }
 
     @Override
-    public void insertPromotion( final String  code, final String name, final String description, 
+    public void insertPromotion(final String code, final String name, final String description, 
                                 final LocalDate startDate, final LocalDate endDate, final String discountType, 
                                 final double discountValue, final Integer requiredMonths, 
                                 final List<Integer> planCodes) {

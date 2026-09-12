@@ -25,13 +25,15 @@ public final class Follow {
         /**
          * Adds a follow relationship for a specific artist by a user.
          *
-         * @param connection the database connection
-         * @param username the username of the user
-         * @param artistCode the code of the artist
-         * @param startDate the start date of the follow
+         * @param connection the database connection.
+         * @param username the username of the user.
+         * @param artistCode the code of the artist.
+         * @param startDate the start date of the follow.
          */
-        public static void followArtist(final Connection connection, final String username, final int artistCode, final LocalDate startDate) {
-           try (var statement = DAOUtils.prepare(connection, Queries.INSERT_FOLLOW, username, artistCode, java.sql.Date.valueOf(startDate), null)) {
+        public static void followArtist(final Connection connection, final String username, 
+                                        final int artistCode, final LocalDate startDate) {
+           try (var statement = DAOUtils.prepare(connection, Queries.INSERT_FOLLOW, username, 
+                                                artistCode, java.sql.Date.valueOf(startDate), null)) {
                 statement.executeUpdate();
             } catch (final SQLException e) {
                 e.printStackTrace();
@@ -42,16 +44,15 @@ public final class Follow {
         /**
          * Updates the follow relationship by setting an end date (unfollow).
          *
-         * @param connection the database connection
-         * @param username the username of the user
-         * @param artistCode the code of the artist
-         * @param endDate the end date of the follow
+         * @param connection the database connection.
+         * @param username the username of the user.
+         * @param artistCode the code of the artist.
          */
         public static void unfollowArtist(final Connection connection, final String username, final int artistCode) {
             try (var statement = DAOUtils.prepare(connection, Queries.UPDATE_UNFOLLOW, username, artistCode)) {
-            statement.executeUpdate();
+                statement.executeUpdate();
             } catch (final SQLException e) {
-            throw new DAOException(e);
+                throw new DAOException(e);
             }
         }
     }

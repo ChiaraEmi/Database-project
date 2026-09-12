@@ -188,6 +188,7 @@ public final class Content {
             }
             throw new DAOException("Unable to retrieve generated key for Content.");
         }
+        
         /**
          * Searches for contents by a partial title match.
          * 

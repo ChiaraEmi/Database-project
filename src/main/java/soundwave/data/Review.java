@@ -34,22 +34,47 @@ public final class Review {
         this.reviewDate = reviewDate == null ? "" : reviewDate;
     }
 
+    /**
+     * Returns the username of the reviewer.
+     * 
+     * @return the username.
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Returns the album code.
+     * 
+     * @return the album code.
+     */
     public int getAlbumCode() {
         return albumCode;
     }
 
+    /**
+     * Returns the rating score.
+     * 
+     * @return the rating.
+     */
     public int getRating() {
         return rating;
     }
 
+    /**
+     * Returns the review comment text.
+     * 
+     * @return the comment.
+     */
     public String getComment() {
         return comment;
     }
 
+    /**
+     * Returns the date when the review was written.
+     * 
+     * @return the review date.
+     */
     public String getReviewDate() {
         return reviewDate;
     }
@@ -101,19 +126,23 @@ public final class Review {
          * @param rating the rating (1 to 10).
          * @param comment the comment text.
          */
-        public static void saveReview(final Connection connection, final String username, final int albumCode, final int rating, final String comment) {
-            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, albumCode, rating, comment, java.sql.Date.valueOf(java.time.LocalDate.now()))) {
+        public static void saveReview(final Connection connection, final String username, 
+                                    final int albumCode, final int rating, final String comment) {
+            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, 
+                                                albumCode, rating, comment, 
+                                                java.sql.Date.valueOf(java.time.LocalDate.now()))) {
                 statement.executeUpdate();
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
         }
 
-       /**(
+        /**
          * Retrieves all reviews for a specific album (OP 17.1).
          *
          * @param connection the database connection.
          * @param albumCode the album code.
+         * 
          * @return a list of reviews for that album.
          */
         public static List<Review> getReviewsForAlbum(final Connection connection, final int albumCode) {
@@ -138,9 +167,18 @@ public final class Review {
 
         /**
          * Inserts or updates a review in the database (OP 16).
+         *
+         * @param connection the database connection.
+         * @param username the username of the reviewer.
+         * @param albumCode the album code.
+         * @param rating the rating score.
+         * @param comment the review comment text.
          */
-        public static void insertOrUpdate(final Connection connection, final String username, final int albumCode, final int rating, final String comment) {
-            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, albumCode, rating, comment, java.sql.Date.valueOf(java.time.LocalDate.now()))) {
+        public static void insertOrUpdate(final Connection connection, final String username, 
+                                            final int albumCode, final int rating, final String comment) {
+            try (var statement = DAOUtils.prepare(connection, Queries.UPSERT_REVIEW, username, 
+                                                    albumCode, rating, comment, 
+                                                    java.sql.Date.valueOf(java.time.LocalDate.now()))) {
                 statement.executeUpdate();
             } catch (final SQLException e) {
                 throw new DAOException(e);

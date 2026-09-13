@@ -84,7 +84,7 @@ public final class Review {
         if (other == this) {
             return true;
         }
-        if (other == null || !(other instanceof Review)) {
+        if (!(other instanceof Review)) {
             return false;
         }
         final Review r = (Review) other;

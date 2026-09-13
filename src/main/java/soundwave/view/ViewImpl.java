@@ -24,6 +24,7 @@ import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import soundwave.data.Album;
+import soundwave.data.Album.DAO.AlbumWithSongs;
 
 /**
  * Implementation of the {@link View} interface.
@@ -347,7 +348,7 @@ public final class ViewImpl extends JFrame implements View {
         this.userPanel.addExploreLikeListener(e -> {
             if (this.controller != null) {
                 final String selectedSong = this.userPanel.getSelectedExploreSong();
-                int contentCode = parseContentCode(selectedSong);
+                final int contentCode = parseContentCode(selectedSong);
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 this.controller.userClickedAddLike(currentUsername, contentCode);
             }
@@ -357,13 +358,13 @@ public final class ViewImpl extends JFrame implements View {
         this.userPanel.addToggleLikeListener(e -> {
            if (this.controller != null) {
                 final String selectedSong = this.userPanel.getSelectedLibrarySong();
-                System.out.println("DEBUG - Stringa selezionata: " + selectedSong);
+                LOGGER.info("DEBUG - Stringa selezionata: " + selectedSong);
         
                 final int contentCode = parseContentCode(selectedSong);
-                System.out.println("DEBUG - ContentCode estratto: " + contentCode);
+                LOGGER.info("DEBUG - ContentCode estratto: " + contentCode);
         
                 final String currentUsername = this.userPanel.getCurrentUsername();
-                System.out.println("DEBUG - Username: " + currentUsername);
+                LOGGER.info("DEBUG - Username: " + currentUsername);
         
                 this.controller.userClickedRemoveLike(currentUsername, contentCode);
             }
@@ -504,6 +505,7 @@ public final class ViewImpl extends JFrame implements View {
      *
      * @param username l'utente corrente.
      */
+    @Override
     public void refreshUserData(final String username) {
         if (this.controller != null) {
             final var likedTracks = this.controller.getUserLikedTracks(username);
@@ -826,22 +828,22 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
-    public void showLikedSongs(final java.util.List<String> songs) {
+    public void showLikedSongs(final List<String> songs) {
         this.userPanel.setLikedSongs(songs);
     }
 
     @Override
-    public void showFilteredSongs(final java.util.List<String> songs) {
+    public void showFilteredSongs(final List<String> songs) {
         this.userPanel.setExploreSongs(songs);
     }
 
     @Override
-    public void showArtistSearchResults(final java.util.List<Artist> artists) {
+    public void showArtistSearchResults(final List<Artist> artists) {
         this.userPanel.setArtistSearchResults(artists);
     }
 
     @Override
-    public void showArtistProfile(final soundwave.data.Artist artist) {
+    public void showArtistProfile(final Artist artist) {
         final String details = "Nome d'arte: " + artist.getStageName() + 
                                "\nPaese: " + artist.getCountry() + 
                                "\nAnno inizio: " + artist.getStartYear() + 
@@ -858,7 +860,7 @@ public final class ViewImpl extends JFrame implements View {
     }
 
     @Override
-    public void showAlbumDetails(final Album.DAO.AlbumWithSongs albumInfo) {
+    public void showAlbumDetails(final AlbumWithSongs albumInfo) {
         final StringBuilder sb = new StringBuilder();
         sb.append("Album: ").append(albumInfo.getAlbum().getTitle()).append("\n");
         sb.append("Artista: ").append(albumInfo.getArtistName()).append("\n");
@@ -926,7 +928,8 @@ public final class ViewImpl extends JFrame implements View {
         if (option == JOptionPane.OK_OPTION) {
             return new Object[]{ comboRating.getSelectedItem(), txtComment.getText() };
         }
-        return null;
+
+        return new Object[0];
     }
 
     /**

@@ -33,6 +33,8 @@ import soundwave.data.Plan;
  * credits and that the selected plan is eligible for bonus redemption.
  */
 public final class RedeemBonusDialog extends JDialog {
+    private static final long serialVersionUID = 1L;
+
     private static final int DIALOG_WIDTH = 450;
     private static final int DIALOG_HEIGHT = 400;
     private static final int INSET_GAP_15 = 15;
@@ -67,10 +69,10 @@ public final class RedeemBonusDialog extends JDialog {
     /**
      * Constructs a new RedeemBonusDialog.
      * 
-     * @param parent the parent frame
-     * @param username the username of the user
-     * @param plans the list of available subscription plans
-     * @param bonusCredits the user's current bonus credit balance
+     * @param parent the parent frame.
+     * @param username the username of the user.
+     * @param plans the list of available subscription plans.
+     * @param bonusCredits the user's current bonus credit balance.
      */
     public RedeemBonusDialog(final JFrame parent, final String username, 
                             final List<Plan> plans, final int bonusCredits) {
@@ -94,7 +96,8 @@ public final class RedeemBonusDialog extends JDialog {
 
         // --- Intestazione utente ---
         gbc.gridx = 0;
-        gbc.gridy = row++;
+        gbc.gridy = row;
+        row++;
         gbc.gridwidth = 2;
         final JLabel lblUser = new JLabel("Utente: " + username);
         lblUser.setFont(lblUser.getFont().deriveFont(Font.BOLD, FONT_SIZE_14));
@@ -103,7 +106,8 @@ public final class RedeemBonusDialog extends JDialog {
 
         // --- Crediti Bonus ---
         gbc.gridx = 0;
-        gbc.gridy = row++;
+        gbc.gridy = row;
+        row++;
         gbc.gridwidth = 2;
         this.lblBonusCredits = new JLabel("Crediti Bonus disponibili: " + bonusCredits);
         this.lblBonusCredits.setFont(this.lblBonusCredits.getFont().deriveFont(Font.BOLD, FONT_SIZE_14));
@@ -117,7 +121,8 @@ public final class RedeemBonusDialog extends JDialog {
 
         // --- Separatore ---
         gbc.gridx = 0;
-        gbc.gridy = row++;
+        gbc.gridy = row;
+        row++;
         gbc.gridwidth = 2;
         panel.add(new JSeparator(), gbc);
         gbc.gridwidth = 1;

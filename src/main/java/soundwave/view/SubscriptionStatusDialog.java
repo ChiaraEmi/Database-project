@@ -32,6 +32,9 @@ import java.awt.GridLayout;
 public final class SubscriptionStatusDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
+    private static final java.util.logging.Logger LOGGER = 
+    java.util.logging.Logger.getLogger(SubscriptionStatusDialog.class.getName());
+
     private static final String FONT_FAMILY = "Segoe UI";
     private static final String STATUS_ATTIVA = "Attiva";
     private static final String STATUS_SCADUTA = "Scaduta";
@@ -298,7 +301,7 @@ public final class SubscriptionStatusDialog extends JDialog {
             blockPanel.add(actionPanel);
 
         } else {
-            System.out.println(" Sottoscrizione NON ATTIVA! Status = '" + status + "'");
+            LOGGER.info("Sottoscrizione NON ATTIVA! Status = '" + status + "'");
         }
 
         // Add the block to the main content panel

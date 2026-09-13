@@ -101,7 +101,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
     private final JButton btnVerifyInvite;
 
     @SuppressFBWarnings("SE_TRANSIENT_FIELD_NOT_RESTORED")
-    private transient final List<Plan> plans;
+    private final transient List<Plan> plans;
     private final String username;
     private double currentPrice;
 

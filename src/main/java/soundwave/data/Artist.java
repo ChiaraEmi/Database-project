@@ -7,11 +7,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents an Artist entity.
  */
 public final class Artist {
+
+    private static final Logger LOG = Logger.getLogger(Artist.class.getName());
 
     private static final String NOME_ARTE_LITERAL = "NomeDArte";
     private static final String ARTIST_CODE = "CodiceArtista";
@@ -360,7 +364,7 @@ public final class Artist {
                     );
                 }
             } catch (final SQLException e) {
-                e.printStackTrace();
+                LOG.log(Level.SEVERE, "Errore durante il recupero dell'artista per codice", e);
                 throw new DAOException(e);
             }
             return null;

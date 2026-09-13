@@ -354,9 +354,10 @@ public interface Model {
     List<String> getAlbumsAboveGlobalAverage();
 
     /**
+     * Follows a specific artist for a user or session.
      * 
-     * @param string
-     * @param artistCode
+     * @param string     The user identifier, username, or session token.
+     * @param artistCode The unique code of the artist to follow.
      */
     void followArtist(String string, int artistCode);
 
@@ -410,94 +411,103 @@ public interface Model {
      */
     List<Object[]> getSubscriptionData(String username);
 
-    /** Removes a like from a content for a specific user.
+    /** 
+     * Removes a like from a content for a specific user.
      *
-     * @param username the username of the user
-     * @param contentCode the code of the content to unlike
+     * @param username the username of the user.
+     * @param contentCode the code of the content to unlike.
      */
     void removeLike(String username, int contentCode);
 
     /**
      * Retrieves the list of liked songs for a specific user.
      *
-     * @param username the username of the user
-     * @return a list of strings representing the liked songs
+     * @param username the username of the user.
+     * 
+     * @return a list of strings representing the liked songs.
      */
     List<String> getLikedSongs(String username);
 
     /**
      * Retrieves an artist profile by their code.
      *
-     * @param artistCode the distinctive code of the artist
-     * @return the {@link Artist} object if found, or null otherwise
+     * @param artistCode the distinctive code of the artist.
+     * 
+     * @return the {@link Artist} object if found, or null otherwise.
      */
     Artist getArtistByCode(int artistCode);
 
     /**
      * Adds a like to a content for a specific user.
      *
-     * @param username the username of the user
-     * @param contentCode the code of the content to like
+     * @param username the username of the user.
+     * @param contentCode the code of the content to like.
      */
     void addLike(String username, int contentCode);
 
     /**
      * Retrieves a list of songs filtered by a specific genre.
      *
-     * @param genre the genre name
-     * @return a list of strings representing the songs matching the genre
+     * @param genre the genre name.
+     * 
+     * @return a list of strings representing the songs matching the genre.
      */
     List<String> getSongsByGenre(String genre);
 
     /**
      * Retrieves a list of artists whose stage names match a partial query string.
      *
-     * @param query the partial query string for the artist name
-     * @return a list of matching {@link Artist} objects
+     * @param query the partial query string for the artist name.
+     * 
+     * @return a list of matching {@link Artist} objects.
      */
     List<Artist> getArtistsByPartialName(String query);
 
     /**
      * Retrieves a list of albums whose titles match a partial query string.
      *
-     * @param query the partial title query
-     * @return a list of matching {@link Album} objects
+     * @param query the partial title query.
+     * 
+     * @return a list of matching {@link Album} objects.
      */
     List<Album> getAlbumsByPartialTitle(String query);
 
     /**
      * Retrieves an album along with its complete tracklist and details.
      *
-     * @param albumCode the code of the album
-     * @return an object containing the album and its songs structure
+     * @param albumCode the code of the album.
+     * 
+     * @return an object containing the album and its songs structure.
      */
     Album.DAO.AlbumWithSongs getAlbumWithSongs(int albumCode);
 
     /**
      * Retrieves the list of reviews associated with a specific album.
      *
-     * @param albumCode the code of the album
-     * @return a list of strings representing the album reviews
+     * @param albumCode the code of the album.
+     * 
+     * @return a list of strings representing the album reviews.
      */
     List<String> getAlbumReviews(int albumCode);
 
     /**
      * Inserts a new review or updates an existing one for an album by a user.
      *
-     * @param username the username of the reviewer
-     * @param albumCode the code of the album
-     * @param rating the numeric rating score
-     * @param comment the textual comment of the review
+     * @param username the username of the reviewer.
+     * @param albumCode the code of the album.
+     * @param rating the numeric rating score.
+     * @param comment the textual comment of the review.
      */
     void insertOrUpdateReview(String username, int albumCode, int rating, String comment);
 
     /**
+     * Unfollows a specific artist for a logged-in user.
      * 
-     * @param loggedInUsername
-     * @param artistCode
+     * @param loggedInUsername The username of the user who is unfollowing the artist.
+     * @param artistCode       The unique code of the artist to unfollow.
      */
     void unfollowArtist(String loggedInUsername, int artistCode);
-    
+
     /**
      * Retrieves the current bonus credit balance for a user.
      * 
@@ -509,28 +519,27 @@ public interface Model {
     /**
      * Redeems bonus credits to activate or renew a subscription.
      * 
-     * @param username the username of the user redeeming bonus credits
-     * @param planCode the unique code of the subscription plan to redeem
-     * @param autoRenew whether to enable automatic renewal for the new subscription
-     * @return the unique code of the newly created or renewed subscription
+     * @param username the username of the user redeeming bonus credits.
+     * @param planCode the unique code of the subscription plan to redeem.
+     * @param autoRenew whether to enable automatic renewal for the new subscription.
+     * 
+     * @return the unique code of the newly created or renewed subscription.
      */
     int redeemBonus(String username, int planCode, boolean autoRenew);
 
     /**
      * Registers a new user in the Soundwave system.
      * 
-     * @param username the unique username for the new account
-     * @param name the user's first name
-     * @param surname the user's last name
-     * @param email the user's email address
-     * @param password the user's password
-     * @param birthDate the user's date of birth
-     * @param country the user's country of residence
-     * @return the generated invite code for the newly registered user
+     * @param username the unique username for the new account.
+     * @param name the user's first name.
+     * @param surname the user's last name.
+     * @param email the user's email address.
+     * @param password the user's password.
+     * @param birthDate the user's date of birth.
+     * @param country the user's country of residence.
+     * 
+     * @return the generated invite code for the newly registered user.
      */
     String registerUser(String username, String name, String surname, String email, 
                         String password, LocalDate birthDate, String country);
-
-    
-
 }

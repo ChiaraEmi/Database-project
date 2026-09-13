@@ -724,12 +724,12 @@ public final class ControllerImpl implements Controller {
             final int totalMinutes = totalSeconds / 60;
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
-            sb.append("=== Statistiche Personali (Anno ").append(year).append(SECTION_CLOSE_SUFFIX).append(NEW_LINE)
-              .append(BULLET_POINT).append(" Ascolti totali: ").append(totalListens).append(NEW_LINE)
-              .append(BULLET_POINT).append(" Tempo totale di ascolto: ").append(totalMinutes)
-              .append(" minuti (").append(totalSeconds).append(" secondi)").append(NEW_LINE)
-              .append(BULLET_POINT).append(" Genere preferito: ").append(topGenre).append(NEW_LINE)
-              .append(NEW_LINE);
+            sb.append("=== Statistiche Personali (Anno ").append(year).append(SECTION_CLOSE_SUFFIX).append(NEW_LINE);
+            sb.append(BULLET_POINT).append(" Ascolti totali: ").append(totalListens).append(NEW_LINE);
+            sb.append(BULLET_POINT).append(" Tempo totale di ascolto: ").append(totalMinutes);
+            sb.append(" minuti (").append(totalSeconds).append(" secondi)").append(NEW_LINE);
+            sb.append(BULLET_POINT).append(" Genere preferito: ").append(topGenre).append(NEW_LINE);
+            sb.append(NEW_LINE);
 
             sb.append("=== I tuoi 5 brani più ascoltati ===").append(NEW_LINE);
             if (topTracks != null && !topTracks.isEmpty()) {

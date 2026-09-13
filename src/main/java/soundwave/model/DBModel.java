@@ -16,6 +16,7 @@ import soundwave.data.Episode;
 import soundwave.data.Follow;
 import soundwave.data.Genre;
 import soundwave.data.InviteCode;
+import soundwave.data.Like;
 import soundwave.data.LikeBrani;
 import soundwave.data.ListeningEvent;
 import soundwave.data.Plan;
@@ -106,7 +107,7 @@ public final class DBModel implements Model {
     /**
      * Enable automatic renewal.
      * 
-     * @param subscriptionCode the code of subscription to enable
+     * @param subscriptionCode the code of subscription to enable.
      */
     private void enableAutoRenew(final int subscriptionCode) {
         try (var stmt = DAOUtils.prepare(connection, Queries.ENABLE_RENEWAL, subscriptionCode)) {
@@ -122,7 +123,7 @@ public final class DBModel implements Model {
     /**
      * Disable automatic renewal.
      * 
-     * @param subscriptionCode the code of subscription to disable
+     * @param subscriptionCode the code of subscription to disable.
      */
     private void disableAutoRenew(final int subscriptionCode) {
         try (var stmt = DAOUtils.prepare(connection, Queries.CANCEL_RENEWAL, subscriptionCode)) {
@@ -156,10 +157,11 @@ public final class DBModel implements Model {
      *         [1] = number of failed renewals,
      *         [2] = number of expired subscriptions
      */
+    @Override 
     public int[] processAutoRenewals() {
         int renewed = 0;
         int failed = 0;
-        int expired = 0;
+        final int expired;
 
         try {
             // 1. Trova le sottoscrizioni da rinnovare
@@ -170,7 +172,7 @@ public final class DBModel implements Model {
                     final int subCode = rs.getInt(SUBSCRIPTION_CODE_COLUMN);
                     final String username = rs.getString("Username");
 
-                    System.out.println("Rinnovo automatico per sub #" + subCode + " (" + username);
+                    LOGGER.info("Rinnovo automatico per sub #" + subCode + " (" + username + ")");
 
                     // 2. Simula il pagamento (90% di successo per test)
                     final boolean paymentSuccess = Math.random() < 0.0;
@@ -179,15 +181,15 @@ public final class DBModel implements Model {
 
                     if (paymentSuccess) {
                         renewed++;
-                        System.out.println("Rinnovo automatico completato per sub #" + subCode);
+                        LOGGER.info("Rinnovo automatico completato per sub #" + subCode);
                     } else {
                         failed++;
-                        System.out.println("Rinnovo automatico FALLITO per sub #" + subCode);
+                        LOGGER.info("Rinnovo automatico FALLITO per sub #" + subCode);
                         //3. Se fallisce, scade immediatamente la sottoscrizione
                         try (var expireStmt = DAOUtils.prepare(connection, Queries.EXPIRE_SUBSCRIPTION, subCode)) {
                             expireStmt.executeUpdate();
                         }
-                        System.out.println("Sottoscrizione #" + subCode + " portata a Scaduta");
+                        LOGGER.info("Sottoscrizione #" + subCode + " portata a Scaduta");
                     }
                 }
 
@@ -198,14 +200,13 @@ public final class DBModel implements Model {
                 expired = stmt.executeUpdate(Queries.EXPIRE_EXPIRED_SUBSCRIPTIONS);
             }
 
-            System.out.println("completata: " + renewed + " rinnovate, " + failed + " fallite, " + expired + " scadute");
+            LOGGER.info("completata: " + renewed + " rinnovate, " + failed + " fallite, " + expired + " scadute");
 
         } catch (final SQLException e) {
             throw new DAOException(e);
         }
 
         return new int[]{renewed, failed, expired};
-
     }
 
     @Override
@@ -282,20 +283,20 @@ public final class DBModel implements Model {
     @Override
     public List<String> getFollowedArtists(final String username) {
         final List<String> artists = new ArrayList<>();
-    try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_FOLLOWED_ARTISTS_BY_USER, username);
-         var rs = stmt.executeQuery()) {
-        while (rs.next()) {
-            // 1. Leggi sia il codice che il nome dal database
-            final int code = rs.getInt("CodiceArtista"); // <-- Verifica che il nome della colonna nel DB sia corretto
-            final String name = rs.getString("NomeDArte");
+        try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_FOLLOWED_ARTISTS_BY_USER, username);
+            var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                // 1. Leggi sia il codice che il nome dal database
+                final int code = rs.getInt("CodiceArtista"); // <-- Verifica che il nome della colonna nel DB sia corretto
+                final String name = rs.getString("NomeDArte");
 
-            // 2. Aggiungi la stringa formattata con il codice tra parentesi quadre
-            artists.add("[" + code + "] " + name);
+                // 2. Aggiungi la stringa formattata con il codice tra parentesi quadre
+                artists.add("[" + code + "] " + name);
+            }
+        } catch (final SQLException e) {
+            throw new DAOException(e);
         }
-    } catch (final SQLException e) {
-        throw new DAOException(e);
-    }
-    return artists;
+        return artists;
     }
 
     @Override
@@ -331,7 +332,7 @@ public final class DBModel implements Model {
     @Override
     public Object[] getPersonalTotals(final String username, final int year) {
         try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOTALS_YEAR, username, year);
-             var rs = stmt.executeQuery()) {
+            var rs = stmt.executeQuery()) {
             if (rs.next()) {
                 final int totalListens = rs.getInt("TotaleAscolti");
                 final int totalSeconds = rs.getInt("TotaleSecondi"); // Gestisce anche eventuali NULL se non ci sono ascolti
@@ -347,7 +348,7 @@ public final class DBModel implements Model {
     public List<Object[]> getPersonalTopTracks(final String username, final int year) {
         final List<Object[]> tracks = new ArrayList<>();
         try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_TRACKS, username, year);
-             var rs = stmt.executeQuery()) {
+            var rs = stmt.executeQuery()) {
             while (rs.next()) {
                 tracks.add(new Object[]{
                     rs.getInt("CodiceContenuto"),
@@ -366,7 +367,7 @@ public final class DBModel implements Model {
         final List<Object[]> artists = new ArrayList<>();
         // Nota: La query ha due COUNT/UNION con l'username, quindi passiamo l'username due volte seguito dall'anno
         try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_ARTISTS, username, username, year);
-             var rs = stmt.executeQuery()) {
+            var rs = stmt.executeQuery()) {
             while (rs.next()) {
                 artists.add(new Object[]{
                     rs.getInt("CodiceArtista"),
@@ -383,7 +384,7 @@ public final class DBModel implements Model {
     @Override
     public String getPersonalTopGenre(final String username, final int year) {
         try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PERSONAL_TOP_GENRE, username, year);
-             var rs = stmt.executeQuery()) {
+            var rs = stmt.executeQuery()) {
             if (rs.next()) {
                 return rs.getString("NomeGenere");
             }
@@ -519,35 +520,33 @@ public final class DBModel implements Model {
 
     @Override
     public void addLike(final String username, final int contentCode) {
-        soundwave.data.Like.DAO.addLike(this.connection, username, contentCode);
+        Like.DAO.addLike(this.connection, username, contentCode);
     }
 
     @Override
     public List<String> getLikedSongs(final String username) {
-        return soundwave.data.Like.DAO.getLikedSongs(this.connection, username);
+        return Like.DAO.getLikedSongs(this.connection, username);
     }
 
     @Override
     public List<String> getSongsByGenre(final String genre) {
-        return soundwave.data.Genre.DAO.getSongsByGenre(this.connection, genre);
+        return Genre.DAO.getSongsByGenre(this.connection, genre);
     }
 
     @Override
     public void removeLike(final String username, final int contentCode) {
-        soundwave.data.Like.DAO.removeLike(this.connection, username, contentCode);
+        Like.DAO.removeLike(this.connection, username, contentCode);
     }
 
     @Override
     public List<Artist> getArtistsByPartialName(final String query) {
-        return soundwave.data.Artist.DAO.getByPartialStageName(this.connection, query);
+        return Artist.DAO.getByPartialStageName(this.connection, query);
     }
 
     @Override
     public Artist getArtistByCode(final int artistCode) throws DAOException {
         return Artist.DAO.getByCode(this.connection, artistCode);
     }
-
-    /* --- Implementazione dei nuovi metodi richiesti dall'interfaccia Model --- */
 
     @Override
     public List<Album> getAlbumsByPartialTitle(final String query) {

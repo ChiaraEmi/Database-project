@@ -77,10 +77,11 @@ public final class UserPanel extends JPanel {
     private final JButton btnViewSubscriptionStatus = new JButton("Stato e Storico Transazioni");
 
     // --- Tab 2: Esplora Catalogo ---
-    private final JComboBox<String> comboGenre = new JComboBox<>(new String[]{"Pop","Rock","Jazz","Classica","Indie","Hip-Hop","R&B","Elettronica","Rap"});
+    private final JComboBox<String> comboGenre = new JComboBox<>(new String[]{"Pop","Rock","Jazz",
+                                                "Classica","Indie","Hip-Hop","R&B","Elettronica","Rap"});
     private final JButton btnFilterByGenre = new JButton("Filtra Brani per Genere");
-    private final javax.swing.DefaultListModel<String> exploreSongsModel = new javax.swing.DefaultListModel<>();
-    private final javax.swing.JList<String> exploreSongsList = new javax.swing.JList<>(this.exploreSongsModel);
+    private final DefaultListModel<String> exploreSongsModel = new DefaultListModel<>();
+    private final JList<String> exploreSongsList = new JList<>(this.exploreSongsModel);
     private final JButton btnAddLikeFromExplore = new JButton("Aggiungi Like");
     private final JTextField txtArtistSearchQuery = new JTextField(FIELD_COLUMNS);
     private final JButton btnSearchArtist = new JButton("Cerca Artisti");
@@ -810,7 +811,7 @@ public final class UserPanel extends JPanel {
 
     /* --- Setter per popolare la vista --- */
 
-    public void setExploreSongs(final java.util.List<String> songs) {
+    public void setExploreSongs(final List<String> songs) {
         this.exploreSongsModel.clear();
         for (final String song : songs) {
             this.exploreSongsModel.addElement(song);
@@ -818,7 +819,7 @@ public final class UserPanel extends JPanel {
         this.btnAddLikeFromExplore.setEnabled(false);
     }
 
-   public void setLikedSongs(final java.util.List<String> songs) {
+   public void setLikedSongs(final List<String> songs) {
     this.likedTracksListModel.clear();
     for (final String song : songs) {
         this.likedTracksListModel.addElement(song);
@@ -826,14 +827,14 @@ public final class UserPanel extends JPanel {
     this.btnToggleLike.setEnabled(!songs.isEmpty());
 }
 
-    public void setArtistSearchResults(final java.util.List<Artist> artists) {
+    public void setArtistSearchResults(final List<Artist> artists) {
         this.comboArtistResults.removeAllItems();
         for (final Artist a : artists) {
             this.comboArtistResults.addItem(a);
         }
     }
 
-    public void setAlbumSearchResults(final java.util.List<Album> albums) {
+    public void setAlbumSearchResults(final List<Album> albums) {
         this.comboAlbumResults.removeAllItems();
         for (final Album a : albums) {
             this.comboAlbumResults.addItem(a);
@@ -1147,14 +1148,14 @@ public final class UserPanel extends JPanel {
         );
 
         this.statusDialog.setOnRenew(subscriptionCode -> {
-            System.out.println("OnRenew chiamato per: " + subscriptionCode);
+            LOG.info("OnRenew chiamato per: " + subscriptionCode);
             if (this.controller != null) {
                 this.controller.renewSubscriptionNow(username, subscriptionCode);
             }
         });
 
         this.statusDialog.setOnToggleAutoRenew(subscriptionCode -> {
-            System.out.println("OnToggleAutoRenew chiamato per: " + subscriptionCode);
+            LOG.info("OnToggleAutoRenew chiamato per: " + subscriptionCode);
             if (this.controller != null) {
                 final boolean currentState = this.controller.getAutoRenewStatus(username, subscriptionCode);
                 this.controller.toggleAutoRenew(username, subscriptionCode, !currentState);
@@ -1237,10 +1238,9 @@ public final class UserPanel extends JPanel {
 
         dialog.addRedeemListener(onRedeem);
         dialog.addCancelListener(() -> {
-            System.out.println("[DEBUG] Riscatto annullato");
+            LOG.info("[DEBUG] Riscatto annullato");
         });
 
         dialog.setVisible(true);
     }
-
 }

@@ -345,67 +345,69 @@ public final class MockedModel implements Model {
         return "Pop";
     }
 
-    public void removeLike(String username, int contentCode) {
+    @Override
+    public void removeLike(final String username, final int contentCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'removeLike'");
     }
 
     @Override
-    public List<String> getLikedSongs(String username) {
+    public List<String> getLikedSongs(final String username) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getLikedSongs'");
     }
 
     @Override
-    public void addLike(String username, int contentCode) {
+    public void addLike(final String username, final int contentCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'addLike'");
     }
 
     @Override
-    public List<String> getSongsByGenre(String genre) {
+    public List<String> getSongsByGenre(final String genre) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getSongsByGenre'");
     }
 
     @Override
-    public List<Artist> getArtistsByPartialName(String query) {
+    public List<Artist> getArtistsByPartialName(final String query) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getArtistsByPartialName'");
     }
 
     @Override
-    public Artist getArtistByCode(int artistCode) {
+    public Artist getArtistByCode(final int artistCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getArtistByCode'");
     }
 
     @Override
-    public List<Album> getAlbumsByPartialTitle(String query) {
+    public List<Album> getAlbumsByPartialTitle(final String query) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAlbumsByPartialTitle'");
     }
 
     @Override
-    public AlbumWithSongs getAlbumWithSongs(int albumCode) {
+    public AlbumWithSongs getAlbumWithSongs(final int albumCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAlbumWithSongs'");
     }
 
     @Override
-    public List<String> getAlbumReviews(int albumCode) {
+    public List<String> getAlbumReviews(final int albumCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAlbumReviews'");
     }
 
     @Override
-    public void insertOrUpdateReview(String username, int albumCode, int rating, String comment) {
+    public void insertOrUpdateReview(final String username, final int albumCode, final int rating, 
+                                        final String comment) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'insertOrUpdateReview'");
     }
 
     @Override
-    public void followArtist(String string, int artistCode) {
+    public void followArtist(final String string, final int artistCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'followArtist'");
     }
@@ -469,13 +471,13 @@ public final class MockedModel implements Model {
     }
 
     @Override
-    public List<Content> searchContents(String query) {
+    public List<Content> searchContents(final String query) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'searchContents'");
     }
 
     @Override
-    public void unfollowArtist(String loggedInUsername, int artistCode) {
+    public void unfollowArtist(final String loggedInUsername, final int artistCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'unfollowArtist'");
     }

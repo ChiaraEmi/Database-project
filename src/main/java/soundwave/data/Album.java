@@ -15,6 +15,7 @@ public final class Album {
 
     private final int albumCode;
     private final int artistCode;
+    private final String albumType;
     private final String title;
     private final String releaseDate;
     private final String recordCompany;
@@ -26,16 +27,18 @@ public final class Album {
      *
      * @param albumCode the album code.
      * @param artistCode the artist code associated with the album.
+     * @param albumType the artist code associated with the album.
      * @param title the title of the album.
      * @param releaseDate the release year.
      * @param recordCompany the record company.
      * @param averageRating the average rating.
      * @param totalDuration the total duration in seconds.
      */
-    public Album(final int albumCode, final int artistCode, final String title, final String releaseDate,
+    public Album(final int albumCode, final int artistCode, final String albumType, final String title, final String releaseDate,
                  final String recordCompany, final double averageRating, final int totalDuration) {
         this.albumCode = albumCode;
         this.artistCode = artistCode;
+        this.albumType = albumType;
         this.title = title == null ? "" : title;
         this.releaseDate = releaseDate;
         this.recordCompany = recordCompany == null ? "" : recordCompany;
@@ -264,6 +267,7 @@ public final class Album {
                         album = new Album(
                             resultSet.getInt("CodiceAlbum"),
                             resultSet.getInt("CodiceArtista"),
+                            resultSet.getString("TipoAlbum"),
                             resultSet.getString(ALBUM_TITLE),
                             resultSet.getString("DataPubblicazione"),
                             resultSet.getString("CasaDiscografica"),
@@ -309,6 +313,7 @@ public final class Album {
                     albums.add(new Album(
                         resultSet.getInt("CodiceAlbum"),
                         resultSet.getInt("CodiceArtista"),
+                        resultSet.getString("TipoAlbum"),
                         resultSet.getString(ALBUM_TITLE),
                         resultSet.getString("DataPubblicazione"),
                         resultSet.getString("CasaDiscografica"),

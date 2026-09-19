@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -33,11 +34,14 @@ public final class ViewImpl extends JFrame implements View {
 
     private static final long serialVersionUID = 1L;
     private static final int CURRENT_YEAR = 2026;
+    private static final int ALBUM_DIALOG_WIDTH = 400;
+    private static final int ALBUM_DIALOG_HEIGHT = 200;
     private static final String FRAME_NAME = "Soundwave";
     private static final String ROLE_SELECTION_CARD = "ROLE_SELECTION";
     private static final String USER_CARD = "USER";
     private static final String ADMIN_CARD = "ADMIN";
     private static final String FORMAT_ERROR = "Format Error";
+    private static final String NEW_LINE = "\n";
     private static final Logger LOGGER = Logger.getLogger(ViewImpl.class.getName());
 
     private final CardLayout layout = new CardLayout();
@@ -325,13 +329,9 @@ public final class ViewImpl extends JFrame implements View {
             if (this.controller != null) {
                 int year = CURRENT_YEAR;
                 try {
-                    final Object rawYear = this.adminPanel.getStatsYear();
-                    if (rawYear instanceof Integer) {
-                        year = (Integer) rawYear;
-                    } else if (rawYear instanceof String && !((String) rawYear).isBlank()) {
-                        year = Integer.parseInt((String) rawYear);
-                    } else if (rawYear != null) {
-                        year = Integer.parseInt(rawYear.toString());
+                    final String rawYear = this.adminPanel.getStatsYear();
+                    if (!rawYear.isBlank()) {
+                        year = Integer.parseInt(rawYear.trim());
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid stats year format", ex);
@@ -343,7 +343,7 @@ public final class ViewImpl extends JFrame implements View {
                 this.controller.adminRequestedYearlyStats(year);
             }
         });
-        
+
         // --- Aggiungi Like da Esplora (OP 14) ---
         this.userPanel.addExploreLikeListener(e -> {
             if (this.controller != null) {
@@ -359,13 +359,13 @@ public final class ViewImpl extends JFrame implements View {
            if (this.controller != null) {
                 final String selectedSong = this.userPanel.getSelectedLibrarySong();
                 LOGGER.info("DEBUG - Stringa selezionata: " + selectedSong);
-        
+
                 final int contentCode = parseContentCode(selectedSong);
                 LOGGER.info("DEBUG - ContentCode estratto: " + contentCode);
-        
+
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 LOGGER.info("DEBUG - Username: " + currentUsername);
-        
+
                 this.controller.userClickedRemoveLike(currentUsername, contentCode);
             }
         });
@@ -455,13 +455,13 @@ public final class ViewImpl extends JFrame implements View {
         // --- Statistiche Globali (OP 22) ---
         this.adminPanel.addFetchStatsListener(e -> {
             if (this.controller != null) {
-                int year = 2026;
+                int year = CURRENT_YEAR;
                 try {
                     if (!this.adminPanel.getStatsYear().isBlank()) {
                         year = Integer.parseInt(this.adminPanel.getStatsYear());
                     }
                 } catch (final NumberFormatException ex) {
-                    // Gestione formato anno non valido
+                    showError("Formato anno non valido");
                 }
 
                 this.controller.adminRequestedGlobalStats(year);
@@ -776,13 +776,9 @@ public final class ViewImpl extends JFrame implements View {
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 int year = CURRENT_YEAR;
                 try {
-                    final Object rawYear = this.userPanel.getStatsYear();
-                    if (rawYear instanceof Integer) {
-                        year = (Integer) rawYear;
-                    } else if (rawYear instanceof String && !((String) rawYear).isBlank()) {
-                        year = Integer.parseInt((String) rawYear);
-                    } else if (rawYear != null) {
-                        year = Integer.parseInt(rawYear.toString());
+                    final String rawYear = this.userPanel.getStatsYear();
+                    if (!rawYear.isBlank()) {
+                        year = Integer.parseInt(rawYear.trim());
                     }
                 } catch (final NumberFormatException ex) {
                     LOGGER.log(Level.SEVERE, "Invalid personal stats year format", ex);
@@ -809,17 +805,17 @@ public final class ViewImpl extends JFrame implements View {
                 final String currentUsername = this.userPanel.getCurrentUsername();
                 final String selectedContent = this.userPanel.getSelectedExploreContent();
                 final int contentCode = parseContentCode(selectedContent);
-                
+
                 // Recupera la durata effettiva del contenuto selezionato tramite un metodo del tuo UserPanel
                 final int eventDuration = this.userPanel.getSelectedContentDuration();
-                
+
                 // Dispositivo (puoi lasciarlo fisso o prenderlo da un menu a tendina nella UI, es. getSelectedDevice())
                 final String device = "Desktop App"; 
-                
+
                 final boolean success = this.controller.userGeneratedListeningEvent(
                     currentUsername, contentCode, device, eventDuration
                 );
-                
+
                 if (success) {
                     showSuccess("Evento di ascolto registrato con successo!");
                 }
@@ -844,10 +840,10 @@ public final class ViewImpl extends JFrame implements View {
 
     @Override
     public void showArtistProfile(final Artist artist) {
-        final String details = "Nome d'arte: " + artist.getStageName() + 
-                               "\nPaese: " + artist.getCountry() + 
-                               "\nAnno inizio: " + artist.getStartYear() + 
-                               "\nBiografia: " + artist.getBiography();
+        final String details = "Nome d'arte: " + artist.getStageName()
+                                + "\nPaese: " + artist.getCountry()
+                                + "\nAnno inizio: " + artist.getStartYear()
+                                + "\nBiografia: " + artist.getBiography();
         JOptionPane.showMessageDialog(this, details, "Profilo Artista", JOptionPane.INFORMATION_MESSAGE);
         this.userPanel.setFollowButtonEnabled(true);
     }
@@ -861,15 +857,15 @@ public final class ViewImpl extends JFrame implements View {
 
     @Override
     public void showAlbumDetails(final AlbumWithSongs albumInfo) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("Album: ").append(albumInfo.getAlbum().getTitle()).append("\n");
-        sb.append("Artista: ").append(albumInfo.getArtistName()).append("\n");
-        sb.append("Anno: ").append(albumInfo.getAlbum().getReleaseDate()).append("\n");
-        sb.append("Casa Discografica: ").append(albumInfo.getAlbum().getRecordCompany()).append("\n");
-        sb.append("Media Voti: ").append(albumInfo.getAlbum().getAverageRating()).append("\n");
-        sb.append("Durata Totale: ").append(albumInfo.getAlbum().getTotalDuration()).append("s\n\n");
-        sb.append("--- TRACKLIST ---\n");
-        
+        final StringBuilder sb = new StringBuilder(150);
+        sb.append("Album: ").append(albumInfo.getAlbum().getTitle()).append(NEW_LINE)
+          .append("Artista: ").append(albumInfo.getArtistName()).append(NEW_LINE)
+          .append("Anno: ").append(albumInfo.getAlbum().getReleaseDate()).append(NEW_LINE)
+          .append("Casa Discografica: ").append(albumInfo.getAlbum().getRecordCompany()).append(NEW_LINE)
+          .append("Media Voti: ").append(albumInfo.getAlbum().getAverageRating()).append(NEW_LINE)
+          .append("Durata Totale: ").append(albumInfo.getAlbum().getTotalDuration())
+          .append("s\n\n--- TRACKLIST ---\n");
+
         for (final Album.DAO.AlbumSong song : albumInfo.getSongs()) {
             sb.append(song.getTrackNumber()).append(". ")
               .append(song.getTitle())
@@ -896,9 +892,9 @@ public final class ViewImpl extends JFrame implements View {
             return;
         }
 
-        final javax.swing.JList<String> reviewList = new javax.swing.JList<>(reviews.toArray(new String[0]));
+        final JList<String> reviewList = new JList<>(reviews.toArray(new String[0]));
         final JScrollPane scrollPane = new JScrollPane(reviewList);
-        scrollPane.setPreferredSize(new java.awt.Dimension(400, 200));
+        scrollPane.setPreferredSize(new java.awt.Dimension(ALBUM_DIALOG_WIDTH, ALBUM_DIALOG_HEIGHT));
 
         JOptionPane.showMessageDialog(
             this,
@@ -915,7 +911,7 @@ public final class ViewImpl extends JFrame implements View {
 
         final Object[] message = {
             "Voto (da 1 a 5):", comboRating,
-            "Commento:", txtComment
+            "Commento:", txtComment,
         };
 
         final int option = JOptionPane.showConfirmDialog(
@@ -926,14 +922,18 @@ public final class ViewImpl extends JFrame implements View {
         );
 
         if (option == JOptionPane.OK_OPTION) {
-            return new Object[]{ comboRating.getSelectedItem(), txtComment.getText() };
+            return new Object[] {comboRating.getSelectedItem(), txtComment.getText()};
         }
 
         return new Object[0];
     }
 
     /**
-     * Metodo di supporto per estrarre l'ID numerico (contentCode) dall'inizio della stringa del brano.
+     * Helper method to extract the numeric ID (contentCode) from the beginning of the song string.
+     * 
+     * @param songString the string representation of the song or content.
+     * 
+     * @return the parsed content ID, or 1 as a default fallback if parsing fails.
      */
     private int parseContentCode(final String songString) {
         if (songString != null && !songString.isBlank()) {
@@ -949,14 +949,16 @@ public final class ViewImpl extends JFrame implements View {
                 // Fallback per formati con trattino o due punti
                 final String idPart = songString.split("[-:]")[0].trim();
                 return Integer.parseInt(idPart);
-            } catch (final Exception ex) {
-                // Fallback in caso di formato stringa differente
+            } catch (final NumberFormatException | IndexOutOfBoundsException ex) {
+                LOGGER.warning(() -> "Impossibile parsare l'ID da: \"" + songString 
+                                        + "\". Uso valore di default 1.");
             }
         }
         return 1;
     }
+
     @Override
-    public void showGlobalStats(String statsText) {
+    public void showGlobalStats(final String statsText) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'showGlobalStats'");
     }

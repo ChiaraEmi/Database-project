@@ -374,23 +374,31 @@ public final class AdminPanel extends JPanel {
         int row = 0;
         addSectionHeader(panel, gbc, row, "Gestione Promozioni e Sconti");
         row++;
-
-        addFormField(panel, gbc, row++, "Codice Promozione:", this.txtPromoCode);
-        addFormField(panel, gbc, row++, "Nome Promozione:", this.txtPromoName);
-        addFormField(panel, gbc, row++, DESCRIPTION_LABEL, this.txtPromoDescription);
-        addFormField(panel, gbc, row++, "Data Inizio (YYYY-MM-DD):", this.txtPromoStartDate);
-        addFormField(panel, gbc, row++, "Data Fine (YYYY-MM-DD):", this.txtPromoEndDate);
+        addFormField(panel, gbc, row, "Codice Promozione:", this.txtPromoCode);
+        row++;
+        addFormField(panel, gbc, row, "Nome Promozione:", this.txtPromoName);
+        row++;
+        addFormField(panel, gbc, row, DESCRIPTION_LABEL, this.txtPromoDescription);
+        row++;
+        addFormField(panel, gbc, row, "Data Inizio (YYYY-MM-DD):", this.txtPromoStartDate);
+        row++;
+        addFormField(panel, gbc, row, "Data Fine (YYYY-MM-DD):", this.txtPromoEndDate);
+        row++;
 
         gbc.gridx = 0;
-        gbc.gridy = row++;
+        gbc.gridy = row;
+        row++;
         panel.add(new JLabel("Tipo Sconto:"), gbc);
         gbc.gridx = 1;
 
         panel.add(this.comboDiscountType, gbc);
 
-        addFormField(panel, gbc, row++, "Valore Sconto:", this.txtDiscountValue);
-        addFormField(panel, gbc, row++, "Mesi Richiesti (opzionale):", this.txtRequiredMonths);
-        addFormField(panel, gbc, row++, "Piani Abbonamento (codici separati da virgola):", this.txtPromoPlanCodes);
+        addFormField(panel, gbc, row, "Valore Sconto:", this.txtDiscountValue);
+        row++;
+        addFormField(panel, gbc, row, "Mesi Richiesti (opzionale):", this.txtRequiredMonths);
+        row++;
+        addFormField(panel, gbc, row, "Piani Abbonamento (codici separati da virgola):", this.txtPromoPlanCodes);
+        row++;
         addCenteredButton(panel, gbc, row, this.btnSavePromotion);
 
         return panel;

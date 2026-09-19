@@ -214,7 +214,8 @@ public final class RedeemBonusDialog extends JDialog {
         int newrow = row;
         final GridBagConstraints localGbc = (GridBagConstraints) gbc.clone();
         localGbc.gridx = 0;
-        localGbc.gridy = newrow++;
+        localGbc.gridy = newrow;
+        newrow++;
         localGbc.gridwidth = 3;
         final JLabel lblSection = new JLabel("──── " + title + " ────");
         lblSection.setFont(lblSection.getFont().deriveFont(Font.BOLD, FONT_SIZE_12));

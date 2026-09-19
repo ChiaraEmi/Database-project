@@ -391,7 +391,7 @@ public final class Album {
             public AlbumWithSongs(final Album album, final String artistName, final List<AlbumSong> songs) {
                 this.album = album;
                 this.artistName = artistName;
-                this.songs = songs;
+                this.songs = songs != null ? new ArrayList<>(songs) : new ArrayList<>();
             }
 
             /**
@@ -418,7 +418,7 @@ public final class Album {
              * @return the list of album songs.
              */
             public List<AlbumSong> getSongs() {
-                return songs;
+                return List.copyOf(this.songs);
             }
         }
 

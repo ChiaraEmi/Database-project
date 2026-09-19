@@ -65,6 +65,15 @@ public final class Album {
     }
 
     /**
+     * Gets the album type.
+     * 
+     * @return the album type.
+     */
+    public String getAlbumType() {
+        return this.albumType;
+    }
+
+    /**
      * Gets the title.
      *
      * @return the title.

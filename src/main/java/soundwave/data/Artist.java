@@ -416,6 +416,7 @@ public final class Artist {
                     albums.add(new Album(
                         resultSet.getInt("CodiceAlbum"),
                         resultSet.getInt(ARTIST_CODE),
+                        resultSet.getString("TipoAlbum"),
                         resultSet.getString("TitoloAlbum"),
                         resultSet.getString("AnnoPubblicazione"),
                         resultSet.getString("CasaDiscografica"),

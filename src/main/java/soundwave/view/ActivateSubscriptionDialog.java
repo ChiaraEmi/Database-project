@@ -29,6 +29,7 @@ import soundwave.data.Plan;
  * Dialog for activating a subscription.
  */
 public final class ActivateSubscriptionDialog extends JDialog {
+    private static final long serialVersionUID = 1L;
 
     private static final int FONT_STYLE_BOLD = Font.BOLD;
 
@@ -144,7 +145,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
 
         // --- Intestazione utente ---
         gbc.gridx = 0;
-        gbc.gridy = row++;
+        gbc.gridy = row;
+        row++;
         gbc.gridwidth = 2;
         final JLabel lblUser = new JLabel(USER_LABEL_PREFIX + username);
         lblUser.setFont(lblUser.getFont().deriveFont(Font.BOLD, USER_FONT_SIZE));
@@ -252,8 +254,6 @@ public final class ActivateSubscriptionDialog extends JDialog {
         panel.add(this.lblTotal, gbc);
         gbc.gridwidth = 1;
 
-        row++;
-
         // --- Pulsanti ---
         gbc.gridx = 2;
         this.btnActivate = new JButton(ACTIVATE_BTN_TEXT);
@@ -285,7 +285,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
         int newrow = row;
         final GridBagConstraints localGbc = (GridBagConstraints) gbc.clone();
         localGbc.gridx = 0;
-        localGbc.gridy = newrow++;
+        localGbc.gridy = newrow;
+        newrow++;
         localGbc.gridwidth = 3;
         final JLabel lblSection = new JLabel("──── " + title + " ────");
         lblSection.setFont(lblSection.getFont().deriveFont(Font.BOLD, SECTION_FONT_SIZE));
@@ -325,7 +326,6 @@ public final class ActivateSubscriptionDialog extends JDialog {
         this.onActivateListener = onActivate;
         this.btnActivate.addActionListener(e -> {
             final String promoCode = getPromoCode();
-            final String inviteCode = getInviteCode();
 
             if (!promoCode.isEmpty() && !this.promoCodeApplied) {
                 final int choice = JOptionPane.showConfirmDialog(
@@ -340,6 +340,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
                 }
             }
 
+            final String inviteCode = getInviteCode();
             if (!inviteCode.isEmpty() && !this.inviteCodeVerified) {
                 final int choice = JOptionPane.showConfirmDialog(
                     this,

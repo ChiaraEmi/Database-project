@@ -724,33 +724,31 @@ public final class ControllerImpl implements Controller {
             final int totalMinutes = totalSeconds / 60;
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
-            sb.append("=== Statistiche Personali (Anno ").append(year).append(SECTION_CLOSE_SUFFIX).append(NEW_LINE);
-            sb.append(BULLET_POINT).append(" Ascolti totali: ").append(totalListens).append(NEW_LINE);
-            sb.append(BULLET_POINT).append(" Tempo totale di ascolto: ").append(totalMinutes);
-            sb.append(" minuti (").append(totalSeconds).append(" secondi)").append(NEW_LINE);
-            sb.append(BULLET_POINT).append(" Genere preferito: ").append(topGenre).append(NEW_LINE);
-            sb.append(NEW_LINE);
-
-            sb.append("=== I tuoi 5 brani più ascoltati ===").append(NEW_LINE);
+            sb.append("=== Statistiche Personali (Anno ").append(year).append(SECTION_CLOSE_SUFFIX).append(NEW_LINE)
+            .append(BULLET_POINT).append(" Ascolti totali: ").append(totalListens).append(NEW_LINE)
+            .append(BULLET_POINT).append(" Tempo totale di ascolto: ").append(totalMinutes)
+            .append(" minuti (").append(totalSeconds).append(" secondi)").append(NEW_LINE)
+            .append(BULLET_POINT).append(" Genere preferito: ").append(topGenre).append(NEW_LINE)
+            .append(NEW_LINE)
+            .append("=== I tuoi 5 brani più ascoltati ===").append(NEW_LINE);
             if (topTracks != null && !topTracks.isEmpty()) {
                 for (final Object[] track : topTracks) {
                     final String title = (String) track[1];
                     final int count = (int) track[2];
                     sb.append(BULLET_POINT).append(title).append(" (Ascolti: ")
-                      .append(count).append(")").append(NEW_LINE);
+                      .append(count).append(')').append(NEW_LINE);
                 }
             } else {
                 sb.append("Nessun brano trovato per questo anno.").append(NEW_LINE);
             }
-            sb.append(NEW_LINE);
-
-            sb.append("=== I tuoi 5 artisti più ascoltati ===").append(NEW_LINE);
+            sb.append(NEW_LINE)
+            .append("=== I tuoi 5 artisti più ascoltati ===").append(NEW_LINE);
             if (topArtists != null && !topArtists.isEmpty()) {
                 for (final Object[] artist : topArtists) {
                     final String artistName = (String) artist[1];
                     final int count = (int) artist[2];
                     sb.append(BULLET_POINT).append(artistName).append(" (Ascolti: ")
-                      .append(count).append(")").append(NEW_LINE);
+                      .append(count).append(')').append(NEW_LINE);
                 }
             } else {
                 sb.append("Nessun artista trovato per questo anno.").append(NEW_LINE);
@@ -868,14 +866,12 @@ public final class ControllerImpl implements Controller {
             sb.append("=== Artista più ascoltato (Anno ").append(year).append(SECTION_CLOSE_SUFFIX)
               .append(NEW_LINE)
               .append(mostPlayedArtist != null ? mostPlayedArtist : NO_DATA)
-              .append(NEW_LINE).append(NEW_LINE);
-
-            sb.append("=== Genere più ascoltato (Anno ").append(year).append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE).append(NEW_LINE)
+              .append("=== Genere più ascoltato (Anno ").append(year).append(SECTION_CLOSE_SUFFIX)
               .append(NEW_LINE)
               .append(mostPlayedGenre != null ? mostPlayedGenre : NO_DATA)
-              .append(NEW_LINE).append(NEW_LINE);
-
-            sb.append("=== Utenti sopra la media ascolti (Anno ").append(year).append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE).append(NEW_LINE)
+              .append("=== Utenti sopra la media ascolti (Anno ").append(year).append(SECTION_CLOSE_SUFFIX)
               .append(NEW_LINE);
             if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {
                 for (final String u : usersAboveAvg) {
@@ -884,10 +880,9 @@ public final class ControllerImpl implements Controller {
             } else {
                 sb.append("Nessun utente trovato.").append(NEW_LINE);
             }
-            sb.append(NEW_LINE);
-
-            sb.append("=== Album sopra la media globale delle recensioni ===")
-              .append(NEW_LINE);
+            sb.append(NEW_LINE)
+            .append("=== Album sopra la media globale delle recensioni ===")
+            .append(NEW_LINE);
             if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
                 for (final String a : albumsAboveAvg) {
                     sb.append(BULLET_POINT).append(a).append(NEW_LINE);

@@ -428,12 +428,12 @@ public final class DBModel implements Model {
         }
 
         //caso 1: attivazione con codice promozionale
-        if (promoCode != null && !promoCode.trim().isEmpty()) {
+        if (promoCode != null && !promoCode.isBlank()) {
             return Subscription.DAO.insertWithPromotion(connection, username, planCode,
                 promoCode.trim(), autoRenew, paymentMethod);
         }
         //caso 2: attivazione con codice invito
-        if (inviteCode != null && !inviteCode.trim().isEmpty()) {
+        if (inviteCode != null && !inviteCode.isBlank()) {
             return Subscription.DAO.insertWithInvite(connection, username, planCode, inviteCode.trim(), autoRenew, paymentMethod);
         }
         //caso 3: attivazione standard
@@ -544,7 +544,7 @@ public final class DBModel implements Model {
     }
 
     @Override
-    public Artist getArtistByCode(final int artistCode) throws DAOException {
+    public Artist getArtistByCode(final int artistCode) {
         return Artist.DAO.getByCode(this.connection, artistCode);
     }
 
@@ -575,7 +575,7 @@ public final class DBModel implements Model {
 
     @Override
     public void followArtist(final String username, final int artistCode) {
-        Follow.DAO.followArtist(this.connection, username, artistCode, java.time.LocalDate.now());
+        Follow.DAO.followArtist(this.connection, username, artistCode, LocalDate.now());
     }
 
     @Override

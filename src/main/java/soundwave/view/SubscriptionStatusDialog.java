@@ -93,7 +93,7 @@ public final class SubscriptionStatusDialog extends JDialog {
     private final JScrollPane scrollPane;
     private final JButton btnRefresh;
     private final JButton btnClose;
-    private final String username;
+    // private final String username;
 
     private transient Consumer<Integer> onRenew;
     private transient Consumer<Integer> onToggleAutoRenew;
@@ -107,7 +107,7 @@ public final class SubscriptionStatusDialog extends JDialog {
      */
     public SubscriptionStatusDialog(final JFrame parent, final String username) {
         super(parent, "Sottoscrizioni - " + username, true);
-        this.username = username;
+        //this.username = username;
 
         setLayout(new BorderLayout(DIALOG_GAP_H, DIALOG_GAP_V));
         setSize(DIALOG_WIDTH, DIALOG_HEIGHT);

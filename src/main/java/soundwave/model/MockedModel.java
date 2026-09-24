@@ -29,7 +29,6 @@ public final class MockedModel implements Model {
 
     private static final double PLAN_MONTHLY_COST = 9.99;
     private static final double PLAN_QUARTERLY_COST = 14.99;
-    private static final int PLAN_QUARTERLY_DURATION = 3;
     private static final double PLAN_ANNUAL_COST = 89.99;
     private static final int PLAN_ANNUAL_DURATION = 12;
     private static final double PLAN_PREMIUM_COST = 129.99;

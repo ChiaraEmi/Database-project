@@ -103,43 +103,42 @@ public interface Controller {
     boolean adminClickedSaveEpisode(int podcastCode, String title, int duration, String description, int episodeNumber);
 
     /**
-     * Requests the redemption of bonus credits for a user
+     * Requests the redemption of bonus credits for a user.
      * This method is called when a user wats to redeem their bonus credit
      * for a subscriptionn. The system will check if the user has sufficient
-     * credits and if they are eligible for redemption
+     * credits and if they are eligible for redemption.
      * 
-     * @param username the username of the user requisting bonus redemption
+     * @param username the username of the user requisting bonus redemption.
      */
     void userRequestedRedeemBonus(String username);
 
     /**
-     * Processes the redemption of bonus credits for a subscription
+     * Processes the redemption of bonus credits for a subscription.
      * 
-     * @param username the username of the user redeeming bonus credits
-     * @param data the redemption data containing plan information and other details
+     * @param username the username of the user redeeming bonus credits.
+     * @param data the redemption data containing plan information and other details.
      */
     void userRedeemedBonus(String username, RedeemBonusDialog.RedeemData data);
 
-
     /**
-     * Registers a new user in the Soundwave system
+     * Registers a new user in the Soundwave system.
      * 
-     * @param username the unique username for new account
-     * @param name the user's first name
-     * @param surname the user's last name
-     * @param email the user's email adress
-     * @param password the user's password
-     * @param birthDate the user's date of birth
-     * @param country the user's cuntry of residence
+     * @param username the unique username for new account.
+     * @param name the user's first name.
+     * @param surname the user's last name.
+     * @param email the user's email adress.
+     * @param password the user's password.
+     * @param birthDate the user's date of birth.
+     * @param country the user's cuntry of residence.
      */
     void userRegistered(String username, String name, String surname, String email, 
                     String password, LocalDate birthDate, String country);
 
     /**
-     * Renews a subscription for the specified user
+     * Renews a subscription for the specified user.
      * 
-     * @param username the username of the subscription owner
-     * @param subscriptionCode the unique code of the subscription to renew
+     * @param username the username of the subscription owner.
+     * @param subscriptionCode the unique code of the subscription to renew.
      */
     void renewSubscriptionNow(String username, int subscriptionCode);
 
@@ -149,27 +148,27 @@ public interface Controller {
      * subscription. When enabled, the system will automatically attempt to
      * renew the subscription when it expires.
      * 
-     * @param username the username of the subscription owner
-     * @param subscriptionCode the unique code of the subscription to modify
-     * @param enabled true to enable auto-renewal, false to disable it
+     * @param username the username of the subscription owner.
+     * @param subscriptionCode the unique code of the subscription to modify.
+     * @param enabled true to enable auto-renewal, false to disable it.
      */
     void toggleAutoRenew(String username, int subscriptionCode, boolean enabled);
 
     /**
-     * Retrieves the current auto-renewal status of a subscription
+     * Retrieves the current auto-renewal status of a subscription.
      * This method checks whether automatic renewal is enabled for the specified subscription.
      * 
-     * @param username the username of the subscription owner
-     * @param subscriptionCode the unique code of the subscription to check
-     * @return true if auto-renewal is enabled, false otherwise
+     * @param username the username of the subscription owner.
+     * @param subscriptionCode the unique code of the subscription to check.
+     * @return true if auto-renewal is enabled, false otherwise.
      */
     boolean getAutoRenewStatus(String username, int subscriptionCode);
 
     /**
-     * Executes the automatic renewal process for all eligible subscriptions
+     * Executes the automatic renewal process for all eligible subscriptions.
      * 
      * @return an array of subscription codes that were successfully renewed, 
-     *          or an empty array if no subscriptions were renewed
+     *          or an empty array if no subscriptions were renewed.
      */
     int[] adminRunAutoRenewal();
 
@@ -179,7 +178,6 @@ public interface Controller {
      * @param query the partial title to search for.
      */
     void handleContentSearch(String query);
-
 
     /**
      * Handles the request to generate a listening event.
@@ -353,6 +351,7 @@ public interface Controller {
      * Retrieves subscription details and history for a specific user.
      *
      * @param username the username whose subscription data is requested.
+     * 
      * @return a list of object arrays representing subscription details.
      */
     List<Object[]> getSubscriptionData(String username);
@@ -360,7 +359,7 @@ public interface Controller {
     /**
      * Handles the request to load and view global statistics.
      * 
-     * @param year the reference year for annual statistics
+     * @param year the reference year for annual statistics.
      */
     void adminRequestedGlobalStats(int year);
 
@@ -404,7 +403,7 @@ public interface Controller {
     /**
      * Searches for artists based on a partial query to populate the search dropdown.
      *
-     * @param query the partial text entered by the user
+     * @param query the partial text entered by the user.
      */
     void userClickedSearchArtists(String query);
 

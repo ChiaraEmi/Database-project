@@ -30,9 +30,6 @@ public interface View {
     /**
      * Shows the specified panel by its card name.
      *
-     * @param panelName the identifier of the panel to show
-     * Opens and displays the user panel for the specified user.
-     *
      * @param username the username of the logged-in user.
      */
     void openUserPanel(String username);
@@ -49,7 +46,7 @@ public interface View {
      *
      * @param authors the list of artist objects authorized as podcast authors.
      */
-    void setPodcastAuthors(List<Artist> artists);
+    void setPodcastAuthors(List<Artist> authors);
 
     /**
      * Sets the list of podcasts available in the admin panel.
@@ -74,9 +71,6 @@ public interface View {
 
     /**
      * Displays the global statistics on the admin panel.
-     *
-     * @param statsText the formatted string containing global statistics
-     * Show the dialog for activate subscription.
      *
      * @param username the username of user.
      * @param plans the list of plans disponible.
@@ -206,17 +200,29 @@ public interface View {
      */
     Object[] showReviewInputDialog();
 
+    /**
+     * Displays the content search results in the view.
+     * 
+     * @param contents the list of content items to show
+     */
     void showContentSearchResults(List<Content> contents);
 
-    /*
-     * Show the dialog for register new user.
+    /**
+     * Shows the dialog for registering a new user.
      */
     void showRegisterDialog();
 
-    /*
-     * refresh user data
+    /**
+     * Refreshes the user data for the specified username.
+     * 
+     * @param username the username whose data needs to be refreshed
      */
     void refreshUserData(String username);
 
+    /**
+     * Displays the global statistics text.
+     * 
+     * @param statsText the statistics text to display
+     */
     void showGlobalStats(String statsText);
 }

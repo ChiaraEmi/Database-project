@@ -105,7 +105,7 @@ public final class RegisterDialog extends JDialog {
     /**
      * Gets the username entered by the user.
      *
-     * @return the username, trimmed of leading/trailing whitespace
+     * @return the username, trimmed of leading/trailing whitespace.
      */
     public String getUsername() {
         return txtUsername.getText().trim();
@@ -114,8 +114,9 @@ public final class RegisterDialog extends JDialog {
     /**
      * Gets the name entered by the user.
      *
-     * @return the name, trimmed of leading/trailing whitespace
+     * @return the name, trimmed of leading/trailing whitespace.
      */
+    @Override 
     public String getName() {
         return txtName.getText().trim();
     }

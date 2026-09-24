@@ -57,11 +57,16 @@ public final class UserPanel extends JPanel {
     private static final int BUTTON_WIDTH = 220;
     private static final int BUTTON_HEIGHT = 35;
     private static final int INSET_GAP = 6;
-    private static final int PREFERRED_SCROLL_PANE_WIDTH = 280;
+    private static final int PREF_SCROLL_PANE_WIDTH = 280;
     private static final int INSET_TOP_LARGE = 12;
     private static final int COLUMN_INDEX_5 = 5;
     private static final int COLUMN_INDEX_6 = 6;
     private static final int COLUMN_INDEX_7 = 7;
+    private static final int PREFERRED_SCROLL_WIDTH = 250;
+    private static final int PREFERRED_SCROLL_HEIGHT = 90;
+    private static final int SEARCH_COMBO_WIDTH = 200;
+    private static final int SEARCH_COMBO_HEIGHT = 25;
+    private static final int LIST_HEIGHT = 150;
 
     private String currentUsername;
 
@@ -77,16 +82,17 @@ public final class UserPanel extends JPanel {
     private final JButton btnViewSubscriptionStatus = new JButton("Stato e Storico Transazioni");
 
     // --- Tab 2: Esplora Catalogo ---
-    private final JComboBox<String> comboGenre = new JComboBox<>(new String[]{"Pop","Rock","Jazz","Classica","Indie","Hip-Hop","R&B","Elettronica","Rap"});
+    private final JComboBox<String> comboGenre = new JComboBox<>(new String[]{"Pop", "Rock", "Jazz",
+                                                "Classica", "Indie", "Hip-Hop", "R&B", "Elettronica", "Rap"});
     private final JButton btnFilterByGenre = new JButton("Filtra Brani per Genere");
-    private final javax.swing.DefaultListModel<String> exploreSongsModel = new javax.swing.DefaultListModel<>();
-    private final javax.swing.JList<String> exploreSongsList = new javax.swing.JList<>(this.exploreSongsModel);
+    private final DefaultListModel<String> exploreSongsModel = new DefaultListModel<>();
+    private final JList<String> exploreSongsList = new JList<>(this.exploreSongsModel);
     private final JButton btnAddLikeFromExplore = new JButton("Aggiungi Like");
     private final JTextField txtArtistSearchQuery = new JTextField(FIELD_COLUMNS);
     private final JButton btnSearchArtist = new JButton("Cerca Artisti");
     private final JComboBox<Artist> comboArtistResults = new JComboBox<>();
-    private final JButton btnViewArtistProfile= new JButton("Visualizza Profilo Artista");
-    final JButton btnFollowArtist = new JButton("Segui Artista");
+    private final JButton btnViewArtistProfile = new JButton("Visualizza Profilo Artista");
+    private final JButton btnFollowArtist = new JButton("Segui Artista");
 
     // --- Nuovi componenti per la ricerca contenuti in Esplora ---
     private final JTextField txtContentSearchQuery = new JTextField(FIELD_COLUMNS);
@@ -94,7 +100,7 @@ public final class UserPanel extends JPanel {
     private final DefaultListModel<String> exploreContentResultsModel = new DefaultListModel<>();
     private final JList<String> exploreContentResultsList = new JList<>(this.exploreContentResultsModel);
     private final JButton btnPlayContent = new JButton("▶ Play");
-    private List<soundwave.data.Content> currentContents = new java.util.ArrayList<>();
+    private transient List<soundwave.data.Content> currentContents = new java.util.ArrayList<>();
 
     // --- Tab 3: Album & Recensioni ---
     private final JTextField txtAlbumSearchQuery = new JTextField(FIELD_COLUMNS);
@@ -105,7 +111,7 @@ public final class UserPanel extends JPanel {
     private final JButton btnToggleRecensione = new JButton("Aggiungi / Modifica Recensione");
 
     // --- Tab 4: Libreria & Playlist ---
-   private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
+    private final JTextField txtPlaylistName = new JTextField(FIELD_COLUMNS);
     private final DefaultListModel<String> likedTracksListModel = new DefaultListModel<>();
     private final JList<String> likedTracksList = new JList<>(this.likedTracksListModel);
     private final DefaultListModel<String> followedArtistsListModel = new DefaultListModel<>();
@@ -162,7 +168,7 @@ public final class UserPanel extends JPanel {
         mainTabbedPane.addTab("Esplora", createExploreTab());
         mainTabbedPane.addTab("Libreria", createLibraryTab());
         mainTabbedPane.addTab("Statistiche Personali", createStatsTab());
-        mainTabbedPane.addTab("Album & Recensioni",createAlbumTab());
+        mainTabbedPane.addTab("Album & Recensioni", createAlbumTab());
 
         this.add(mainTabbedPane, BorderLayout.CENTER);
 
@@ -228,45 +234,60 @@ public final class UserPanel extends JPanel {
         gbcLeft.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbcLeft.anchor = GridBagConstraints.WEST;
 
-        gbcLeft.gridx = 0; gbcLeft.gridy = 0;
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = 0;
         leftCol.add(new JLabel("Genere:"), gbcLeft);
         gbcLeft.gridx = 1;
         leftCol.add(this.comboGenre, gbcLeft);
 
-        gbcLeft.gridx = 0; gbcLeft.gridy = 1; gbcLeft.gridwidth = 2;
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = 1; 
+        gbcLeft.gridwidth = 2;
         leftCol.add(this.btnFilterByGenre, gbcLeft);
 
         this.exploreSongsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         final JScrollPane scrollPaneSongs = new JScrollPane(this.exploreSongsList);
-        scrollPaneSongs.setPreferredSize(new Dimension(250, 90));
-        gbcLeft.gridx = 0; gbcLeft.gridy = 2; gbcLeft.gridwidth = 2;
+        scrollPaneSongs.setPreferredSize(new Dimension(PREFERRED_SCROLL_WIDTH, PREFERRED_SCROLL_HEIGHT));
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = 2; 
+        gbcLeft.gridwidth = 2;
         leftCol.add(scrollPaneSongs, gbcLeft);
 
         this.btnAddLikeFromExplore.setEnabled(false);
-        gbcLeft.gridx = 0; gbcLeft.gridy = 3; gbcLeft.gridwidth = 2;
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = 3; 
+        gbcLeft.gridwidth = 2;
         leftCol.add(this.btnAddLikeFromExplore, gbcLeft);
 
         // Sezione Artista
         gbcLeft.gridwidth = 1;
-        gbcLeft.gridx = 0; gbcLeft.gridy = 4;
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = 4;
         leftCol.add(new JLabel("Cerca Artista:"), gbcLeft);
         gbcLeft.gridx = 1;
         leftCol.add(this.txtArtistSearchQuery, gbcLeft);
 
-        gbcLeft.gridx = 0; gbcLeft.gridy = 5; gbcLeft.gridwidth = 2;
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = SMALL_FIELD_COLUMNS; 
+        gbcLeft.gridwidth = 2;
         leftCol.add(this.btnSearchArtist, gbcLeft);
 
-        this.comboArtistResults.setPreferredSize(new Dimension(200, 25));
-        gbcLeft.gridx = 0; gbcLeft.gridy = 6; gbcLeft.gridwidth = 2;
+        this.comboArtistResults.setPreferredSize(new Dimension(SEARCH_COMBO_WIDTH, SEARCH_COMBO_HEIGHT));
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = INSET_GAP; 
+        gbcLeft.gridwidth = 2;
         leftCol.add(this.comboArtistResults, gbcLeft);
 
-        gbcLeft.gridx = 0; gbcLeft.gridy = 7; gbcLeft.gridwidth = 2;
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = COLUMN_INDEX_7; 
+        gbcLeft.gridwidth = 2;
         leftCol.add(this.btnViewArtistProfile, gbcLeft);
 
         this.btnFollowArtist.setEnabled(false);
-        gbcLeft.gridx = 0; gbcLeft.gridy = 8; gbcLeft.gridwidth = 2;
+        gbcLeft.gridx = 0; 
+        gbcLeft.gridy = 8; 
+        gbcLeft.gridwidth = 2;
         leftCol.add(this.btnFollowArtist, gbcLeft);
-
 
         // --- COLONNA DI DESTRA (Ricerca Contenuti e Play) ---
         final JPanel rightCol = new JPanel(new GridBagLayout());
@@ -274,26 +295,32 @@ public final class UserPanel extends JPanel {
         gbcRight.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbcRight.anchor = GridBagConstraints.WEST;
 
-        gbcRight.gridx = 0; gbcRight.gridy = 0;
+        gbcRight.gridx = 0; 
+        gbcRight.gridy = 0;
         rightCol.add(new JLabel("Cerca Contenuto:"), gbcRight);
-        
+
         gbcRight.gridx = 1;
         rightCol.add(this.txtContentSearchQuery, gbcRight);
 
-        gbcRight.gridx = 0; gbcRight.gridy = 1; gbcRight.gridwidth = 2;
+        gbcRight.gridx = 0; 
+        gbcRight.gridy = 1; 
+        gbcRight.gridwidth = 2;
         rightCol.add(this.btnSearchContent, gbcRight);
 
         this.exploreContentResultsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         final JScrollPane scrollPaneContentSearch = new JScrollPane(this.exploreContentResultsList);
-        scrollPaneContentSearch.setPreferredSize(new Dimension(280, 150));
-        
-        gbcRight.gridx = 0; gbcRight.gridy = 2; gbcRight.gridwidth = 2;
+        scrollPaneContentSearch.setPreferredSize(new Dimension(PREF_SCROLL_PANE_WIDTH, LIST_HEIGHT));
+
+        gbcRight.gridx = 0; 
+        gbcRight.gridy = 2; 
+        gbcRight.gridwidth = 2;
         rightCol.add(scrollPaneContentSearch, gbcRight);
 
         this.btnPlayContent.setEnabled(false);
-        gbcRight.gridx = 0; gbcRight.gridy = 3; gbcRight.gridwidth = 2;
+        gbcRight.gridx = 0; 
+        gbcRight.gridy = 3; 
+        gbcRight.gridwidth = 2;
         rightCol.add(this.btnPlayContent, gbcRight);
-
 
         // Listener per i componenti (rimangono identici)
         this.exploreContentResultsList.addListSelectionListener(e -> {
@@ -315,7 +342,7 @@ public final class UserPanel extends JPanel {
 
         return panel;
     }
-    
+
     /**
      * Creates the tab for personal library and playlists, showing liked tracks on the left
      * and management controls on the right.
@@ -324,62 +351,63 @@ public final class UserPanel extends JPanel {
      */
     private JPanel createLibraryTab() {
         final JPanel panel = new JPanel(new BorderLayout(10, 10));
-    panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
+        panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
-    // Pannello di sinistra diviso tra Brani Preferiti e Artisti Seguiti
-    final JPanel leftContainer = new JPanel(new GridLayout(2, 1, 0, 10));
-    
-    // --- 1. Sezione Brani Preferiti con pulsante Rimuovi Like (btnToggleLike) ---
-    final JPanel leftPanel = new JPanel(new BorderLayout(0, 5));
-    leftPanel.setBorder(BorderFactory.createTitledBorder("I tuoi Brani Preferiti"));
-    this.likedTracksList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-    leftPanel.add(new JScrollPane(this.likedTracksList), BorderLayout.CENTER);
-    
-    final JPanel likeButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-    likeButtonPanel.add(this.btnToggleLike);
-    leftPanel.add(likeButtonPanel, BorderLayout.SOUTH);
-    
-    leftContainer.add(leftPanel);
+        // Pannello di sinistra diviso tra Brani Preferiti e Artisti Seguiti
+        final JPanel leftContainer = new JPanel(new GridLayout(2, 1, 0, 10));
 
-    // --- 2. Sezione Artisti Seguiti con il nuovo pulsante Togli Follow (btnUnfollowArtist) ---
-    final JPanel artistsPanel = new JPanel(new BorderLayout(0, 5));
-    artistsPanel.setBorder(BorderFactory.createTitledBorder("Artisti Seguiti"));
-    this.followedArtistsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-    artistsPanel.add(new JScrollPane(this.followedArtistsList), BorderLayout.CENTER);
-    
-    final JPanel artistButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-    artistButtonPanel.add(this.btnUnfollowArtist);
-    artistsPanel.add(artistButtonPanel, BorderLayout.SOUTH);
-    
-    leftContainer.add(artistsPanel);
+        // --- 1. Sezione Brani Preferiti con pulsante Rimuovi Like (btnToggleLike) ---
+        final JPanel leftPanel = new JPanel(new BorderLayout(0, 5));
+        leftPanel.setBorder(BorderFactory.createTitledBorder("I tuoi Brani Preferiti"));
+        this.likedTracksList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        leftPanel.add(new JScrollPane(this.likedTracksList), BorderLayout.CENTER);
 
-    final JScrollPane leftScrollPane = new JScrollPane(leftContainer);
-    leftScrollPane.setPreferredSize(new Dimension(PREFERRED_SCROLL_PANE_WIDTH, 0));
-    panel.add(leftScrollPane, BorderLayout.WEST);
+        final JPanel likeButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        likeButtonPanel.add(this.btnToggleLike);
+        leftPanel.add(likeButtonPanel, BorderLayout.SOUTH);
 
-    // Pannello di destra con i controlli rimanenti (es. Gestione Playlist, Gestione Brani)
-    final JPanel rightControlsPanel = new JPanel(new GridBagLayout());
-    final GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.weightx = 1.0;
+        leftContainer.add(leftPanel);
 
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    rightControlsPanel.add(createPlaylistManagementSubPanel(), gbc);
+        // --- 2. Sezione Artisti Seguiti con il nuovo pulsante Togli Follow (btnUnfollowArtist) ---
+        final JPanel artistsPanel = new JPanel(new BorderLayout(0, 5));
+        artistsPanel.setBorder(BorderFactory.createTitledBorder("Artisti Seguiti"));
+        this.followedArtistsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        artistsPanel.add(new JScrollPane(this.followedArtistsList), BorderLayout.CENTER);
 
-    gbc.gridy++;
-    rightControlsPanel.add(createTrackManagementSubPanel(), gbc);
+        final JPanel artistButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        artistButtonPanel.add(this.btnUnfollowArtist);
+        artistsPanel.add(artistButtonPanel, BorderLayout.SOUTH);
 
-    gbc.gridy++;
-    gbc.weighty = 1.0; 
-    rightControlsPanel.add(new JPanel(), gbc);
+        leftContainer.add(artistsPanel);
 
-    panel.add(rightControlsPanel, BorderLayout.CENTER);
+        final JScrollPane leftScrollPane = new JScrollPane(leftContainer);
+        leftScrollPane.setPreferredSize(new Dimension(PREF_SCROLL_PANE_WIDTH, 0));
+        panel.add(leftScrollPane, BorderLayout.WEST);
 
-    return panel;
+        // Pannello di destra con i controlli rimanenti (es. Gestione Playlist, Gestione Brani)
+        final JPanel rightControlsPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        rightControlsPanel.add(createPlaylistManagementSubPanel(), gbc);
+
+        gbc.gridy++;
+        rightControlsPanel.add(createTrackManagementSubPanel(), gbc);
+
+        gbc.gridy++;
+        gbc.weighty = 1.0;
+        rightControlsPanel.add(new JPanel(), gbc);
+
+        panel.add(rightControlsPanel, BorderLayout.CENTER);
+
+        return panel;
     }
+
     /**
      * Sub-panel for playlist creation and general actions.
      *
@@ -508,7 +536,9 @@ public final class UserPanel extends JPanel {
     }
 
     /**
-     * Creates the tab for reviews (OP 16,17,18)
+     * Creates the tab for reviews (OP 16,17,18).
+     * 
+     * @return the reviews panel.
      */
     private JPanel createAlbumTab() {
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -521,7 +551,7 @@ public final class UserPanel extends JPanel {
         gbc.gridy = 0;
         gbc.gridwidth = 1;
         panel.add(new JLabel("Cerca Album:"), gbc);
-        
+
         gbc.gridx = 1;
         panel.add(this.txtAlbumSearchQuery, gbc);
 
@@ -535,7 +565,7 @@ public final class UserPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
-        this.comboAlbumResults.setPreferredSize(new Dimension(220, 25));
+        this.comboAlbumResults.setPreferredSize(new Dimension(BUTTON_WIDTH, SEARCH_COMBO_HEIGHT));
         panel.add(this.comboAlbumResults, gbc);
 
         // Pulsante Visualizza Album
@@ -555,7 +585,7 @@ public final class UserPanel extends JPanel {
         // Pulsante Aggiungi / Modifica Recensione
         this.btnToggleRecensione.setEnabled(false);
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = SMALL_FIELD_COLUMNS;
         gbc.gridwidth = 2;
         panel.add(this.btnToggleRecensione, gbc);
 
@@ -726,91 +756,173 @@ public final class UserPanel extends JPanel {
     public void setPersonalStatsOutput(final String text) {
         this.txtStatsOutput.setText(text);
     }
-    
+
+    /**
+     * Gets the currently selected song from the explore list.
+     * 
+     * @return the selected song string, or null if none is selected
+     */
     public String getSelectedExploreSong() {
         return this.exploreSongsList.getSelectedValue();
     }
 
+    /**
+     * Gets the text entered in the artist search query field.
+     * 
+     * @return the artist search query string
+     */
     public String getArtistSearchQuery() {
         return this.txtArtistSearchQuery.getText();
     }
 
+    /**
+     * Gets the currently selected Artist object from the results combo box.
+     * 
+     * @return the selected Artist, or null if none is selected
+     */
     public Artist getSelectedArtist() {
         return (Artist) this.comboArtistResults.getSelectedItem();
     }
 
+    /**
+     * Gets the text entered in the album search query field.
+     * 
+     * @return the album search query string
+     */
     public String getAlbumSearchQuery() {
         return this.txtAlbumSearchQuery.getText();
     }
 
+    /**
+     * Gets the currently selected Album object from the results combo box.
+     * 
+     * @return the selected Album, or null if none is selected
+     */
     public Album getSelectedAlbum() {
         return (Album) this.comboAlbumResults.getSelectedItem();
     }
 
+    /**
+     * Gets the currently selected song from the user's liked library list.
+     * 
+     * @return the selected liked song string, or null if none is selected
+     */
     public String getSelectedLibrarySong() {
        return this.likedTracksList.getSelectedValue();
-
     }
-    public int getSelectedArtistCode(){
-    final String selected = this.followedArtistsList.getSelectedValue();
-    if (selected != null && selected.contains("[")) {
-        final int start = selected.indexOf('[') + 1;
-        final int end = selected.indexOf(']');
-        try {
-            return Integer.parseInt(selected.substring(start, end));
-        } catch (NumberFormatException e) {
-            return -1;
+
+    /**
+     * Extracts and returns the unique code of the currently selected followed artist.
+     * 
+     * @return the artist ID, or -1 if no artist is selected or parsing fails
+     */
+    public int getSelectedArtistCode() {
+        final String selected = this.followedArtistsList.getSelectedValue();
+        if (selected != null && selected.contains("[")) {
+            final int start = selected.indexOf('[') + 1;
+            final int end = selected.indexOf(']');
+            try {
+                return Integer.parseInt(selected.substring(start, end));
+            } catch (final NumberFormatException e) {
+                return -1;
+            }
         }
-    }
-    return -1;
+        return -1;
     }
 
+    /**
+     * Gets the trimmed text entered in the content search query field.
+     * 
+     * @return the content search query string
+     */
     public String getContentSearchQuery() {
         return this.txtContentSearchQuery.getText().trim();
     }
 
+    /**
+     * Gets the currently selected content item from the explore results list.
+     * 
+     * @return the selected content string representation, or null if none is selected
+     */
     public String getSelectedExploreContent() {
         return this.exploreContentResultsList.getSelectedValue();
     }
 
+    /**
+     * Gets the duration of the currently selected content item.
+     * 
+     * @return the duration in seconds, or 0 if no valid item is selected
+     */
     public int getSelectedContentDuration() {
+        if (this.currentContents == null) {
+            this.currentContents = new java.util.ArrayList<>();
+        }
         final int selectedIndex = this.exploreContentResultsList.getSelectedIndex();
         if (selectedIndex >= 0 && selectedIndex < this.currentContents.size()) {
-            // Sostituisci .getDuration() con il nome effettivo del metodo presente nella tua classe Content
             return this.currentContents.get(selectedIndex).getDuration(); 
         }
         return 0; 
     }
 
+    /**
+     * Sets and displays the content search results in the explore view.
+     * 
+     * @param contents the list of content items to display
+     */
     public void setContentSearchResults(final List<soundwave.data.Content> contents) {
-        this.currentContents = contents != null ? contents : new java.util.ArrayList<>();
-        
+        this.currentContents = contents != null ? new java.util.ArrayList<>(contents) 
+                                                : new java.util.ArrayList<>();
         final List<String> displayItems = this.currentContents.stream()
             .map(c -> c.getContentCode() + " - " + c.getTitle() + " [" + c.getContentType() + "]")
             .toList();
-            
+
         this.exploreContentResultsList.setListData(displayItems.toArray(new String[0]));
     }
 
+    /**
+     * Adds an action listener to the search content button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addSearchContentListener(final ActionListener listener) {
         this.btnSearchContent.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the play content button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addPlayContentListener(final ActionListener listener) {
         this.btnPlayContent.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the like/unlike toggle button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addRemoveLikeListener(final ActionListener listener) {
-    this.btnToggleLike.addActionListener(listener);
+        this.btnToggleLike.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the unfollow artist button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addUnfollowArtistListener(final ActionListener listener) {
-    this.btnUnfollowArtist.addActionListener(listener);
-}
+        this.btnUnfollowArtist.addActionListener(listener);
+    }
 
     /* --- Setter per popolare la vista --- */
 
-    public void setExploreSongs(final java.util.List<String> songs) {
+    /**
+     * Populates the explore songs list with the given items.
+     * 
+     * @param songs the list of song strings to display
+     */
+    public void setExploreSongs(final List<String> songs) {
         this.exploreSongsModel.clear();
         for (final String song : songs) {
             this.exploreSongsModel.addElement(song);
@@ -818,28 +930,48 @@ public final class UserPanel extends JPanel {
         this.btnAddLikeFromExplore.setEnabled(false);
     }
 
-   public void setLikedSongs(final java.util.List<String> songs) {
-    this.likedTracksListModel.clear();
-    for (final String song : songs) {
-        this.likedTracksListModel.addElement(song);
+    /**
+     * Populates the user's liked tracks list with the given items.
+     * 
+     * @param songs the list of liked song strings to display
+     */
+    public void setLikedSongs(final List<String> songs) {
+        this.likedTracksListModel.clear();
+        for (final String song : songs) {
+            this.likedTracksListModel.addElement(song);
+        }
+        this.btnToggleLike.setEnabled(!songs.isEmpty());
     }
-    this.btnToggleLike.setEnabled(!songs.isEmpty());
-}
 
-    public void setArtistSearchResults(final java.util.List<Artist> artists) {
+    /**
+     * Populates the artist search results combo box.
+     * 
+     * @param artists the list of Artist objects to display
+     */
+    public void setArtistSearchResults(final List<Artist> artists) {
         this.comboArtistResults.removeAllItems();
         for (final Artist a : artists) {
             this.comboArtistResults.addItem(a);
         }
     }
 
-    public void setAlbumSearchResults(final java.util.List<Album> albums) {
+    /**
+     * Populates the album search results combo box.
+     * 
+     * @param albums the list of Album objects to display
+     */
+    public void setAlbumSearchResults(final List<Album> albums) {
         this.comboAlbumResults.removeAllItems();
         for (final Album a : albums) {
             this.comboAlbumResults.addItem(a);
         }
     }
 
+    /**
+     * Enables or disables the follow artist button.
+     * 
+     * @param enabled true to enable the button, false to disable it
+     */
     public void setFollowButtonEnabled(final boolean enabled) {
         this.btnFollowArtist.setEnabled(enabled);
     }
@@ -918,6 +1050,11 @@ public final class UserPanel extends JPanel {
         this.btnFilterByGenre.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the add like from explore button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addExploreLikeListener(final ActionListener listener) {
         this.btnAddLikeFromExplore.addActionListener(listener);
     }
@@ -931,27 +1068,58 @@ public final class UserPanel extends JPanel {
         this.btnSearchArtist.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the view artist profile button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addViewArtistProfileListener(final ActionListener listener) {
         this.btnViewArtistProfile.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the follow artist button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addFollowArtistListener(final ActionListener listener) {
         this.btnFollowArtist.addActionListener(listener);
     }
 
     // --- Listener Album & Recensioni ---
+
+    /**
+     * Adds an action listener to the search album button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addSearchAlbumListener(final ActionListener listener) {
         this.btnSearchAlbum.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the view album button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addViewAlbumListener(final ActionListener listener) {
         this.btnViewAlbum.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the search album reviews button.
+     * 
+     * @param listener the action listener to add
+     */
     public void addSearchAlbumReviewsListener(final ActionListener listener) {
         this.btnSearchAlbumReviews.addActionListener(listener);
     }
 
+    /**
+     * Adds an action listener to the toggle review button (add/modify review).
+     * 
+     * @param listener the action listener to add
+     */
     public void addToggleRecensioneListener(final ActionListener listener) {
         this.btnToggleRecensione.addActionListener(listener);
     }
@@ -1147,14 +1315,14 @@ public final class UserPanel extends JPanel {
         );
 
         this.statusDialog.setOnRenew(subscriptionCode -> {
-            System.out.println("OnRenew chiamato per: " + subscriptionCode);
+            LOG.info("OnRenew chiamato per: " + subscriptionCode);
             if (this.controller != null) {
                 this.controller.renewSubscriptionNow(username, subscriptionCode);
             }
         });
 
         this.statusDialog.setOnToggleAutoRenew(subscriptionCode -> {
-            System.out.println("OnToggleAutoRenew chiamato per: " + subscriptionCode);
+            LOG.info("OnToggleAutoRenew chiamato per: " + subscriptionCode);
             if (this.controller != null) {
                 final boolean currentState = this.controller.getAutoRenewStatus(username, subscriptionCode);
                 this.controller.toggleAutoRenew(username, subscriptionCode, !currentState);
@@ -1237,10 +1405,9 @@ public final class UserPanel extends JPanel {
 
         dialog.addRedeemListener(onRedeem);
         dialog.addCancelListener(() -> {
-            System.out.println("[DEBUG] Riscatto annullato");
+            LOG.info("[DEBUG] Riscatto annullato");
         });
 
         dialog.setVisible(true);
     }
-
 }

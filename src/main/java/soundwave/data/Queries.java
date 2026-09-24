@@ -22,7 +22,7 @@ public final class Queries {
 
     public static final String INSERT_USER = 
         """
-        INSERT INTO Utenti (Username, Email, Password, Nome, Cognome, DataNascita, Paese, CreditiBonus)
+        INSERT INTO Utenti (Username, Email, Password, Nome, Cognome, DataNascita, Paese, CreditoBonus)
         VALUES (?, ?, ?, ?, ?, ?, ?, 0)
         """;
 
@@ -326,10 +326,11 @@ public final class Queries {
         """;
 
     // --- OP 8: INSERIMENTO ALBUM E BRANI ---
+
     public static final String INSERT_ALBUM = 
         """
-        INSERT INTO Album (CodiceArtista, TitoloAlbum, DataPubblicazione, CasaDiscografica)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO Album (CodiceArtista, TipoAlbum, TitoloAlbum, DataPubblicazione, CasaDiscografica)
+        VALUES (?, ?, ?, ?, ?)
         """;
 
     public static final String INSERT_CONTENUTO_BRANO = 

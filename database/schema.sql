@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS Transazioni (
 CREATE TABLE IF NOT EXISTS Album (
     CodiceAlbum INT AUTO_INCREMENT PRIMARY KEY,
     CodiceArtista INT NOT NULL,
+    TipoAlbum ENUM('Singolo','EP','LP'),
     TitoloAlbum VARCHAR(100) NOT NULL,
     DataPubblicazione DATE NOT NULL,
     CasaDiscografica VARCHAR(50) NOT NULL,

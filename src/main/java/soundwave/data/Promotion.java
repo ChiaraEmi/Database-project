@@ -143,7 +143,7 @@ public final class Promotion {
     public boolean equals(final Object other) {
         if (other == this) {
             return true;
-        } else if (other == null || !(other instanceof Promotion)) {
+        } else if (!(other instanceof Promotion)) {
             return false;
         } 
 

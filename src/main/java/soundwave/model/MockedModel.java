@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import soundwave.data.Album;
 import soundwave.data.Album.DAO.AlbumWithSongs;
@@ -24,6 +25,7 @@ import soundwave.data.User;
  * A mocked implementation of the Model interface.
  */
 public final class MockedModel implements Model {
+    private static final Logger LOGGER = Logger.getLogger(MockedModel.class.getName());
 
     private static final String TEST_USERNAME = "mario88";
 
@@ -34,7 +36,7 @@ public final class MockedModel implements Model {
     private static final double PLAN_PREMIUM_COST = 129.99;
     private static final int PLAN_PREMIUM_DURATION = 12;
     private static final int DISCOUNT_PERCENTAGE = 20;
-    private static final int MAX_LISTENING_TIME = 18500;
+    private static final int MAX_LISTENING_TIME = 18_500;
     private static final int MIN_LISTENING_TIME = 125;
     private static final int TRACK_COUNT_1 = 45;
     private static final int TRACK_COUNT_2 = 30;
@@ -102,11 +104,11 @@ public final class MockedModel implements Model {
     }
 
     @Override
-    public void insertPromotion( final String  code, final String name, final String description, 
+    public void insertPromotion(final String code, final String name, final String description, 
                                 final LocalDate startDate, final LocalDate endDate, final String discountType, 
                                 final double discountValue, final Integer requiredMonths, 
                                 final List<Integer> planCodes) {
-        System.out.println("[MOCK] Promotion inserted: " + name);
+        LOGGER.info(() -> "[MOCK] Promotion inserted: " + name);
     }
 
     @Override
@@ -281,9 +283,9 @@ public final class MockedModel implements Model {
     @Override
     public int activateSubscription(final String username, final int planCode, final String paymentMethod,
                                     final String promoCode, final String inviteCode, final boolean autoRenew) {
-        System.out.println("[MOCK] Sottoscrizione attivata per: " + username);
-        System.out.println("[MOCK] Piano: " + planCode);
-        System.out.println("[MOCK] Metodo: " + paymentMethod);
+        LOGGER.info(() -> "[MOCK] Sottoscrizione attivata per: " + username);
+        LOGGER.info(() -> "[MOCK] Piano: " + planCode);
+        LOGGER.info(() -> "[MOCK] Metodo: " + paymentMethod);
         return 1;
     }
 
@@ -296,7 +298,7 @@ public final class MockedModel implements Model {
     public Object[] verifyPromotionCode(final String promoCode, final int planCode) {
         final List<String> validCodes = List.of("PROMO20", "WELCOME", "BLACKFRI", "STUDENT");
 
-        if (promoCode != null && validCodes.contains(promoCode.toUpperCase(java.util.Locale.ROOT))) {
+        if (promoCode != null && validCodes.contains(promoCode.toUpperCase(Locale.ROOT))) {
             return new Object[]{true, DISCOUNT_PERCENTAGE, "Percentuale", PLAN_ANNUAL_COST};
         }
         return new Object[]{false, 0.0, null, 0.0};
@@ -344,67 +346,69 @@ public final class MockedModel implements Model {
         return "Pop";
     }
 
-    public void removeLike(String username, int contentCode) {
+    @Override
+    public void removeLike(final String username, final int contentCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'removeLike'");
     }
 
     @Override
-    public List<String> getLikedSongs(String username) {
+    public List<String> getLikedSongs(final String username) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getLikedSongs'");
     }
 
     @Override
-    public void addLike(String username, int contentCode) {
+    public void addLike(final String username, final int contentCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'addLike'");
     }
 
     @Override
-    public List<String> getSongsByGenre(String genre) {
+    public List<String> getSongsByGenre(final String genre) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getSongsByGenre'");
     }
 
     @Override
-    public List<Artist> getArtistsByPartialName(String query) {
+    public List<Artist> getArtistsByPartialName(final String query) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getArtistsByPartialName'");
     }
 
     @Override
-    public Artist getArtistByCode(int artistCode) {
+    public Artist getArtistByCode(final int artistCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getArtistByCode'");
     }
 
     @Override
-    public List<Album> getAlbumsByPartialTitle(String query) {
+    public List<Album> getAlbumsByPartialTitle(final String query) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAlbumsByPartialTitle'");
     }
 
     @Override
-    public AlbumWithSongs getAlbumWithSongs(int albumCode) {
+    public AlbumWithSongs getAlbumWithSongs(final int albumCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAlbumWithSongs'");
     }
 
     @Override
-    public List<String> getAlbumReviews(int albumCode) {
+    public List<String> getAlbumReviews(final int albumCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAlbumReviews'");
     }
 
     @Override
-    public void insertOrUpdateReview(String username, int albumCode, int rating, String comment) {
+    public void insertOrUpdateReview(final String username, final int albumCode, final int rating, 
+                                        final String comment) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'insertOrUpdateReview'");
     }
 
     @Override
-    public void followArtist(String string, int artistCode) {
+    public void followArtist(final String string, final int artistCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'followArtist'");
     }
@@ -424,9 +428,9 @@ public final class MockedModel implements Model {
 
     @Override
     public int redeemBonus(final String username, final int planCode, final boolean autoRenew) {
-        System.out.println("[MOCK] Riscatto bonus per: " + username);
-        System.out.println("[MOCK] Piano: " + planCode);
-        System.out.println("[MOCK] AutoRenew: " + autoRenew);
+        LOGGER.info(() -> "[MOCK] Riscatto bonus per: " + username);
+        LOGGER.info(() -> "[MOCK] Piano: " + planCode);
+        LOGGER.info(() -> "[MOCK] AutoRenew: " + autoRenew);
         return NOT_FOUND_CODE;
     }
 
@@ -434,47 +438,44 @@ public final class MockedModel implements Model {
     public String registerUser(final String username, final String name, final String surname,
                             final String email, final String password,
                             final LocalDate birthDate, final String country) {
-        System.out.println("[MOCK] Utente registrato: " + username);
-        System.out.println("[MOCK] Email: " + email);
-        System.out.println("[MOCK] Codice invito generato: INV_" + username.toUpperCase(Locale.ROOT));
+        LOGGER.info(() -> "[MOCK] Utente registrato: " + username);
+        LOGGER.info(() -> "[MOCK] Email: " + email);
+        LOGGER.info(() -> "[MOCK] Codice invito generato: INV_" + username.toUpperCase(Locale.ROOT));
         return "INV_" + username.toUpperCase(Locale.ROOT);
     }
 
     @Override
     public void renewSubscriptionNow(final String username, final int subscriptionCode) {
-        System.out.println("[MOCK] Rinnovo manuale per: " + username + " - Sub #" + subscriptionCode);
+        LOGGER.info(() -> "[MOCK] Rinnovo manuale per: " + username + " - Sub #" + subscriptionCode);
     }
 
     @Override
     public void toggleAutoRenew(final String username, final int subscriptionCode,
                             final boolean enabled) {
-        System.out.println("[MOCK] Rinnovo " + (enabled ? "attivato" : "disattivato")
+        LOGGER.info(() -> "[MOCK] Rinnovo " + (enabled ? "attivato" : "disattivato")
                             + " per: " + username + " - Sub #" + subscriptionCode);
     }
 
     @Override
     public boolean getAutoRenewStatus(final String username, final int subscriptionCode) {
         // Simula: per mario88 ritorna true, per altri false
-        if (TEST_USERNAME.equals(username)) {
-            return true;
-        }
-        return false;
+        return TEST_USERNAME.equals(username);
     }
 
     @Override
     public int[] processAutoRenewals() {
-        System.out.println("[MOCK] Processo rinnovo automatico eseguito");
+        LOGGER.info(() -> "[MOCK] Processo rinnovo automatico eseguito");
         return new int[]{1, 0, 0};  // mock: 1 rinnovata, 0 fallite, 0 scadute
     }
 
     @Override
-    public List<Content> searchContents(String query) {
+    public List<Content> searchContents(final String query) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'searchContents'");
     }
 
     @Override
-    public void unfollowArtist(String loggedInUsername, int artistCode) {
+    public void unfollowArtist(final String loggedInUsername, final int artistCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'unfollowArtist'");
     }

@@ -48,16 +48,28 @@ INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese
 
 -- 2. ARTISTI
 INSERT INTO Artisti (CodiceArtista, NomeDArte, Nome, Cognome, DataNascita, PaeseProvenienza, Biografia, AnnoInizioAttivita, TipoArtista) VALUES
+-- Cantanti e Band (1-15)
 (1, 'Elodie', 'Elodie', 'Di Patrizi', '1990-05-03', 'Italia', 'Cantante pop italiana', 2015, 'Cantante'),
 (2, 'Måneskin', NULL, NULL, NULL, 'Italia', 'Rock band di fama internazionale', 2016, 'Band'),
 (3, 'Marco Mengoni', 'Marco', 'Mengoni', '1988-12-25', 'Italia', 'Vincitore di Sanremo', 2009, 'Cantante'),
-(4, 'Gianluca Gazzoli', 'Gianluca', 'Gazzoli', '1988-08-18', 'Italia', 'Host del podcast BSMT', 2014, 'Autore Podcast'),
+(4, 'Cesare Cremonini', 'Cesare', 'Cremonini', '1980-03-27', 'Italia', 'Cantautore storico italiano', 1999, 'Cantante'),
 (5, 'The Weeknd', 'Abel', 'Tesfaye', '1990-02-16', 'Canada', 'Artista R&B e Pop di successo globale', 2010, 'Cantante'),
-(6, 'Lex Fridman', 'Lex', 'Fridman', '1983-08-15', 'USA', 'Host del Lex Fridman Podcast', 2018, 'Autore Podcast'),
-(7, 'Cesare Cremonini', 'Cesare', 'Cremonini', '1980-03-27', 'Italia', 'Cantautore storico italiano', 1999, 'Cantante'),
-(8, 'Dua Lipa', 'Dua', 'Lipa', '1995-08-22', 'Regno Unito', 'Pop star internazionale', 2015, 'Cantante'),
-(9, 'Pinguini Tattici Nucleari', NULL, NULL, NULL, 'Italia', 'Band pop-rock italiana', 2010, 'Band'),
-(10, 'Fabri Fibra', 'Fabrizio', 'Tarducci', '1976-10-17', 'Italia', 'Pioniere del rap italiano', 1996, 'Cantante');
+(6, 'Dua Lipa', 'Dua', 'Lipa', '1995-08-22', 'Regno Unito', 'Pop star internazionale', 2015, 'Cantante'),
+(7, 'Pinguini Tattici Nucleari', NULL, NULL, NULL, 'Italia', 'Band pop-rock italiana', 2010, 'Band'),
+(8, 'Fabri Fibra', 'Fabrizio', 'Tarducci', '1976-10-17', 'Italia', 'Pioniere del rap italiano', 1996, 'Cantante'),
+(9, 'Blanco', 'Riccardo', 'Fabbriconi', '2003-02-10', 'Italia', 'Cantautore rivelazione pop-rap', 2021, 'Cantante'),
+(10, 'Madame', 'Francesca', 'Calearo', '2002-01-16', 'Italia', 'Cantautrice urban e pop', 2018, 'Cantante'),
+(11, 'Colapesce Dimartino', NULL, NULL, NULL, 'Italia', 'Duo indie-pop italiano', 2020, 'Band'),
+(12, 'Negramaro', NULL, NULL, NULL, 'Italia', 'Band rock-pop italiana', 2001, 'Band'),
+(13, 'Laura Pausini', 'Laura', 'Pausini', '1974-05-16', 'Italia', 'Icona della musica leggera italiana nel mondo', 1993, 'Cantante'),
+(14, 'Tiziano Ferro', 'Tiziano', 'Ferro', '1979-02-21', 'Italia', 'Cantautore pop di fama internazionale', 2001, 'Cantante'),
+(15, 'Salmo', 'Maurizio', 'Pisciottu', '1984-09-29', 'Italia', 'Rapper e produttore discografico', 2009, 'Cantante'),
+-- Autori di Podcast (16-20)
+(16, 'Gianluca Gazzoli', 'Gianluca', 'Gazzoli', '1988-08-18', 'Italia', 'Host del podcast BSMT', 2014, 'Autore Podcast'),
+(17, 'Lex Fridman', 'Lex', 'Fridman', '1983-08-15', 'USA', 'Host del Lex Fridman Podcast', 2018, 'Autore Podcast'),
+(18, 'Pablo Trincia', 'Pablo', 'Trincia', '1977-09-27', 'Italia', 'Giornalista e autore di podcast storici', 2005, 'Autore Podcast'),
+(19, 'Stefano Nazzi', 'Stefano', 'Nazzi', '1961-10-22', 'Italia', 'Giornalista e autore di cronaca nera', 2015, 'Autore Podcast'),
+(20, 'Guglielmo Scilla', 'Guglielmo', 'Scilla', '1987-11-26', 'Italia', 'Creator e podcaster', 2009, 'Autore Podcast');
 
 -- 3. GENERI
 INSERT INTO Generi (NomeGenere) VALUES
@@ -87,7 +99,7 @@ INSERT INTO Promozioni (CodicePromozione, Nome, Descrizione, DataInizioPromo, Da
 
 -- 6. CONTENUTI (Brani ed Episodi)
 INSERT INTO Contenuti (CodiceContenuto, Titolo, Durata, Descrizione, DataPubblicazione, TipoContenuto) VALUES
--- Brani
+-- Brani esistenti
 (1, 'OK. Respira', 165, 'Singolo pop ritmato', '2023-01-10', 'Brano'),
 (2, 'Due', 180, 'Brano presentato a Sanremo', '2023-02-08', 'Brano'),
 (3, 'ZITTI E BUONI', 194, 'Brano vincitore Eurovision 2021', '2021-03-03', 'Brano'),
@@ -100,34 +112,63 @@ INSERT INTO Contenuti (CodiceContenuto, Titolo, Durata, Descrizione, DataPubblic
 (13, 'Ringo Starr', 185, 'Successo indie-pop', '2019-09-13', 'Brano'),
 (14, 'Giovani Wannabe', 210, 'Tormentone estivo', '2022-05-27', 'Brano'),
 (15, 'Stavo Pensando a Te', 220, 'Brano rap melodico', '2017-09-08', 'Brano'),
--- Episodi Podcast
+-- Episodi Podcast esistenti
 (6, 'Episodio 1 - Ospite Speciale', 3600, 'Intervista esclusiva', '2026-03-15', 'Episodio'),
 (7, 'Episodio 1 - Introduzione all AI', 2700, 'Chiacchierata informale', '2026-03-22', 'Episodio'),
 (12, 'Episodio 2 - Dietro le quinte della musica', 3100, 'Seconda puntata speciale', '2026-03-29', 'Episodio'),
-(16, 'Episodio 2 - Futuro della Robotica', 3400, 'Discussione avanzata con esperti', '2026-04-05', 'Episodio');
+(16, 'Episodio 2 - Futuro della Robotica', 3400, 'Discussione avanzata con esperti', '2026-04-05', 'Episodio'),
+-- Nuovi Brani (per i nuovi artisti/album inseriti)
+(17, 'Blu Celeste', 205, 'Brano intenso e intimo', '2021-09-10', 'Brano'),
+(18, 'Voce', 175, 'Brano sanremese di Madame', '2021-03-19', 'Brano'),
+(19, 'Splash', 200, 'Successo indie estivo', '2023-05-05', 'Brano'),
+(20, 'Non è detto', 204, 'Singolo pop melodico', '2018-03-16', 'Brano'),
+-- Nuovi Episodi Podcast (per i nuovi autori di podcast)
+(21, 'Veleno - Capitolo 1', 2800, 'Inchiesta sulla cronaca nera', '2017-03-10', 'Episodio'),
+(22, 'Indagini - Il caso', 3100, 'Approfondimento giudiziario', '2023-02-01', 'Episodio'),
+(23, 'Cose Molto Umane - Curiosità', 1900, 'Risposte a domande insolite', '2022-01-01', 'Episodio'),
+(24, 'Lex Fridman - Extra', 3400, 'Discussione avanzata', '2023-01-01', 'Episodio'),
+(25, 'Veleno - Capitolo 2', 2800, 'Continuazione inchiesta', '2017-03-15', 'Episodio'),
+(26, 'Indagini - Approfondimento', 3100, 'Nuovi dettagli sul caso', '2023-02-08', 'Episodio'),
+(27, 'Cose Molto Umane - Extra', 1900, 'Altre curiosità', '2022-01-10', 'Episodio');
 
 -- 7. PODCAST
 INSERT INTO Podcast (CodicePodcast, CodiceArtista, NomePodcast, DescrizionePodcast, Categoria) VALUES
-(1, 4, 'Passa dal BSMT', 'Interviste a personaggi del mondo dello spettacolo', 'Intrattenimento'),
-(2, 6, 'Lex Fridman Podcast', 'Conversazioni su AI, scienza e tecnologia', 'Tecnologia');
+(1, 16, 'Passa dal BSMT', 'Interviste a personaggi del mondo dello spettacolo', 'Intrattenimento'),
+(2, 17, 'Lex Fridman Podcast', 'Conversazioni su AI, scienza e tecnologia', 'Tecnologia'),
+(3, 18, 'Veleno Podcast', 'Inchieste e storie di cronaca nera', 'Cronaca'),
+(4, 19, 'Indagini Podcast', 'Storie e approfondimenti sui grandi casi giudiziari', 'Attualità'),
+(5, 20, 'Cose Molto Umane', 'Curiosità e risposte a domande insolite', 'Divulgazione');
 
 -- 8. EPISODI
 INSERT INTO Episodi (CodiceEpisodio, CodicePodcast, NumeroEpisodio) VALUES
 (6, 1, 1),
 (12, 1, 2),
+(23, 1, 3),
 (7, 2, 1),
-(16, 2, 2);
+(16, 2, 2),
+(24, 2, 3),
+(25, 3, 1),
+(26, 4, 1),
+(27, 5, 1);
 
--- 9. ALBUM
-INSERT INTO Album (CodiceAlbum, CodiceArtista, TitoloAlbum, DataPubblicazione, CasaDiscografica, MediaVoti, DurataTotale) VALUES
-(101, 1, 'OK. Respira', '2023-07-11', 'Island Records', 8.50, 345),
-(102, 2, 'RUSH!', '2023-12-01', 'Epic Records', 9.10, 441),
-(103, 3, 'Materia (Pelle)', '2022-08-03', 'Epic Records', 8.80, 225),
-(104, 7, 'Logico', '2014-05-27', 'Pressing Line', 9.00, 255),
-(105, 8, 'Future Nostalgia', '2020-03-27', 'Warner Records', 9.50, 203),
-(106, 5, 'After Hours', '2020-03-20', 'Republic Records', 9.60, 200),
-(107, 9, 'Ah dieren', '2019-04-12', 'Sony Music', 8.90, 395),
-(108, 10, 'Fenomeno', '2017-03-31', 'Universal Music', 9.20, 220);
+-- 9. ALBUM (con TipoAlbum corretto in base ai brani associati)
+INSERT INTO Album (CodiceAlbum, CodiceArtista, TipoAlbum, TitoloAlbum, DataPubblicazione, 
+                    CasaDiscografica, MediaVoti, DurataTotale) VALUES
+(101, 1, 'EP', 'OK. Respira', '2023-07-11', 'Island Records', 4.25, 345),
+(102, 2, 'EP', 'RUSH!', '2023-12-01', 'Epic Records', 4.55, 441),
+(103, 3, 'Singolo', 'Materia (Pelle)', '2022-08-03', 'Epic Records', 4.40, 225),
+(104, 7, 'Singolo', 'Logico', '2014-05-27', 'Pressing Line', 4.50, 255),
+(105, 8, 'Singolo', 'Future Nostalgia', '2020-03-27', 'Warner Records', 4.75, 203),
+(106, 5, 'Singolo', 'After Hours', '2020-03-20', 'Republic Records', 4.80, 200),
+(107, 9, 'EP', 'Ah dieren', '2019-04-12', 'Sony Music', 4.45, 395),
+(108, 10, 'Singolo', 'Fenomeno', '2017-03-31', 'Universal Music', 4.60, 220),
+(109, 9, 'LP', 'Blu Celeste', '2021-09-10', 'Columbia Records', 4.70, 205),
+(110, 10, 'LP', 'Madame', '2021-03-19', 'Sugar Music', 4.65, 175),
+(111, 11, 'LP', 'Lux Eterna Beach', '2023-05-05', 'Columbia Records', 4.40, 200),
+(112, 12, 'LP', 'Free Love', '2019-06-21', 'Universal Music', 4.50, 210),
+(113, 13, 'LP', 'Fatti Sentire', '2018-03-16', 'Warner Music Italy', 4.55, 204),
+(114, 14, 'LP', 'Accetto Miracoli', '2019-11-22', 'Virgin Records', 4.35, 212),
+(115, 15, 'LP', 'Flop', '2021-10-01', 'Columbia Records', 4.75, 198);
 
 -- 10. BRANI
 INSERT INTO Brani (CodiceBrano, CodiceAlbum, NumeroTraccia) VALUES
@@ -206,13 +247,13 @@ INSERT INTO Inclusioni (CodiceBrano, CodicePlaylist) VALUES
 
 -- 16. RECENSIONI
 INSERT INTO Recensioni (Username, CodiceAlbum, Voto, Commento, DataRecensione) VALUES
-('mario88', 101, 9, 'Album pop fantastico e moderno.', '2026-02-10'),
-('luisa_g', 102, 10, 'Energia pura, il miglior album rock dell anno!', '2026-02-15'),
-('davide_99', 105, 10, 'Capolavoro pop moderno!', '2026-02-20'),
-('sofia_b', 104, 8, 'Molto orecchiabile e nostalgico.', '2026-02-22'),
-('mario88', 106, 10, 'Un capolavoro R&B imperdibile.', '2026-02-25'),
-('elena_v', 107, 9, 'Grandi classici indie italiani.', '2026-03-01'),
-('alex_smith', 108, 9, 'Testi profondi e grandi basi.', '2026-03-02');
+('mario88', 101, 4, 'Album pop fantastico e moderno.', '2026-02-10'),
+('luisa_g', 102, 5, 'Energia pura, il miglior album rock dell anno!', '2026-02-15'),
+('davide_99', 105, 5, 'Capolavoro pop moderno!', '2026-02-20'),
+('sofia_b', 104, 4, 'Molto orecchiabile e nostalgico.', '2026-02-22'),
+('mario88', 106, 5, 'Un capolavoro R&B imperdibile.', '2026-02-25'),
+('elena_v', 107, 4, 'Grandi classici indie italiani.', '2026-03-01'),
+('alex_smith', 108, 4, 'Testi profondi e grandi basi.', '2026-03-02');
 
 -- 17. LIKE BRANI
 INSERT INTO LikeBrani (Username, CodiceBrano) VALUES
@@ -275,50 +316,143 @@ INSERT INTO Transazioni (CodiceTransazione, CodiceSottoscrizione, Data, Importo,
 (2, 2, '2026-02-01 12:15:00', 4.99, 'PayPal', 'Completata'),
 (3, 3, '2026-02-10 14:00:00', 2.99, 'Apple Pay', 'Completata');
 
--- 23. EVENTI ASCOLTO
+-- 23. EVENTI ASCOLTO (Dataset completo, ricco e privo di duplicati per tutte le statistiche)
 INSERT INTO EventiAscolto (Username, CodiceContenuto, DataOra, Dispositivo, DurataEvento) VALUES
--- Anno 2024
-('mario88', 1, '2024-02-10 14:20:00', 'Smartphone Android', 165),
-('mario88', 3, '2024-04-12 18:30:00', 'Smartphone Android', 194),
-('mario88', 8, '2024-06-20 21:10:00', 'MacBook', 255),
-('mario88', 10, '2024-10-05 12:00:00', 'Smart Speaker', 200),
-('davide_99', 9, '2024-03-15 09:00:00', 'iPhone', 203),
-('davide_99', 5, '2024-07-22 15:45:00', 'iPhone', 225),
-('davide_99', 2, '2024-09-11 20:30:00', 'iPhone', 180),
-('luisa_g', 3, '2024-08-15 21:10:00', 'iPhone', 194),
-('giovanni_k', 5, '2024-11-20 18:00:00', 'Desktop Windows', 225),
-('elena_v', 1, '2024-01-18 11:20:00', 'MacBook', 165),
-('claire_d', 10, '2024-12-01 19:00:00', 'Smartphone Android', 200),
 
--- Anno 2025
-('mario88', 1, '2025-01-10 10:15:00', 'Smartphone Android', 165),
-('mario88', 2, '2025-03-22 14:30:00', 'Smartphone Android', 180),
-('mario88', 9, '2025-05-18 21:00:00', 'MacBook', 203),
-('mario88', 10, '2025-08-12 11:20:00', 'Smart Speaker', 200),
-('elena_v', 2, '2025-02-14 10:00:00', 'MacBook', 180),
-('elena_v', 4, '2025-04-19 19:30:00', 'iPhone', 247),
-('alex_smith', 9, '2025-06-30 22:15:00', 'Smart Speaker', 203),
-('claire_d', 10, '2025-09-05 16:45:00', 'Smartphone Android', 200),
-('davide_99', 8, '2025-10-11 15:10:00', 'iPhone', 255),
-('sofia_b', 3, '2025-11-05 18:40:00', 'Desktop Windows', 194),
-('mario88', 8, '2025-12-31 23:50:00', 'MacBook', 255),
+-- ==========================================
+-- ASCOLTI UTENTE: mario88
+-- ==========================================
+('mario88', 1,  '2024-01-10 10:00:00', 'Smartphone Android', 165),
+('mario88', 3,  '2024-02-15 14:30:00', 'MacBook', 194),
+('mario88', 5,  '2024-03-20 18:00:00', 'Smart Speaker', 225),
+('mario88', 8,  '2024-04-12 21:10:00', 'Smartphone Android', 255),
+('mario88', 9,  '2024-05-05 12:00:00', 'MacBook', 203),
+('mario88', 10, '2024-06-18 19:20:00', 'iPhone', 200),
+('mario88', 13, '2024-08-01 16:00:00', 'Smart Speaker', 185),
+('mario88', 15, '2024-09-10 22:00:00', 'Desktop Windows', 220),
+('mario88', 2,  '2024-10-15 11:10:00', 'Smartphone Android', 180),
+('mario88', 4,  '2024-11-20 15:20:00', 'MacBook', 247),
 
--- Anno 2026
-('mario88', 1, '2026-03-01 15:30:00', 'Smartphone Android', 165),
-('mario88', 3, '2026-03-01 15:35:00', 'Smartphone Android', 194),
-('luisa_g', 6, '2026-03-02 18:00:00', 'Desktop Windows', 3600),
+('mario88', 2,  '2025-01-12 11:00:00', 'Smartphone Android', 180),
+('mario88', 4,  '2025-02-20 15:00:00', 'MacBook', 247),
+('mario88', 8,  '2025-04-10 18:30:00', 'Smart Speaker', 255),
+('mario88', 9,  '2025-06-15 21:00:00', 'MacBook', 203),
+('mario88', 10, '2025-08-22 12:00:00', 'Smart Speaker', 200),
+('mario88', 14, '2025-10-05 19:40:00', 'iPhone', 210),
+('mario88', 1,  '2025-12-31 23:30:00', 'MacBook', 165),
+('mario88', 3,  '2025-05-14 14:15:00', 'Smartphone Android', 194),
+('mario88', 5,  '2025-07-19 18:00:00', 'MacBook', 225),
+
+('mario88', 1,  '2026-01-05 14:00:00', 'Smartphone Android', 165),
+('mario88', 3,  '2026-02-10 16:30:00', 'Smartphone Android', 194),
+('mario88', 5,  '2026-03-01 18:00:00', 'MacBook', 225),
+('mario88', 9,  '2026-03-15 20:10:00', 'Smart Speaker', 203),
+('mario88', 13, '2026-04-02 11:15:00', 'iPhone', 185),
+('mario88', 10, '2026-04-20 21:00:00', 'Smart Speaker', 200),
+
+-- ==========================================
+-- ASCOLTI UTENTE: davide_99
+-- ==========================================
+('davide_99', 9,  '2024-01-20 09:00:00', 'iPhone', 203),
+('davide_99', 10, '2024-02-14 11:30:00', 'MacBook', 200),
+('davide_99', 3,  '2024-03-10 15:45:00', 'iPhone', 194),
+('davide_99', 5,  '2024-05-22 20:30:00', 'iPhone', 225),
+('davide_99', 8,  '2024-07-14 18:20:00', 'MacBook', 255),
+('davide_99', 1,  '2024-09-01 08:10:00', 'iPhone', 165),
+('davide_99', 13, '2024-11-11 21:00:00', 'Smart Speaker', 185),
+
+('davide_99', 2,  '2025-01-15 10:00:00', 'iPhone', 180),
+('davide_99', 4,  '2025-03-05 14:20:00', 'iPhone', 247),
+('davide_99', 9,  '2025-05-12 19:00:00', 'MacBook', 203),
+('davide_99', 10, '2025-07-20 22:15:00', 'iPhone', 200),
+('davide_99', 15, '2025-09-18 16:30:00', 'Smart Speaker', 220),
+('davide_99', 8,  '2025-11-10 11:40:00', 'iPhone', 255),
+
+('davide_99', 1,  '2026-01-10 12:00:00', 'iPhone', 165),
+('davide_99', 3,  '2026-02-04 15:30:00', 'MacBook', 194),
+('davide_99', 9,  '2026-03-03 09:15:00', 'iPhone', 203),
+('davide_99', 8,  '2026-03-20 16:40:00', 'iPhone', 255),
+('davide_99', 14, '2026-04-12 18:00:00', 'MacBook', 210),
+
+-- ==========================================
+-- ASCOLTI UTENTE: luisa_g
+-- ==========================================
+('luisa_g', 3,  '2024-02-10 18:00:00', 'Desktop Windows', 194),
+('luisa_g', 4,  '2024-04-15 21:10:00', 'iPhone', 247),
+('luisa_g', 1,  '2024-06-20 14:00:00', 'iPhone', 165),
+('luisa_g', 8,  '2024-08-12 19:30:00', 'Desktop Windows', 255),
+('luisa_g', 9,  '2024-10-05 22:00:00', 'iPhone', 203),
+
+('luisa_g', 10, '2025-03-11 16:20:00', 'Desktop Windows', 200),
+('luisa_g', 5,  '2025-06-01 12:00:00', 'iPhone', 225),
+('luisa_g', 13, '2025-09-15 18:40:00', 'Desktop Windows', 185),
+('luisa_g', 15, '2025-11-20 21:10:00', 'iPhone', 220),
+
+('luisa_g', 6,  '2026-03-02 18:00:00', 'Desktop Windows', 3600),
 ('luisa_g', 12, '2026-03-02 19:10:00', 'Desktop Windows', 3100),
-('davide_99', 9, '2026-03-03 09:15:00', 'iPhone', 203),
-('sofia_b', 8, '2026-03-03 14:00:00', 'MacBook', 255),
-('mario88', 10, '2026-03-03 21:00:00', 'Smart Speaker', 200),
-('giovanni_k', 7, '2026-04-10 11:00:00', 'Smartphone Android', 2700),
-('marco_p', 1, '2026-04-12 12:00:00', 'iPhone', 165),
-('federica_m', 2, '2026-04-15 16:20:00', 'Smartphone Android', 180),
-('marco_p', 3, '2026-04-16 18:00:00', 'iPhone', 194),
-('luca_t', 13, '2026-05-01 10:00:00', 'Desktop Windows', 185),
-('martina_r', 14, '2026-05-02 15:00:00', 'Smartphone Android', 210),
-('luca_t', 15, '2026-05-03 18:30:00', 'iPhone', 220);
+('luisa_g', 1,  '2026-04-01 10:00:00', 'iPhone', 165),
+('luisa_g', 2,  '2026-04-10 14:20:00', 'iPhone', 180),
+('luisa_g', 3,  '2026-05-05 19:00:00', 'Desktop Windows', 194),
 
+-- ==========================================
+-- ASCOLTI PER GLI ALTRI UTENTI (Copertura totale)
+-- ==========================================
+('giovanni_k', 5,  '2024-11-20 18:00:00', 'Desktop Windows', 225),
+('giovanni_k', 2,  '2024-12-05 14:00:00', 'Smartphone Android', 180),
+('giovanni_k', 10, '2025-04-10 12:00:00', 'Smartphone Android', 200),
+('giovanni_k', 3,  '2025-08-15 19:00:00', 'Desktop Windows', 194),
+('giovanni_k', 7,  '2026-04-10 11:00:00', 'Smartphone Android', 2700),
+('giovanni_k', 1,  '2026-04-20 15:30:00', 'Smartphone Android', 165),
+
+('elena_v', 1,  '2024-01-18 11:20:00', 'MacBook', 165),
+('elena_v', 2,  '2025-02-14 10:00:00', 'MacBook', 180),
+('elena_v', 4,  '2025-04-19 19:30:00', 'iPhone', 247),
+('elena_v', 9,  '2025-08-10 21:00:00', 'MacBook', 203),
+('elena_v', 13, '2026-02-25 12:00:00', 'iPhone', 185),
+('elena_v', 14, '2026-03-01 15:35:00', 'Smartphone Android', 210),
+
+('claire_d', 10, '2024-12-01 19:00:00', 'Smartphone Android', 200),
+('claire_d', 10, '2025-09-05 16:45:00', 'Smartphone Android', 200),
+('claire_d', 3,  '2025-10-12 20:00:00', 'Smartphone Android', 194),
+('claire_d', 13, '2026-03-25 16:00:00', 'Smartphone Android', 185),
+('claire_d', 1,  '2026-04-15 11:00:00', 'Smartphone Android', 165),
+
+('alex_smith', 9,  '2025-06-30 22:15:00', 'Smart Speaker', 203),
+('alex_smith', 10, '2025-09-15 14:00:00', 'iPhone', 200),
+('alex_smith', 15, '2025-11-01 18:30:00', 'Smart Speaker', 220),
+('alex_smith', 2,  '2026-03-20 20:10:00', 'Smart Speaker', 180),
+('alex_smith', 1,  '2026-04-05 12:00:00', 'Smart Speaker', 165),
+
+('sofia_b', 3,  '2025-11-05 18:40:00', 'Desktop Windows', 194),
+('sofia_b', 11, '2025-11-25 12:10:00', 'Smartphone Android', 190),
+('sofia_b', 8,  '2026-03-03 14:00:00', 'MacBook', 255),
+('sofia_b', 13, '2026-03-05 14:00:00', 'MacBook', 185),
+('sofia_b', 14, '2026-03-10 17:20:00', 'MacBook', 210),
+('sofia_b', 15, '2026-04-02 11:20:00', 'Smartphone Android', 220),
+
+('marco_p', 9,  '2025-08-01 21:00:00', 'iPhone', 203),
+('marco_p', 1,  '2026-04-12 12:00:00', 'iPhone', 165),
+('marco_p', 3,  '2026-04-16 18:00:00', 'iPhone', 194),
+('marco_p', 14, '2026-04-25 12:00:00', 'iPhone', 210),
+('marco_p', 5,  '2026-05-01 10:00:00', 'iPhone', 225),
+
+('federica_m', 10, '2025-08-19 14:30:00', 'Smartphone Android', 200),
+('federica_m', 2,  '2026-04-15 16:20:00', 'Smartphone Android', 180),
+('federica_m', 1,  '2026-04-22 16:20:00', 'Smartphone Android', 165),
+('federica_m', 3,  '2026-05-02 14:00:00', 'Smartphone Android', 194),
+('federica_m', 8,  '2026-05-10 18:00:00', 'Smartphone Android', 255),
+
+('luca_t', 9,  '2025-09-04 17:15:00', 'Desktop Windows', 203),
+('luca_t', 13, '2026-05-01 10:00:00', 'Desktop Windows', 185),
+('luca_t', 15, '2026-05-03 18:30:00', 'iPhone', 220),
+('luca_t', 1,  '2026-05-08 12:00:00', 'Desktop Windows', 165),
+('luca_t', 3,  '2026-05-12 15:00:00', 'iPhone', 194),
+
+('martina_r', 10, '2025-09-22 11:00:00', 'Smartphone Android', 200),
+('martina_r', 14, '2026-05-02 15:00:00', 'Smartphone Android', 210),
+('martina_r', 11, '2026-05-10 17:00:00', 'Smartphone Android', 190),
+('martina_r', 5,  '2026-05-15 11:00:00', 'Smartphone Android', 225),
+('martina_r', 8,  '2026-05-20 18:00:00', 'Smartphone Android', 255);
 
 -- test per rinnovo automatico
 INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, DataInizio, DataFine, Stato, RinnovoAutomatico) 

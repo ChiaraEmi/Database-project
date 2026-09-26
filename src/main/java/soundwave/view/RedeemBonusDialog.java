@@ -238,7 +238,7 @@ public final class RedeemBonusDialog extends JDialog {
                     planIndex++;
                 }
             }
-            this.lblTotal.setText("Totale da pagare: €0.00 (con crediti bonus)");
+            this.lblTotal.setText("Totale da pagare: " + String.format("%.2f", currentPrice) + "(0 € con crediti bonus)");
         }
     }
 

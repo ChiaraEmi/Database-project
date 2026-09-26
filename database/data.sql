@@ -736,16 +736,16 @@ INSERT INTO ValiditaPromozioni (CodicePromozione, CodiceAbbonamento) VALUES
 ('STUDENT', 4);
 
 INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
-('INV-MARIO123', '2024-03-15', 'mario_rossi'),
-('INV-LAURA456', '2025-01-10', 'laura_bianchi'),
-('INV-GIOVANNI789', '2024-05-10', 'giovanni_verdi'),
-('INV-ANNA321', '2026-03-02', 'anna_neri'),
-('INV-LUCA654', '2024-04-12', 'luca_gialli'),
-('INV-SARA987', '2025-11-20', 'sara_romano'),
-('INV-DAVIDE111', '2024-04-20', 'davide_colombo'),
-('INV-ELENA222', '2024-05-30', 'elena_ferrari'),
-('INV-MARCO333', '2024-03-18', 'marco_conte'),
-('INV-CHIARA444', '2026-03-02', 'chiara_bruni');
+('INV_MARIO', '2024-03-15', 'mario_rossi'),
+('INV_LAURA', '2025-01-10', 'laura_bianchi'),
+('INV_GIOVANNI', '2024-05-10', 'giovanni_verdi'),
+('INV_ANNA', '2026-03-02', 'anna_neri'),
+('INV_LUCA', '2024-04-12', 'luca_gialli'),
+('INV_SARA', '2025-11-20', 'sara_romano'),
+('INV_DAVIDE', '2024-04-20', 'davide_colombo'),
+('INV_ELENA', '2024-05-30', 'elena_ferrari'),
+('INV_MARCO', '2024-03-18', 'marco_conte'),
+('INV_CHIARA', '2026-03-02', 'chiara_bruni');
 
 -- -----------------------------------------------------
 -- 10. SOTTOSCRIZIONI E TRANSAZIONI

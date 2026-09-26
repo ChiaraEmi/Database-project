@@ -569,6 +569,18 @@ public final class UserPanel extends JPanel {
         gbc.gridy = 2;
         gbc.gridwidth = 2;
         this.comboAlbumResults.setPreferredSize(new Dimension(BUTTON_WIDTH, SEARCH_COMBO_HEIGHT));
+        this.comboAlbumResults.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, 
+                                                            final boolean isSelected, final boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Album) {
+                    final Album album = (Album) value;
+                    setText(album.getTitle());
+                }
+                return this;
+            }
+        });
         panel.add(this.comboAlbumResults, gbc);
 
         // Pulsante Visualizza Album

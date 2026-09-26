@@ -1,5 +1,6 @@
 package soundwave.controller;
 
+import soundwave.data.Album;
 import soundwave.data.Artist;
 import soundwave.data.Content;
 import soundwave.data.DAOException;
@@ -1014,7 +1015,7 @@ public void userClickedUnfollowArtist(final int artistCode) {
     @Override
     public void userClickedSearchAlbums(final String query) {
         try {
-            final List<soundwave.data.Album> albums = this.model.getAlbumsByPartialTitle(query);
+            final List<Album> albums = this.model.getAlbumsByPartialTitle(query);
             this.view.showAlbumSearchResults(albums);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to search albums", e);
@@ -1025,7 +1026,7 @@ public void userClickedUnfollowArtist(final int artistCode) {
     @Override
     public void userClickedViewAlbum(final int albumCode) {
         try {
-            final soundwave.data.Album.DAO.AlbumWithSongs albumInfo = this.model.getAlbumWithSongs(albumCode);
+            final Album.DAO.AlbumWithSongs albumInfo = this.model.getAlbumWithSongs(albumCode);
             if (albumInfo != null) {
                 this.view.showAlbumDetails(albumInfo);
             }

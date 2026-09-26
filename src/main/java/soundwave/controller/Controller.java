@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import soundwave.data.Artist;
+import soundwave.data.Genre;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
@@ -190,6 +191,13 @@ public interface Controller {
      * @return true if successfully saved, false otherwise.
      */
     boolean userGeneratedListeningEvent(String username, int contentCode, String device, int eventDuration);
+
+    /**
+     * Retrieves the list of avaiable genres.
+     * 
+     * @return a list of genres.
+     */
+    List<Genre> getGenres();
 
     /**
      * Handles the creation of a new playlist for the specified user with custom options.

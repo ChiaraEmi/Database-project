@@ -37,6 +37,7 @@ import soundwave.controller.Controller;
 import soundwave.data.Album;
 import soundwave.data.Artist;
 import soundwave.data.DAOException;
+import soundwave.data.Genre;
 import soundwave.data.Plan;
 
 import java.util.logging.Logger;
@@ -83,8 +84,7 @@ public final class UserPanel extends JPanel {
     private final JButton btnViewSubscriptionStatus = new JButton("Stato e Storico Transazioni");
 
     // --- Tab 2: Esplora Catalogo ---
-    private final JComboBox<String> comboGenre = new JComboBox<>(new String[]{"Pop", "Rock", "Jazz",
-                                                "Classica", "Indie", "Hip-Hop", "R&B", "Elettronica", "Rap"});
+    private final JComboBox<Genre> comboGenre = new JComboBox<>();
     private final JButton btnFilterByGenre = new JButton("Filtra Brani per Genere");
     private final DefaultListModel<String> exploreSongsModel = new DefaultListModel<>();
     private final JList<String> exploreSongsList = new JList<>(this.exploreSongsModel);
@@ -178,6 +178,7 @@ public final class UserPanel extends JPanel {
         bottomPanel.add(this.btnBack);
         this.add(bottomPanel, BorderLayout.SOUTH);
 
+        setupGenreComboBox(this.comboGenre);
         setupPlaylistComboBox(this.comboUserPlaylists);
         setupPlaylistComboBox(this.removeTrackPlaylistCombo);
     }
@@ -652,7 +653,11 @@ public final class UserPanel extends JPanel {
      * @return the selected genre string.
      */
     public String getSelectedGenre() {
-        return (String) this.comboGenre.getSelectedItem();
+        final Object selected = this.comboGenre.getSelectedItem();
+        if (selected instanceof Genre) {
+            return ((Genre) selected).getGenreName();
+        }
+        return selected != null ? selected.toString() : null;
     }
 
     /**
@@ -979,6 +984,18 @@ public final class UserPanel extends JPanel {
     }
 
     /**
+     * Sets the available genres in the combo box.
+     *
+     * @param genres the list of genres.
+     */
+    public void setAvaiableGenres(final List<Genre> genres) {
+        this.comboGenre.removeAllItems();
+        for (final Genre g : genres) {
+            this.comboGenre.addItem(g);
+        }
+    }
+
+    /**
      * Sets the available user playlists in both combo boxes (addition and removal).
      *
      * @param playlists the list of playlists.
@@ -1193,6 +1210,34 @@ public final class UserPanel extends JPanel {
         for (final JTextComponent component : textComponents) {
             component.setText("");
         }
+    }
+
+    /**
+     * Configures a combo box to display the avaiable genres.
+     *
+     * @param comboBox the JComboBox to configure.
+     */
+    private void setupGenreComboBox(final JComboBox<Genre> comboBox) {
+        comboBox.setRenderer(new DefaultListCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Component getListCellRendererComponent(
+                    final JList<?> list,
+                    final Object value,
+                    final int index,
+                    final boolean isSelected,
+                    final boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Genre) {
+                    final Genre genre = (Genre) value;
+                    final String displayName = genre.getGenreName();
+
+                    setText(displayName);
+                }
+                return this;
+            }
+        });
     }
 
     /**

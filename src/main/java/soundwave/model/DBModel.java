@@ -255,6 +255,11 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public List<Genre> getGenres() {
+        return Genre.DAO.getGenres(this.connection);
+    }
+
+    @Override
     public int insertPlaylist(final String username, final String playlistName, final String visibility,
                                 final boolean isCollaborative) {
         return Playlist.DAO.insert(connection, username, playlistName, visibility, isCollaborative);

@@ -16,6 +16,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.controller.Controller;
 import soundwave.data.Artist;
 import soundwave.data.Content;
+import soundwave.data.Genre;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
 import soundwave.data.Plan;
@@ -484,6 +485,9 @@ public final class ViewImpl extends JFrame implements View {
         this.userPanel.setCurrentUsername(username);
 
         if (this.controller != null) {
+            final List<Genre> genres = this.controller.getGenres();
+            this.userPanel.setAvaiableGenres(genres);
+
             final List<Playlist> playlists = this.controller.getUserPlaylists(username);
             this.userPanel.setUserPlaylists(playlists);
 

@@ -3,6 +3,7 @@ package soundwave.controller;
 import soundwave.data.Artist;
 import soundwave.data.Content;
 import soundwave.data.DAOException;
+import soundwave.data.Genre;
 import soundwave.data.LikeBrani;
 import soundwave.data.Plan;
 import soundwave.data.Playlist;
@@ -549,6 +550,17 @@ public final class ControllerImpl implements Controller {
             LOGGER.log(Level.SEVERE, "Failed to create playlist", e);
             this.view.showError("Errore durante la creazione della playlist.");
             return false;
+        }
+    }
+
+    @Override
+    public List<Genre> getGenres() {
+        try {
+            return this.model.getGenres();
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load genres", e);
+            this.view.showError("Errore durante il caricamento dei generi.");
+            return List.of();
         }
     }
 

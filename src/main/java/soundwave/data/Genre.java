@@ -88,6 +88,28 @@ public final class Genre {
         }
 
         /**
+         * Retrieves all avaiable genres.
+         *
+         * @param connection the database connection.
+         * 
+         * @return a list of genres.
+         */
+        public static List<Genre> getGenres(final Connection connection) {
+            final List<Genre> genres = new ArrayList<>();
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALL_GENRES);
+                var rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    genres.add(new Genre(
+                        rs.getString("NomeGenere")
+                    ));
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return genres;
+        }
+
+        /**
          * Retrieves all songs belonging to a specific genre.
          *
          * @param connection the database connection.

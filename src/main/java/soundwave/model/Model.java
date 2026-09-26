@@ -6,6 +6,7 @@ import java.util.List;
 
 import soundwave.data.Artist;
 import soundwave.data.Content;
+import soundwave.data.Genre;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
@@ -173,6 +174,13 @@ public interface Model {
      * @return the auto-generated code of the inserted episode.
      */
     int insertEpisode(int podcastCode, String title, int duration, String description, int episodeNumber);
+
+    /**
+     * Retrieves all avaiable genres.
+     * 
+     * @return a list of genres.
+     */
+    List<Genre> getGenres();
 
     /**
      * Creates a new playlist for a user.

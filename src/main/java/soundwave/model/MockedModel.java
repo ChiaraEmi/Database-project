@@ -14,6 +14,7 @@ import soundwave.data.Album;
 import soundwave.data.Album.DAO.AlbumWithSongs;
 import soundwave.data.Artist;
 import soundwave.data.Content;
+import soundwave.data.Genre;
 import soundwave.data.LikeBrani;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;
@@ -478,5 +479,11 @@ public final class MockedModel implements Model {
     public void unfollowArtist(final String loggedInUsername, final int artistCode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'unfollowArtist'");
+    }
+
+    @Override
+    public List<Genre> getGenres() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGenres'");
     }
 }

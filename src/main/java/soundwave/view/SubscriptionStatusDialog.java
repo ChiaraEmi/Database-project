@@ -96,7 +96,6 @@ public final class SubscriptionStatusDialog extends JDialog {
     private final JScrollPane scrollPane;
     private final JButton btnRefresh;
     private final JButton btnClose;
-    // private final String username;
 
     private transient Consumer<Integer> onRenew;
     private transient Consumer<Integer> onToggleAutoRenew;

@@ -29,6 +29,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingConstants;
 import javax.swing.text.JTextComponent;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import soundwave.data.Playlist;
 import javax.swing.SwingUtilities;
 
@@ -100,7 +101,8 @@ public final class UserPanel extends JPanel {
     private final DefaultListModel<String> exploreContentResultsModel = new DefaultListModel<>();
     private final JList<String> exploreContentResultsList = new JList<>(this.exploreContentResultsModel);
     private final JButton btnPlayContent = new JButton("▶ Play");
-    private transient List<soundwave.data.Content> currentContents = new java.util.ArrayList<>();
+    @SuppressFBWarnings("SE_BAD_FIELD")
+    private List<soundwave.data.Content> currentContents = new java.util.ArrayList<>();
 
     // --- Tab 3: Album & Recensioni ---
     private final JTextField txtAlbumSearchQuery = new JTextField(FIELD_COLUMNS);

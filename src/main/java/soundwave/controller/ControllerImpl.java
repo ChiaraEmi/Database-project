@@ -790,9 +790,15 @@ public final class ControllerImpl implements Controller {
     public void adminRequestedGlobalAlbums() {
         try {
             final List<String> albumsAboveAvg = this.model.getAlbumsAboveGlobalAverage();
+            final double globalAverage = this.model.getGlobalAverageRating();
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
             sb.append("=== Album sopra la media globale delle recensioni ===")
+              .append(NEW_LINE)
+              .append("(Media Globale: ")
+              .append(String.format(java.util.Locale.US, "%.2f", globalAverage))
+              .append(')')
+              .append(NEW_LINE)
               .append(NEW_LINE);
 
             if (albumsAboveAvg != null && !albumsAboveAvg.isEmpty()) {
@@ -827,6 +833,7 @@ public final class ControllerImpl implements Controller {
             final String mostPlayedArtist = this.model.getMostPlayedArtist(year);
             final String mostPlayedGenre = this.model.getMostPlayedGenre(year);
             final List<String> usersAboveAvg = this.model.getUsersAboveAverageListens(year);
+            final double averageListens = this.model.getAverageListens(year);
 
             final StringBuilder sb = new StringBuilder(INITIAL_BUILDER_CAPACITY);
             sb.append("=== Artista più ascoltato (Anno ")
@@ -846,6 +853,11 @@ public final class ControllerImpl implements Controller {
               .append("=== Utenti sopra la media ascolti (Anno ")
               .append(year)
               .append(SECTION_CLOSE_SUFFIX)
+              .append(NEW_LINE)
+              .append("(Media Ascolti: ")
+              .append(String.format(java.util.Locale.US, "%.2f", averageListens))
+              .append(')')
+              .append(NEW_LINE)
               .append(NEW_LINE);
 
             if (usersAboveAvg != null && !usersAboveAvg.isEmpty()) {

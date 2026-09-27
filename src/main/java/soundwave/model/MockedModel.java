@@ -486,4 +486,16 @@ public final class MockedModel implements Model {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getGenres'");
     }
+
+    @Override
+    public double getGlobalAverageRating() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGlobalAverageRating'");
+    }
+
+    @Override
+    public double getAverageListens(final int year) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAverageListens'");
+    }
 }

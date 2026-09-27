@@ -748,6 +748,17 @@ public final class Queries {
         LIMIT 1
         """;
 
+    public static final String SELECT_YEARLY_AVERAGE_LISTENS = 
+        """
+        SELECT AVG(TotaleAscolti)
+        FROM (
+            SELECT COUNT(*) AS TotaleAscolti
+            FROM EventiAscolto
+            WHERE YEAR(DataOra) = ? 
+            GROUP BY Username
+        ) AS AscoltiPerUtente
+        """;
+
     public static final String SELECT_USERS_ABOVE_AVG_LISTENS = 
         """
         SELECT E.Username, COUNT(*) AS NumeroAscolti
@@ -761,6 +772,12 @@ public final class Queries {
         WHERE YEAR(DataOra) = ? 
         GROUP BY Username ) AS AscoltiPerUtente
         )
+        """;
+
+    public static final String SELECT_GLOBAL_AVERAGE_RATING =
+        """
+        SELECT AVG(MediaVoti) 
+        FROM ALBUM 
         """;
 
     public static final String SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING = 

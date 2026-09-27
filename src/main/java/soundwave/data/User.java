@@ -366,6 +366,27 @@ public final class User {
         }
 
         /**
+         * Retrieves the average number of listens per user for a given year.
+         *
+         * @param connection the database connection.
+         * @param year the year to filter by.
+         * 
+         * @return the average number of listens as a double, or 0.0 if no data is found.
+         * @throws DAOException if a database access error occurs.
+         */
+        public static double getAverageListens(final Connection connection, final int year) {
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_YEARLY_AVERAGE_LISTENS, year);
+                var resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getDouble(1);
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return 0.0;
+        }
+
+        /**
          * Retrieves users with a number of listens above the average for the given year.
          *
          * @param connection the database connection.

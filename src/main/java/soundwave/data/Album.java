@@ -366,6 +366,26 @@ public final class Album {
         }
 
         /**
+         * Retrieves the global average rating across all albums.
+         *
+         * @param connection the database connection.
+         * 
+         * @return the global average rating as a double, or 0.0 if no ratings are found.
+         * @throws DAOException if a database access error occurs.
+         */
+        public static double getGlobalAverageRating(final Connection connection) {
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_GLOBAL_AVERAGE_RATING);
+                var resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getDouble(1);
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+            return 0.0;
+        }
+
+        /**
          * Retrieves albums with a review average higher than the global average.
          *
          * @param connection the database connection.

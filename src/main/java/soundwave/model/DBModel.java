@@ -410,8 +410,18 @@ public final class DBModel implements Model {
     }
 
     @Override
+    public double getAverageListens(final int year) {
+        return User.DAO.getAverageListens(this.connection, year);
+    }
+
+    @Override
     public List<String> getUsersAboveAverageListens(final int year) {
         return User.DAO.getUsersAboveAverageListens(this.connection, year);
+    }
+
+    @Override
+    public double getGlobalAverageRating() {
+        return Album.DAO.getGlobalAverageRating(this.connection);
     }
 
     @Override

@@ -346,6 +346,15 @@ public interface Model {
     String getMostPlayedGenre(int year);
 
     /**
+     * Retrieves the average number of listens per user for a given year.
+     *
+     * @param year the year to filter listens by.
+     * 
+     * @return the average number of listens as a double.
+     */
+    double getAverageListens(int year);
+
+    /**
      * Retrieves users with a number of listens above the average for the given year.
      *
      * @param year the year to check.
@@ -353,6 +362,13 @@ public interface Model {
      * @return a list of strings representing the users.
      */
     List<String> getUsersAboveAverageListens(int year);
+
+    /**
+     * Retrieves the global average rating across all albums.
+     *
+     * @return the global average rating as a double.
+     */
+    double getGlobalAverageRating();
 
     /**
      * Retrieves albums with a review average higher than the global average.

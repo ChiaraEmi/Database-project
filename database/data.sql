@@ -291,7 +291,7 @@ INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
 INSERT INTO Sottoscrizioni (CodiceSottoscrizione, Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
 (1, 'mario_rossi', 1, 'WELCOME', NULL, '2026-06-01', '2026-07-01', 'Scaduta', TRUE),
 (2, 'laura_bianchi', 4, 'STUDENT', NULL, '2026-06-01', '2026-07-01', 'Scaduta', TRUE),
-(3, 'giovanni_verdi', 3, NULL, 'INV-GIOVANNI789', '2026-06-01', '2026-07-01', 'Scaduta', FALSE);
+(3, 'giovanni_verdi', 3, NULL, 'INV_GIOVANNI', '2026-06-01', '2026-07-01', 'Scaduta', FALSE);
 
 INSERT INTO Transazioni (CodiceTransazione, CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) VALUES
 (1, 1, '2024-06-01 10:00:00', 7.99, 'Carta di Credito', 'Completata'),

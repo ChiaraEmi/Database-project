@@ -942,20 +942,23 @@ public final class ViewImpl extends JFrame implements View {
     private int parseContentCode(final String songString) {
         if (songString != null && !songString.isBlank()) {
             try {
-                // Se la stringa è nel formato "[id] Titolo", estrae il numero tra le parentesi
-                if (songString.contains("[") && songString.contains("]")) {
-                    final String idPart = songString.substring(
-                        songString.indexOf('[') + 1, 
-                        songString.indexOf(']')
-                    ).trim();
-                    return Integer.parseInt(idPart);
-                }
-                // Fallback per formati con trattino o due punti
+                // 1. Prima prova a prendere il numero all'inizio della stringa (es. "22 - ...")
                 final String idPart = songString.split("[-:]")[0].trim();
                 return Integer.parseInt(idPart);
-            } catch (final NumberFormatException | IndexOutOfBoundsException ex) {
-                LOGGER.warning(() -> "Impossibile parsare l'ID da: \"" + songString 
+            } catch (final NumberFormatException | IndexOutOfBoundsException e) {
+                try {
+                    // 2. Fallback: se fallisce, prova a cercare tra le parentesi quadre
+                    if (songString.contains("[") && songString.contains("]")) {
+                        final String idPart = songString.substring(
+                            songString.indexOf('[') + 1, 
+                            songString.indexOf(']')
+                        ).trim();
+                        return Integer.parseInt(idPart);
+                    }
+                } catch (final NumberFormatException | IndexOutOfBoundsException ex) {
+                    LOGGER.warning(() -> "Impossibile parsare l'ID da: \"" + songString 
                                         + "\". Uso valore di default 1.");
+                }
             }
         }
         return 1;

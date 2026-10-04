@@ -20,7 +20,7 @@ public final class User {
     private static final String USERNAME_NULL_ERROR = "Username cannot be null";
     private static final String CONNECTION_NULL_ERROR = "Connection cannot be null";
     private static final String BONUS_CREDIT_COLUMN = "CreditoBonus";
-    private static final Logger LOG = Logger.getLogger(Subscription.class.getName());
+    private static final Logger LOG = Logger.getLogger(User.class.getName());
 
     private final String username;
     private final String name;
@@ -199,32 +199,33 @@ public final class User {
         public static String register(final Connection connection, final String username, final String name, 
                                     final String surname, final String email, final String password, 
                                     final LocalDate birthDate, final String country) {
-            // 1. Verifica se username esiste già
-            try (var statement = DAOUtils.prepare(connection, Queries.CHECK_USERNAME_EXISTS, username);
-                 var resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    throw new DAOException("Username '" + username + "' is already taken.");
-                }
-            } catch (final SQLException e) {
-                throw new DAOException(e);
-            }
-
-            // 2. Verifica se esiste già email
-            try (var statement = DAOUtils.prepare(connection, Queries.CHECK_EMAIL_EXISTS, email);
-                 var resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    throw new DAOException("Email '" + email + "' is already registered.");
-                }
-            } catch (final SQLException e) {
-                throw new DAOException(e);
-            }
 
             boolean autoCommit = true;
             try {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
-                // 3. Inserire il nuovo utente
+                // 1. Verifica se username esiste già
+                try (var statement = DAOUtils.prepare(connection, Queries.CHECK_USERNAME_EXISTS, username);
+                    var resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        throw new DAOException("Username '" + username + "' is already taken.");
+                    }
+                } catch (final SQLException e) {
+                    throw new DAOException(e);
+                }
+
+                // 2. Verifica se esiste già email
+                try (var statement = DAOUtils.prepare(connection, Queries.CHECK_EMAIL_EXISTS, email);
+                    var resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        throw new DAOException("Email '" + email + "' is already registered.");
+                    }
+                } catch (final SQLException e) {
+                    throw new DAOException(e);
+                }
+
+                // 3. Inserisci il nuovo utente
                 try (var statement = DAOUtils.prepare(connection, Queries.INSERT_USER, username, email, 
                                                     password, name, surname, Date.valueOf(birthDate), country)) {
                     statement.executeUpdate();
@@ -278,16 +279,12 @@ public final class User {
         public static int getBonusCredit(final Connection connection, final String username) {
             Objects.requireNonNull(connection, CONNECTION_NULL_ERROR);
             Objects.requireNonNull(username, USERNAME_NULL_ERROR);
-            final String query = "SELECT CreditoBonus FROM Utenti WHERE Username = ?";
-
-            try (var statement = connection.prepareStatement(query)) {
-                 statement.setString(1, username);
-                try (var resultSet = statement.executeQuery()) {
-                    if (resultSet.next()) {
-                        return resultSet.getInt(BONUS_CREDIT_COLUMN);
-                    }
-                    throw new DAOException("User not found: " + username);
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_BONUS_CREDIT, username);
+                 var resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(BONUS_CREDIT_COLUMN);
                 }
+                throw new DAOException("User not found: " + username);
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
@@ -303,11 +300,8 @@ public final class User {
         public static List<User> list(final Connection connection) throws SQLException {
             Objects.requireNonNull(connection, CONNECTION_NULL_ERROR);
             final var users = new ArrayList<User>();
-            final String query = "SELECT " + FIELD_USERNAME 
-                                     + ", Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus FROM Utenti";
-
-            try (var statement = connection.createStatement();
-                 var resultSet = statement.executeQuery(query)) {
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_ALL_USERS);
+                 var resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     final LocalDate localDate = resultSet.getObject("DataNascita", LocalDate.class);
 
@@ -339,27 +333,22 @@ public final class User {
         public static Optional<User> find(final Connection connection, final String username) throws SQLException {
             Objects.requireNonNull(connection, CONNECTION_NULL_ERROR);
             Objects.requireNonNull(username, USERNAME_NULL_ERROR);
-            final String query = "SELECT " + FIELD_USERNAME 
-                + ", Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus "
-                + "FROM Utenti WHERE " + FIELD_USERNAME + " = ?";
 
-            try (var statement = connection.prepareStatement(query)) {
-                statement.setString(1, username);
-                try (var resultSet = statement.executeQuery()) {
-                    if (resultSet.next()) {
-                        final LocalDate localDate = resultSet.getObject("DataNascita", LocalDate.class);
+            try (var statement = DAOUtils.prepare(connection, Queries.FIND_USER_BY_USERNAME, username);
+                 var resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    final LocalDate localDate = resultSet.getObject("DataNascita", LocalDate.class);
 
-                        return Optional.of(new User(
-                            resultSet.getString(FIELD_USERNAME),
-                            resultSet.getString("Nome"),
-                            resultSet.getString("Cognome"),
-                            resultSet.getString("Email"),
-                            resultSet.getString("Password"),
-                            localDate,
-                            resultSet.getString("Paese"),
-                            resultSet.getInt(BONUS_CREDIT_COLUMN)
-                        ));
-                    }
+                    return Optional.of(new User(
+                        resultSet.getString(FIELD_USERNAME),
+                        resultSet.getString("Nome"),
+                        resultSet.getString("Cognome"),
+                        resultSet.getString("Email"),
+                        resultSet.getString("Password"),
+                        localDate,
+                        resultSet.getString("Paese"),
+                        resultSet.getInt(BONUS_CREDIT_COLUMN)
+                    ));
                 }
             }
             return Optional.empty();
@@ -398,7 +387,7 @@ public final class User {
             try (var statement = DAOUtils.prepare(connection, Queries.UPDATE_BONUS_CREDIT, username)) {
                 final int rowsAffected = statement.executeUpdate();
                 if (rowsAffected == 0) {
-                    throw new DAOException("No user found with username: " + username);
+                    throw new DAOException("No user found with username or insufficient credit: " + username);
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);
@@ -415,7 +404,7 @@ public final class User {
             try (var statement = DAOUtils.prepare(connection, Queries.DEBIT_BONUS_CREDIT, username)) {
                 final int rowsAffected = statement.executeUpdate();
                 if (rowsAffected == 0) {
-                    throw new DAOException("No user found with username: " + username);
+                    throw new DAOException("No user found with username or insufficient credit: " + username);
                 }
             } catch (final SQLException e) {
                 throw new DAOException(e);

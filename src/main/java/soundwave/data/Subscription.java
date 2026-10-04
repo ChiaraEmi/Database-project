@@ -295,7 +295,7 @@ public final class Subscription {
 
                     final String discountType = resultSet.getString("TipoSconto");
                     final double discountValue = resultSet.getDouble("ValoreSconto");
-                    final double originalPrice = resultSet.getDouble("Prezzo");
+                    final double originalPrice = resultSet.getDouble("Costo");
 
                     if ("Percentuale".equals(discountType)) {
                         discountedPrice = originalPrice * (1 - discountValue / 100.0);

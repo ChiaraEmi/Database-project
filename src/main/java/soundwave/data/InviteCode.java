@@ -104,10 +104,18 @@ public final class InviteCode {
          * @throws DAOException if a database access error occurs.
          */
         public static String generate(final Connection connection, final String username) {
+            // Verifica se esiste utente
+            try (var stmt = DAOUtils.prepare(connection, Queries.CHECK_USERNAME_EXISTS, username);
+                 var rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    throw new DAOException("User does not exist:" + username);
+                }
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
             final var code = generateCode(username);
-            try (
-                var statement = DAOUtils.prepare(connection, Queries.INSERT_INVITECODE, code, username)
-            ) {
+
+            try (var statement = DAOUtils.prepare(connection, Queries.INSERT_INVITECODE, code, username)) {
                 statement.executeUpdate();
                 return code;
             } catch (final SQLException e) {
@@ -125,16 +133,11 @@ public final class InviteCode {
          * @return an Optional containing the InviteCode if found.
          */
         public static Optional<InviteCode> findByCode(final Connection connection, final String code) {
-            try (
-                var statement = DAOUtils.prepare(connection, Queries.CHECK_INVITECODE, code);
-                var resultSet = statement.executeQuery()
-            ) {
+            try (var statement = DAOUtils.prepare(connection, Queries.CHECK_INVITECODE, code);
+                 var resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     final var sqlDate = resultSet.getDate("DataGenerazione");
                     final var username = resultSet.getString("Username");
-                    if (sqlDate == null) {
-                        return Optional.empty();
-                    }
                     return Optional.of(new InviteCode(code, sqlDate.toLocalDate(), username));
                 } 
             } catch (final SQLException e) {
@@ -170,21 +173,7 @@ public final class InviteCode {
         }
 
         /**
-         * Validates if the provided invite code is associated with the specified username.
-         * 
-         * @param connection      the database connection.
-         * @param code            the invite code to validate.
-         * @param currentUsername the username to check against the invite code's owner.
-         * 
-         * @return true if the invite code is valid for the given username, false otherwise.
-         */
-        public static boolean isValidForUse(final Connection connection, final String code, final String currentUsername) {
-            final var inviteCode = findByCode(connection, code);
-            return inviteCode.isPresent() && !inviteCode.get().getUsername().equals(currentUsername);
-        }
-
-        /**
-         * Generates a unique invite code based on the username and current timestamp.
+         * Generates a unique invite code based on the username.
          * 
          * @param username the username for which to generate the invite code.
          * 

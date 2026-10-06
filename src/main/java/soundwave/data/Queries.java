@@ -34,6 +34,13 @@ public final class Queries {
 
     // --- OP 2: ATTIVAZIONE DI UNA SOTTOSCRIZIONE ---
 
+    public static final String SELECT_ALL_PLANS =
+    """
+    SELECT CodiceAbbonamento, TipoAbbonamento, Durata, Costo
+    FROM Abbonamenti
+    ORDER BY Durata, Costo
+    """;
+
     // --- 2.1: STANDARD ---
     public static final String CHECK_ACTIVE_SUBSCRIPTION = 
         """
@@ -151,13 +158,6 @@ public final class Queries {
         WHERE S.Stato = 'Attiva' 
         AND S.RinnovoAutomatico = TRUE
         AND S.DataFine = CURRENT_DATE
-        """;
-
-    public static final String CHECK_SUBSCRIPTION_RENEWAL = 
-        """
-        SELECT *
-        FROM Sottoscrizioni
-        WHERE Username= ? AND Stato = 'Attiva' AND RinnovoAutomatico = TRUE
         """;
 
     public static final String RENEW_SUBSCRIPTION = 

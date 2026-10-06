@@ -403,7 +403,7 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public void userRegistered(final String username, final String name, final String surname,
+    public boolean userRegistered(final String username, final String name, final String surname,
                             final String email, final String password,
                             final LocalDate birthDate, final String country) {
         try {
@@ -417,9 +417,11 @@ public final class ControllerImpl implements Controller {
                                     + "Codice Invito: " + inviteCode + NEW_LINE + NEW_LINE
                                     + "Ora puoi accedere con le tue credenziali.");
 
+            return true;
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to register user: " + username, e);
             this.view.showError("Errore durante la registrazione: " + e.getMessage());
+            return false;
         }
     }
 

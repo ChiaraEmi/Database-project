@@ -51,7 +51,16 @@ public final class Promotion {
         this.description = Objects.requireNonNull(description, "Description cannot be null");
         this.beginDate = Objects.requireNonNull(beginDate, "Begin date cannot be null");
         this.endDate = Objects.requireNonNull(endDate, "End date cannot be null");
+        if (endDate.isBefore(beginDate)) {
+            throw new IllegalArgumentException("End date cannot be before begin date");
+        }
         this.discountType = Objects.requireNonNull(discountType, "Discount type cannot be null");
+        if (discountValue < 0) {
+            throw new IllegalArgumentException("Discount value cannot be negative");
+        }
+        if ("Percentuale".equals(discountType) && discountValue > 100) {
+            throw new IllegalArgumentException("Discount percentage cannot exceed 100");
+        }
         this.discountValue = discountValue;
         this.requiredMonths = requiredMonths;
     }
@@ -126,17 +135,6 @@ public final class Promotion {
      */
     public Integer getRequiredMonths() {
         return requiredMonths;
-    }
-
-    /**
-     * Checks if the promotion is currently active.
-     *
-     * @return true if the promotion is active, false otherwise
-     */
-    public boolean isActive() {
-        final var currentDate = LocalDate.now();
-        return (currentDate.isEqual(beginDate) || currentDate.isAfter(beginDate)) 
-                && (currentDate.isEqual(endDate) || currentDate.isBefore(endDate));
     }
 
     @Override
@@ -221,7 +219,7 @@ public final class Promotion {
                 autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
 
-                //2. Insert promotion
+                // 1. Insert promotion
                 try (var statement = DAOUtils.prepare(
                                                     connection, Queries.INSERT_PROMOTIONAL_CAMPAIGN, 
                                                     code, name, description, Date.valueOf(beginDate), 

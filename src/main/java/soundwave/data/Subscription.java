@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.sql.Statement;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -285,7 +284,7 @@ public final class Subscription {
                 }
 
                 // 2. Verifica che il codice promo sia valido per il piano selezionato e calcola il prezzo scontato
-                double discountedPrice = 0.0;
+                final double discountedPrice;
                 try (var statement = DAOUtils.prepare(connection, Queries.CHECK_PROMOTION_VALIDITY, 
                                                         promotionCode, subscriptionPlanCode);
                      var resultSet = statement.executeQuery()) {
@@ -301,8 +300,9 @@ public final class Subscription {
                         discountedPrice = originalPrice * (1 - discountValue / 100.0);
                     } else if ("Fisso".equals(discountType)) {
                         discountedPrice = Math.max(0, originalPrice - discountValue);
-                    } 
-
+                    } else {
+                        throw new DAOException("Unknown discount type: " + discountType);
+                    }
                 }
 
                 //3. Inserisce la sottoscrizione con promozione
@@ -435,41 +435,6 @@ public final class Subscription {
                     LOG.log(Level.SEVERE, RESET_AUTOCOMMIT_ERROR + autoCommit, e);
                 }
             }
-        }
-
-        /**
-         * OP 3.1
-         * Checks if the user has an active subscription that is eligible for renewal.
-         * If such a subscription exists, it returns an Optional containing the Subscription object.
-         * 
-         * @param connection       active database connection.
-         * @param subscriptionCode the code of the subscription to disable auto-renew for.
-         * 
-         * @return an Optional containing the Subscription object if eligible for renewal, or an empty Optional otherwise.
-         * 
-         * @throws DAOException if any database operation fails.
-         */
-        public static Optional<Subscription> findForRenewal(final Connection connection, final int subscriptionCode) {
-            try (var statement = DAOUtils.prepare(connection, Queries.CHECK_SUBSCRIPTION_RENEWAL, subscriptionCode);
-                 var resultSet = statement.executeQuery()) {
-
-                if (resultSet.next()) {
-                    return Optional.of(new Subscription(
-                            resultSet.getInt("CodiceSottoscrizione"),
-                            resultSet.getString("Username"),
-                            resultSet.getInt("CodiceAbbonamento"),
-                            resultSet.getString("CodicePromozione"),
-                            resultSet.getString("CodiceInvito"),
-                            resultSet.getDate("DataInizio").toLocalDate(),
-                            resultSet.getDate("DataFine").toLocalDate(),
-                            resultSet.getString("Stato"),
-                            resultSet.getBoolean("RinnovoAutomatico")
-                        ));
-                }
-            } catch (final SQLException e) {
-                throw new DAOException(e);
-            }
-            return Optional.empty();
         }
 
         /**
@@ -610,7 +575,7 @@ public final class Subscription {
                         if (rs.next()) {
                             subscriptionCode = rs.getInt(1);
                         } else {
-                            throw new DAOException(ERR_ACTIVE_SUBSCRIPTION);
+                            throw new DAOException(ERR_NO_ID_OBTAINED);
                         }
                     }
                 }

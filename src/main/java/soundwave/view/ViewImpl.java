@@ -576,7 +576,7 @@ public final class ViewImpl extends JFrame implements View {
         dialog.addRegisterListener(() -> {
             if (this.controller != null) {
                 final String username = dialog.getUsername();
-                final String name = dialog.getName();
+                final String name = dialog.getNameUser();
                 final String surname = dialog.getSurname();
                 final String email = dialog.getEmail();
                 final String password = dialog.getPassword();
@@ -584,11 +584,14 @@ public final class ViewImpl extends JFrame implements View {
                 final String country = dialog.getCountry();
 
                 // Chiama il controller per registrare
-                this.controller.userRegistered(username, name, surname, email, password, birthDate, country);
+                final boolean success = this.controller.userRegistered(username, name, surname, email, password, 
+                                                                        birthDate, country);
 
                 // Chiudi il dialog solo dopo il successo
                 // Il successo verrà gestito dal controller
-                dialog.dispose();
+                if (success) {
+                    dialog.dispose();
+                }
             }
         });
 

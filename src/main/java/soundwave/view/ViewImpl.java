@@ -627,6 +627,7 @@ public final class ViewImpl extends JFrame implements View {
     public void showSuccessAndCloseDialog(final String message) {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
         this.userPanel.closeActivateSubscriptionDialog();
+        this.userPanel.closeRedeemBonusDialog();
     }
 
     @Override

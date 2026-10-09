@@ -57,8 +57,7 @@ public final class RedeemBonusDialog extends JDialog {
     private final JButton btnRedeem;
     private final JButton btnCancel;
 
-    @SuppressFBWarnings("SE_BAD_FIELD")
-    private final List<Plan> plans;
+    private final transient List<Plan> plans;
     private final String username;
     private final int bonusCredits;
     private boolean redeemed;
@@ -238,7 +237,7 @@ public final class RedeemBonusDialog extends JDialog {
                     planIndex++;
                 }
             }
-            this.lblTotal.setText("Totale da pagare: " + String.format("%.2f", currentPrice) + "(0 € con crediti bonus)");
+            this.lblTotal.setText("Totale da pagare: " + String.format("%.2f", currentPrice) + " (0 € con crediti bonus)");
         }
     }
 
@@ -257,7 +256,6 @@ public final class RedeemBonusDialog extends JDialog {
                 );
                 this.redeemed = true;
                 this.onRedeemListener.accept(data);
-                dispose();
             }
         });
     }
@@ -350,6 +348,13 @@ public final class RedeemBonusDialog extends JDialog {
      */
     public void showSuccess(final String message) {
         JOptionPane.showMessageDialog(this, message, "Successo", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * Closes the dialog.
+     */
+    public void closeDialog() {
+        dispose();
     }
 
     /**

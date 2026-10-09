@@ -395,7 +395,7 @@ public final class ControllerImpl implements Controller {
                 data.getPlanCode(),
                 data.isAutoRenew()
             );
-            this.view.showSuccess("Sottoscrizione riscattata con crediti bonus! Codice: " + subscriptionCode);
+            this.view.showSuccessAndCloseDialog("Sottoscrizione riscattata con crediti bonus! Codice: " + subscriptionCode);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to redeem bonus for user: " + username, e);
             this.view.showError("Impossibile riscattare: " + e.getMessage());

@@ -76,6 +76,7 @@ public final class UserPanel extends JPanel {
 
     private ActivateSubscriptionDialog activedialog;
     private SubscriptionStatusDialog statusDialog;
+    private RedeemBonusDialog redeemDialog;
 
     // --- Tab 1: Abbonamento ---
     private final JButton btnActivateSubscription = new JButton("Attiva Sottoscrizione");
@@ -1411,5 +1412,15 @@ public final class UserPanel extends JPanel {
         });
 
         dialog.setVisible(true);
+    }
+
+    /**
+     * Closes the redeem bonus dialog if it is open.
+     */
+    public void closeRedeemBonusDialog() {
+        if (this.redeemDialog != null) {
+            this.redeemDialog.closeDialog();
+            this.redeemDialog = null;
+        }
     }
 }

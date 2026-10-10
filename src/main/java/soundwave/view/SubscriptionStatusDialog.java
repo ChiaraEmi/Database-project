@@ -31,10 +31,6 @@ import java.awt.GridLayout;
  */
 public final class SubscriptionStatusDialog extends JDialog {
     private static final long serialVersionUID = 1L;
-
-    private static final java.util.logging.Logger LOGGER = 
-    java.util.logging.Logger.getLogger(SubscriptionStatusDialog.class.getName());
-
     private static final String FONT_FAMILY = "Segoe UI";
     private static final String STATUS_ATTIVA = "Attiva";
     private static final String STATUS_SCADUTA = "Scaduta";
@@ -94,7 +90,6 @@ public final class SubscriptionStatusDialog extends JDialog {
 
     private final JPanel contentPanel;
     private final JScrollPane scrollPane;
-    private final JButton btnRefresh;
     private final JButton btnClose;
 
     private transient Consumer<Integer> onRenew;
@@ -109,7 +104,6 @@ public final class SubscriptionStatusDialog extends JDialog {
      */
     public SubscriptionStatusDialog(final JFrame parent, final String username) {
         super(parent, "Sottoscrizioni - " + username, true);
-        //this.username = username;
 
         setLayout(new BorderLayout(DIALOG_GAP_H, DIALOG_GAP_V));
         setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
@@ -127,18 +121,11 @@ public final class SubscriptionStatusDialog extends JDialog {
 
         // --- Buttons panel ---
         final JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, FLOW_GAP_H, FLOW_GAP_V));
-        this.btnRefresh = new JButton("Aggiorna");
         this.btnClose = new JButton("Chiudi");
-        btnPanel.add(this.btnRefresh);
         btnPanel.add(this.btnClose);
         add(btnPanel, BorderLayout.SOUTH);
 
         this.btnClose.addActionListener(e -> dispose());
-        this.btnRefresh.addActionListener(e -> {
-            if (this.onRefresh != null) {
-                this.onRefresh.run();
-            }
-        });
     }
 
     /**
@@ -273,6 +260,9 @@ public final class SubscriptionStatusDialog extends JDialog {
                 );
                 if (choice == JOptionPane.YES_OPTION && onRenew != null) {
                     onRenew.accept(subCode);
+                    if (this.onRefresh != null) {
+                        this.onRefresh.run();
+                    }
                 }
             });
             actionPanel.add(btnRenew);
@@ -293,14 +283,15 @@ public final class SubscriptionStatusDialog extends JDialog {
                 );
                 if (choice == JOptionPane.YES_OPTION && onToggleAutoRenew != null) {
                     onToggleAutoRenew.accept(subCode);
+                    if (this.onRefresh != null) {
+                        this.onRefresh.run();
+                    }
                 }
             });
 
             actionPanel.add(btnToggle);
             blockPanel.add(actionPanel);
 
-        } else {
-            LOGGER.info("Sottoscrizione NON ATTIVA! Status = '" + status + "'");
         }
 
         // Add the block to the main content panel

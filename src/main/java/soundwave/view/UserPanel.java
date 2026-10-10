@@ -1337,7 +1337,6 @@ public final class UserPanel extends JPanel {
 
         this.statusDialog.setOnRefresh(() -> {
             loadSubscriptionData(username);
-            this.statusDialog.showSuccess("Dati aggiornati");
         });
 
         this.statusDialog.setVisible(true);

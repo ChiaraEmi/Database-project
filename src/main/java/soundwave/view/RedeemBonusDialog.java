@@ -57,7 +57,8 @@ public final class RedeemBonusDialog extends JDialog {
     private final JButton btnRedeem;
     private final JButton btnCancel;
 
-    private final transient List<Plan> plans;
+    @SuppressFBWarnings("SE_BAD_FIELD") 
+    private final List<Plan> plans;
     private final String username;
     private final int bonusCredits;
     private boolean redeemed;

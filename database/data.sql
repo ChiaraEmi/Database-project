@@ -50,26 +50,26 @@ INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese
 -- 2. ARTISTI (20 artisti: 15 Cantanti/Band, 5 Autori Podcast di varie nazionalità)
 -- -----------------------------------------------------
 INSERT INTO Artisti (CodiceArtista, NomeDArte, Nome, Cognome, DataNascita, PaeseProvenienza, Biografia, AnnoInizioAttivita, TipoArtista) VALUES
-(1, 'The Soundwaves', 'Gruppo', 'Rock', '2010-01-01', 'Italia', 'Band rock alternativa.', 2018, 'Band'),
+(1, 'The Soundwaves', NULL, NULL, NULL, 'Italia', 'Band rock alternativa.', 2018, 'Band'),
 (2, 'Luna Pop', 'Luna', 'Marini', '1996-08-14', 'Italia', 'Cantautrice pop moderna.', 2020, 'Cantante'),
 (3, 'DJ Apex', 'Alessio', 'Riva', '1993-02-20', 'Italia', 'Producer di musica elettronica.', 2015, 'Cantante'),
 (4, 'Tech Talk Podcast', 'Alex', 'Turner', '1990-05-12', 'Regno Unito', 'Autore di podcast tecnologici.', 2022, 'Autore Podcast'),
 (5, 'True Crime US', 'Sarah', 'Connor', '1985-11-11', 'Stati Uniti', 'Podcaster di storie noir e misteri.', 2021, 'Autore Podcast'),
 (6, 'Acoustic Soul', 'Matteo', 'Neri', '1991-04-03', 'Italia', 'Cantante acustico.', 2017, 'Cantante'),
 (7, 'Starlight', 'Chloe', 'Smith', '1998-03-14', 'Stati Uniti', 'Pop star internazionale.', 2019, 'Cantante'),
-(8, 'Nordic Beats', 'Lars', 'Eriksen', '1987-09-22', 'Norvegia', 'Producer di musica elettronica.', 2016, 'Band'),
+(8, 'Nordic Beats', NULL, NULL, NULL, 'Norvegia', 'Producer di musica elettronica.', 2016, 'Band'),
 (9, 'Mind & Cosmos', 'Dr. Robert', 'Lang', '1978-12-05', 'Canada', 'Autore di podcast scientifici.', 2020, 'Autore Podcast'),
-(10, 'Electric Avenue', 'Band', 'Rock', '2012-06-18', 'Regno Unito', 'Band rock britannica.', 2015, 'Band'),
-(11, 'Soul Sisters', 'Gruppo', 'Vocale', '2015-04-10', 'Francia', 'Gruppo vocale soul.', 2018, 'Band'),
+(10, 'Electric Avenue', NULL, NULL, NULL, 'Regno Unito', 'Band rock britannica.', 2015, 'Band'),
+(11, 'Soul Sisters', NULL, NULL, NULL, 'Francia', 'Gruppo vocale soul.', 2018, 'Band'),
 (12, 'El Fuego', 'Carlos', 'Gomez', '1994-07-25', 'Spagna', 'Cantante latino.', 2019, 'Cantante'),
 (13, 'Tokyo Dreams', 'Kenji', 'Sato', '1992-11-03', 'Giappone', 'Artista synthpop.', 2021, 'Cantante'),
 (14, 'Sydney Sun', 'Emma', 'Watson', '1995-02-14', 'Australia', 'Cantautrice indie.', 2020, 'Cantante'),
-(15, 'Berlin Underground', 'Gruppo', 'Techno', '2011-09-09', 'Germania', 'Collettivo techno.', 2016, 'Band'),
-(16, 'Celtic Voices', 'Gruppo', 'Folk', '2014-03-17', 'Irlanda', 'Band folk acustica.', 2017, 'Band'),
+(15, 'Berlin Underground', NULL, NULL, NULL, 'Germania', 'Collettivo techno.', 2016, 'Band'),
+(16, 'Celtic Voices', NULL, NULL, NULL, 'Irlanda', 'Band folk acustica.', 2017, 'Band'),
 (17, 'Samba Brasil', 'Lucas', 'Silva', '1990-12-12', 'Brasile', 'Cantante di musica brasiliana.', 2015, 'Cantante'),
 (18, 'History Uncovered', 'Marcus', 'Aurelius', '1982-06-01', 'Grecia', 'Autore di podcast storici.', 2019, 'Autore Podcast'),
 (19, 'Healthy Mind', 'Dr. Anna', 'Muller', '1986-08-30', 'Svizzera', 'Autrice di podcast sul benessere.', 2022, 'Autore Podcast'),
-(20, 'Jazz Odyssey', 'Miles', 'Davis Jr', '1988-04-05', 'Stati Uniti', 'Band jazz fusion.', 2012, 'Band');
+(20, 'Jazz Odyssey', NULL, NULL, NULL, 'Stati Uniti', 'Band jazz fusion.', 2012, 'Band');
 
 -- -----------------------------------------------------
 -- 3. GENERI

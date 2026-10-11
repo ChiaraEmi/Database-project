@@ -38,6 +38,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * using JDBC data access objects.
  */
 public final class DBModel implements Model {
+    private static final double PAYMENT_SUCCESS_RATE = 0.9; // 90% di successo per test
 
     private static final String SUBSCRIPTION_CODE_COLUMN = "CodiceSottoscrizione";
     private static final Logger LOGGER = Logger.getLogger(DBModel.class.getName());
@@ -88,10 +89,15 @@ public final class DBModel implements Model {
             throw new DAOException(e);
         }
 
-        // Simula pagamento (per ora sempre successo)
-        // In futuro si può integrare con un sistema di pagamento reale
-        final boolean paymentSuccess = true;
-        Subscription.DAO.renew(connection, subscriptionCode, "Carta di Credito", paymentSuccess);
+        final String lastPaymentMethod = getLastPaymentMethod(subscriptionCode);
+        if ("Crediti Bonus".equals(lastPaymentMethod)) {
+            //Rinnovo con crediti bonus: se i crediti sono insufficienti,
+            //il metodo DAO.renewWithBonus lancerà un'eccezione e la transazione viene annullata
+            Subscription.DAO.renewWithBonus(connection, username, subscriptionCode);
+        } else {
+            //Quando utente decide di rinnovare manualmente, il pagamento è sempre considerato riuscito
+            Subscription.DAO.renew(connection, subscriptionCode, lastPaymentMethod, true);
+        }
     }
 
     @Override
@@ -106,7 +112,7 @@ public final class DBModel implements Model {
 
     /**
      * Enable automatic renewal.
-     * 
+     *
      * @param subscriptionCode the code of subscription to enable.
      */
     private void enableAutoRenew(final int subscriptionCode) {
@@ -122,7 +128,7 @@ public final class DBModel implements Model {
 
     /**
      * Disable automatic renewal.
-     * 
+     *
      * @param subscriptionCode the code of subscription to disable.
      */
     private void disableAutoRenew(final int subscriptionCode) {
@@ -150,14 +156,33 @@ public final class DBModel implements Model {
     }
 
     /**
+     * Retrieves the last payment method used for a given subscription.
+     *
+     * @param subscriptionCode the code of the subscription to check.
+     * @return the last payment method used for the subscription.
+     * @throws DAOException if the subscription is not found or if a database error occurs.
+     */
+    private String getLastPaymentMethod(final int subscriptionCode) {
+        try (var stmt = DAOUtils.prepare(connection, Queries.LAST_PAYMENT_METHOD, subscriptionCode);
+            var rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("MetodoPagamento");
+            }
+            throw new DAOException("Nessun metodo di pagamento trovato per la sottoscrizione.");
+        } catch (final SQLException e) {
+            throw new DAOException(e);
+        }
+    }
+
+    /**
      * Processes automatic renewals for all eligible subscription.
-     * 
+     *
      * @return an array containing three integers:
      *         [0] = number of successfully renewed subscriptions,
      *         [1] = number of failed renewals,
      *         [2] = number of expired subscriptions
      */
-    @Override 
+    @Override
     public int[] processAutoRenewals() {
         int renewed = 0;
         int failed = 0;
@@ -174,28 +199,53 @@ public final class DBModel implements Model {
 
                     LOGGER.info("Rinnovo automatico per sub #" + subCode + " (" + username + ")");
 
-                    // 2. Simula il pagamento (90% di successo per test)
-                    final boolean paymentSuccess = Math.random() < 0.0;
+                    // 2. Recupera l'ultimo metodo di pagamento usato per la sottoscrizione
+                    final String lastPaymentMethod = getLastPaymentMethod(subCode);
 
-                    Subscription.DAO.renew(connection, subCode, username, paymentSuccess);
+                    try {
+                        if ("Crediti Bonus".equals(lastPaymentMethod)) {
+                            //Rinnovo con crediti bonus
+                            Subscription.DAO.renewWithBonus(connection, username, subCode);
+                            renewed++;
+                            LOGGER.info("Rinnovo automatico completato con crediti bonus per sub #" + subCode);
+                            //se i crediti sono insufficienti, il metodo DAO.renewWithBonus
+                            // lancerà un'eccezione e il rinnovo fallirà
+                        } else {
+                            // Rinnovo con metodo di pagamento standard
+                            // Simula il pagamento (90% di successo per test)
+                            final boolean paymentSuccess = Math.random() < PAYMENT_SUCCESS_RATE;
 
-                    if (paymentSuccess) {
-                        renewed++;
-                        LOGGER.info("Rinnovo automatico completato per sub #" + subCode);
-                    } else {
-                        failed++;
-                        LOGGER.info("Rinnovo automatico FALLITO per sub #" + subCode);
-                        //3. Se fallisce, scade immediatamente la sottoscrizione
-                        try (var expireStmt = DAOUtils.prepare(connection, Queries.EXPIRE_SUBSCRIPTION, subCode)) {
-                            expireStmt.executeUpdate();
+                            Subscription.DAO.renew(connection, subCode, lastPaymentMethod, paymentSuccess);
+
+                            if (paymentSuccess) {
+                                renewed++;
+                                LOGGER.info("Rinnovo automatico completato per sub #" + subCode);
+                            } else {
+                                failed++;
+                                LOGGER.info("Rinnovo automatico FALLITO per sub #" + subCode);
+                                // Se fallisce, il rinnovo automatico viene disattivato
+                                try (var cancelStmt = DAOUtils.prepare(connection, Queries.CANCEL_RENEWAL, subCode)) {
+                                    cancelStmt.executeUpdate();
+                                }
+                                LOGGER.info("Rinnovo automatico disattivato per sub #" + subCode);
+                            }
                         }
-                        LOGGER.info("Sottoscrizione #" + subCode + " portata a Scaduta");
+                    } catch (final DAOException e) {
+                        // Rinnovo fallito (crediti insufficienti, errore DB, ecc.)
+                        failed++;
+                        LOGGER.log(Level.SEVERE, "Errore durante il rinnovo automatico per sub #" + subCode, e);
+                        // Disabilita il rinnovo automatico
+                        try (var cancelStmt = DAOUtils.prepare(connection, Queries.CANCEL_RENEWAL, subCode)) {
+                            cancelStmt.executeUpdate();
+                        }
+                        LOGGER.info("Rinnovo automatico disattivato per sub #" + subCode);
                     }
+
                 }
 
             }
 
-            // 4. Marca come scadute le altre sottoscrizioni senza rinnovo
+            // 3. Marca come scadute le altre sottoscrizioni senza rinnovo
             try (var stmt = connection.createStatement()) {
                 expired = stmt.executeUpdate(Queries.EXPIRE_EXPIRED_SUBSCRIPTIONS);
             }
@@ -583,7 +633,7 @@ public final class DBModel implements Model {
         Follow.DAO.unfollowArtist(this.connection, username, artistCode);
     }
 
-    @Override 
+    @Override
     public int getBonusCredits(final String username) {
         return User.DAO.getBonusCredit(this.connection, username);
     }

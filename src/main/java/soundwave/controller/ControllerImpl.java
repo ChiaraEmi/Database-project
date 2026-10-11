@@ -124,7 +124,6 @@ public final class ControllerImpl implements Controller {
 
             this.model.insertPromotion(code, name, description, start, end, discountType,
                                         discountValue, requiredMonths, planCodes);
-            this.view.showSuccess("Promozione creata con successo");
             return true;
 
         } catch (final DAOException e) {

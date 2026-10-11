@@ -1049,7 +1049,7 @@ public final class AdminPanel extends JPanel {
             this.txtEpisodeDuration, this.txtEpisodeDescription, this.txtEpisodeNumber,
             // Promotion Form
             this.txtPromoCode, this.txtPromoName, this.txtPromoDescription,
-            this.txtPromoStartDate, txtPromoEndDate, this.txtDiscountValue,
+            this.txtPromoStartDate, this.txtPromoEndDate, this.txtDiscountValue,
             this.txtRequiredMonths, this.txtPromoPlanCodes,
         };
 

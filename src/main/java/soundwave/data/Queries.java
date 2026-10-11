@@ -150,6 +150,15 @@ public final class Queries {
 
     // ---  3.1: RINNOVO AUTOMATICO ---
 
+    public static final String LAST_PAYMENT_METHOD = 
+        """
+        SELECT MetodoPagamento
+        FROM Transazioni
+        WHERE CodiceSottoscrizione = ?
+        ORDER BY Data DESC
+        LIMIT 1
+        """;
+
     public static final String FIND_AUTO_RENEWALS = 
         """
         SELECT S.CodiceSottoscrizione, S.CodiceAbbonamento, S.Username, A.Durata

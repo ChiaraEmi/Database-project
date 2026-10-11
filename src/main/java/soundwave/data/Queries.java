@@ -432,7 +432,7 @@ public final class Queries {
     // --- OP 12: CREAZIONE PLAYLIST ---
     public static final String INSERT_PLAYLIST = 
         """
-        INSERT INTO Playlist (Username, NomePlaylist, DataCreazione, Visibilita, Collaborativa)
+        INSERT INTO Playlist (Username, NomePlaylist, DataCreazione, Visibilità, Collaborativa)
         VALUES (?, ?, CURRENT_DATE, ?, ?)
         """;
 
@@ -647,9 +647,10 @@ public final class Queries {
     // --- STATISTICHE PERSONALI DELL'UTENTE ---
     public static final String SELECT_PERSONAL_TOTALS_YEAR = 
         """
-        SELECT COUNT(*) AS TotaleAscolti, SUM(E.DurataEvento) AS TotaleSecondi
-        FROM EventiAscolto E
-        WHERE E.Username = ? AND YEAR(E.DataOra) = ?
+        SELECT COUNT(*) AS TotaleAscolti, SUM(DurataEvento) AS TotaleMinutiAscoltati
+        FROM EventiAscolto
+        WHERE Username = ? 
+        AND YEAR(DataOra) = ?
         """;
 
     public static final String SELECT_PERSONAL_TOP_TRACKS = 
@@ -657,7 +658,8 @@ public final class Queries {
         SELECT C.CodiceContenuto, C.Titolo, COUNT(*) AS NumeroAscolti
         FROM EventiAscolto E
         JOIN Contenuti C ON E.CodiceContenuto = C.CodiceContenuto
-        WHERE E.Username = ? AND YEAR(E.DataOra) = ?
+        WHERE E.Username = ? 
+        AND YEAR(E.DataOra) = ?
         GROUP BY C.CodiceContenuto, C.Titolo
         ORDER BY NumeroAscolti DESC
         LIMIT 5
@@ -767,26 +769,28 @@ public final class Queries {
         GROUP BY E.Username
         HAVING COUNT(*) > (
             SELECT AVG(TotaleAscolti)
-            FROM (SELECT COUNT(*) AS TotaleAscolti
-        FROM EventiAscolto
-        WHERE YEAR(DataOra) = ? 
-        GROUP BY Username ) AS AscoltiPerUtente
+            FROM (
+                SELECT COUNT(*) AS TotaleAscolti
+                FROM EventiAscolto
+                WHERE YEAR(DataOra) = ? 
+                GROUP BY Username ) AS AscoltiPerUtente
         )
         """;
 
     public static final String SELECT_GLOBAL_AVERAGE_RATING =
         """
         SELECT AVG(MediaVoti) 
-        FROM ALBUM 
+        FROM Album 
         """;
 
     public static final String SELECT_ALBUMS_ABOVE_GLOBAL_AVG_RATING = 
         """
-        SELECT A.CodiceAlbum, A.TitoloAlbum, A.MediaVoti
-        FROM ALBUM A
-        WHERE A.MediaVoti > (
+        SELECT CodiceAlbum, TitoloAlbum, MediaVoti
+        FROM Album
+        WHERE MediaVoti > (
             SELECT AVG(MediaVoti)
-            FROM ALBUM)
+            FROM Album
+        )
         """;
 
     private Queries() { }

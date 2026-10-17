@@ -34,6 +34,13 @@ public final class Queries {
 
     // --- OP 2: ATTIVAZIONE DI UNA SOTTOSCRIZIONE ---
 
+    public static final String SELECT_ALL_PLANS =
+    """
+    SELECT CodiceAbbonamento, TipoAbbonamento, Durata, Costo
+    FROM Abbonamenti
+    ORDER BY Durata, Costo
+    """;
+
     // --- 2.1: STANDARD ---
     public static final String CHECK_ACTIVE_SUBSCRIPTION = 
         """
@@ -108,6 +115,13 @@ public final class Queries {
         WHERE Codice = ?
         """;
 
+    public static final String SELECT_PLAN_PRICE = 
+        """
+        SELECT Costo
+        FROM Abbonamenti
+        WHERE CodiceAbbonamento = ?
+        """;
+
     public static final String INSERT_SUBSCRIPTION_INVITE = 
         """
         INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, 
@@ -122,9 +136,7 @@ public final class Queries {
     public static final String INSERT_TRANSACTION_INVITE = 
         """
         INSERT INTO Transazioni ( CodiceSottoscrizione, Importo, MetodoPagamento, Stato)
-        SELECT  ?, A.Costo*0.80, ?, 'Completata'
-        FROM Abbonamenti A
-        WHERE A.CodiceAbbonamento= ?;
+        VALUES (?, ?, ?, 'Completata')
         """;
 
     public static final String UPDATE_BONUS_CREDIT = 
@@ -138,6 +150,15 @@ public final class Queries {
 
     // ---  3.1: RINNOVO AUTOMATICO ---
 
+    public static final String LAST_PAYMENT_METHOD = 
+        """
+        SELECT MetodoPagamento
+        FROM Transazioni
+        WHERE CodiceSottoscrizione = ?
+        ORDER BY Data DESC
+        LIMIT 1
+        """;
+
     public static final String FIND_AUTO_RENEWALS = 
         """
         SELECT S.CodiceSottoscrizione, S.CodiceAbbonamento, S.Username, A.Durata
@@ -146,13 +167,6 @@ public final class Queries {
         WHERE S.Stato = 'Attiva' 
         AND S.RinnovoAutomatico = TRUE
         AND S.DataFine = CURRENT_DATE
-        """;
-
-    public static final String CHECK_SUBSCRIPTION_RENEWAL = 
-        """
-        SELECT *
-        FROM Sottoscrizioni
-        WHERE Username= ? AND Stato = 'Attiva' AND RinnovoAutomatico = TRUE
         """;
 
     public static final String RENEW_SUBSCRIPTION = 
@@ -168,7 +182,7 @@ public final class Queries {
     public static final String INSERT_RENEWAL_TRANSACTION = 
         """
         INSERT INTO Transazioni (CodiceSottoscrizione, Importo, MetodoPagamento, Stato)
-        SELECT ?, A.Costo, ?, ?
+        SELECT S.CodiceSottoscrizione, A.Costo, ?, ?
         FROM Sottoscrizioni S 
         JOIN Abbonamenti A ON  A.CodiceAbbonamento = S.CodiceAbbonamento
         WHERE S.CodiceSottoscrizione = ?
@@ -189,6 +203,13 @@ public final class Queries {
         """;
 
     // --- OP 4: RISCATTO CON CREDITI BONUS ---
+    public static final String SELECT_BONUS_CREDIT = 
+        """
+        SELECT CreditoBonus
+        FROM Utenti
+        WHERE Username= ?
+        """;
+
     public static final String CHECK_BONUS_CREDIT = 
         """
         SELECT Username, CreditoBonus
@@ -212,7 +233,7 @@ public final class Queries {
 
     public static final String CHECK_MONTHLY_SUBSCRIPTION = 
         """
-        SELECT CodiceAbbonamento, Durata
+        SELECT 1
         FROM Abbonamenti
         WHERE CodiceAbbonamento= ? AND Durata = 1
         """;
@@ -791,6 +812,19 @@ public final class Queries {
             SELECT AVG(MediaVoti)
             FROM Album
         )
+        """;
+
+    public static final String SELECT_ALL_USERS = 
+        """
+        SELECT Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus 
+        FROM Utenti
+        """;
+
+    public static final String FIND_USER_BY_USERNAME = 
+        """
+        SELECT Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus
+        FROM Utenti 
+        WHERE Username = ?
         """;
 
     private Queries() { }

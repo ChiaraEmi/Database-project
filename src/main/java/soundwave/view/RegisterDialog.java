@@ -2,9 +2,12 @@ package soundwave.view;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,6 +36,12 @@ public final class RegisterDialog extends JDialog {
     private static final int BORDER_SIZE = 15;
     private static final int BUTTON_GAP = 15;
     private static final int BUTTON_PADDING = 10;
+    private static final int MIN_USERNAME_LENGTH = 3;
+    private static final int MAX_USERNAME_LENGTH = 15;
+    private static final String[] COUNTRIES = Arrays.stream(Locale.getISOCountries())
+            .map(code -> new Locale.Builder().setRegion(code).build().getDisplayCountry(Locale.ITALIAN))
+            .sorted()
+            .toArray(String[]::new);
 
     private final JTextField txtUsername;
     private final JTextField txtName;
@@ -40,7 +49,7 @@ public final class RegisterDialog extends JDialog {
     private final JTextField txtEmail;
     private final JPasswordField txtPassword;
     private final JTextField txtBirthDate;
-    private final JTextField txtCountry;
+    private final JComboBox<String> comboCountry;
     private final JButton btnRegister;
     private final JButton btnCancel;
 
@@ -86,8 +95,8 @@ public final class RegisterDialog extends JDialog {
         panel.add(txtBirthDate);
 
         panel.add(new JLabel("Paese:"));
-        this.txtCountry = new JTextField();
-        panel.add(txtCountry);
+        this.comboCountry = new JComboBox<>(COUNTRIES);
+        panel.add(comboCountry);
 
         add(panel, BorderLayout.CENTER);
 
@@ -114,10 +123,9 @@ public final class RegisterDialog extends JDialog {
     /**
      * Gets the name entered by the user.
      *
-     * @return the name, trimmed of leading/trailing whitespace.
+     * @return the name, trimmed of leading/trailing whitespace
      */
-    @Override 
-    public String getName() {
+    public String getNameUser() {
         return txtName.getText().trim();
     }
 
@@ -164,7 +172,7 @@ public final class RegisterDialog extends JDialog {
      * @return the country, trimmed of leading/trailing whitespace
      */
     public String getCountry() {
-        return txtCountry.getText().trim();
+        return (String) comboCountry.getSelectedItem();
     }
 
     /**
@@ -174,12 +182,21 @@ public final class RegisterDialog extends JDialog {
      */
     public void addRegisterListener(final Runnable onRegister) {
         btnRegister.addActionListener(e -> {
+
             // Validazione base
             if (getUsername().isEmpty()) {
                 showError("Inserisci un username.");
                 return;
             }
-            if (getName().isEmpty()) {
+            if (getUsername().length() < MIN_USERNAME_LENGTH || getUsername().length() > MAX_USERNAME_LENGTH) {
+                showError("L'username deve contenere tra " + MIN_USERNAME_LENGTH + " e " + MAX_USERNAME_LENGTH + " caratteri.");
+                return;
+            }
+            if (!getUsername().matches("[a-zA-Z0-9._@#*-]+")) {
+                showError("L'username può contenere solo lettere, numeri e caratteri speciali (_.-@#*).");
+                return;
+            }
+            if (getNameUser().isEmpty()) {
                 showError("Inserisci il nome.");
                 return;
             }
@@ -195,12 +212,15 @@ public final class RegisterDialog extends JDialog {
                 showError("Inserisci la password.");
                 return;
             }
-            if (getBirthDate() == null) {
-                showError("Formato data non valido. Usa YYYY-MM-DD.");
-                return;
-            }
             if (getCountry().isEmpty()) {
                 showError("Inserisci il paese.");
+                return;
+            }
+
+            try {
+                getBirthDate();
+            } catch (final DateTimeParseException ex) {
+                showError("Formato data non valido. Usa YYYY-MM-DD.");
                 return;
             }
 

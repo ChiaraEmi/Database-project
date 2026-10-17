@@ -532,3 +532,118 @@ INSERT INTO EventiAscolto (Username, CodiceContenuto, DataOra, Dispositivo, Dura
 ('chiara_bruni', 40, '2024-04-23 15:00:00', 'PC', 280),
 ('chiara_bruni', 106, '2025-01-16 21:00:00', 'Smart Speaker', 2100),
 ('chiara_bruni', 107, '2026-01-25 21:00:00', 'Smart Speaker', 1900);
+
+
+-- test per rinnovo automatico e manuale
+-- ==========================================
+-- SCENARIO 1: Rinnovo automatico standard, successo
+-- ==========================================
+INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
+('test_auto_ok', 'Test', 'AutoOk', 'auto_ok@test.com', 'pass', '1990-01-01', 'Italia', 0);
+
+INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
+('INV_AUTO_OK', '2026-01-01', 'test_auto_ok');
+
+INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
+('test_auto_ok', 1, NULL, 'INV_AUTO_OK', DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH), CURRENT_DATE, 'Attiva', TRUE);
+
+INSERT INTO Transazioni (CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) 
+SELECT CodiceSottoscrizione, DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH), 9.99, 'Carta di Credito', 'Completata'
+FROM Sottoscrizioni WHERE Username = 'test_auto_ok';
+
+-- ==========================================
+-- SCENARIO 3: Rinnovo automatico crediti bonus, successo
+-- ==========================================
+INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
+('test_auto_bonus_ok', 'Test', 'AutoBonusOk', 'auto_bonus_ok@test.com', 'pass', '1990-01-01', 'Italia', 2);
+
+INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
+('INV_AUTO_BONUS_OK', '2026-01-01', 'test_auto_bonus_ok');
+
+INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
+('test_auto_bonus_ok', 1, NULL, 'INV_AUTO_BONUS_OK', DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH), CURRENT_DATE, 'Attiva', TRUE);
+
+INSERT INTO Transazioni (CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) 
+SELECT CodiceSottoscrizione, DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH), 0.00, 'Crediti Bonus', 'Completata'
+FROM Sottoscrizioni WHERE Username = 'test_auto_bonus_ok';
+
+-- ==========================================
+-- SCENARIO 4: Rinnovo automatico crediti bonus, fallito
+-- ==========================================
+INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
+('test_auto_bonus_ko', 'Test', 'AutoBonusKo', 'auto_bonus_ko@test.com', 'pass', '1990-01-01', 'Italia', 0);
+
+INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
+('INV_AUTO_BONUS_KO', '2026-01-01', 'test_auto_bonus_ko');
+
+INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
+('test_auto_bonus_ko', 1, NULL, 'INV_AUTO_BONUS_KO', DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH), CURRENT_DATE, 'Attiva', TRUE);
+
+INSERT INTO Transazioni (CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) 
+SELECT CodiceSottoscrizione, DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH), 0.00, 'Crediti Bonus', 'Completata'
+FROM Sottoscrizioni WHERE Username = 'test_auto_bonus_ko';
+
+-- ==========================================
+-- SCENARIO 6: Rinnovo manuale standard
+-- ==========================================
+INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
+('test_manual_std', 'Test', 'ManualStd', 'manual_std@test.com', 'pass', '1990-01-01', 'Italia', 0);
+
+INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
+('INV_MANUAL_STD', '2026-01-01', 'test_manual_std');
+
+-- DataFine futura (non scade oggi)
+INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
+('test_manual_std', 1, NULL, 'INV_MANUAL_STD', CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 1 MONTH), 'Attiva', FALSE);
+
+INSERT INTO Transazioni (CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) 
+SELECT CodiceSottoscrizione, CURRENT_DATE, 9.99, 'PayPal', 'Completata'
+FROM Sottoscrizioni WHERE Username = 'test_manual_std';
+
+-- ==========================================
+-- SCENARIO 7: Rinnovo manuale crediti bonus, successo
+-- ==========================================
+INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
+('test_manual_bonus_ok', 'Test', 'ManualBonusOk', 'manual_bonus_ok@test.com', 'pass', '1990-01-01', 'Italia', 2);
+
+INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
+('INV_MANUAL_BONUS_OK', '2026-01-01', 'test_manual_bonus_ok');
+
+INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
+('test_manual_bonus_ok', 1, NULL, 'INV_MANUAL_BONUS_OK', CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 1 MONTH), 'Attiva', FALSE);
+
+INSERT INTO Transazioni (CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) 
+SELECT CodiceSottoscrizione, CURRENT_DATE, 0.00, 'Crediti Bonus', 'Completata'
+FROM Sottoscrizioni WHERE Username = 'test_manual_bonus_ok';
+
+-- ==========================================
+-- SCENARIO 8: Rinnovo manuale crediti bonus, fallito
+-- ==========================================
+INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
+('test_manual_bonus_ko', 'Test', 'ManualBonusKo', 'manual_bonus_ko@test.com', 'pass', '1990-01-01', 'Italia', 0);
+
+INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
+('INV_MANUAL_BONUS_KO', '2026-01-01', 'test_manual_bonus_ko');
+
+INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
+('test_manual_bonus_ko', 1, NULL, 'INV_MANUAL_BONUS_KO', CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 1 MONTH), 'Attiva', FALSE);
+
+INSERT INTO Transazioni (CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) 
+SELECT CodiceSottoscrizione, CURRENT_DATE, 0.00, 'Crediti Bonus', 'Completata'
+FROM Sottoscrizioni WHERE Username = 'test_manual_bonus_ko';
+
+-- ==========================================
+-- SCENARIO 9: Sottoscrizione scaduta
+-- ==========================================
+INSERT INTO Utenti (Username, Nome, Cognome, Email, Password, DataNascita, Paese, CreditoBonus) VALUES
+('test_expired', 'Test', 'Expired', 'expired@test.com', 'pass', '1990-01-01', 'Italia', 0);
+
+INSERT INTO CodiciInvito (Codice, DataGenerazione, Username) VALUES
+('INV_EXPIRED', '2026-01-01', 'test_expired');
+
+INSERT INTO Sottoscrizioni (Username, CodiceAbbonamento, CodicePromozione, CodiceInvito, DataInizio, DataFine, Stato, RinnovoAutomatico) VALUES
+('test_expired', 1, NULL, 'INV_EXPIRED', DATE_SUB(CURRENT_DATE, INTERVAL 2 MONTH), DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH), 'Scaduta', FALSE);
+
+INSERT INTO Transazioni (CodiceSottoscrizione, Data, Importo, MetodoPagamento, Stato) 
+SELECT CodiceSottoscrizione, DATE_SUB(CURRENT_DATE, INTERVAL 2 MONTH), 9.99, 'Carta di Credito', 'Completata'
+FROM Sottoscrizioni WHERE Username = 'test_expired';

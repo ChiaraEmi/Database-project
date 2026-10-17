@@ -70,19 +70,14 @@ public final class ActivateSubscriptionDialog extends JDialog {
     private static final String SUMMARY_SECTION_TITLE = "Riepilogo";
     private static final String TOTAL_LABEL_PREFIX = "Totale da pagare: €";
     private static final String ACTIVATE_BTN_TEXT = "Attiva Sottoscrizione";
-
-    private static final String PROMO_WARNING_TITLE = "Promozione non applicata";
-    private static final String PROMO_WARNING_MSG =
-        "Hai inserito un codice promozionale ma non l'hai applicato.\n"
-        + "Vuoi applicarlo prima di attivare?";
-
-    private static final String INVITE_WARNING_TITLE = "Invito non verificato";
-    private static final String INVITE_WARNING_MSG =
-        "Hai inserito un codice invito ma non l'hai verificato.\n"
-         + "Vuoi verificarlo prima di attivare?";
-
     private static final String ERROR_DIALOG_TITLE = "Errore";
     private static final String SUCCESS_DIALOG_TITLE = "Successo";
+
+    private static final float REMOVE_BTN_FONT_SIZE = 10f;
+    private static final int REMOVE_BTN_PADDING_V = 2;
+    private static final int REMOVE_BTN_PADDING_H = 8;
+    private static final Color REMOVE_BTN_BG = new Color(220, 80, 80);
+    private static final String REMOVE_DISCOUNT_BTN_TEXT = "Rimuovi Sconto";
 
     private static final String[] PAYMENT_METHODS = {
             "Carta di Credito",
@@ -100,6 +95,7 @@ public final class ActivateSubscriptionDialog extends JDialog {
     private final JButton btnActivate;
     private final JButton btnApplyPromo;
     private final JButton btnVerifyInvite;
+    private final JButton btnRemoveDiscount;
 
     @SuppressFBWarnings("SE_TRANSIENT_FIELD_NOT_RESTORED")
     private final transient List<Plan> plans;
@@ -107,9 +103,6 @@ public final class ActivateSubscriptionDialog extends JDialog {
     private double currentPrice;
 
     private transient Consumer<SubscriptionData> onActivateListener;
-
-    private boolean promoCodeApplied;
-    private boolean inviteCodeVerified;
 
     /**
      * Constructs a new ActivateSubscriptionDialog.
@@ -124,8 +117,6 @@ public final class ActivateSubscriptionDialog extends JDialog {
         // Copia difensiva per evitare l'avviso EI2
         this.plans = plans != null ? new ArrayList<>(plans) : new ArrayList<>();
 
-        this.promoCodeApplied = false;
-        this.inviteCodeVerified = false;
         this.currentPrice = INITIAL_PRICE;
 
         setLayout(new BorderLayout(GRID_INSET, GRID_INSET));
@@ -134,7 +125,6 @@ public final class ActivateSubscriptionDialog extends JDialog {
 
         // === Main Panel ===
         final JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(BORDER_PADDING, BORDER_PADDING, BORDER_PADDING, BORDER_PADDING));
         panel.setBorder(BorderFactory.createEmptyBorder(BORDER_PADDING, BORDER_PADDING, BORDER_PADDING, BORDER_PADDING));
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(GRID_INSET, GRID_INSET, GRID_INSET, GRID_INSET);
@@ -170,8 +160,8 @@ public final class ActivateSubscriptionDialog extends JDialog {
         panel.add(this.comboPlans, gbc);
         gbc.gridwidth = 1;
 
-        // Listener per aggiornare il prezzo quando si cambia piano
-        this.comboPlans.addActionListener(e -> updateTotalPrice());
+        // Listener per aggiornare il prezzo quando si cambia piano e resettare lo stato dei codici promozionali e invito
+        this.comboPlans.addActionListener(e -> resetDiscount());
 
         row++;
 
@@ -229,6 +219,24 @@ public final class ActivateSubscriptionDialog extends JDialog {
         gbc.fill = GridBagConstraints.NONE;
         panel.add(this.btnVerifyInvite, gbc);
         row++;
+
+        row++;
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 3;
+        gbc.anchor = GridBagConstraints.CENTER;
+        this.btnRemoveDiscount = new JButton(REMOVE_DISCOUNT_BTN_TEXT);
+        this.btnRemoveDiscount.setBackground(REMOVE_BTN_BG);
+        this.btnRemoveDiscount.setForeground(Color.WHITE);
+        this.btnRemoveDiscount.setFont(this.btnRemoveDiscount.getFont().deriveFont(FONT_STYLE_BOLD, REMOVE_BTN_FONT_SIZE));
+        this.btnRemoveDiscount.setMargin(new Insets(REMOVE_BTN_PADDING_V, REMOVE_BTN_PADDING_H,
+                                                    REMOVE_BTN_PADDING_V, REMOVE_BTN_PADDING_H));
+        this.btnRemoveDiscount.setVisible(false);
+        panel.add(this.btnRemoveDiscount, gbc);
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        this.btnRemoveDiscount.addActionListener(e -> resetDiscount());
 
         // --- Rinnovo automatico ---
         row = addSectionHeader(panel, gbc, row, OPTIONS_SECTION_TITLE);
@@ -325,31 +333,49 @@ public final class ActivateSubscriptionDialog extends JDialog {
     public void addActivateListener(final Consumer<SubscriptionData> onActivate) {
         this.onActivateListener = onActivate;
         this.btnActivate.addActionListener(e -> {
-            final String promoCode = getPromoCode();
-
-            if (!promoCode.isEmpty() && !this.promoCodeApplied) {
-                final int choice = JOptionPane.showConfirmDialog(
-                    this,
-                    PROMO_WARNING_MSG,
-                    PROMO_WARNING_TITLE,
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
-                );
-                if (choice == JOptionPane.YES_OPTION) {
-                    return;
-                }
+            if (getSelectedPlanCode() == INVALID_PLAN_CODE) {
+                showError("Seleziona un piano valido prima di attivare la sottoscrizione.");
+                return;
             }
 
+            final String promoCode = getPromoCode();
             final String inviteCode = getInviteCode();
-            if (!inviteCode.isEmpty() && !this.inviteCodeVerified) {
+
+            //entrambi scritti, nessuno applicato
+            if (!promoCode.isEmpty() && !inviteCode.isEmpty()
+                && this.txtPromoCode.isEditable() && this.txtInviteCode.isEditable()) {
+                final int choice = JOptionPane.showOptionDialog(
+                    this, "Hai inserito sia un codice promozionale che un codice invito.\n"
+                    + "Non puoi applicarli entrambi. Quale vuoi applicare?",
+                    "Entrambi i codici inseriti", JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.WARNING_MESSAGE, null, new Object[]{"Promo", "Invito", "Nessuno"},
+                    "Promo");
+
+                if (choice == 0) {
+                    this.btnApplyPromo.doClick();
+                    return;
+                } else if (choice == 1) {
+                    this.btnVerifyInvite.doClick();
+                    return;
+                }
+            } else if (!promoCode.isEmpty() && this.txtPromoCode.isEditable()) {
+                //solo promo scritto, non applicato
                 final int choice = JOptionPane.showConfirmDialog(
-                    this,
-                    INVITE_WARNING_MSG,
-                    INVITE_WARNING_TITLE,
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
-                );
+                    this, "Hai inserito un codice promozionale.\n"
+                    + "Vuoi applicarlo?", "Promozione non applicata", JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
                 if (choice == JOptionPane.YES_OPTION) {
+                    this.btnApplyPromo.doClick();
+                    return;
+                }
+            } else if (!inviteCode.isEmpty() && this.txtInviteCode.isEditable()) {
+                //solo invito scritto, non applicato
+                final int choice = JOptionPane.showConfirmDialog(
+                    this, "Hai inserito un codice invito.\n"
+                    + "Vuoi applicarlo?", "Invito non verificato", JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+                if (choice == JOptionPane.YES_OPTION) {
+                    this.btnVerifyInvite.doClick();
                     return;
                 }
             }
@@ -399,7 +425,16 @@ public final class ActivateSubscriptionDialog extends JDialog {
      * @param applied true if the code is applied, false otherwise.
      */
     public void setPromoCodeApplied(final boolean applied) {
-        this.promoCodeApplied = applied;
+        if (applied) {
+            this.txtInviteCode.setText("");
+            this.txtInviteCode.setEditable(false);
+            this.btnVerifyInvite.setEnabled(false);
+
+            this.btnApplyPromo.setEnabled(false);
+            this.txtPromoCode.setEditable(false);
+
+            this.btnRemoveDiscount.setVisible(true);
+        }
     }
 
     /**
@@ -408,7 +443,16 @@ public final class ActivateSubscriptionDialog extends JDialog {
      * @param verified true if the code is verified, false otherwise.
      */
     public void setInviteCodeVerified(final boolean verified) {
-        this.inviteCodeVerified = verified;
+        if (verified) {
+            this.txtPromoCode.setText("");
+            this.txtPromoCode.setEditable(false);
+            this.btnApplyPromo.setEnabled(false);
+
+            this.btnVerifyInvite.setEnabled(false);
+            this.txtInviteCode.setEditable(false);
+
+            this.btnRemoveDiscount.setVisible(true);
+        }
     }
 
     /**
@@ -483,6 +527,20 @@ public final class ActivateSubscriptionDialog extends JDialog {
      */
     public double getCurrentPrice() {
         return this.currentPrice;
+    }
+
+    private void resetDiscount() {
+        this.txtPromoCode.setText("");
+        this.txtInviteCode.setText("");
+
+        this.txtPromoCode.setEditable(true);
+        this.txtInviteCode.setEditable(true);
+        this.btnApplyPromo.setEnabled(true);
+        this.btnVerifyInvite.setEnabled(true);
+
+        this.btnRemoveDiscount.setVisible(false);
+
+        updateTotalPrice();
     }
 
     /**

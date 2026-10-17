@@ -26,6 +26,12 @@ public final class Plan {
     public Plan(final int planCode, final String typePlan, final int durationMonths, final double price) {
         this.planCode = planCode;
         this.typePlan = Objects.requireNonNull(typePlan, "Type plan cannot be null");
+        if (durationMonths <= 0) {
+            throw new IllegalArgumentException("Duration months must be positive");
+        }
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
         this.durationMonths = durationMonths;
         this.price = price;
     }
@@ -76,7 +82,7 @@ public final class Plan {
         }
         final Plan a = (Plan) other;
         return this.planCode == a.planCode && a.typePlan.equals(this.typePlan) 
-                && this.durationMonths == a.durationMonths && this.price == a.price;
+                && this.durationMonths == a.durationMonths && Double.compare(a.price, this.price) == 0;
     }
 
     @Override
@@ -112,11 +118,10 @@ public final class Plan {
          * @return true if the plan is a monthly subscription, false otherwise.
          */
         public static boolean isMonthlyPlan(final Connection connection, final int code) {
-            try (
-                var statement = DAOUtils.prepare(connection, Queries.CHECK_MONTHLY_SUBSCRIPTION, code);
-                var resultSet = statement.executeQuery()
-                ) {
-                    return resultSet.next();
+            Objects.requireNonNull(connection, "Connection cannot be null");
+            try (var statement = DAOUtils.prepare(connection, Queries.CHECK_MONTHLY_SUBSCRIPTION, code);
+                 var resultSet = statement.executeQuery()) {
+                return resultSet.next();
             } catch (final SQLException e) {
                 throw new DAOException(e);
             }
@@ -132,14 +137,8 @@ public final class Plan {
         public static List<Plan> listAll(final Connection connection) {
             Objects.requireNonNull(connection, "Connection cannot be null");
             final List<Plan> plans = new ArrayList<>();
-            final String query = """
-                                    SELECT CodiceAbbonamento, TipoAbbonamento, Durata, Costo
-                                    FROM Abbonamenti
-                                    ORDER BY Durata, Costo
-                                 """;
-
-            try (var stmt = connection.createStatement();
-                 var rs = stmt.executeQuery(query)) {
+            try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_ALL_PLANS);
+                 var rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     plans.add(new Plan(
                         rs.getInt("CodiceAbbonamento"),

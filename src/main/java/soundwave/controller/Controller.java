@@ -131,8 +131,10 @@ public interface Controller {
      * @param password the user's password.
      * @param birthDate the user's date of birth.
      * @param country the user's cuntry of residence.
+     * 
+     * @return true if registration was successful, false otherwise.
      */
-    void userRegistered(String username, String name, String surname, String email, 
+    boolean userRegistered(String username, String name, String surname, String email, 
                     String password, LocalDate birthDate, String country);
 
     /**

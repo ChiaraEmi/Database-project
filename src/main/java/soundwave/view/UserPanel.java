@@ -39,9 +39,11 @@ import soundwave.data.Artist;
 import soundwave.data.DAOException;
 import soundwave.data.Genre;
 import soundwave.data.Plan;
+import soundwave.data.Content;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.ArrayList;
 
 /**
  * Panel representing the main user dashboard, organized into functional tabs.
@@ -77,6 +79,7 @@ public final class UserPanel extends JPanel {
 
     private ActivateSubscriptionDialog activedialog;
     private SubscriptionStatusDialog statusDialog;
+    private RedeemBonusDialog redeemDialog;
 
     // --- Tab 1: Abbonamento ---
     private final JButton btnActivateSubscription = new JButton("Attiva Sottoscrizione");
@@ -102,7 +105,7 @@ public final class UserPanel extends JPanel {
     private final JList<String> exploreContentResultsList = new JList<>(this.exploreContentResultsModel);
     private final JButton btnPlayContent = new JButton("▶ Play");
     @SuppressFBWarnings("SE_BAD_FIELD")
-    private List<soundwave.data.Content> currentContents = new java.util.ArrayList<>();
+    private List<Content> currentContents = new ArrayList<>();
 
     // --- Tab 3: Album & Recensioni ---
     private final JTextField txtAlbumSearchQuery = new JTextField(FIELD_COLUMNS);
@@ -874,7 +877,7 @@ public final class UserPanel extends JPanel {
      */
     public int getSelectedContentDuration() {
         if (this.currentContents == null) {
-            this.currentContents = new java.util.ArrayList<>();
+            this.currentContents = new ArrayList<>();
         }
         final int selectedIndex = this.exploreContentResultsList.getSelectedIndex();
         if (selectedIndex >= 0 && selectedIndex < this.currentContents.size()) {
@@ -888,9 +891,9 @@ public final class UserPanel extends JPanel {
      * 
      * @param contents the list of content items to display
      */
-    public void setContentSearchResults(final List<soundwave.data.Content> contents) {
-        this.currentContents = contents != null ? new java.util.ArrayList<>(contents) 
-                                                : new java.util.ArrayList<>();
+    public void setContentSearchResults(final List<Content> contents) {
+        this.currentContents = contents != null ? new ArrayList<>(contents) 
+                                                : new ArrayList<>();
         final List<String> displayItems = this.currentContents.stream()
             .map(c -> c.getContentCode() + " - " + c.getTitle() + " [" + c.getContentType() + "]")
             .toList();
@@ -1374,14 +1377,12 @@ public final class UserPanel extends JPanel {
         );
 
         this.statusDialog.setOnRenew(subscriptionCode -> {
-            LOG.info("OnRenew chiamato per: " + subscriptionCode);
             if (this.controller != null) {
                 this.controller.renewSubscriptionNow(username, subscriptionCode);
             }
         });
 
         this.statusDialog.setOnToggleAutoRenew(subscriptionCode -> {
-            LOG.info("OnToggleAutoRenew chiamato per: " + subscriptionCode);
             if (this.controller != null) {
                 final boolean currentState = this.controller.getAutoRenewStatus(username, subscriptionCode);
                 this.controller.toggleAutoRenew(username, subscriptionCode, !currentState);
@@ -1393,7 +1394,6 @@ public final class UserPanel extends JPanel {
 
         this.statusDialog.setOnRefresh(() -> {
             loadSubscriptionData(username);
-            this.statusDialog.showSuccess("Dati aggiornati");
         });
 
         this.statusDialog.setVisible(true);
@@ -1460,13 +1460,22 @@ public final class UserPanel extends JPanel {
                                   final Consumer<RedeemBonusDialog.RedeemData> onRedeem) {
 
         final JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        final RedeemBonusDialog dialog = new RedeemBonusDialog(parent, username, plans, bonusCredits);
+        this.redeemDialog = new RedeemBonusDialog(parent, username, plans, bonusCredits);
 
-        dialog.addRedeemListener(onRedeem);
-        dialog.addCancelListener(() -> {
-            LOG.info("[DEBUG] Riscatto annullato");
+        this.redeemDialog.addRedeemListener(onRedeem);
+        this.redeemDialog.addCancelListener(() -> {
+            LOG.info("Riscatto annullato");
         });
+        this.redeemDialog.setVisible(true);
+    }
 
-        dialog.setVisible(true);
+    /**
+     * Closes the redeem bonus dialog if it is open.
+     */
+    public void closeRedeemBonusDialog() {
+        if (this.redeemDialog != null) {
+            this.redeemDialog.closeDialog();
+            this.redeemDialog = null;
+        }
     }
 }

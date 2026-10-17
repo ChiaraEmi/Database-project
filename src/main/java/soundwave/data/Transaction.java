@@ -11,6 +11,7 @@ import java.util.List;
  * Represents a transaction entity within the Soundwave system.
  */
 public final class Transaction {
+    private static final double INVITE_DISCOUNT = 0.20; //20% di sconto
     private final int transactionCode;
     private final int subscriptionCode;
     private final LocalDateTime date;
@@ -30,10 +31,10 @@ public final class Transaction {
      */
     public Transaction(final int transactionCode, final int subscriptionCode, final LocalDateTime date, 
                         final double amount, final String paymentMethod, final String status) {
-        this.transactionCode = Objects.requireNonNull(transactionCode, "Transaction code cannot be null");
-        this.subscriptionCode = Objects.requireNonNull(subscriptionCode, "Subscription code cannot be null");
+        this.transactionCode = transactionCode;
+        this.subscriptionCode = subscriptionCode;
         this.date = Objects.requireNonNull(date, "Date cannot be null");
-        this.amount = Objects.requireNonNull(amount, "Amount cannot be null");
+        this.amount = amount;
         this.paymentMethod = Objects.requireNonNull(paymentMethod, "Payment method cannot be null");
         this.status = Objects.requireNonNull(status, "Status cannot be null");
     }
@@ -212,10 +213,26 @@ public final class Transaction {
          */
         public static int insertWithInvite(final Connection connection, final int subscriptionCode, 
                                             final String paymentMethod, final int subscriptionPlanCode) {
+            //Recupera il costo originale del piano selezionato
+            final double originalPrice;
+            try (var stmt = DAOUtils.prepare(connection, Queries.SELECT_PLAN_PRICE, subscriptionPlanCode);
+                 var rs = stmt.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new DAOException("Plan not found: " + subscriptionPlanCode);
+                    }
+                    originalPrice = rs.getDouble("Costo");
+            } catch (final SQLException e) {
+                throw new DAOException(e);
+            }
+
+            //Applica lo sconto invito
+            final double discountedPrice = originalPrice * (1 - INVITE_DISCOUNT);
+
+            //Inserisce la transazione
             try (
                 var statement = DAOUtils.prepareWithKeys(connection, Queries.INSERT_TRANSACTION_INVITE, 
                                                         Statement.RETURN_GENERATED_KEYS, subscriptionCode, 
-                                                        paymentMethod, subscriptionPlanCode)
+                                                        discountedPrice, paymentMethod)
             ) {
                 statement.executeUpdate();
                 try (var resultSet = statement.getGeneratedKeys()) {

@@ -390,7 +390,7 @@ public final class DBModel implements Model {
             var rs = stmt.executeQuery()) {
             if (rs.next()) {
                 final int totalListens = rs.getInt("TotaleAscolti");
-                final int totalSeconds = rs.getInt("TotaleSecondi"); // Gestisce anche eventuali NULL se non ci sono ascolti
+                final int totalSeconds = rs.getInt("TotaleMinutiAscoltati");
                 return new Object[]{totalListens, totalSeconds};
             }
         } catch (final SQLException e) {

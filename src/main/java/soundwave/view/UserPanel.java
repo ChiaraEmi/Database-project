@@ -66,11 +66,10 @@ public final class UserPanel extends JPanel {
     private static final int COLUMN_INDEX_5 = 5;
     private static final int COLUMN_INDEX_6 = 6;
     private static final int COLUMN_INDEX_7 = 7;
-    private static final int PREFERRED_SCROLL_WIDTH = 250;
-    private static final int PREFERRED_SCROLL_HEIGHT = 90;
-    private static final int SEARCH_COMBO_WIDTH = 200;
     private static final int SEARCH_COMBO_HEIGHT = 25;
-    private static final int LIST_HEIGHT = 150;
+    private static final int ROW_ARTIST_COMBO = 5;
+    private static final int ROW_ARTIST_PROFILE = 6;
+    private static final int ROW_FOLLOW_ARTIST = 7;
 
     private String currentUsername;
 
@@ -230,34 +229,42 @@ public final class UserPanel extends JPanel {
      * @return the explore panel.
      */
     private JPanel createExploreTab() {
-        // Pannello principale diviso in due parti (Sinistra e Destra)
         final JPanel panel = new JPanel(new GridLayout(1, 2, 20, 0));
         panel.setBorder(BorderFactory.createEmptyBorder(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP));
 
-        // --- COLONNA DI SINISTRA (Genere, Brani, Artisti) ---
+        // COLONNA DI SINISTRA
         final JPanel leftCol = new JPanel(new GridBagLayout());
         final GridBagConstraints gbcLeft = new GridBagConstraints();
         gbcLeft.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbcLeft.anchor = GridBagConstraints.WEST;
+        gbcLeft.fill = GridBagConstraints.HORIZONTAL;
 
         gbcLeft.gridx = 0; 
-        gbcLeft.gridy = 0;
+        gbcLeft.gridy = 0; 
+        gbcLeft.weightx = 0.0;
         leftCol.add(new JLabel("Genere:"), gbcLeft);
-        gbcLeft.gridx = 1;
+        gbcLeft.gridx = 1; 
+        gbcLeft.weightx = 1.0;
         leftCol.add(this.comboGenre, gbcLeft);
 
         gbcLeft.gridx = 0; 
-        gbcLeft.gridy = 1; 
-        gbcLeft.gridwidth = 2;
+        gbcLeft.gridy = 1;
+        gbcLeft.gridwidth = 2; 
+        gbcLeft.weightx = 1.0;
         leftCol.add(this.btnFilterByGenre, gbcLeft);
 
         this.exploreSongsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         final JScrollPane scrollPaneSongs = new JScrollPane(this.exploreSongsList);
-        scrollPaneSongs.setPreferredSize(new Dimension(PREFERRED_SCROLL_WIDTH, PREFERRED_SCROLL_HEIGHT));
         gbcLeft.gridx = 0; 
         gbcLeft.gridy = 2; 
         gbcLeft.gridwidth = 2;
+        gbcLeft.weightx = 1.0; 
+        gbcLeft.weighty = 1.0;
+        gbcLeft.fill = GridBagConstraints.BOTH;
         leftCol.add(scrollPaneSongs, gbcLeft);
+
+        gbcLeft.weighty = 0.0;
+        gbcLeft.fill = GridBagConstraints.HORIZONTAL;
 
         this.btnAddLikeFromExplore.setEnabled(false);
         gbcLeft.gridx = 0; 
@@ -265,27 +272,27 @@ public final class UserPanel extends JPanel {
         gbcLeft.gridwidth = 2;
         leftCol.add(this.btnAddLikeFromExplore, gbcLeft);
 
-        // Sezione Artista
         gbcLeft.gridwidth = 1;
         gbcLeft.gridx = 0; 
-        gbcLeft.gridy = 4;
+        gbcLeft.gridy = 4; 
+        gbcLeft.weightx = 0.0;
         leftCol.add(new JLabel("Cerca Artista:"), gbcLeft);
-        gbcLeft.gridx = 1;
+        gbcLeft.gridx = 1; 
+        gbcLeft.weightx = 1.0;
         leftCol.add(this.txtArtistSearchQuery, gbcLeft);
 
         gbcLeft.gridx = 0; 
-        gbcLeft.gridy = SMALL_FIELD_COLUMNS; 
+        gbcLeft.gridy = ROW_ARTIST_COMBO; 
         gbcLeft.gridwidth = 2;
         leftCol.add(this.btnSearchArtist, gbcLeft);
 
-        this.comboArtistResults.setPreferredSize(new Dimension(SEARCH_COMBO_WIDTH, SEARCH_COMBO_HEIGHT));
         gbcLeft.gridx = 0; 
-        gbcLeft.gridy = INSET_GAP; 
+        gbcLeft.gridy = ROW_ARTIST_PROFILE; 
         gbcLeft.gridwidth = 2;
         leftCol.add(this.comboArtistResults, gbcLeft);
 
         gbcLeft.gridx = 0; 
-        gbcLeft.gridy = COLUMN_INDEX_7; 
+        gbcLeft.gridy = ROW_FOLLOW_ARTIST; 
         gbcLeft.gridwidth = 2;
         leftCol.add(this.btnViewArtistProfile, gbcLeft);
 
@@ -295,40 +302,47 @@ public final class UserPanel extends JPanel {
         gbcLeft.gridwidth = 2;
         leftCol.add(this.btnFollowArtist, gbcLeft);
 
-        // --- COLONNA DI DESTRA (Ricerca Contenuti e Play) ---
+        // COLONNA DI DESTRA
         final JPanel rightCol = new JPanel(new GridBagLayout());
         final GridBagConstraints gbcRight = new GridBagConstraints();
         gbcRight.insets = new Insets(INSET_GAP, INSET_GAP, INSET_GAP, INSET_GAP);
         gbcRight.anchor = GridBagConstraints.WEST;
+        gbcRight.fill = GridBagConstraints.HORIZONTAL;
 
         gbcRight.gridx = 0; 
-        gbcRight.gridy = 0;
+        gbcRight.gridy = 0; 
+        gbcRight.weightx = 0.0;
         rightCol.add(new JLabel("Cerca Contenuto:"), gbcRight);
 
-        gbcRight.gridx = 1;
+        gbcRight.gridx = 1; 
+        gbcRight.weightx = 1.0;
         rightCol.add(this.txtContentSearchQuery, gbcRight);
 
         gbcRight.gridx = 0; 
         gbcRight.gridy = 1; 
-        gbcRight.gridwidth = 2;
+        gbcRight.gridwidth = 2; 
+        gbcRight.weightx = 1.0;
         rightCol.add(this.btnSearchContent, gbcRight);
 
         this.exploreContentResultsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         final JScrollPane scrollPaneContentSearch = new JScrollPane(this.exploreContentResultsList);
-        scrollPaneContentSearch.setPreferredSize(new Dimension(PREF_SCROLL_PANE_WIDTH, LIST_HEIGHT));
 
-        gbcRight.gridx = 0; 
-        gbcRight.gridy = 2; 
+        gbcRight.gridx = 0;
+        gbcRight.gridy = 2;
         gbcRight.gridwidth = 2;
+        gbcRight.weightx = 1.0;
+        gbcRight.weighty = 1.0;
+        gbcRight.fill = GridBagConstraints.BOTH;
         rightCol.add(scrollPaneContentSearch, gbcRight);
 
+        gbcRight.weighty = 0.0;
+        gbcRight.fill = GridBagConstraints.HORIZONTAL;
         this.btnPlayContent.setEnabled(false);
         gbcRight.gridx = 0; 
         gbcRight.gridy = 3; 
         gbcRight.gridwidth = 2;
         rightCol.add(this.btnPlayContent, gbcRight);
 
-        // Listener per i componenti (rimangono identici)
         this.exploreContentResultsList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 this.btnPlayContent.setEnabled(!this.exploreContentResultsList.isSelectionEmpty());
@@ -342,7 +356,6 @@ public final class UserPanel extends JPanel {
             }
         });
 
-        // Aggiungiamo le due colonne al pannello principale del tab
         panel.add(leftCol);
         panel.add(rightCol);
 

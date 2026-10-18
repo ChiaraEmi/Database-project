@@ -380,13 +380,13 @@ public interface Controller {
      */
     void userClickedFilterSongsByGenre(String genre);
 
-    /**
+    /*
      * Adds a like to a content for a specific user.
      *
      * @param username the username.
      * @param contentCode the code of the content to like.
      */
-    void userClickedAddLike(String username, int contentCode);
+    //void userClickedAddLike(String username, int contentCode);
 
     /**
      * Views the profile of an artist by their stage name.
@@ -395,12 +395,12 @@ public interface Controller {
      */
     void userClickedViewArtistProfile(int artistCode);
 
-    /**
+    /*
      * Requests the list of liked songs for a user.
      *
      * @param username the username.
      */
-    void userRequestedLikedSongs(String username);
+    //void userRequestedLikedSongs(String username);
 
     /**
      * Removes a like from a content for a specific user.

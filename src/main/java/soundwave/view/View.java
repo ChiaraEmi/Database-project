@@ -143,6 +143,13 @@ public interface View {
     AdminPanel getAdminPanel();
 
     /**
+     * Displays the list of followed artists in the user's library view.
+     *
+     * @param artists the list of strings representing the user's followed artists
+     */
+    void showFollowedArtists(List<String> artists);
+
+    /**
      * Displays the list of liked songs in the user's library view.
      *
      * @param likedSongs the list of strings representing the user's liked songs

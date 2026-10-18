@@ -351,7 +351,7 @@ public final class ViewImpl extends JFrame implements View {
                 final String selectedSong = this.userPanel.getSelectedExploreSong();
                 final int contentCode = parseContentCode(selectedSong);
                 final String currentUsername = this.userPanel.getCurrentUsername();
-                this.controller.userClickedAddLike(currentUsername, contentCode);
+                this.controller.userClickedLikeTrack(currentUsername, contentCode);
             }
         });
 
@@ -516,10 +516,10 @@ public final class ViewImpl extends JFrame implements View {
             final List<String> formattedTracks = likedTracks.stream()
                 .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
                 .toList();
-            this.userPanel.setLikedTracks(formattedTracks);
+            this.showLikedSongs(formattedTracks);
 
             final List<String> followedArtists = this.controller.getFollowedArtists(username);
-            this.userPanel.setFollowedArtists(followedArtists);
+            this.showFollowedArtists(followedArtists);
         }
     }
 
@@ -829,6 +829,11 @@ public final class ViewImpl extends JFrame implements View {
                 }
             }
         });
+    }
+
+    @Override
+    public void showFollowedArtists(final List<String> artists) {
+        this.userPanel.setFollowedArtists(artists);
     }
 
     @Override

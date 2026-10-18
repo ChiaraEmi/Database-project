@@ -682,6 +682,10 @@ public final class ControllerImpl implements Controller {
         try {
             this.model.likeTrack(username, trackCode);
             this.view.showSuccess("Brano aggiunto ai preferiti con successo!");
+
+            final List<String> updatedLikedSongs = this.model.getLikedSongs(username);
+
+            this.view.showLikedSongs(updatedLikedSongs);
             return true;
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to like track", e);
@@ -934,7 +938,7 @@ public final class ControllerImpl implements Controller {
         }
     }
 
-    @Override
+    /*@Override
     public void userClickedAddLike(final String username, final int contentCode) {
         try {
             this.model.addLike(username, contentCode);
@@ -942,7 +946,7 @@ public final class ControllerImpl implements Controller {
             LOGGER.log(Level.SEVERE, "Failed to add like", e);
             this.view.showError("Errore durante l'aggiunta del like.");
         }
-    }
+    }*/
 
     @Override
     public void userClickedSearchArtists(final String query) {
@@ -968,7 +972,7 @@ public final class ControllerImpl implements Controller {
         }
     }
 
-    @Override
+    /*@Override
     public void userRequestedLikedSongs(final String username) {
         try {
             final List<String> likedSongs = this.model.getLikedSongs(username);
@@ -977,13 +981,13 @@ public final class ControllerImpl implements Controller {
             LOGGER.log(Level.SEVERE, "Failed to load liked songs", e);
             this.view.showError("Errore durante il caricamento dei brani preferiti.");
         }
-    }
+    }*/
 
     @Override
     public void userClickedRemoveLike(final String username, final int contentCode) {
         try {
             this.model.removeLike(username, contentCode);
-            userRequestedLikedSongs(username);
+            //userRequestedLikedSongs(username);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to remove like", e);
             this.view.showError("Errore durante la rimozione del like.");
@@ -999,6 +1003,10 @@ public final class ControllerImpl implements Controller {
         try {
             this.model.followArtist(this.loggedInUsername, artistCode);
             this.view.showSuccess("Artista seguito con successo!");
+
+            final List<String> updatedArtists = this.model.getFollowedArtists(this.loggedInUsername);
+
+            this.view.showFollowedArtists(updatedArtists);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to follow artist", e);
             this.view.showError("Errore durante il follow dell'artista.");

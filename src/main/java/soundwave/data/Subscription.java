@@ -504,25 +504,6 @@ public final class Subscription {
         }
 
         /**
-         * Marks a subscription as expired.
-         * 
-         * @param connection       the active database connection.
-         * @param subscriptionCode the code of the subscription to expire.
-         * 
-         * @throws DAOException if a database error occurs.
-         */
-        public static void expireSubscription(final Connection connection, final int subscriptionCode) {
-            try (var statement = DAOUtils.prepare(connection, Queries.EXPIRE_SUBSCRIPTION, subscriptionCode)) {
-                final int rowsAffected = statement.executeUpdate();
-                if (rowsAffected == 0) {
-                    throw new DAOException("Subscription not found");
-                }
-            } catch (final SQLException e) {
-                throw new DAOException(e);
-            }
-        }
-
-        /**
          * OP 4.1
          * Subscribe a monthly plan with credit bonus.
          * 

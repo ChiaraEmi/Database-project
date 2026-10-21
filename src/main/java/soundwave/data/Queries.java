@@ -195,11 +195,11 @@ public final class Queries {
         WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
         """;
 
-    public static final String EXPIRE_SUBSCRIPTION = 
+    public static final String EXPIRE_EXPIRED_SUBSCRIPTIONS = 
         """
         UPDATE Sottoscrizioni
-        SET Stato = 'Scaduta'
-        WHERE CodiceSottoscrizione = ? AND DataFine < CURRENT_DATE
+        SET Stato = 'Scaduta', RinnovoAutomatico = FALSE
+        WHERE Stato = 'Attiva' AND DataFine < CURRENT_DATE
         """;
 
     // --- OP 4: RISCATTO CON CREDITI BONUS ---
@@ -210,27 +210,6 @@ public final class Queries {
         WHERE Username= ?
         """;
 
-    public static final String CHECK_BONUS_CREDIT = 
-        """
-        SELECT Username, CreditoBonus
-        FROM Utenti
-        WHERE Username= ? AND CreditoBonus >= 2
-        """;
-
-    public static final String EXPIRE_EXPIRED_SUBSCRIPTIONS = 
-        """
-        UPDATE Sottoscrizioni
-        SET Stato = 'Scaduta', RinnovoAutomatico = FALSE
-        WHERE Stato = 'Attiva' AND DataFine < CURRENT_DATE
-        """;
-
-    public static final String ENABLE_RENEWAL = 
-        """
-        UPDATE Sottoscrizioni
-        SET RinnovoAutomatico = TRUE
-        WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
-        """;
-
     public static final String CHECK_MONTHLY_SUBSCRIPTION = 
         """
         SELECT 1
@@ -238,19 +217,12 @@ public final class Queries {
         WHERE CodiceAbbonamento= ? AND Durata = 1
         """;
 
-    public static final String DEBIT_BONUS_CREDIT =
+    public static final String CHECK_BONUS_CREDIT = 
         """
-        UPDATE Utenti
-        SET CreditoBonus = CreditoBonus - 2
-        WHERE Username = ? AND CreditoBonus >= 2;
-        """;
-
-    public static final String CHECK_AUTO_RENEW_STATUS = 
-        """
-        SELECT RinnovoAutomatico
-        FROM Sottoscrizioni
-        WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
-        """;
+        SELECT Username, CreditoBonus
+        FROM Utenti
+        WHERE Username= ? AND CreditoBonus >= 2
+        """;   
 
     public static final String INSERT_SUBSCRIPTION_BONUS_CREDIT = 
         """
@@ -263,6 +235,20 @@ public final class Queries {
         """
         INSERT INTO Transazioni ( CodiceSottoscrizione, Importo, MetodoPagamento, Stato)
         VALUES ( ?,0, 'Crediti Bonus', 'Completata')
+        """;
+
+    public static final String DEBIT_BONUS_CREDIT =
+        """
+        UPDATE Utenti
+        SET CreditoBonus = CreditoBonus - 2
+        WHERE Username = ? AND CreditoBonus >= 2;
+        """;
+    
+    public static final String ENABLE_RENEWAL = 
+        """
+        UPDATE Sottoscrizioni
+        SET RinnovoAutomatico = TRUE
+        WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
         """;
 
     public static final String CHECK_ACTIVE_MONTHLY_SUBSCRIPTION =
@@ -278,6 +264,13 @@ public final class Queries {
         UPDATE Sottoscrizioni
         SET DataFine = DataFine + INTERVAL 1 MONTH
         WHERE CodiceSottoscrizione = ? AND Username=? AND Stato= 'Attiva'
+        """;
+
+    public static final String CHECK_AUTO_RENEW_STATUS = 
+        """
+        SELECT RinnovoAutomatico
+        FROM Sottoscrizioni
+        WHERE CodiceSottoscrizione = ? AND Stato = 'Attiva'
         """;
 
     // --- OP 5: VISUALIZZAZIONE SOTTOSCRIZIONI E TRANSAZIONI ---

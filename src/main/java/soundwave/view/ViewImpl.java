@@ -356,18 +356,12 @@ public final class ViewImpl extends JFrame implements View {
         });
 
         // --- Rimuovi Like dalla Libreria (OP 14) ---
-        this.userPanel.addToggleLikeListener(e -> {
+        this.userPanel.addRemoveLikeListener(e -> {
            if (this.controller != null) {
                 final String selectedSong = this.userPanel.getSelectedLibrarySong();
-                LOGGER.info("DEBUG - Stringa selezionata: " + selectedSong);
-
                 final int contentCode = parseContentCode(selectedSong);
-                LOGGER.info("DEBUG - ContentCode estratto: " + contentCode);
-
                 final String currentUsername = this.userPanel.getCurrentUsername();
-                LOGGER.info("DEBUG - Username: " + currentUsername);
-
-                this.controller.userClickedRemoveLike(currentUsername, contentCode);
+                this.controller.userClickedUnlikeTrack(currentUsername, contentCode);
             }
         });
 

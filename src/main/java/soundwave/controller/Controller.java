@@ -402,13 +402,13 @@ public interface Controller {
      */
     //void userRequestedLikedSongs(String username);
 
-    /**
+    /*
      * Removes a like from a content for a specific user.
      *
      * @param username the username.
      * @param contentCode the code of the content to unlike.
      */
-    void userClickedRemoveLike(String username, int contentCode);
+    //void userClickedRemoveLike(String username, int contentCode);
 
     /**
      * Searches for artists based on a partial query to populate the search dropdown.

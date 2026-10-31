@@ -710,6 +710,9 @@ public final class ControllerImpl implements Controller {
             } else {
                 this.view.showError("Il brano selezionato non è presente tra i preferiti.");
             }
+
+            final List<String> updatedLikedSongs = this.model.getLikedSongs(username);
+            this.view.showLikedSongs(updatedLikedSongs);
             return success;
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to unlike track", e);
@@ -983,7 +986,7 @@ public final class ControllerImpl implements Controller {
         }
     }*/
 
-    @Override
+    /*@Override
     public void userClickedRemoveLike(final String username, final int contentCode) {
         try {
             this.model.removeLike(username, contentCode);
@@ -992,7 +995,7 @@ public final class ControllerImpl implements Controller {
             LOGGER.log(Level.SEVERE, "Failed to remove like", e);
             this.view.showError("Errore durante la rimozione del like.");
         }
-    }
+    }*/
 
     @Override
     public void userClickedFollowArtist(final int artistCode) {
@@ -1014,24 +1017,22 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-public void userClickedUnfollowArtist(final int artistCode) {
-    if (this.loggedInUsername == null || this.loggedInUsername.isBlank()) {
-        this.view.showError("Devi effettuare il login.");
-        return;
-    }
-    try {
-        // 1. Esegue l'unfollow sul Model
-        this.model.unfollowArtist(this.loggedInUsername, artistCode);
-        this.view.showSuccess("Hai smesso di seguire l'artista!");
+    public void userClickedUnfollowArtist(final int artistCode) {
+        if (this.loggedInUsername == null || this.loggedInUsername.isBlank()) {
+            this.view.showError("Devi effettuare il login.");
+            return;
+        }
+        try {
+            this.model.unfollowArtist(this.loggedInUsername, artistCode);
+            this.view.showSuccess("Hai smesso di seguire l'artista!");
 
-        // 2. Aggiorna tutta la grafica usando il metodo che avevi già scritto!
-        this.view.refreshUserData(this.loggedInUsername);
+            this.view.refreshUserData(this.loggedInUsername);
 
-    } catch (final DAOException e) {
-        LOGGER.log(Level.SEVERE, "Failed to unfollow artist", e);
-        this.view.showError("Errore durante l'unfollow dell'artista.");
+        } catch (final DAOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to unfollow artist", e);
+            this.view.showError("Errore durante l'unfollow dell'artista.");
+        }
     }
-}
 
     @Override
     public void userClickedSearchAlbums(final String query) {

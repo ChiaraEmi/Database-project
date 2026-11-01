@@ -471,9 +471,6 @@ public final class UserPanel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         panel.add(this.btnCreatePlaylist, gbc);
 
-        gbc.gridy++;
-        panel.add(this.btnToggleLike, gbc);
-
         return panel;
     }
 

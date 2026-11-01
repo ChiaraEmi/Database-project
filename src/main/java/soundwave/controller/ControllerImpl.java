@@ -5,7 +5,6 @@ import soundwave.data.Artist;
 import soundwave.data.Content;
 import soundwave.data.DAOException;
 import soundwave.data.Genre;
-import soundwave.data.LikeBrani;
 import soundwave.data.Plan;
 import soundwave.data.Playlist;
 import soundwave.data.Podcast;

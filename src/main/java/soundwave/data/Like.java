@@ -85,7 +85,7 @@ public final class Like {
                 while (resultSet.next()) {
                     final int trackCode = resultSet.getInt("CodiceBrano");
                     final String songTitle = resultSet.getString("Titolo");
-                    
+
                     final String formattedSong = "[" + trackCode + "] " + songTitle;
                     likedSongs.add(formattedSong);
                 }

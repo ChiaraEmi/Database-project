@@ -503,7 +503,7 @@ public final class ViewImpl extends JFrame implements View {
     @Override
     public void refreshUserData(final String username) {
         if (this.controller != null) {
-            
+
             final List<String> likedTracks = this.controller.getUserLikedTracks(username);
             this.showLikedSongs(likedTracks);
 

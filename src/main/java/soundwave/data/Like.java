@@ -83,6 +83,23 @@ public final class Like {
             try (var statement = DAOUtils.prepare(connection, Queries.SELECT_LIKED_SONGS, username);
                 var resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
+                    final int trackCode = resultSet.getInt("CodiceBrano");
+                    final String songTitle = resultSet.getString("Titolo");
+                    
+                    final String formattedSong = "[" + trackCode + "] " + songTitle;
+                    likedSongs.add(formattedSong);
+                }
+            } catch (final SQLException e) {
+                LOG.log(Level.SEVERE, "Errore durante il recupero dei brani preferiti per: " + username, e);
+                throw new DAOException(e);
+            }
+            return likedSongs;
+        }
+        /*public static java.util.List<String> getLikedSongs(final Connection connection, final String username) {
+            final java.util.List<String> likedSongs = new java.util.ArrayList<>();
+            try (var statement = DAOUtils.prepare(connection, Queries.SELECT_LIKED_SONGS, username);
+                var resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
                     final String songTitle = resultSet.getString("Titolo");
                     likedSongs.add(songTitle);
                 }
@@ -91,7 +108,7 @@ public final class Like {
                 throw new DAOException(e);
             }
             return likedSongs;
-        }
+        }*/
 
         /**
          * Removes a like for a specific song by a user.

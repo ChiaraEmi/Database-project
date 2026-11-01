@@ -251,7 +251,7 @@ public interface Controller {
      * 
      * @return a list of liked tracks.
      */
-    List<LikeBrani> getUserLikedTracks(String username);
+    List<String> getUserLikedTracks(String username);
 
     /**
      * Returns the list of artists followed by the user.

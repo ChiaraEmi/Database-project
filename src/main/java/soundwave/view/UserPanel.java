@@ -972,10 +972,14 @@ public final class UserPanel extends JPanel {
      */
     public void setLikedSongs(final List<String> songs) {
         this.likedTracksListModel.clear();
-        for (final String song : songs) {
-            this.likedTracksListModel.addElement(song);
+        if (songs != null && !songs.isEmpty()) {
+            for (final String song : songs) {
+                this.likedTracksListModel.addElement(song);
+            }
+            this.btnToggleLike.setEnabled(true);
+        } else {
+            this.btnToggleLike.setEnabled(false);
         }
-        this.btnToggleLike.setEnabled(!songs.isEmpty());
     }
 
     /**

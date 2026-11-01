@@ -635,7 +635,7 @@ public final class ControllerImpl implements Controller {
     }
 
     @Override
-    public List<LikeBrani> getUserLikedTracks(final String username) {
+    public List<String> getUserLikedTracks(final String username) {
         if (username == null || username.isBlank()) {
             final String errorMessage = "Username non valido per il caricamento dei brani preferiti.";
             LOGGER.log(Level.WARNING, errorMessage);
@@ -644,7 +644,7 @@ public final class ControllerImpl implements Controller {
         }
 
         try {
-            return this.model.getLikedTracks(username);
+            return this.model.getLikedSongs(username);
         } catch (final DAOException e) {
             LOGGER.log(Level.SEVERE, "Failed to load liked tracks for user: " + username, e);
             this.view.showError("Errore durante il caricamento dei brani preferiti.");

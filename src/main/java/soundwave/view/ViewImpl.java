@@ -485,11 +485,8 @@ public final class ViewImpl extends JFrame implements View {
             final List<Playlist> playlists = this.controller.getUserPlaylists(username);
             this.userPanel.setUserPlaylists(playlists);
 
-            final var likedTracks = this.controller.getUserLikedTracks(username);
-            final List<String> formattedTracks = likedTracks.stream()
-                .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
-                .toList();
-            this.userPanel.setLikedTracks(formattedTracks);
+            final List<String> likedTracks = this.controller.getUserLikedTracks(username);
+            this.userPanel.setLikedSongs(likedTracks);
 
             final List<String> followedArtists = this.controller.getFollowedArtists(username);
             this.userPanel.setFollowedArtists(followedArtists);
@@ -506,11 +503,9 @@ public final class ViewImpl extends JFrame implements View {
     @Override
     public void refreshUserData(final String username) {
         if (this.controller != null) {
-            final var likedTracks = this.controller.getUserLikedTracks(username);
-            final List<String> formattedTracks = likedTracks.stream()
-                .map(l -> "[" + l.getTrackCode() + "] " + l.getTrackTitle())
-                .toList();
-            this.showLikedSongs(formattedTracks);
+            
+            final List<String> likedTracks = this.controller.getUserLikedTracks(username);
+            this.showLikedSongs(likedTracks);
 
             final List<String> followedArtists = this.controller.getFollowedArtists(username);
             this.showFollowedArtists(followedArtists);
